@@ -19,23 +19,23 @@ PM> Install-Package CachingFramework.Redis
 ```
 
 ### Configuration
-#### Custom configuration string
-```c#
-var cache = new CacheContext("10.0.0.1:7000, 10.0.0.1:7001, connectRetry=10, syncTimeout=5000, abortConnect=false, allowAdmin=true");
-```
-See https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md for StackExchange.Redis configuration options.
-
 #### Default configuration
 ```c#
 var cache = new CacheContext();
 ```
+
+#### Custom configuration
+```c#
+var cache = new CacheContext("10.0.0.1:7000, 10.0.0.1:7001, connectRetry=10, syncTimeout=5000, abortConnect=false, allowAdmin=true");
+```
+See https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md for StackExchange.Redis configuration options.
 
 ### Adding objects
 
 #### Add a single object to the cache
 ```c#
 string redisKey = "some:redis:key";
-var value = new User() { Id = 1 };  // any serializable object 
+User value = new User() { Id = 1 };  // any serializable object 
 cache.SetObject(redisKey, value);
 ```
 
@@ -49,11 +49,23 @@ cache.SetObject(redisKey, value, new[] { "tag1", "tag2" });
 cache.SetObject(redisKey, value, TimeSpan.FromDays(1));
 ```
 
-### Geting objects
+### Getting objects
 
 #### Get a single object
 ```c#
 User user = cache.GetObject<User>(redisKey);
+```
+
+### Removing objects
+
+#### Remove a single object
+```c#
+cache.Remove(redisKey);
+```
+
+#### Invalidate an entire tag
+```c#
+cache.InvalidateKeysByTag("tag1");
 ```
 
 #### Get objects by tag
