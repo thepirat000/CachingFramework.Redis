@@ -136,6 +136,26 @@ namespace CachingFramework.Redis
             return GetKeysByTag(new [] {tag}, cleanUp);
         }
         /// <summary>
+        /// Returns all the objects that has the given tag(s) related.
+        /// Assumes all the objects are of the same type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The objects types</typeparam>
+        /// <param name="tags">The tags</param>
+        public IEnumerable<T> GetObjectsByTag<T>(string[] tags)
+        {
+            return _cacheProvider.GetObjectsByTag<T>(tags);
+        }
+        /// <summary>
+        /// Returns all the objects that has the given tag related.
+        /// Assumes all the objects are of the same type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The objects types</typeparam>
+        /// <param name="tag">The tag</param>
+        public IEnumerable<T> GetObjectsByTag<T>(string tag)
+        {
+            return GetObjectsByTag<T>(new[] { tag });
+        }
+        /// <summary>
         /// Removes the keys by all tags.
         /// </summary>
         /// <param name="tags">The tags.</param>

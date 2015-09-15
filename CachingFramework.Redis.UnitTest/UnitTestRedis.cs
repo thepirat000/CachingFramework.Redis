@@ -5,26 +5,20 @@ using System.Threading;
 using CachingFramework.Redis.Serializers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using StackExchange.Redis.KeyspaceIsolation;
 
 namespace CachingFramework.Redis.UnitTest
 {
     [TestClass]
     public class UnitTestRedis
     {
-        void fede()
-        {
-
-            var ctx = new CacheContext("10.0.0.1:7000,10.0.0.1:7001,10.0.0.2:7000,10.0.0.2:7001,connectRetry=10,syncTimeout=10000,abortConnect=false,keepAlive=10,allowAdmin=true");
-
-        }
-
         private CacheContext _cache;
         private string _defaultConfig;
         [TestInitialize]
         public void Initialize()
         {
             // Config doc: https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md
-            _defaultConfig = "192.168.15.15:7001,192.168.15.15:7006,192.168.15.15:7002,192.168.15.15:7003,192.168.15.15:7004,192.168.15.15:7005,192.168.15.15:7000,connectRetry=10,syncTimeout=10000,abortConnect=false,keepAlive=10,allowAdmin=true";
+            _defaultConfig = "192.168.15.15:7001, 192.168.15.15:7006, 192.168.15.15:7002, 192.168.15.15:7003, 192.168.15.15:7004, 192.168.15.15:7005, 192.168.15.15:7000, connectRetry=10, syncTimeout=10000, abortConnect=false, keepAlive=10, allowAdmin=true";
             _cache = new CacheContext(_defaultConfig);
         }
 
@@ -413,6 +407,34 @@ namespace CachingFramework.Redis.UnitTest
             var user = _cache.GetObject<User>(key1);
             Assert.IsNull(user);
             Assert.AreEqual(0, keys.Count);
+        }
+
+        [TestMethod]
+        public void UT_CacheGetObjectsByTag()
+        {
+            string key = "UT_CacheGetObjectsByTag{0}";
+            string tag1 = "UT_CacheGetObjectsByTag_Tag1";
+            string tag2 = "UT_CacheGetObjectsByTag_Tag2";
+            string tag3 = "UT_CacheGetObjectsByTag_Tag3";
+            var users = new List<User>();
+            for (int i = 0; i < 100; i++)
+            {
+                users.Add(new User()
+                {
+                    Id = i, Deparments = new List<Department>() { new Department() {Id = i, Distance = i, Location = new Location() {Id = i}, Size = i} }
+                });
+                _cache.SetObject(string.Format(key, i), users[users.Count - 1], new[] { i % 3 == 0 ? tag1 : i % 3 == 1 ? tag2 : tag3 });
+            }
+            var t1Users = _cache.GetObjectsByTag<User>(tag1).ToList();
+            var t2Users = _cache.GetObjectsByTag<User>(tag2).ToList();
+            var t3Users = _cache.GetObjectsByTag<User>(tag3).ToList();
+            Assert.IsTrue(t1Users.TrueForAll(u => u.Id % 3 == 0));
+            Assert.IsTrue(t2Users.TrueForAll(u => u.Id % 3 == 1));
+            Assert.IsTrue(t3Users.TrueForAll(u => u.Id % 3 == 2));
+            _cache.InvalidateKeysByTag(tag1, tag2, tag3);
+            t1Users = _cache.GetObjectsByTag<User>(tag1).ToList();
+            Assert.AreEqual(0, t1Users.Count);
+            Assert.IsNull(_cache.GetObject<User>(string.Format(key, 1)));
         }
 
         [TestMethod]

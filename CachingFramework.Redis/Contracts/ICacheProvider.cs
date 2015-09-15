@@ -58,6 +58,13 @@ namespace CachingFramework.Redis.Contracts
         /// <returns>HashSet{System.String}.</returns>
         HashSet<string> GetKeysByTag(string[] tags, bool cleanUp = false);
         /// <summary>
+        /// Returns all the objects that has the given tag(s) related.
+        /// Assumes all the objects are of the same type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The objects types</typeparam>
+        /// <param name="tags">The tags</param>
+        IEnumerable<T> GetObjectsByTag<T>(string[] tags);
+        /// <summary>
         /// Removes all the keys related to the given tag(s).
         /// </summary>
         /// <param name="tags">The tags.</param>

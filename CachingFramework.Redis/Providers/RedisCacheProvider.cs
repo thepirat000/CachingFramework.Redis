@@ -148,7 +148,7 @@ namespace CachingFramework.Redis.Providers
             var db = _redisConnection.GetDatabase();
             var keys = GetKeysByAllTagsNoCleanup(db, tags);
             var batch = db.CreateBatch();
-            // Delete the heys
+            // Delete the keys
             foreach (var key in keys)
             {
                 batch.KeyDeleteAsync(key);
@@ -177,6 +177,25 @@ namespace CachingFramework.Redis.Providers
                 return GetKeysByAllTagsWithCleanup(db, tags);
             }
             return GetKeysByAllTagsNoCleanup(db, tags);
+        }
+        /// <summary>
+        /// Returns all the objects that has the given tag(s) related.
+        /// Assumes all the objects are of the same type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The objects types</typeparam>
+        /// <param name="tags">The tags</param>
+        public IEnumerable<T> GetObjectsByTag<T>(string[] tags)
+        {
+            var db = _redisConnection.GetDatabase();
+            HashSet<string> keys = GetKeysByAllTagsNoCleanup(db, tags);
+            foreach (var key in keys)
+            {
+                var value = db.StringGet(key);
+                if (value.HasValue)
+                {
+                    yield return Serializer.Deserialize<T>(value);    
+                }
+            }
         }
         /// <summary>
         /// Gets a deserialized value from a key
