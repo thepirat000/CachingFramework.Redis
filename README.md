@@ -34,7 +34,7 @@ See https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Config
 
 #### Add a single object to the cache
 ```c#
-string redisKey = "some:redis:key";
+string redisKey = "user:1";
 User value = new User() { Id = 1 };  // any serializable object 
 cache.SetObject(redisKey, value);
 ```
