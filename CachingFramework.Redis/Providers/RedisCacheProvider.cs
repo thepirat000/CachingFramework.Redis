@@ -34,9 +34,17 @@ namespace CachingFramework.Redis.Providers
         /// <param name="serializer">The serializer.</param>
         /// <remarks>https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md</remarks>
         public RedisCacheProvider(string configuration, ISerializer serializer)
+            : this(ConfigurationOptions.Parse(configuration), serializer)
         {
-            var config = ConfigurationOptions.Parse(configuration);
-            _redisConnection = ConnectionMultiplexer.Connect(config);
+        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisCacheProvider"/> class.
+        /// </summary>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="serializer">The serializer.</param>
+        public RedisCacheProvider(ConfigurationOptions configuration, ISerializer serializer)
+        {
+            _redisConnection = ConnectionMultiplexer.Connect(configuration);
             Serializer = serializer;
         }
         #endregion
@@ -59,7 +67,7 @@ namespace CachingFramework.Redis.Providers
         /// <remarks>Redis command: SET key value</remarks>
         public void SetObject<T>(string key, T value, TimeSpan? ttl = null)
         {
-            string jsonValue = Serializer.Serialize(value);
+            var jsonValue = Serializer.Serialize(value);
             _redisConnection.GetDatabase().StringSet(key, jsonValue, ttl);
         }
         /// <summary>
@@ -74,7 +82,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="ttl">The expiry.</param>
         public void SetObject<T>(string key, T value, string[] tags, TimeSpan? ttl = null)
         {
-            string jsonValue = Serializer.Serialize(value);
+            var jsonValue = Serializer.Serialize(value);
             var db = _redisConnection.GetDatabase();
             var batch = db.CreateBatch();
             foreach (var tagName in tags)
@@ -182,7 +190,7 @@ namespace CachingFramework.Redis.Providers
             var cacheValue = _redisConnection.GetDatabase().StringGet(key);
             if (cacheValue.HasValue)
             {
-                return Serializer.Deserialize<T>(cacheValue.ToString());
+                return Serializer.Deserialize<T>(cacheValue);
             }
             return default(T);
         }
@@ -247,7 +255,7 @@ namespace CachingFramework.Redis.Providers
         public T GetHashed<T>(string key, string field)
         {
             var redisValue = _redisConnection.GetDatabase().HashGet(key, field);
-            return !redisValue.IsNull ? Serializer.Deserialize<T>(redisValue.ToString()) : default(T);
+            return !redisValue.IsNull ? Serializer.Deserialize<T>(redisValue) : default(T);
         }
         /// <summary>
         /// Removes a specified hased value from cache
@@ -268,7 +276,7 @@ namespace CachingFramework.Redis.Providers
         {
             return _redisConnection.GetDatabase()
                 .HashGetAll(key)
-                .ToDictionary(k => k.Name.ToString(), v => Serializer.Deserialize<T>(v.Value.ToString()));
+                .ToDictionary(k => k.Name.ToString(), v => Serializer.Deserialize<T>(v.Value));
         }
         #endregion
         #region Private Methods

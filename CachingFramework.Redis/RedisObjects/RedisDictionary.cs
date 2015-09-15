@@ -38,7 +38,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="connection">The connection.</param>
         /// <param name="redisKey">The redis key.</param>
         internal RedisDictionary(ConnectionMultiplexer connection, string redisKey)
-            : base(connection, redisKey, new JSonSerializer())
+            : base(connection, redisKey, new BinarySerializer())
         {
         }
         /// <summary>
@@ -103,7 +103,7 @@ namespace CachingFramework.Redis.RedisObjects
                 value = default(TValue);
                 return false;
             }
-            value = Deserialize<TValue>(redisValue.ToString());
+            value = Deserialize<TValue>(redisValue);
             return true;
         }
         /// <summary>
@@ -113,7 +113,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>An <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
         public ICollection<TValue> Values
         {
-            get { return new Collection<TValue>(GetRedisDb().HashValues(RedisKey).Select(h => Deserialize<TValue>(h.ToString())).ToList()); }
+            get { return new Collection<TValue>(GetRedisDb().HashValues(RedisKey).Select(h => Deserialize<TValue>(h)).ToList()); }
         }
         /// <summary>
         /// Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the <see cref="T:System.Collections.Generic.IDictionary`2" />.
@@ -122,7 +122,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>An <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
         public ICollection<TKey> Keys
         {
-            get { return new Collection<TKey>(GetRedisDb().HashKeys(RedisKey).Select(h => Deserialize<TKey>(h.ToString())).ToList()); }
+            get { return new Collection<TKey>(GetRedisDb().HashKeys(RedisKey).Select(h => Deserialize<TKey>(h)).ToList()); }
         }
         /// <summary>
         /// Gets or sets the element with the specified key.
@@ -134,7 +134,7 @@ namespace CachingFramework.Redis.RedisObjects
             get
             {
                 var redisValue = GetRedisDb().HashGet(RedisKey, Serialize(key));
-                return redisValue.IsNull ? default(TValue) : Deserialize<TValue>(redisValue.ToString());
+                return redisValue.IsNull ? default(TValue) : Deserialize<TValue>(redisValue);
             }
             set
             {
@@ -172,7 +172,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
-            GetRedisDb().HashGetAll(RedisKey).Select(x => new KeyValuePair<TKey, TValue>(Deserialize<TKey>(x.Name), Deserialize<TValue>(x.Value.ToString()))).ToArray().CopyTo(array, arrayIndex);
+            GetRedisDb().HashGetAll(RedisKey).Select(x => new KeyValuePair<TKey, TValue>(Deserialize<TKey>(x.Name), Deserialize<TValue>(x.Value))).ToArray().CopyTo(array, arrayIndex);
         }
         /// <summary>
         /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
@@ -210,7 +210,7 @@ namespace CachingFramework.Redis.RedisObjects
             var db = GetRedisDb();
             foreach (var hashEntry in db.HashScan(RedisKey))
             {
-                yield return new KeyValuePair<TKey, TValue>(Deserialize<TKey>(hashEntry.Name.ToString()), Deserialize<TValue>(hashEntry.Value.ToString()));
+                yield return new KeyValuePair<TKey, TValue>(Deserialize<TKey>(hashEntry.Name), Deserialize<TValue>(hashEntry.Value));
             }
         }
         /// <summary>

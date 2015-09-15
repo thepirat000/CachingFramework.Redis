@@ -39,7 +39,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="connection">The connection.</param>
         /// <param name="redisKey">The redis key.</param>
         internal RedisHashSet(ConnectionMultiplexer connection, string redisKey)
-            : base(connection, redisKey, new JSonSerializer())
+            : base(connection, redisKey, new BinarySerializer())
         {
         }
         /// <summary>
@@ -244,7 +244,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            GetRedisDb().SetMembers(RedisKey).Select(x => Deserialize<T>(x.ToString())).ToArray().CopyTo(array, arrayIndex);
+            GetRedisDb().SetMembers(RedisKey).Select(x => Deserialize<T>(x)).ToArray().CopyTo(array, arrayIndex);
         }
         /// <summary>
         /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
@@ -290,7 +290,7 @@ namespace CachingFramework.Redis.RedisObjects
             var db = GetRedisDb();
             foreach (var item in db.SetScan(RedisKey))
             {
-                yield return Deserialize<T>(item.ToString());
+                yield return Deserialize<T>(item);
             }
         }
         /// <summary>

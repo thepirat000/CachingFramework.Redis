@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using CachingFramework.Redis.Serializers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -10,13 +11,20 @@ namespace CachingFramework.Redis.UnitTest
     [TestClass]
     public class UnitTestRedis
     {
+        void fede()
+        {
+
+            var ctx = new CacheContext("10.0.0.1:7000,10.0.0.1:7001,10.0.0.2:7000,10.0.0.2:7001,connectRetry=10,syncTimeout=10000,abortConnect=false,keepAlive=10,allowAdmin=true");
+
+        }
+
         private CacheContext _cache;
         private string _defaultConfig;
         [TestInitialize]
         public void Initialize()
         {
             // Config doc: https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md
-            _defaultConfig = "192.168.15.15:7001,192.168.15.15:7006,192.168.15.15:7002,192.168.15.15:7003,192.168.15.15:7004,192.168.15.15:7005,192.168.15.15:7000,connectRetry=10,syncTimeout=5000,abortConnect=false,keepAlive=10";
+            _defaultConfig = "192.168.15.15:7001,192.168.15.15:7006,192.168.15.15:7002,192.168.15.15:7003,192.168.15.15:7004,192.168.15.15:7005,192.168.15.15:7000,connectRetry=10,syncTimeout=10000,abortConnect=false,keepAlive=10,allowAdmin=true";
             _cache = new CacheContext(_defaultConfig);
         }
 
@@ -126,9 +134,9 @@ namespace CachingFramework.Redis.UnitTest
 
             Assert.AreEqual(3, all.Count);
 
-            Assert.AreEqual(222, JObject.Parse(all["a"].ToString()).ToObject<User>().Id);
-            Assert.AreEqual(3, JObject.Parse(all["2"].ToString()).ToObject<Department>().Id);
-            Assert.AreEqual(444, JObject.Parse(all["D"].ToString()).ToObject<Location>().Id);
+            Assert.AreEqual(222, ((User)all["a"]).Id);
+            Assert.AreEqual(3, ((Department)all["2"]).Id);
+            Assert.AreEqual(444, ((Location)all["D"]).Id);
         }
 
         [TestMethod]
@@ -288,8 +296,8 @@ namespace CachingFramework.Redis.UnitTest
         [TestMethod]
         public void UT_CacheFetchWithTags()
         {
-            
             string key = "UT_CacheFetchWithTags";
+            _cache.Remove(key);
             string tag1 = "UT_CacheFetchWithTags-Tag1";
             string tag2 = "UT_CacheFetchWithTags-Tag2";
             _cache.FetchObject(key, () => "test value 1", new[] {tag1});
@@ -405,6 +413,28 @@ namespace CachingFramework.Redis.UnitTest
             var user = _cache.GetObject<User>(key1);
             Assert.IsNull(user);
             Assert.AreEqual(0, keys.Count);
+        }
+
+        [TestMethod]
+        public void UT_CacheSerialization()
+        {
+            string key = "UT_CacheSerialization";
+            _cache.Remove(key);
+            Exception exItem = null;
+            try
+            {
+                throw new ApplicationException("this is a test exception to test serialization", new ArgumentException("thit is an inner exception", "param"));
+            }
+            catch (Exception ex)
+            {
+                ex.Data.Add("some data", "to test");
+                exItem = ex;
+            }
+            _cache.SetObject(key, exItem);
+            var exFinal = _cache.GetObject<Exception>(key);
+            Assert.AreEqual(exItem.Data.Count, exFinal.Data.Count);
+            Assert.AreEqual(exItem.InnerException.Message, exFinal.InnerException.Message);
+            Assert.AreEqual(exItem.StackTrace, exFinal.StackTrace);
         }
 
         private List<User> GetUsers()

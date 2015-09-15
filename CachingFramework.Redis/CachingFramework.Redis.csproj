@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\CachingFramework.Redis.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -57,6 +58,7 @@
     <Compile Include="RedisObjects\RedisDictionary.cs" />
     <Compile Include="RedisObjects\RedisHashSet.cs" />
     <Compile Include="RedisObjects\RedisList.cs" />
+    <Compile Include="Serializers\BinarySerializer.cs" />
     <Compile Include="Serializers\JSonSerializer.cs" />
   </ItemGroup>
   <ItemGroup>

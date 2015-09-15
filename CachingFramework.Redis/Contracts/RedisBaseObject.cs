@@ -7,7 +7,7 @@ namespace CachingFramework.Redis.Contracts
     /// <summary>
     /// Base class for Managed collections using Redis types
     /// </summary>
-    public abstract class RedisBaseObject : IRedisObject
+    internal abstract class RedisBaseObject : IRedisObject
     {
         /// <summary>
         /// The serializer to use
@@ -27,7 +27,7 @@ namespace CachingFramework.Redis.Contracts
         /// <param name="connection">The connection.</param>
         /// <param name="redisKey">The redis key.</param>
         protected RedisBaseObject(ConnectionMultiplexer connection, string redisKey) 
-            : this(connection, redisKey, new JSonSerializer())
+            : this(connection, redisKey, new BinarySerializer())
         {
         }
         /// <summary>
@@ -48,7 +48,7 @@ namespace CachingFramework.Redis.Contracts
         /// <param name="configuration">The configuration.</param>
         /// <param name="redisKey">The redis key.</param>
         protected RedisBaseObject(string configuration, string redisKey)
-            : this(configuration, redisKey, new JSonSerializer())
+            : this(configuration, redisKey, new BinarySerializer())
         {
         }
         /// <summary>
@@ -75,7 +75,7 @@ namespace CachingFramework.Redis.Contracts
         /// Serializes the specified object.
         /// </summary>
         /// <param name="obj">The object.</param>
-        protected string Serialize(object obj)
+        protected byte[] Serialize(object obj)
         {
             return Serializer.Serialize(obj);
         }
@@ -83,7 +83,7 @@ namespace CachingFramework.Redis.Contracts
         /// Deserializes the specified string.
         /// </summary>
         /// <param name="serialized">The serialized string.</param>
-        protected T Deserialize<T>(string serialized)
+        protected T Deserialize<T>(byte[] serialized)
         {
             return Serializer.Deserialize<T>(serialized);
         }

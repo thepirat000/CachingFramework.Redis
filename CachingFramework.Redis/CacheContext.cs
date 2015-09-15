@@ -21,18 +21,18 @@ namespace CachingFramework.Redis
         #endregion
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="CacheContext" /> class using Redis in localhost server.
+        /// Initializes a new instance of the <see cref="CacheContext" /> class using Redis in localhost server default port 6379, and using the default BinarySerializer.
         /// </summary>
         public CacheContext()
             : this("localhost:6379")
         {
         }
         /// <summary>
-        /// Initializes a new instance of the <see cref="CacheContext" /> class given the cache engine type and its configuration string.
+        /// Initializes a new instance of the <see cref="CacheContext" /> class given the cache engine type and its configuration string, and using the default BinarySerializer.
         /// </summary>
         /// <param name="configuration">The configuration string.</param>
         public CacheContext(string configuration)
-            : this(configuration, new JSonSerializer())
+            : this(configuration, new BinarySerializer())
         {
         }
         /// <summary>

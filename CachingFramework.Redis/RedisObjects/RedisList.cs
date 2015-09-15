@@ -37,7 +37,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="connection">The connection.</param>
         /// <param name="redisKey">The redis key.</param>
         internal RedisList(ConnectionMultiplexer connection, string redisKey)
-            : base(connection, redisKey, new JSonSerializer())
+            : base(connection, redisKey, new BinarySerializer())
         {
         }
         /// <summary>
@@ -85,7 +85,7 @@ namespace CachingFramework.Redis.RedisObjects
             get
             {
                 var value = GetRedisDb().ListGetByIndex(RedisKey, index);
-                return Deserialize<T>(value.ToString());
+                return Deserialize<T>(value);
             }
             set
             {
@@ -139,7 +139,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            GetRedisDb().ListRange(RedisKey).Select(x => Deserialize<T>(x.ToString())).ToArray().CopyTo(array, arrayIndex);
+            GetRedisDb().ListRange(RedisKey).Select(x => Deserialize<T>(x)).ToArray().CopyTo(array, arrayIndex);
         }
         /// <summary>
         /// Determines the index of a specific item in the <see cref="T:System.Collections.Generic.IList`1" />.
@@ -192,7 +192,7 @@ namespace CachingFramework.Redis.RedisObjects
         {
             for (int i = 0; i < Count; i++)
             {
-                yield return Deserialize<T>(GetRedisDb().ListGetByIndex(RedisKey, i).ToString());
+                yield return Deserialize<T>(GetRedisDb().ListGetByIndex(RedisKey, i));
             }
         }
         /// <summary>

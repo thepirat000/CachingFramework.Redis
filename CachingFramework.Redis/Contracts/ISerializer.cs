@@ -11,25 +11,25 @@
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>System.String.</returns>
-        string Serialize<T>(T value);
+        byte[] Serialize<T>(T value);
         /// <summary>
         /// Deserializes the specified value.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>``0.</returns>
-        T Deserialize<T>(string value);
+        T Deserialize<T>(byte[] value);
         /// <summary>
         /// Serializes the specified value.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>System.String.</returns>
-        string Serialize(object value);
+        byte[] Serialize(object value);
         /// <summary>
         /// Deserializes the specified value.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>System.Object.</returns>
-        object Deserialize(string value);
+        object Deserialize(byte[] value);
     }
 }
