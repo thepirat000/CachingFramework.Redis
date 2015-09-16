@@ -63,7 +63,7 @@ User user = cache.GetObject<User>(redisKey);
 cache.Remove(redisKey);
 ```
 
-#### Invalidate an entire tag
+#### Invalidate by tag
 ```c#
 cache.InvalidateKeysByTag("tag1");
 ```
@@ -81,8 +81,48 @@ var user = cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id));
 ```
 Note the method *GetUserFromDatabase* will only be called if the value is not present on the cache, in such case it will add it to the cache.
 
+### Hashes
+Hashes are maps composed of fields associated with values, like .NET dictionaries.
 
+#### Set hashed objects
+```c#
+void InsertUser(User user)
+{
+    var redisKey = "users:hash";
+    var fieldKey = "user:id:" + user.Id;
+    cache.SetHashed(redisKey, fieldKey, user);
+}
+```
+#### Get hashed object
+```c#
+User u = cache.GetHashed<User>(redisKey, "user:id:1");
+```
+#### Get all objects in a hash 
+```c#
+IDictionary<string, User> users = cache.GetHashedAll<User>(redisKey);
+```
+#### Remove object from hash
+```c#
+cache.RemoveHashed(redisKey, "user:id:1");
+```
 
+### .NET Collection implementations
+Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
+
+#### Get a .NET IList stored as a Redis List
+```c#
+IList<User> users = cache.GetCachedList<User>(redisKey);
+```
+
+#### Get a .NET ISet stored as a Redis Set
+```c#
+ISet<User> users = cache.GetCachedSet<User>(redisKey);
+```
+
+#### Get a .NET IDictionary stored as a Redis Hash
+```c#
+IDictionary<string, User> users = cache.GetCachedDictionary<string, User>(redisKey);
+```
 
 
 
