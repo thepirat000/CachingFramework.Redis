@@ -44,7 +44,7 @@
   <ItemGroup>
     <Compile Include="CacheContext.cs" />
     <Compile Include="Contracts\ICachedDictionary.cs" />
-    <Compile Include="Contracts\ICachedObjectsProvider.cs" />
+    <Compile Include="Contracts\ICachedCollectionProvider.cs" />
     <Compile Include="Contracts\ICachedSet.cs" />
     <Compile Include="Contracts\ICacheProvider.cs" />
     <Compile Include="Contracts\ICachedList.cs" />

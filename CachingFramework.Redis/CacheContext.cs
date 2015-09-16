@@ -183,46 +183,6 @@ namespace CachingFramework.Redis
             _cacheProvider.AddTagsToKey(key, tags);
         }
         /// <summary>
-        /// Returns an IList implemented using a Redis List
-        /// </summary>
-        /// <typeparam name="T">The object type</typeparam>
-        /// <param name="key">The redis key</param>
-        public ICachedList<T> GetCachedList<T>(string key)
-        {
-            if (_cacheProvider is ICachedObjectsProvider)
-            {
-                return (_cacheProvider as ICachedObjectsProvider).GetCachedList<T>(key);
-            }
-            throw new NotImplementedException("Cached lists are not supported by the provider.");
-        }
-        /// <summary>
-        /// Returns an IDictionary implemented using a Redis Hash
-        /// </summary>
-        /// <typeparam name="TKey">The key type</typeparam>
-        /// <typeparam name="TValue">The object type</typeparam>
-        /// <param name="key">The redis key</param>
-        public ICachedDictionary<TKey, TValue> GetCachedDictionary<TKey, TValue>(string key)
-        {
-            if (_cacheProvider is ICachedObjectsProvider)
-            {
-                return (_cacheProvider as ICachedObjectsProvider).GetCachedDictionary<TKey, TValue>(key);
-            }
-            throw new NotImplementedException("Cached dictionaries are not supported by the provider.");
-        }
-        /// <summary>
-        /// Returns an ISet implemented using a Redis Set
-        /// </summary>
-        /// <typeparam name="T">The object type</typeparam>
-        /// <param name="key">The redis key</param>
-        public ICachedSet<T> GetCachedSet<T>(string key)
-        {
-            if (_cacheProvider is ICachedObjectsProvider)
-            {
-                return (_cacheProvider as ICachedObjectsProvider).GetCachedSet<T>(key);
-            }
-            throw new NotImplementedException("Cached sets are not supported by the provider.");
-        }
-        /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)
         /// </summary>
@@ -274,6 +234,47 @@ namespace CachingFramework.Redis
         public bool RemoveHashed(string key, string field)
         {
             return _cacheProvider.RemoveHashed(key, field);
+        }
+        /// <summary>
+        /// Returns an IList implemented using a Redis List
+        /// </summary>
+        /// <typeparam name="T">The object type</typeparam>
+        /// <param name="key">The redis key</param>
+        public ICachedList<T> GetCachedList<T>(string key)
+        {
+            return GetCachedCollectionProvider().GetCachedList<T>(key);
+        }
+        /// <summary>
+        /// Returns an IDictionary implemented using a Redis Hash
+        /// </summary>
+        /// <typeparam name="TKey">The key type</typeparam>
+        /// <typeparam name="TValue">The object type</typeparam>
+        /// <param name="key">The redis key</param>
+        public ICachedDictionary<TKey, TValue> GetCachedDictionary<TKey, TValue>(string key)
+        {
+            return GetCachedCollectionProvider().GetCachedDictionary<TKey, TValue>(key);
+        }
+        /// <summary>
+        /// Returns an ISet implemented using a Redis Set
+        /// </summary>
+        /// <typeparam name="T">The object type</typeparam>
+        /// <param name="key">The redis key</param>
+        public ICachedSet<T> GetCachedSet<T>(string key)
+        {
+            return GetCachedCollectionProvider().GetCachedSet<T>(key);
+        }
+        #endregion
+        #region Private methods
+        /// <summary>
+        /// Gets the cache provider as a collection provider.
+        /// </summary>
+        private ICachedCollectionProvider GetCachedCollectionProvider()
+        {
+            if (!(_cacheProvider is ICachedCollectionProvider))
+            {
+                throw new NotImplementedException("This cached collection is not supported by the provider.");
+            }
+            return (_cacheProvider as ICachedCollectionProvider);
         }
         #endregion
     }

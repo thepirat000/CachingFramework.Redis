@@ -3,7 +3,7 @@
     /// <summary>
     /// Cached objects provider internal contract
     /// </summary>
-    internal interface ICachedObjectsProvider
+    internal interface ICachedCollectionProvider
     {
         /// <summary>
         /// Returns an IList implemented using a Redis List

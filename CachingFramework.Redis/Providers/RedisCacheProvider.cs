@@ -11,7 +11,7 @@ namespace CachingFramework.Redis.Providers
     /// Cache provider implementation using StackExchange Redis.
     /// Compatible with Redis Cluster configuration
     /// </summary>
-    internal class RedisCacheProvider : ICacheProvider, ICachedObjectsProvider
+    internal class RedisCacheProvider : ICacheProvider, ICachedCollectionProvider
     {
         #region Fields
         /// <summary>
