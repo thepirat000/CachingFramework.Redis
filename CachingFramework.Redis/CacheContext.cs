@@ -224,6 +224,18 @@ namespace CachingFramework.Redis
             _cacheProvider.SetHashed(key, field, value, ttl);
         }
         /// <summary>
+        /// Sets the specified key/values pairs to a hashset.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fieldValues">The field keys and values to store</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        public void SetHashed<T>(string key, IDictionary<string, object> fieldValues, TimeSpan? ttl = null)
+        {
+            _cacheProvider.SetHashed<T>(key, fieldValues, ttl);
+        }
+        /// <summary>
         /// Gets a specified hased value from a key
         /// </summary>
         /// <typeparam name="T"></typeparam>
