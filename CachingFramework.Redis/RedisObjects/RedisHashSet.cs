@@ -170,7 +170,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// Determines whether the current set and the specified collection contain the same elements.
         /// </summary>
         /// <param name="other">The collection to compare to the current set.</param>
-        private bool SetEquals(ISet<T> other)
+        private bool SetEquals(ICollection<T> other)
         {
             int otherLen = other.Count;
             int thisLen = this.Count;
@@ -311,9 +311,9 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns><c>true</c> if [is subset of] [the specified proper]; otherwise, <c>false</c>.</returns>
         private bool IsSubsetOf(bool proper, IEnumerable<T> other)
         {
-            if (other is ISet<T>)
+            if (other is ICollection<T>)
             {
-                return IsSubsetOf(proper, (ISet<T>)other);
+                return IsSubsetOf(proper, (ICollection<T>)other);
             }
             return IsSubsetOf(proper, new HashSet<T>(other));
         }
@@ -323,7 +323,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="proper">if set to <c>true</c> [proper].</param>
         /// <param name="other">The other.</param>
         /// <returns><c>true</c> if [is subset of] [the specified proper]; otherwise, <c>false</c>.</returns>
-        private bool IsSubsetOf(bool proper, ISet<T> other)
+        private bool IsSubsetOf(bool proper, ICollection<T> other)
         {
             int currentLen = this.Count;
             int otherLen = other.Count;
@@ -335,14 +335,7 @@ namespace CachingFramework.Redis.RedisObjects
             {
                 return false;
             }
-            foreach (var item in this)
-            {
-                if (!other.Contains(item))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this.All(other.Contains);
         }
         /// <summary>
         /// Determines whether [is superset of] [the specified proper].
@@ -352,9 +345,9 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns><c>true</c> if [is superset of] [the specified proper]; otherwise, <c>false</c>.</returns>
         private bool IsSupersetOf(bool proper, IEnumerable<T> other)
         {
-            if (other is ISet<T>)
+            if (other is ICollection<T>)
             {
-                return IsSupersetOf(proper, (ISet<T>) other);
+                return IsSupersetOf(proper, (ICollection<T>)other);
             }
             return IsSupersetOf(proper, new HashSet<T>(other));
         }
@@ -364,7 +357,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="proper">if set to <c>true</c> [proper].</param>
         /// <param name="other">The other.</param>
         /// <returns><c>true</c> if [is superset of] [the specified proper]; otherwise, <c>false</c>.</returns>
-        private bool IsSupersetOf(bool proper, ISet<T> other)
+        private bool IsSupersetOf(bool proper, ICollection<T> other)
         {
             int currentLen = this.Count;
             int otherLen = other.Count;
@@ -376,14 +369,7 @@ namespace CachingFramework.Redis.RedisObjects
             {
                 return false;
             }
-            foreach (var item in other)
-            {
-                if (!this.Contains(item))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return other.All(this.Contains);
         }
         #endregion
     }

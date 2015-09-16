@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CachingFramework.Redis")]
-[assembly: AssemblyDescription("Distributed caching based on Redis. Includes support for tagging and is cluster-compatible.")]
+[assembly: AssemblyDescription("Distributed caching based on Redis. Includes support for tagging, cache invalidation and is cluster-compatible.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Federico Colombo")]
 [assembly: AssemblyProduct("CachingFramework.Redis")]
@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.4")]
-[assembly: AssemblyFileVersion("1.0.0.4")]
+[assembly: AssemblyVersion("1.0.0.5")]
+[assembly: AssemblyFileVersion("1.0.0.5")]
 
 [assembly: InternalsVisibleTo("CachingFramework.UnitTest")]

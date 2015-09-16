@@ -84,8 +84,8 @@ namespace CachingFramework.Redis.RedisObjects
         {
             get
             {
-                var value = GetRedisDb().ListGetByIndex(RedisKey, index);
-                return Deserialize<T>(value);
+                var redisValue = GetRedisDb().ListGetByIndex(RedisKey, index);
+                return redisValue.IsNull ? default(T) : Deserialize<T>(redisValue);
             }
             set
             {
