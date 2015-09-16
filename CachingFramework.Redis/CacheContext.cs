@@ -189,7 +189,11 @@ namespace CachingFramework.Redis
         /// <param name="key">The redis key</param>
         public ICachedList<T> GetCachedList<T>(string key)
         {
-            return new RedisList<T>(_cacheProvider.RedisConnection, key, _serializer);
+            if (_cacheProvider is ICachedObjectsProvider)
+            {
+                return (_cacheProvider as ICachedObjectsProvider).GetCachedList<T>(key);
+            }
+            throw new NotImplementedException("Cached lists are not supported by the provider.");
         }
         /// <summary>
         /// Returns an IDictionary implemented using a Redis Hash
@@ -199,7 +203,11 @@ namespace CachingFramework.Redis
         /// <param name="key">The redis key</param>
         public ICachedDictionary<TKey, TValue> GetCachedDictionary<TKey, TValue>(string key)
         {
-            return new RedisDictionary<TKey, TValue>(_cacheProvider.RedisConnection, key, _serializer);
+            if (_cacheProvider is ICachedObjectsProvider)
+            {
+                return (_cacheProvider as ICachedObjectsProvider).GetCachedDictionary<TKey, TValue>(key);
+            }
+            throw new NotImplementedException("Cached dictionaries are not supported by the provider.");
         }
         /// <summary>
         /// Returns an ISet implemented using a Redis Set
@@ -208,7 +216,11 @@ namespace CachingFramework.Redis
         /// <param name="key">The redis key</param>
         public ICachedSet<T> GetCachedSet<T>(string key)
         {
-            return new RedisHashSet<T>(_cacheProvider.RedisConnection, key, _serializer);
+            if (_cacheProvider is ICachedObjectsProvider)
+            {
+                return (_cacheProvider as ICachedObjectsProvider).GetCachedSet<T>(key);
+            }
+            throw new NotImplementedException("Cached sets are not supported by the provider.");
         }
         /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.

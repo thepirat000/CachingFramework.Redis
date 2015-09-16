@@ -125,7 +125,7 @@ namespace CachingFramework.Redis.RedisObjects
         {
             for (int i = 0; i < Count; i++)
             {
-                if (GetRedisDb().ListGetByIndex(RedisKey, i).ToString().Equals(Serialize(item)))
+                if (GetRedisDb().ListGetByIndex(RedisKey, i).Equals(Serialize(item)))
                 {
                     return true;
                 }
@@ -150,7 +150,7 @@ namespace CachingFramework.Redis.RedisObjects
         {
             for (int i = 0; i < Count; i++)
             {
-                if (GetRedisDb().ListGetByIndex(RedisKey, i).ToString().Equals(Serialize(item)))
+                if (GetRedisDb().ListGetByIndex(RedisKey, i).Equals(Serialize(item)))
                 {
                     return i;
                 }

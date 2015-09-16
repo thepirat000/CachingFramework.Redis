@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.RedisObjects;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.Providers
@@ -10,7 +11,7 @@ namespace CachingFramework.Redis.Providers
     /// Cache provider implementation using StackExchange Redis.
     /// Compatible with Redis Cluster configuration
     /// </summary>
-    internal class RedisCacheProvider : ICacheProvider
+    internal class RedisCacheProvider : ICacheProvider, ICachedObjectsProvider
     {
         #region Fields
         /// <summary>
@@ -24,7 +25,7 @@ namespace CachingFramework.Redis.Providers
         /// <summary>
         /// The serializer
         /// </summary>
-        private readonly ISerializer Serializer;
+        private readonly ISerializer _serializer;
         #endregion
         #region Constructors
         /// <summary>
@@ -38,25 +39,17 @@ namespace CachingFramework.Redis.Providers
         {
         }
         /// <summary>
-        /// Initializes a new instance of the <see cref="RedisCacheProvider"/> class.
+        /// Initializes a new instance of the <see cref="RedisCacheProvider" /> class.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         /// <param name="serializer">The serializer.</param>
         public RedisCacheProvider(ConfigurationOptions configuration, ISerializer serializer)
         {
             _redisConnection = ConnectionMultiplexer.Connect(configuration);
-            Serializer = serializer;
+            _serializer = serializer;
         }
         #endregion
         #region ICacheProvider Implementation
-        /// <summary>
-        /// Redis connection multiplexer to use within the RedisObjects
-        /// </summary>
-        /// <value>The redis connection.</value>
-        ConnectionMultiplexer ICacheProvider.RedisConnection
-        {
-            get { return _redisConnection; }
-        }
         /// <summary>
         /// Set the value of a key
         /// </summary>
@@ -67,7 +60,7 @@ namespace CachingFramework.Redis.Providers
         /// <remarks>Redis command: SET key value</remarks>
         public void SetObject<T>(string key, T value, TimeSpan? ttl = null)
         {
-            var jsonValue = Serializer.Serialize(value);
+            var jsonValue = _serializer.Serialize(value);
             _redisConnection.GetDatabase().StringSet(key, jsonValue, ttl);
         }
         /// <summary>
@@ -82,7 +75,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="ttl">The expiry.</param>
         public void SetObject<T>(string key, T value, string[] tags, TimeSpan? ttl = null)
         {
-            var jsonValue = Serializer.Serialize(value);
+            var jsonValue = _serializer.Serialize(value);
             var db = _redisConnection.GetDatabase();
             var batch = db.CreateBatch();
             foreach (var tagName in tags)
@@ -180,10 +173,11 @@ namespace CachingFramework.Redis.Providers
         }
         /// <summary>
         /// Returns all the objects that has the given tag(s) related.
-        /// Assumes all the objects are of the same type <typeparamref name="T"/>.
+        /// Assumes all the objects are of the same type <typeparamref name="T" />.
         /// </summary>
         /// <typeparam name="T">The objects types</typeparam>
         /// <param name="tags">The tags</param>
+        /// <returns>IEnumerable{``0}.</returns>
         public IEnumerable<T> GetObjectsByTag<T>(string[] tags)
         {
             var db = _redisConnection.GetDatabase();
@@ -193,7 +187,7 @@ namespace CachingFramework.Redis.Providers
                 var value = db.StringGet(key);
                 if (value.HasValue)
                 {
-                    yield return Serializer.Deserialize<T>(value);    
+                    yield return _serializer.Deserialize<T>(value);    
                 }
             }
         }
@@ -209,7 +203,7 @@ namespace CachingFramework.Redis.Providers
             var cacheValue = _redisConnection.GetDatabase().StringGet(key);
             if (cacheValue.HasValue)
             {
-                return Serializer.Deserialize<T>(cacheValue);
+                return _serializer.Deserialize<T>(cacheValue);
             }
             return default(T);
         }
@@ -236,7 +230,7 @@ namespace CachingFramework.Redis.Providers
         {
             var db = _redisConnection.GetDatabase();
             var batch = db.CreateBatch();
-            batch.HashSetAsync(key, field, Serializer.Serialize(value));
+            batch.HashSetAsync(key, field, _serializer.Serialize(value));
             var expiration = GetExpiration(db, key, ttl);
             if (expiration != null)
             {
@@ -262,7 +256,7 @@ namespace CachingFramework.Redis.Providers
         public void SetHashed<T>(string key, IDictionary<string, object> fieldValues, TimeSpan? ttl = null)
         {
             var db = _redisConnection.GetDatabase();
-            db.HashSet(key, fieldValues.Select(x => new HashEntry(x.Key, Serializer.Serialize(x.Value))).ToArray());
+            db.HashSet(key, fieldValues.Select(x => new HashEntry(x.Key, _serializer.Serialize(x.Value))).ToArray());
         }
         /// <summary>
         /// Gets a specified hased value from a key
@@ -274,7 +268,7 @@ namespace CachingFramework.Redis.Providers
         public T GetHashed<T>(string key, string field)
         {
             var redisValue = _redisConnection.GetDatabase().HashGet(key, field);
-            return !redisValue.IsNull ? Serializer.Deserialize<T>(redisValue) : default(T);
+            return !redisValue.IsNull ? _serializer.Deserialize<T>(redisValue) : default(T);
         }
         /// <summary>
         /// Removes a specified hased value from cache
@@ -287,15 +281,50 @@ namespace CachingFramework.Redis.Providers
             return _redisConnection.GetDatabase().HashDelete(key, field);
         }
         /// <summary>
-        /// Gets all the values from a hash, assuming all the values in the hash are of the same type <typeparamref name="T"/>.
+        /// Gets all the values from a hash, assuming all the values in the hash are of the same type <typeparamref name="T" />.
         /// The keys of the dictionary are the field names and the values are the objects
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
+        /// <returns>IDictionary{System.String``0}.</returns>
         public IDictionary<string, T> GetHashedAll<T>(string key)
         {
             return _redisConnection.GetDatabase()
                 .HashGetAll(key)
-                .ToDictionary(k => k.Name.ToString(), v => Serializer.Deserialize<T>(v.Value));
+                .ToDictionary(k => k.Name.ToString(), v => _serializer.Deserialize<T>(v.Value));
+        }
+        #endregion
+        #region ICachedObjectsProvider Implementation
+        /// <summary>
+        /// Returns an IList implemented using a Redis List
+        /// </summary>
+        /// <typeparam name="T">The object type</typeparam>
+        /// <param name="key">The redis key</param>
+        /// <returns>ICachedList{``0}.</returns>
+        public ICachedList<T> GetCachedList<T>(string key)
+        {
+            return new RedisList<T>(_redisConnection, key, _serializer);
+        }
+        /// <summary>
+        /// Returns an IDictionary implemented using a Redis Hash
+        /// </summary>
+        /// <typeparam name="TKey">The key type</typeparam>
+        /// <typeparam name="TValue">The object type</typeparam>
+        /// <param name="key">The redis key</param>
+        /// <returns>ICachedDictionary{``0``1}.</returns>
+        public ICachedDictionary<TKey, TValue> GetCachedDictionary<TKey, TValue>(string key)
+        {
+            return new RedisDictionary<TKey, TValue>(_redisConnection, key, _serializer);
+        }
+        /// <summary>
+        /// Returns an ISet implemented using a Redis Set
+        /// </summary>
+        /// <typeparam name="T">The object type</typeparam>
+        /// <param name="key">The redis key</param>
+        /// <returns>ICachedSet{``0}.</returns>
+        public ICachedSet<T> GetCachedSet<T>(string key)
+        {
+            return new RedisHashSet<T>(_redisConnection, key, _serializer);
         }
         #endregion
         #region Private Methods
