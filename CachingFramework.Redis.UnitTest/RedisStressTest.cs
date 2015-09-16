@@ -78,8 +78,8 @@ namespace CachingFramework.Redis.UnitTest
             Stress(1000, test);
             Stress(10000, test);
             /*
-             Stress(100000, test);
-             Stress(200000, test);
+            Stress(100000, test);
+            Stress(200000, test);
              Stress(300000, test);
              Stress(400000, test);
              Stress(500000, test);
