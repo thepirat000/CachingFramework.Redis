@@ -317,7 +317,7 @@ namespace CachingFramework.Redis.UnitTest
                     Location = new Location()
                     {
                         Id = (j + 1) * 10,
-                        Name = string.Format("{0}zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", j + 1)
+                        Name = string.Format("{0}", j + 1)
                     },
                     Size = (j + 1) * 23
                 });
