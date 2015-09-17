@@ -26,30 +26,12 @@ namespace CachingFramework.Redis.Contracts
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="redisKey">The redis key.</param>
-        protected RedisBaseObject(ConnectionMultiplexer connection, string redisKey) 
-            : this(connection, redisKey, new BinarySerializer())
-        {
-        }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RedisBaseObject"/> class.
-        /// </summary>
-        /// <param name="connection">The connection.</param>
-        /// <param name="redisKey">The redis key.</param>
         /// <param name="serializer">The serializer.</param>
         protected RedisBaseObject(ConnectionMultiplexer connection, string redisKey, ISerializer serializer)
         {
             RedisKey = redisKey;
             Serializer = serializer;
             Connection = connection;
-        }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RedisBaseObject"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="redisKey">The redis key.</param>
-        protected RedisBaseObject(string configuration, string redisKey)
-            : this(configuration, redisKey, new BinarySerializer())
-        {
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisBaseObject"/> class.

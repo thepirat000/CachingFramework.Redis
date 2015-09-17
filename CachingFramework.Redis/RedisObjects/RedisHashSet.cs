@@ -17,34 +17,6 @@ namespace CachingFramework.Redis.RedisObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisBaseObject" /> class.
         /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="redisKey">The redis key.</param>
-        public RedisHashSet(string configuration, string redisKey)
-            : base(configuration, redisKey)
-        {
-        }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RedisBaseObject" /> class.
-        /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="redisKey">The redis key.</param>
-        /// <param name="serializer">The serializer.</param>
-        public RedisHashSet(string configuration, string redisKey, ISerializer serializer)
-            : base(configuration, redisKey, serializer)
-        {
-        }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RedisBaseObject" /> class.
-        /// </summary>
-        /// <param name="connection">The connection.</param>
-        /// <param name="redisKey">The redis key.</param>
-        internal RedisHashSet(ConnectionMultiplexer connection, string redisKey)
-            : base(connection, redisKey, new BinarySerializer())
-        {
-        }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RedisBaseObject" /> class.
-        /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="redisKey">The redis key.</param>
         /// <param name="serializer">The serializer.</param>

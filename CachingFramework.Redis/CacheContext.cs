@@ -183,6 +183,15 @@ namespace CachingFramework.Redis
             _cacheProvider.AddTagsToKey(key, tags);
         }
         /// <summary>
+        /// Removes the relation between the given tags and a key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="tags">The tag(s).</param>
+        public void RemoveTagsFromKey(string key, string[] tags)
+        {
+            _cacheProvider.RemoveTagsFromKey(key, tags);
+        }
+        /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)
         /// </summary>
@@ -202,8 +211,8 @@ namespace CachingFramework.Redis
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
         /// <param name="fieldValues">The field keys and values to store</param>
-        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
-        public void SetHashed<T>(string key, IDictionary<string, object> fieldValues, TimeSpan? ttl = null)
+        /// <param name="ttl">Set the current expiration timespan to the whole key. NULL to keep the current expiration.</param>
+        public void SetHashed<T>(string key, IDictionary<string, T> fieldValues, TimeSpan? ttl = null)
         {
             _cacheProvider.SetHashed<T>(key, fieldValues, ttl);
         }

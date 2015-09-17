@@ -253,7 +253,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The key.</param>
         /// <param name="fieldValues">The field keys and values to store</param>
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
-        public void SetHashed<T>(string key, IDictionary<string, object> fieldValues, TimeSpan? ttl = null)
+        public void SetHashed<T>(string key, IDictionary<string, T> fieldValues, TimeSpan? ttl = null)
         {
             var db = _redisConnection.GetDatabase();
             db.HashSet(key, fieldValues.Select(x => new HashEntry(x.Key, _serializer.Serialize(x.Value))).ToArray());
