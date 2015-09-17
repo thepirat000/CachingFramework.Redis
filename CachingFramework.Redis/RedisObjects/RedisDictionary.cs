@@ -54,15 +54,6 @@ namespace CachingFramework.Redis.RedisObjects
         #endregion
         #region ICachedDictionary implementation
         /// <summary>
-        /// Adds an element with the provided key and value to the <see cref="T:System.Collections.Generic.IDictionary`2" />.
-        /// </summary>
-        /// <param name="key">The object to use as the key of the element to add.</param>
-        /// <param name="value">The object to use as the value of the element to add.</param>
-        public void Add(TKey key, TValue value)
-        {
-            GetRedisDb().HashSet(RedisKey, Serialize(key), Serialize(value));
-        }
-        /// <summary>
         /// Adds multiple elements to the dictionary.
         /// </summary>
         /// <param name="items">The items to add.</param>
@@ -70,6 +61,17 @@ namespace CachingFramework.Redis.RedisObjects
         {
             GetRedisDb()
                 .HashSet(RedisKey, items.Select(i => new HashEntry(Serialize(i.Key), Serialize(i.Value))).ToArray());
+        }
+        #endregion
+        #region IDictionary implementation
+        /// <summary>
+        /// Adds an element with the provided key and value to the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+        /// </summary>
+        /// <param name="key">The object to use as the key of the element to add.</param>
+        /// <param name="value">The object to use as the value of the element to add.</param>
+        public void Add(TKey key, TValue value)
+        {
+            GetRedisDb().HashSet(RedisKey, Serialize(key), Serialize(value));
         }
         /// <summary>
         /// Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the specified key.

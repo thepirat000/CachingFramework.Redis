@@ -53,6 +53,30 @@ namespace CachingFramework.Redis.RedisObjects
         #endregion
         #region ICachedList implementation
         /// <summary>
+        /// Adds a range of values to the end of the list.
+        /// </summary>
+        /// <param name="collection">The collection.</param>
+        public void AddRange(IEnumerable<T> collection)
+        {
+            var db = GetRedisDb();
+            db.ListRightPush(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
+        }
+        /// <summary>
+        /// Returns the specified elements of the list stored at key. The offsets start and stop are zero-based indexes, with 0 being the first element of the list (the head of the list), 1 being the next element and so on.
+        /// These offsets can also be negative numbers indicating offsets starting at the end of the list. For example, -1 is the last element of the list, -2 the penultimate, and so on.
+        /// 
+        /// </summary>
+        /// <param name="start">The start.</param>
+        /// <param name="stop">The stop.</param>
+        /// <returns>IList{`0}.</returns>
+        public IList<T> GetRange(long start = 0, long stop = -1)
+        {
+            var db = GetRedisDb();
+            return db.ListRange(RedisKey, start, stop).Select(x => Deserialize<T>(x)).ToList();
+        }
+        #endregion
+        #region IList implementation
+        /// <summary>
         /// Inserts an item to the <see cref="T:System.Collections.Generic.IList`1" /> at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index at which <paramref name="item" /> should be inserted.</param>
@@ -99,15 +123,6 @@ namespace CachingFramework.Redis.RedisObjects
         public void Add(T item)
         {
             GetRedisDb().ListRightPush(RedisKey, Serialize(item));
-        }
-        /// <summary>
-        /// Adds the range.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        public void AddRange(IEnumerable<T> collection)
-        {
-            var db = GetRedisDb();
-            db.ListRightPush(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
         }
         /// <summary>
         /// Removes all items from the collection.

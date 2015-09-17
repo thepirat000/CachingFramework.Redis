@@ -55,6 +55,25 @@ namespace CachingFramework.Redis.RedisObjects
         #endregion
         #region ICachedSet implementation
         /// <summary>
+        /// Adds the specified items.
+        /// </summary>
+        /// <param name="collection">The items to add</param>
+        public void AddMultiple(IEnumerable<T> collection)
+        {
+            var db = GetRedisDb();
+            db.SetAdd(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
+        }
+        /// <summary>
+        /// Removes all the elements that meets some criteria.
+        /// </summary>
+        /// <param name="match">The match predicate.</param>
+        public int RemoveWhere(Predicate<T> match)
+        {
+            return (int)GetRedisDb().SetRemove(RedisKey, this.Where(x => match(x)).Select(x => (RedisValue)Serialize(x)).ToArray());
+        }
+        #endregion
+        #region ISet implementation
+        /// <summary>
         /// Adds the specified item.
         /// </summary>
         /// <param name="item">The item.</param>
@@ -63,15 +82,6 @@ namespace CachingFramework.Redis.RedisObjects
         {
             var db = GetRedisDb();
             return db.SetAdd(RedisKey, Serialize(item));
-        }
-        /// <summary>
-        /// Adds the specified items.
-        /// </summary>
-        /// <param name="collection">The items to add</param>
-        public void AddMultiple(IEnumerable<T> collection)
-        {
-            var db = GetRedisDb();
-            db.SetAdd(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
         }
         /// <summary>
         /// Removes all elements in the specified collection from the current set.
@@ -272,14 +282,6 @@ namespace CachingFramework.Redis.RedisObjects
         public bool Remove(T item)
         {
             return GetRedisDb().SetRemove(RedisKey, Serialize(item));
-        }
-        /// <summary>
-        /// Removes all the elements that meets some criteria.
-        /// </summary>
-        /// <param name="match">The match predicate.</param>
-        public int RemoveWhere(Predicate<T> match)
-        {
-            return (int)GetRedisDb().SetRemove(RedisKey, this.Where(x => match(x)).Select(x => (RedisValue)Serialize(x)).ToArray());
         }
         /// <summary>
         /// Returns an enumerator that iterates through the collection.
