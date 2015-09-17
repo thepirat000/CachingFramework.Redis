@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -70,6 +71,27 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users.Count, rl.Count);
             Thread.Sleep(2000);
             Assert.AreEqual(0, rl.Count);
+        }
+
+        [TestMethod]
+        public void UT_CacheListObject_GetRange()
+        {
+            string key = "UT_CacheListObject_GetRange";
+            int total = 100;
+            _cache.Remove(key);
+            var rl = _cache.GetCachedList<User>(key);
+            rl.AddRange(Enumerable.Range(1, total).Select(i => new User() { Id = i }));
+
+            var range = rl.GetRange();
+            Assert.AreEqual(total, rl.Count);
+
+            range = rl.GetRange(3, 10);
+            Assert.AreEqual(8, range.Count);
+            Assert.AreEqual(4, range[0].Id);
+
+            range = rl.GetRange(10, -10);
+            Assert.AreEqual(11, range[0].Id);
+            Assert.AreEqual(91, range[range.Count - 1].Id);
         }
 
         [TestMethod]

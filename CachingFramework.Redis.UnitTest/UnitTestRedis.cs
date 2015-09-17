@@ -47,7 +47,7 @@ namespace CachingFramework.Redis.UnitTest
             _cache.Remove(key);
 
             _cache.SetObject(key, users[1]);
-            _cache.SetObject(key, users[0]);
+            _cache.SetObject(key, users[0], new string[]{});
             var user = _cache.GetObject<User>(key);
             Assert.AreEqual(1, user.Id);
             Assert.AreEqual(2, user.Deparments[0].Size);
@@ -436,6 +436,35 @@ namespace CachingFramework.Redis.UnitTest
             t1Users = _cache.GetObjectsByTag<User>(tag1).ToList();
             Assert.AreEqual(0, t1Users.Count);
             Assert.IsNull(_cache.GetObject<User>(string.Format(key, 1)));
+        }
+
+        [TestMethod]
+        public void UT_CacheAddRemoveTagToKey()
+        {
+            string key = "UT_CacheAddRemoveTagToKey";
+            string tag = "UT_CacheAddRemoveTagToKey_Tag";
+            _cache.Remove(key);
+            _cache.SetObject(key, "value");
+            _cache.AddTagsToKey(key, new[] { tag });
+            var keys = _cache.GetKeysByTag(tag).ToList();
+            Assert.IsTrue(keys.Contains(key));
+            _cache.RemoveTagsFromKey(key, new[] { tag });
+            keys = _cache.GetKeysByTag(tag).ToList();
+            Assert.IsFalse(keys.Contains(key));
+
+        }
+
+        [TestMethod]
+        public void UT_CacheSetHashedAll()
+        {
+            string key = "UT_CacheSetHashedAll";
+            _cache.Remove(key);
+            var users = GetUsers();
+            IDictionary<string, User> allUsers = users.ToDictionary(k => k.Id.ToString());
+            _cache.SetHashed(key, allUsers);
+            var response = _cache.GetHashedAll<User>(key);
+            Assert.AreEqual(users.Count, response.Count);
+            Assert.IsTrue(users.All(x => response.ContainsKey(x.Id.ToString())));
         }
 
         [TestMethod]
