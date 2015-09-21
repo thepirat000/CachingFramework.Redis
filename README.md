@@ -58,7 +58,7 @@ User user = cache.GetObject<User>(redisKey);
 
 ### Removing objects
 
-#### Remove a single object
+#### Remove a key
 ```c#
 cache.Remove(redisKey);
 ```
