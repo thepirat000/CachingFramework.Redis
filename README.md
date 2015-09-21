@@ -8,7 +8,7 @@
  as shortcut methods for atomic Add/Get operations.
  * **Items Expiration**
  * **Fully compatible with Redis Cluster**
- * **Configurable serialization**
+ * **Compressed binary serialization** to minimize network and memory load
  * **Handle Redis List, Sets and Hashes** from common interfaces IList<T>, ISet<T> and IDictionary<K, V>.
  
 ## Usage
