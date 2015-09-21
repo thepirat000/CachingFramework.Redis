@@ -52,7 +52,7 @@ namespace CachingFramework.Redis.Contracts
         /// <param name="tags">The tags.</param>
         /// <param name="cleanUp">True to return only the existing keys within the tags (slower). Default is false.</param>
         /// <returns>HashSet{System.String}.</returns>
-        HashSet<string> GetKeysByTag(string[] tags, bool cleanUp = false);
+        ISet<string> GetKeysByTag(string[] tags, bool cleanUp = false);
         /// <summary>
         /// Returns all the objects that has the given tag(s) related.
         /// Assumes all the objects are of the same type <typeparamref name="T"/>.
@@ -65,6 +65,10 @@ namespace CachingFramework.Redis.Contracts
         /// </summary>
         /// <param name="tags">The tags.</param>
         void InvalidateKeysByTag(string[] tags);
+        /// <summary>
+        /// Returns the entire collection of tags
+        /// </summary>
+        ISet<string> GetAllTags();
         /// <summary>
         /// Removes the specified key-value.
         /// </summary>

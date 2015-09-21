@@ -60,8 +60,8 @@ namespace CachingFramework.Redis.Providers
         /// <remarks>Redis command: SET key value</remarks>
         public void SetObject<T>(string key, T value, TimeSpan? ttl = null)
         {
-            var jsonValue = _serializer.Serialize(value);
-            _redisConnection.GetDatabase().StringSet(key, jsonValue, ttl);
+            var serialized = _serializer.Serialize(value);
+            _redisConnection.GetDatabase().StringSet(key, serialized, ttl);
         }
         /// <summary>
         /// Set the value of a key, associating the key with the given tag(s).
@@ -75,7 +75,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="ttl">The expiry.</param>
         public void SetObject<T>(string key, T value, string[] tags, TimeSpan? ttl = null)
         {
-            var jsonValue = _serializer.Serialize(value);
+            var serialized = _serializer.Serialize(value);
             var db = _redisConnection.GetDatabase();
             var batch = db.CreateBatch();
             foreach (var tagName in tags)
@@ -98,7 +98,7 @@ namespace CachingFramework.Redis.Providers
                 }
             }
             // Add the key-value
-            batch.StringSetAsync(key, jsonValue, ttl);
+            batch.StringSetAsync(key, serialized, ttl);
             batch.Execute();
         }
         /// <summary>
@@ -162,7 +162,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="tags">The tags.</param>
         /// <param name="cleanUp">True to return only the existing keys within the tags (slower). Default is false.</param>
         /// <returns>HashSet{System.String}.</returns>
-        public HashSet<string> GetKeysByTag(string[] tags, bool cleanUp = false)
+        public ISet<string> GetKeysByTag(string[] tags, bool cleanUp = false)
         {
             var db = _redisConnection.GetDatabase();
             if (cleanUp)
@@ -181,7 +181,7 @@ namespace CachingFramework.Redis.Providers
         public IEnumerable<T> GetObjectsByTag<T>(string[] tags)
         {
             var db = _redisConnection.GetDatabase();
-            HashSet<string> keys = GetKeysByAllTagsNoCleanup(db, tags);
+            ISet<string> keys = GetKeysByAllTagsNoCleanup(db, tags);
             foreach (var key in keys)
             {
                 var value = db.StringGet(key);
@@ -206,6 +206,16 @@ namespace CachingFramework.Redis.Providers
                 return _serializer.Deserialize<T>(cacheValue);
             }
             return default(T);
+        }
+        /// <summary>
+        /// Returns the entire collection of tags
+        /// </summary>
+        public ISet<string> GetAllTags()
+        {
+            var tags = new List<RedisKey>();
+            RunInAllMasters(svr => tags.AddRange(svr.Keys(0, string.Format(TagFormat, "*"))));
+            int startIndex = string.Format(TagFormat, "").Length;
+            return new HashSet<string>(tags.Select(rv => rv.ToString().Substring(startIndex)));
         }
         /// <summary>
         /// Removes the specified key-value.
@@ -335,7 +345,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The key.</param>
         /// <param name="ttl">The TTL.</param>
         /// <returns>System.Nullable{TimeSpan}.</returns>
-        private TimeSpan? GetExpiration(IDatabase db, string key, TimeSpan? ttl)
+        private static TimeSpan? GetExpiration(IDatabase db, string key, TimeSpan? ttl)
         {
             bool preexistent = db.KeyExists(key);
             TimeSpan? curr = preexistent ? db.KeyTimeToLive(key) : null;
@@ -357,7 +367,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="db">The database.</param>
         /// <param name="tags">The tags.</param>
         /// <returns>HashSet{System.String}.</returns>
-        private HashSet<string> GetKeysByAllTagsNoCleanup(IDatabase db, params string[] tags)
+        private static ISet<string> GetKeysByAllTagsNoCleanup(IDatabase db, params string[] tags)
         {
             var keys = new List<string>();
             foreach (var tagName in tags)
@@ -376,7 +386,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="db">The database.</param>
         /// <param name="tags">The tags.</param>
         /// <returns>HashSet{System.String}.</returns>
-        private HashSet<string> GetKeysByAllTagsWithCleanup(IDatabase db, params string[] tags)
+        private static ISet<string> GetKeysByAllTagsWithCleanup(IDatabase db, params string[] tags)
         {
             var ret = new HashSet<string>();
             var toRemove = new List<RedisValue>();
@@ -414,6 +424,38 @@ namespace CachingFramework.Redis.Providers
         private static RedisKey FormatTag(string tag)
         {
             return string.Format(TagFormat, tag);
+        }
+        /// <summary>
+        /// Runs a Server command in all the master servers.
+        /// </summary>
+        private void RunInAllMasters(Action<IServer> action)
+        {
+            ICollection<ClusterNode> nodes = null;
+            foreach (var ep in _redisConnection.GetEndPoints())
+            {
+                if (_redisConnection.GetServer(ep).IsConnected)
+                {
+                    nodes = _redisConnection.GetServer(ep).ClusterConfiguration.Nodes;
+                    break;
+                }
+            }
+            if (nodes != null)
+            {
+                foreach (var node in nodes)
+                {
+                    if (!node.IsSlave)
+                    {
+                        action(_redisConnection.GetServer(node.EndPoint));
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Flushes all the databases on every master node.
+        /// </summary>
+        private void FlushAll()
+        {
+            RunInAllMasters(svr => svr.FlushAllDatabases());
         }
         #endregion
     }

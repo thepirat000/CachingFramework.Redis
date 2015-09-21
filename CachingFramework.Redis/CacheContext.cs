@@ -121,7 +121,7 @@ namespace CachingFramework.Redis
         /// <param name="tags">The tags.</param>
         /// <param name="cleanUp">True to return only the existing keys within the tags (slower). Default is false.</param>
         /// <returns>HashSet{System.String}.</returns>
-        public HashSet<string> GetKeysByTag(string[] tags, bool cleanUp = false)
+        public ISet<string> GetKeysByTag(string[] tags, bool cleanUp = false)
         {
             return _cacheProvider.GetKeysByTag(tags, cleanUp);
         }
@@ -131,7 +131,7 @@ namespace CachingFramework.Redis
         /// <param name="tag">The tag.</param>
         /// <param name="cleanUp">True to return only the existing keys within the tags (slower). Default is false.</param>
         /// <returns>HashSet{System.String}.</returns>
-        public HashSet<string> GetKeysByTag(string tag, bool cleanUp = false)
+        public ISet<string> GetKeysByTag(string tag, bool cleanUp = false)
         {
             return GetKeysByTag(new [] {tag}, cleanUp);
         }
@@ -163,6 +163,13 @@ namespace CachingFramework.Redis
         public void InvalidateKeysByTag(params string[] tags)
         {
             _cacheProvider.InvalidateKeysByTag(tags);
+        }
+        /// <summary>
+        /// Returns the entire collection of tags
+        /// </summary>
+        public ISet<string> GetAllTags()
+        {
+            return _cacheProvider.GetAllTags();
         }
         /// <summary>
         /// Removes the specified key-value.
