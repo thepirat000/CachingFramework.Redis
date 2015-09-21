@@ -142,6 +142,25 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
 
+
+        [TestMethod]
+        public void UT_RedisStress_GetAllTags()
+        {
+            const string test = "UT_RedisStress_GetKeysByTag";
+            const int keyCount = 1500;
+            var realTags = new HashSet<string>();
+            for (int mod = 1; mod <= 216; mod++)
+            {
+                var tag = GetTag(mod, test);
+                realTags.Add(tag);
+                _cache.InvalidateKeysByTag(tag);
+            }
+            RemoveKeys(keyCount, test);
+            CreateKeys(keyCount, test);
+            var tags = _cache.GetAllTags();
+            Assert.IsTrue(tags.IsSubsetOf(realTags));
+        }
+
         [TestMethod]
         public void UT_CleanupTags()
         {

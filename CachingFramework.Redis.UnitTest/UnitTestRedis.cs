@@ -45,7 +45,6 @@ namespace CachingFramework.Redis.UnitTest
             var users = GetUsers();
             string key = "UT_CacheAddGet";
             _cache.Remove(key);
-
             _cache.SetObject(key, users[1]);
             _cache.SetObject(key, users[0], new string[]{});
             var user = _cache.GetObject<User>(key);
@@ -74,16 +73,12 @@ namespace CachingFramework.Redis.UnitTest
             string key = "UT_CacheFetchHashed";
             bool r = _cache.Remove(key);
             var users = GetUsers();
-            foreach (var u in users)
-            {
-                User user = u;
-                _cache.SetHashed(key, user.Id.ToString(), user);
-            }
-            var returnedUser1 = _cache.GetHashed<User>(key, "1");
-            var returnedUser2 = _cache.GetHashed<User>(key, "2");
-
-            Assert.AreEqual(1, returnedUser1.Id);
-            Assert.AreEqual(2, returnedUser2.Id);
+            bool enteredFirstTime = false;
+            bool enteredSecondTime = false;
+            var returnedUser1 = _cache.FetchHashed<User>(key, users[0].Id.ToString(), () => users[0]);
+            var returnedUser2 = _cache.FetchHashed<User>(key, users[0].Id.ToString(), () => null);
+            Assert.AreEqual(users[0].Id, returnedUser1.Id);
+            Assert.AreEqual(users[0].Id, returnedUser2.Id);
         }
 
         [TestMethod]
