@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Providers;
 using CachingFramework.Redis.RedisObjects;
@@ -58,7 +59,6 @@ namespace CachingFramework.Redis
         /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
         /// <param name="tags">The tags to associate with the key. Only associated when there is a cache miss.</param>
         /// <param name="expiry">The expiration timespan.</param>
-        /// <returns>``0.</returns>
         public T FetchObject<T>(string key, Func<T> func, string[] tags = null, TimeSpan? expiry = null)
         {
             T value = GetObject<T>(key);
@@ -73,6 +73,27 @@ namespace CachingFramework.Redis
                 {
                     SetObject(key, value, tags, expiry);
                 }
+            }
+            return value;
+        }
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        public T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null)
+        {
+            T value = GetHashed<T>(key, field);
+            if (null == value)
+            {
+                value = func();
+                SetHashed(key, field, value, expiry);
             }
             return value;
         }
