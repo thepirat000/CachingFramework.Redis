@@ -6,7 +6,7 @@
  to store cache items with tags allowing to retrieve or invalidate items by tag.
  * **Fetching mechanism**
  as shortcut methods for atomic Add/Get operations.
- * **Items Expiration**
+ * **Time-To-Live mechanism**
  * **Fully compatible with Redis Cluster**
  * **Compressed binary serialization** to minimize network and memory load
  * **Handle Redis List, Sets and Hashes** from common interfaces IList<T>, ISet<T> and IDictionary<K, V>.
