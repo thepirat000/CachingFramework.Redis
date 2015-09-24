@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -341,7 +340,6 @@ namespace CachingFramework.Redis.UnitTest
                     Size = (j + 1) * 23
                 });
             }
-            var l = JsonConvert.SerializeObject(user).Length;
             return user;
         }
     }
