@@ -49,6 +49,7 @@
     <Compile Include="Contracts\ICachedSet.cs" />
     <Compile Include="Contracts\ICacheProvider.cs" />
     <Compile Include="Contracts\ICachedList.cs" />
+    <Compile Include="Contracts\IPubSubProvider.cs" />
     <Compile Include="Contracts\IRedisObject.cs" />
     <Compile Include="Contracts\ISerializer.cs" />
     <Compile Include="Contracts\RedisBaseObject.cs" />

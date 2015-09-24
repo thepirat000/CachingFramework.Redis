@@ -11,7 +11,7 @@ namespace CachingFramework.Redis.Providers
     /// Cache provider implementation using StackExchange Redis.
     /// Compatible with Redis Cluster configuration
     /// </summary>
-    internal class RedisCacheProvider : ICacheProvider, ICachedCollectionProvider
+    internal class RedisCacheProvider : ICacheProvider, ICachedCollectionProvider, IPubSubProvider
     {
         #region Fields
         /// <summary>
@@ -210,6 +210,7 @@ namespace CachingFramework.Redis.Providers
         /// <summary>
         /// Returns the entire collection of tags
         /// </summary>
+        /// <returns>ISet{System.String}.</returns>
         public ISet<string> GetAllTags()
         {
             var tags = new List<RedisKey>();
@@ -337,6 +338,46 @@ namespace CachingFramework.Redis.Providers
             return new RedisHashSet<T>(_redisConnection, key, _serializer);
         }
         #endregion
+        #region IPubSubProvider Implementation
+        /// <summary>
+        /// Subscribes to a specified channel for a speficied type.
+        /// </summary>
+        /// <typeparam name="T">The item type</typeparam>
+        /// <param name="channel">The channel name.</param>
+        /// <param name="action">The action.</param>
+        public void Subscribe<T>(string channel, Action<T> action)
+        {
+            var sub = _redisConnection.GetSubscriber();
+            sub.Subscribe(channel, (ch, value) =>
+            {
+                object obj = _serializer.Deserialize<object>(value);
+                if (obj is T)
+                {
+                    action((T)obj);
+                }
+            });
+        }
+        /// <summary>
+        /// Unsubscribes from the specified channel.
+        /// </summary>
+        /// <param name="channel">The channel name.</param>
+        public void Unsubscribe(string channel)
+        {
+            var sub = _redisConnection.GetSubscriber();
+            sub.Unsubscribe(channel);
+        }
+        /// <summary>
+        /// Publishes an object to the specified channel.
+        /// </summary>
+        /// <typeparam name="T">The type of item to publish</typeparam>
+        /// <param name="channel">The channel name.</param>
+        /// <param name="item">The item.</param>
+        public void Publish<T>(string channel, T item)
+        {
+            var sub = _redisConnection.GetSubscriber();
+            sub.Publish(channel, _serializer.Serialize(item));
+        }
+        #endregion
         #region Private Methods
         /// <summary>
         /// Returns the maximum TTL between the current key TTL and the given TTL
@@ -428,6 +469,7 @@ namespace CachingFramework.Redis.Providers
         /// <summary>
         /// Runs a Server command in all the master servers.
         /// </summary>
+        /// <param name="action">The action.</param>
         private void RunInAllMasters(Action<IServer> action)
         {
             ICollection<ClusterNode> nodes = null;
@@ -453,7 +495,7 @@ namespace CachingFramework.Redis.Providers
         /// <summary>
         /// Flushes all the databases on every master node.
         /// </summary>
-        private void FlushAll()
+        public void FlushAll()
         {
             RunInAllMasters(svr => svr.FlushAllDatabases());
         }

@@ -18,7 +18,16 @@ namespace CachingFramework.Redis
         /// The cache provider for this Cache instance
         /// </summary>
         private readonly ICacheProvider _cacheProvider;
-        private readonly ISerializer _serializer;
+        /// <summary>
+        /// The pub/sub provider
+        /// </summary>
+        private readonly IPubSubProvider _pubsubProvider;
+        /// <summary>
+        /// The cached collection provider
+        /// </summary>
+        private readonly ICachedCollectionProvider _collectionProvider;
+
+
         #endregion
         #region Constructors
         /// <summary>
@@ -43,8 +52,11 @@ namespace CachingFramework.Redis
         /// <param name="serializer">The serializer.</param>
         public CacheContext(string configuration, ISerializer serializer)
         {
-            _serializer = serializer;
-            _cacheProvider = new RedisCacheProvider(configuration, serializer);
+            var provider = new RedisCacheProvider(configuration, serializer);
+            _cacheProvider = provider;
+            // From now, use the RedisCacheProvider for pub/sub and collections
+            _pubsubProvider = provider;
+            _collectionProvider = provider;
         }
         #endregion
         #region Public methods
@@ -59,6 +71,7 @@ namespace CachingFramework.Redis
         /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
         /// <param name="tags">The tags to associate with the key. Only associated when there is a cache miss.</param>
         /// <param name="expiry">The expiration timespan.</param>
+        /// <returns>``0.</returns>
         public T FetchObject<T>(string key, Func<T> func, string[] tags = null, TimeSpan? expiry = null)
         {
             T value = GetObject<T>(key);
@@ -87,6 +100,7 @@ namespace CachingFramework.Redis
         /// <param name="field">The field to obtain.</param>
         /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
         /// <param name="expiry">The expiration timespan.</param>
+        /// <returns>``0.</returns>
         public T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null)
         {
             T value = GetHashed<T>(key, field);
@@ -158,20 +172,22 @@ namespace CachingFramework.Redis
         }
         /// <summary>
         /// Returns all the objects that has the given tag(s) related.
-        /// Assumes all the objects are of the same type <typeparamref name="T"/>.
+        /// Assumes all the objects are of the same type <typeparamref name="T" />.
         /// </summary>
         /// <typeparam name="T">The objects types</typeparam>
         /// <param name="tags">The tags</param>
+        /// <returns>IEnumerable{``0}.</returns>
         public IEnumerable<T> GetObjectsByTag<T>(string[] tags)
         {
             return _cacheProvider.GetObjectsByTag<T>(tags);
         }
         /// <summary>
         /// Returns all the objects that has the given tag related.
-        /// Assumes all the objects are of the same type <typeparamref name="T"/>.
+        /// Assumes all the objects are of the same type <typeparamref name="T" />.
         /// </summary>
         /// <typeparam name="T">The objects types</typeparam>
         /// <param name="tag">The tag</param>
+        /// <returns>IEnumerable{``0}.</returns>
         public IEnumerable<T> GetObjectsByTag<T>(string tag)
         {
             return GetObjectsByTag<T>(new[] { tag });
@@ -188,6 +204,7 @@ namespace CachingFramework.Redis
         /// <summary>
         /// Returns the entire collection of tags
         /// </summary>
+        /// <returns>ISet{System.String}.</returns>
         public ISet<string> GetAllTags()
         {
             return _cacheProvider.GetAllTags();
@@ -250,6 +267,7 @@ namespace CachingFramework.Redis
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The redis key containing the hash.</param>
         /// <param name="field">The field to obtain.</param>
+        /// <returns>``0.</returns>
         public T GetHashed<T>(string key, string field)
         {
             return _cacheProvider.GetHashed<T>(key, field);
@@ -258,7 +276,9 @@ namespace CachingFramework.Redis
         /// Gets all the values from a hash.
         /// The keys of the dictionary are the field names and the values are the objects
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
+        /// <returns>IDictionary{System.String``0}.</returns>
         public IDictionary<string, T> GetHashedAll<T>(string key)
         {
             return _cacheProvider.GetHashedAll<T>(key);
@@ -268,6 +288,7 @@ namespace CachingFramework.Redis
         /// </summary>
         /// <param name="key">The redis key containing the hash.</param>
         /// <param name="field">The hash field to delete.</param>
+        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         public bool RemoveHashed(string key, string field)
         {
             return _cacheProvider.RemoveHashed(key, field);
@@ -277,9 +298,10 @@ namespace CachingFramework.Redis
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
+        /// <returns>ICachedList{``0}.</returns>
         public ICachedList<T> GetCachedList<T>(string key)
         {
-            return GetCachedCollectionProvider().GetCachedList<T>(key);
+            return _collectionProvider.GetCachedList<T>(key);
         }
         /// <summary>
         /// Returns an IDictionary implemented using a Redis Hash
@@ -287,31 +309,55 @@ namespace CachingFramework.Redis
         /// <typeparam name="TKey">The key type</typeparam>
         /// <typeparam name="TValue">The object type</typeparam>
         /// <param name="key">The redis key</param>
+        /// <returns>ICachedDictionary{``0``1}.</returns>
         public ICachedDictionary<TKey, TValue> GetCachedDictionary<TKey, TValue>(string key)
         {
-            return GetCachedCollectionProvider().GetCachedDictionary<TKey, TValue>(key);
+            return _collectionProvider.GetCachedDictionary<TKey, TValue>(key);
         }
         /// <summary>
         /// Returns an ISet implemented using a Redis Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
+        /// <returns>ICachedSet{``0}.</returns>
         public ICachedSet<T> GetCachedSet<T>(string key)
         {
-            return GetCachedCollectionProvider().GetCachedSet<T>(key);
+            return _collectionProvider.GetCachedSet<T>(key);
         }
-        #endregion
-        #region Private methods
         /// <summary>
-        /// Gets the cache provider as a collection provider.
+        /// Flushes all the databases on every master node.
         /// </summary>
-        private ICachedCollectionProvider GetCachedCollectionProvider()
+        public void FlushAll()
         {
-            if (!(_cacheProvider is ICachedCollectionProvider))
-            {
-                throw new NotImplementedException("This cached collection is not supported by the provider.");
-            }
-            return (_cacheProvider as ICachedCollectionProvider);
+            _cacheProvider.FlushAll();
+        }
+        /// <summary>
+        /// Subscribes to a specified channel for a speficied type.
+        /// </summary>
+        /// <typeparam name="T">The item type</typeparam>
+        /// <param name="channel">The channel name.</param>
+        /// <param name="action">The action.</param>
+        public void Subscribe<T>(string channel, Action<T> action)
+        {
+            _pubsubProvider.Subscribe<T>(channel, action);
+        }
+        /// <summary>
+        /// Unsubscribes from the specified channel.
+        /// </summary>
+        /// <param name="channel">The channel name.</param>
+        public void Unsubscribe(string channel)
+        {
+            _pubsubProvider.Unsubscribe(channel);
+        }
+        /// <summary>
+        /// Publishes an object to the specified channel.
+        /// </summary>
+        /// <typeparam name="T">The type of item to publish</typeparam>
+        /// <param name="channel">The channel name.</param>
+        /// <param name="item">The item.</param>
+        public void Publish<T>(string channel, T item)
+        {
+            _pubsubProvider.Publish<T>(channel, item);
         }
         #endregion
     }

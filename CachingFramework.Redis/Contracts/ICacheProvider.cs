@@ -114,5 +114,9 @@ namespace CachingFramework.Redis.Contracts
         /// </summary>
         /// <param name="key">The key.</param>
         IDictionary<string, T> GetHashedAll<T>(string key);
+        /// <summary>
+        /// Flushes all the databases on every master node.
+        /// </summary>
+        void FlushAll();
     }
 }

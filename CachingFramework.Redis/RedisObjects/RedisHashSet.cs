@@ -133,9 +133,9 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="other">The collection to compare to the current set.</param>
         public bool SetEquals(IEnumerable<T> other)
         {
-            if (other is ISet<T>)
+            if (other is ICollection<T>)
             {
-                return SetEquals((ISet<T>) other);
+                return SetEquals((ICollection<T>)other);
             }
             int count = 0;
             foreach (var item in other)
