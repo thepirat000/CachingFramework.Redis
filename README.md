@@ -31,9 +31,9 @@ var cache = new CacheContext("10.0.0.1:7000, 10.0.0.2:7000, 10.0.0.3:7000, conne
 ```
 See https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md for StackExchange.Redis configuration options.
 
-### Adding objects
+### Adding/Updating objects
 
-#### Add a single object to the cache
+#### Set a single object to the cache
 ```c#
 string redisKey = "user:1";
 User value = new User() { Id = 1 };  // any serializable object 
@@ -116,7 +116,7 @@ Objects within a hash can be of different types.
 cache.RemoveHashed(redisKey, "user:id:1");
 ```
 
-### .NET Collection implementations
+### .NET Collections
 Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
 
 #### Get a .NET IList stored as a Redis List
