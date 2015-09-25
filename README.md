@@ -33,7 +33,7 @@ See https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Config
 
 ### Adding objects
 
-#### Add single object 
+#### Add a single object 
 Add a single object to the cache:
 ```c#
 string redisKey = "user:1";
