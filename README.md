@@ -182,6 +182,18 @@ This will listen to any channel whose name starts with "*users.*".
 cache.Unsubscribe("users.*");
 ```
 
+#### Naive 4-lines chat application
+```c#
+static void Main()
+{
+    var cache = new CacheContext();
+    cache.Subscribe<string>("chat", m => Console.WriteLine(m));
+    while (true)
+    {
+        cache.Publish("chat", Console.ReadLine());
+    }
+}
+```
 
 
 
