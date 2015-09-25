@@ -175,7 +175,7 @@ Redis Pub/Sub supports pattern matching in which clients may subscribe to glob-s
 ```c#
 cache.Subscribe<User>("users.*", user => Console.WriteLine(user.Id));
 ```
-This will listen to any channel whose name starts with *users.*.
+This will listen to any channel whose name starts with "*users.*".
 
 #### Unsubscribe using channel pattern 
 ```c#
