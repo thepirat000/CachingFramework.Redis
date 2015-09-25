@@ -10,6 +10,7 @@
  * **Fully compatible with Redis Cluster**
  * **Compressed binary serialization** to minimize network and memory load
  * **Handle Redis List, Sets and Hashes** from common interfaces IList<T>, ISet<T> and IDictionary<K, V>.
+ * **Pub/Sub with typed messages**
  
 ## Usage
 
@@ -124,10 +125,56 @@ ISet<User> users = cache.GetCachedSet<User>(redisKey);
 IDictionary<string, User> users = cache.GetCachedDictionary<string, User>(redisKey);
 ```
 
+Pub/Sub
+=====
 
+A typed Publish/Subscribe mechanism is provided.
 
+#### Subscribe to a channel
+Listen for messages of type `User` on the channel *users*:
+```c#
+cache.Subscribe<User>("users", user => Console.WriteLine(user.Id));
+```
 
+#### Publish to a channel
+Publishes a messages of type `User` to the channel *users*:
+```c#
+cache.Publish<User>("users", new User() { Id = 1 });
+```
 
+#### Unsubscribe from a channel
+```c#
+cache.Unsubscribe("users");
+```
+
+#### Messages types
+Each subscription listen to messages of the specified type (or inherited from it).
+```c#
+cache.Subscribe<User>("entities", user => Console.WriteLine(user.Id));
+cache.Subscribe<Manager>("entities", mgr => Console.WriteLine(mgr.Id));
+```
+Subscription of type object will listen to all types:
+```c#
+cache.Subscribe<object>("entities", obj => Console.WriteLine(obj));
+```
+
+### Pattern-matching subscriptions
+Redis Pub/Sub supports pattern matching in which clients may subscribe to glob-style patterns to receive all the messages sent to channel names matching a given pattern.
+
+#### Subscribe using channel pattern 
+```c#
+cache.Subscribe<User>("users.*", user => Console.WriteLine(user.Id));
+```
+This will listen to any channel whose name starts with *users.*, for example:
+```c#
+cache.Publish<User>("users.login", new User() { Id = 1 });
+cache.Publish<User>("users.logout", new User() { Id = 1 });
+```
+
+#### Unsubscribe using channel pattern 
+```c#
+cache.Unsubscribe("users.*");
+```
 
 
 
