@@ -86,7 +86,7 @@ Try to get an object from the cache, inserting it to the cache if it does not ex
 ```c#
 var user = cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id));
 ```
-The method `GetUserFromDatabase` will only be called if the value is not present on the cache, in such case it will add it to the cache.
+The method `GetUserFromDatabase` will only be called when the value is not present on the cache, in which case will be added to the cache before returning it.
 
 ### Hashes
 Hashes are maps composed of fields associated with values, like .NET dictionaries.
