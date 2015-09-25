@@ -17,8 +17,9 @@ namespace CachingFramework.Redis.UnitTest
         [TestInitialize]
         public void Initialize()
         {
-            defaultConfig = "192.168.15.15:7000,192.168.15.15:7001,192.168.15.15:7002,192.168.15.15:7003,192.168.15.15:7004,192.168.15.15:7005,192.168.15.15:7006,connectRetry=10,syncTimeout=5000,abortConnect=false,keepAlive=10";
+            defaultConfig = "192.168.15.15:7000,192.168.15.15:7001,192.168.15.15:7002,192.168.15.15:7003,192.168.15.15:7004,192.168.15.15:7005,192.168.15.15:7006,connectRetry=10,syncTimeout=5000,abortConnect=false,keepAlive=10, allowAdmin=true";
             _cache = new CacheContext(defaultConfig);
+            _cache.FlushAll();
         }
 
         [TestMethod]
@@ -75,8 +76,8 @@ namespace CachingFramework.Redis.UnitTest
             const string test = "UT_RedisBomb";
             Stress(100, test);
             Stress(1000, test);
-            Stress(10000, test);
             /*
+            Stress(10000, test);
             Stress(100000, test);
             Stress(200000, test);
              Stress(300000, test);

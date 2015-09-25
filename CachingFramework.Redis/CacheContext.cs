@@ -336,10 +336,20 @@ namespace CachingFramework.Redis
         /// </summary>
         /// <typeparam name="T">The item type</typeparam>
         /// <param name="channel">The channel name.</param>
-        /// <param name="action">The action.</param>
+        /// <param name="action">The action where the first parameter is the channel name and the second is the object message.</param>
+        public void Subscribe<T>(string channel, Action<string, T> action)
+        {
+            _pubsubProvider.Subscribe(channel, action);
+        }
+        /// <summary>
+        /// Subscribes to a specified channel for a speficied type.
+        /// </summary>
+        /// <typeparam name="T">The item type</typeparam>
+        /// <param name="channel">The channel name.</param>
+        /// <param name="action">The action where the only parameter is the object message.</param>
         public void Subscribe<T>(string channel, Action<T> action)
         {
-            _pubsubProvider.Subscribe<T>(channel, action);
+            _pubsubProvider.Subscribe<T>(channel, (c, o) => action(o));
         }
         /// <summary>
         /// Unsubscribes from the specified channel.

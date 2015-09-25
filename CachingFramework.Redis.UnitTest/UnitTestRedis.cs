@@ -20,6 +20,7 @@ namespace CachingFramework.Redis.UnitTest
             // Config doc: https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md
             _defaultConfig = "192.168.15.15:7001, 192.168.15.15:7006, 192.168.15.15:7002, 192.168.15.15:7003, 192.168.15.15:7004, 192.168.15.15:7005, 192.168.15.15:7000, connectRetry=10, syncTimeout=10000, abortConnect=false, keepAlive=10, allowAdmin=true";
             _cache = new CacheContext(_defaultConfig);
+            _cache.FlushAll();
         }
 
         [TestMethod]

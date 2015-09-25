@@ -16,8 +16,8 @@ namespace CachingFramework.Redis.Contracts
         /// </summary>
         /// <typeparam name="T">The item type</typeparam>
         /// <param name="channel">The channel name.</param>
-        /// <param name="action">The action.</param>
-        void Subscribe<T>(string channel, Action<T> action);
+        /// <param name="action">The action where the first parameter is the channel name and the second is the object message.</param>
+        void Subscribe<T>(string channel, Action<string, T> action);
         /// <summary>
         /// Unsubscribes from the specified channel.
         /// </summary>

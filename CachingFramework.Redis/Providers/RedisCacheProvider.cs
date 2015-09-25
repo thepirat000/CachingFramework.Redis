@@ -65,8 +65,6 @@ namespace CachingFramework.Redis.Providers
         }
         /// <summary>
         /// Set the value of a key, associating the key with the given tag(s).
-        /// Uses the Redis Lua Script SetWithTags.lua.
-        /// Syntax : SetWithTags {CacheKey} {Tag1} {Tag2} ... {TagN} {Value} [ExpirationInSeconds]
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
@@ -177,7 +175,6 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <typeparam name="T">The objects types</typeparam>
         /// <param name="tags">The tags</param>
-        /// <returns>IEnumerable{``0}.</returns>
         public IEnumerable<T> GetObjectsByTag<T>(string[] tags)
         {
             var db = _redisConnection.GetDatabase();
@@ -196,8 +193,6 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
-        /// <returns>``0.</returns>
-        /// <remarks>Redis command: GET key</remarks>
         public T GetObject<T>(string key)
         {
             var cacheValue = _redisConnection.GetDatabase().StringGet(key);
@@ -210,7 +205,6 @@ namespace CachingFramework.Redis.Providers
         /// <summary>
         /// Returns the entire collection of tags
         /// </summary>
-        /// <returns>ISet{System.String}.</returns>
         public ISet<string> GetAllTags()
         {
             var tags = new List<RedisKey>();
@@ -344,8 +338,8 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <typeparam name="T">The item type</typeparam>
         /// <param name="channel">The channel name.</param>
-        /// <param name="action">The action.</param>
-        public void Subscribe<T>(string channel, Action<T> action)
+        /// <param name="action">The action where the first parameter is the channel name and the second is the object message.</param>
+        public void Subscribe<T>(string channel, Action<string, T> action)
         {
             var sub = _redisConnection.GetSubscriber();
             sub.Subscribe(channel, (ch, value) =>
@@ -353,7 +347,7 @@ namespace CachingFramework.Redis.Providers
                 object obj = _serializer.Deserialize<object>(value);
                 if (obj is T)
                 {
-                    action((T)obj);
+                    action(ch, (T)obj);
                 }
             });
         }
@@ -371,7 +365,7 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <typeparam name="T">The type of item to publish</typeparam>
         /// <param name="channel">The channel name.</param>
-        /// <param name="item">The item.</param>
+        /// <param name="item">The object message to send.</param>
         public void Publish<T>(string channel, T item)
         {
             var sub = _redisConnection.GetSubscriber();
