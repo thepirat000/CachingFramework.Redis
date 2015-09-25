@@ -33,7 +33,8 @@ See https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Config
 
 ### Adding objects
 
-#### Add a single object to the cache
+#### Add single object 
+Add a single object to the cache:
 ```c#
 string redisKey = "user:1";
 User value = new User() { Id = 1 };  // any serializable object 
@@ -41,13 +42,13 @@ cache.SetObject(redisKey, value);
 ```
 
 #### Add a single object with tags
-Add a single object to the cache and associate it with tags *tag1* and *tag2*
+Add a single object to the cache and associate it with tags *tag1* and *tag2*:
 ```c#
 cache.SetObject(redisKey, value, new[] { "tag1", "tag2" });
 ```
 
 #### Add a single object with TTL
-Add a single object to the cache with a Time-To-Live of 1 day.
+Add a single object to the cache with a Time-To-Live of 1 day:
 ```c#
 cache.SetObject(redisKey, value, TimeSpan.FromDays(1));
 ```
@@ -101,7 +102,7 @@ void InsertUser(User user)
 }
 ```
 #### Get hashed object
-Get an object by the redis key and a field key
+Get an object by the redis key and a field key:
 ```c#
 User u = cache.GetHashed<User>(redisKey, "user:id:1");
 ```
@@ -157,7 +158,7 @@ cache.Unsubscribe("users");
 ```
 
 #### Messages types
-Each subscription listen to messages of the specified type (or inherited from it).
+Each subscription listen to messages of the specified type (or inherited from it):
 ```c#
 cache.Subscribe<User>("entities", user => Console.WriteLine(user.Id));
 cache.Subscribe<Manager>("entities", mgr => Console.WriteLine(mgr.Id));
@@ -174,11 +175,7 @@ Redis Pub/Sub supports pattern matching in which clients may subscribe to glob-s
 ```c#
 cache.Subscribe<User>("users.*", user => Console.WriteLine(user.Id));
 ```
-This will listen to any channel whose name starts with *users.*, for example:
-```c#
-cache.Publish<User>("users.login", new User() { Id = 1 });
-cache.Publish<User>("users.logout", new User() { Id = 1 });
-```
+This will listen to any channel whose name starts with *users.*.
 
 #### Unsubscribe using channel pattern 
 ```c#
