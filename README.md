@@ -21,13 +21,14 @@ PM> Install-Package CachingFramework.Redis
 
 ### Configuration
 #### Default configuration
+Connect to Redis on localhost port 6379:
 ```c#
 var cache = new CacheContext();
 ```
 
 #### Custom configuration
 ```c#
-var cache = new CacheContext("10.0.0.1:7000, 10.0.0.1:7001, connectRetry=10, syncTimeout=5000, abortConnect=false, allowAdmin=true");
+var cache = new CacheContext("10.0.0.1:7000, 10.0.0.2:7000, 10.0.0.3:7000, connectRetry=10, syncTimeout=5000, abortConnect=false, allowAdmin=true");
 ```
 See https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md for StackExchange.Redis configuration options.
 
@@ -41,11 +42,13 @@ cache.SetObject(redisKey, value);
 ```
 
 #### Add a single object with tags
+Add a single object to the cache and associate it with tags *tag1* and *tag2*
 ```c#
 cache.SetObject(redisKey, value, new[] { "tag1", "tag2" });
 ```
 
-#### Add a single object with tags and TTL
+#### Add a single object with TTL
+Add a single object to the cache with a Time-To-Live of 1 day.
 ```c#
 cache.SetObject(redisKey, value, TimeSpan.FromDays(1));
 ```
@@ -65,11 +68,13 @@ cache.Remove(redisKey);
 ```
 
 #### Invalidate by tag
+Remove all the keys related to *tag1*:
 ```c#
 cache.InvalidateKeysByTag("tag1");
 ```
 
 #### Get objects by tag
+Get all the objects related to the tag *tag1*. Assuming all the keys related to the tag are of type `User`:
 ```c#
 IEnumerable<User> users = cache.GetObjectsByTag<User>("tag1");
 ```
@@ -80,7 +85,7 @@ IEnumerable<User> users = cache.GetObjectsByTag<User>("tag1");
 ```c#
 var user = cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id));
 ```
-Note the method *GetUserFromDatabase* will only be called if the value is not present on the cache, in such case it will add it to the cache.
+The method `GetUserFromDatabase` will only be called if the value is not present on the cache, in such case it will add it to the cache.
 
 ### Hashes
 Hashes are maps composed of fields associated with values, like .NET dictionaries.
