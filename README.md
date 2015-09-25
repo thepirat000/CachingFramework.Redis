@@ -74,14 +74,15 @@ cache.InvalidateKeysByTag("tag1");
 ```
 
 #### Get objects by tag
-Get all the objects related to the tag *tag1*. Assuming all the keys related to the tag are of type `User`:
+Get all the objects related to *tag1*. Assuming all the keys related to the tag are of type `User`:
 ```c#
 IEnumerable<User> users = cache.GetObjectsByTag<User>("tag1");
 ```
 
 ### Fetching objects
 
-#### Get an object, inserting it to the cache if it does not exists
+#### Fetch an object
+Try to get an object from the cache, inserting it to the cache if it does not exists:
 ```c#
 var user = cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id));
 ```
@@ -91,6 +92,7 @@ The method `GetUserFromDatabase` will only be called if the value is not present
 Hashes are maps composed of fields associated with values, like .NET dictionaries.
 
 #### Set hashed objects
+Set an object on a redis key indexed by a field key (sub-key):
 ```c#
 void InsertUser(User user)
 {
@@ -100,13 +102,16 @@ void InsertUser(User user)
 }
 ```
 #### Get hashed object
+Get an object by the redis key and a field key
 ```c#
 User u = cache.GetHashed<User>(redisKey, "user:id:1");
 ```
-#### Get all objects in a hash 
+#### Get all the objects in a hash 
 ```c#
 IDictionary<string, User> users = cache.GetHashedAll<User>(redisKey);
 ```
+Objects within a hash can be of different types. 
+
 #### Remove object from hash
 ```c#
 cache.RemoveHashed(redisKey, "user:id:1");
