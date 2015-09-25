@@ -31,9 +31,9 @@ var cache = new CacheContext("10.0.0.1:7000, 10.0.0.2:7000, 10.0.0.3:7000, conne
 ```
 See https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md for StackExchange.Redis configuration options.
 
-### Adding/Updating objects
+### Adding objects
 
-#### Set a single object to the cache
+#### Add a single object to the cache
 ```c#
 string redisKey = "user:1";
 User value = new User() { Id = 1 };  // any serializable object 
