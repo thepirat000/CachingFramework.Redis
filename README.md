@@ -186,7 +186,7 @@ cache.Unsubscribe("users.*");
 ```c#
 static void Main()
 {
-    var cache = new CacheContext();
+    var cache = new CacheContext("10.0.0.1:7000");
     cache.Subscribe<string>("chat", m => Console.WriteLine(m));
     while (true)
     {
