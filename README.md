@@ -13,7 +13,7 @@
  
 ## Usage
 
-### NuGet
+### [NuGet](https://www.nuget.org/packages/CachingFramework.Redis/)
 ```
 PM> Install-Package CachingFramework.Redis
 ```
