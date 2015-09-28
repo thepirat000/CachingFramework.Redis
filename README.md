@@ -1,5 +1,5 @@
 # CachingFramework.Redis
-.NET Redis Distributed Cache library.
+.NET Redis Distributed Cache library based on StackExchange.Redis
 
 ##Features
  * **Tagging mechanism**
