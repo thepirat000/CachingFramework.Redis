@@ -26,6 +26,10 @@ namespace CachingFramework.Redis.UnitTest
         [TestMethod]
         public void UT_CacheByteArray()
         {
+            _cache.SetObject("key", "jpeg");
+            var o = _cache.GetObject<string>("key");
+
+
             string key = "UT_CacheByteArray";
             Jpeg jpeg = new Jpeg()
             {

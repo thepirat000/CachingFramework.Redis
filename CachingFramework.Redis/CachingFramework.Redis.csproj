@@ -44,17 +44,32 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheContext.cs" />
+    <Compile Include="Contracts\GeoCoordinate.cs" />
+    <Compile Include="Contracts\GeoMember.cs" />
     <Compile Include="Contracts\ICachedDictionary.cs" />
     <Compile Include="Contracts\ICachedCollectionProvider.cs" />
     <Compile Include="Contracts\ICachedSet.cs" />
     <Compile Include="Contracts\ICacheProvider.cs" />
     <Compile Include="Contracts\ICachedList.cs" />
+    <Compile Include="Contracts\IGeoProvider.cs" />
     <Compile Include="Contracts\IPubSubProvider.cs" />
     <Compile Include="Contracts\IRedisObject.cs" />
     <Compile Include="Contracts\ISerializer.cs" />
-    <Compile Include="Contracts\RedisBaseObject.cs" />
+    <Compile Include="Contracts\Unit.cs" />
+    <Compile Include="Contracts\UnitAttribute.cs" />
+    <Compile Include="LuaScriptResource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>LuaScriptResource.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\RedisCachedCollectionProvider.cs" />
     <Compile Include="Providers\RedisCacheProvider.cs" />
+    <Compile Include="Providers\RedisGeoProvider.cs" />
+    <Compile Include="Providers\RedisProviderBase.cs" />
+    <Compile Include="Providers\RedisProviderContext.cs" />
+    <Compile Include="Providers\RedisPubSubProvider.cs" />
+    <Compile Include="RedisObjects\RedisBaseObject.cs" />
     <Compile Include="RedisObjects\RedisDictionary.cs" />
     <Compile Include="RedisObjects\RedisHashSet.cs" />
     <Compile Include="RedisObjects\RedisList.cs" />
@@ -63,6 +78,12 @@
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="LuaScriptResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>LuaScriptResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

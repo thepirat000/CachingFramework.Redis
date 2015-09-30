@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Providers;
 using CachingFramework.Redis.RedisObjects;
 using CachingFramework.Redis.Serializers;
+using StackExchange.Redis;
 
 namespace CachingFramework.Redis
 {
@@ -26,7 +28,10 @@ namespace CachingFramework.Redis
         /// The cached collection provider
         /// </summary>
         private readonly ICachedCollectionProvider _collectionProvider;
-
+        /// <summary>
+        /// The Geo Spacial provider
+        /// </summary>
+        private readonly IGeoProvider _geoProvider;
 
         #endregion
         #region Constructors
@@ -52,11 +57,12 @@ namespace CachingFramework.Redis
         /// <param name="serializer">The serializer.</param>
         public CacheContext(string configuration, ISerializer serializer)
         {
-            var provider = new RedisCacheProvider(configuration, serializer);
-            _cacheProvider = provider;
-            // From now, use the RedisCacheProvider for pub/sub and collections
-            _pubsubProvider = provider;
-            _collectionProvider = provider;
+            // Create the redis provider common context
+            var providerContext = new RedisProviderContext(configuration, serializer);
+            _cacheProvider = new RedisCacheProvider(providerContext);
+            _pubsubProvider = new RedisPubSubProvider(providerContext);
+            _collectionProvider = new RedisCachedCollectionProvider(providerContext);
+            _geoProvider = new RedisGeoProvider(providerContext);
         }
         #endregion
         #region Public methods
@@ -368,6 +374,98 @@ namespace CachingFramework.Redis
         public void Publish<T>(string channel, T item)
         {
             _pubsubProvider.Publish<T>(channel, item);
+        }
+        /// <summary>
+        /// Adds the specified members to a geospacial index.
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="coordinate">The member coordinates.</param>
+        /// <param name="member">The member to add.</param>
+        /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
+        public int GeoAdd<T>(string key, GeoCoordinate coordinate, T member)
+        {
+            return GeoAdd(key, new[] {coordinate}, new[] {member});
+        }
+        /// <summary>
+        /// Adds the specified members to a geospacial index.
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="coordinates">The member coordinates.</param>
+        /// <param name="members">The members to add.</param>
+        /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
+        public int GeoAdd<T>(string key, GeoCoordinate[] coordinates, T[] members)
+        {
+            return _geoProvider.GeoAdd(key, coordinates, members);
+        }
+        /// <summary>
+        /// Return the position (longitude,latitude) of the specified member of the geospatial index at key.
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="member">The member.</param>
+        public GeoMember<T> GeoPosition<T>(string key, T member)
+        {
+            return GeoPositions(key, new [] { member }).FirstOrDefault();
+        }
+        /// <summary>
+        /// Return the positions (longitude,latitude) of all the specified members of the geospatial index at key.
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="members">The members.</param>
+        public IEnumerable<GeoMember<T>> GeoPositions<T>(string key, T[] members)
+        {
+            return _geoProvider.GeoPosition(key, members);
+        }
+        /// <summary>
+        /// Return the distance between two members in the geospatial index at key.
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="member1">The first member.</param>
+        /// <param name="member2">The second member.</param>
+        /// <param name="unit">The result unit.</param>
+        /// <returns>The distance in the given unit or -1 in case of a non-existing member.</returns>
+        public double GeoDistance<T>(string key, T member1, T member2, Unit unit)
+        {
+            return _geoProvider.GeoDistance(key, member1, member2, unit);
+        }
+        /// <summary>
+        /// Return Geohash strings representing the position of a member in a geospatial index (where elements were added using GEOADD).
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="member">The member.</param>
+        public string GeoHash<T>(string key, T member)
+        {
+            return _geoProvider.GeoHash(key, member);
+        }
+        /// <summary>
+        /// Return the members of a geospatial index, which are within the borders of the area specified with the center location and the maximum distance from the center (the radius).
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="center">The center.</param>
+        /// <param name="radius">The radius.</param>
+        /// <param name="unit">The unit.</param>
+        public IEnumerable<GeoMember<T>> GeoRadius<T>(string key, GeoCoordinate center, double radius, Unit unit)
+        {
+            return GeoRadius<T>(key, center, radius, unit, -1);
+        }
+        /// <summary>
+        /// Return the members of a geospatial index, which are within the borders of the area specified with the center location and the maximum distance from the center (the radius).
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="center">The center.</param>
+        /// <param name="radius">The radius.</param>
+        /// <param name="unit">The unit.</param>
+        /// <param name="count">If greater than 0, limit the results to the first N matching items.</param>
+        public IEnumerable<GeoMember<T>> GeoRadius<T>(string key, GeoCoordinate center, double radius, Unit unit, int count)
+        {
+            return _geoProvider.GeoRadius<T>(key, center, radius, unit, count);
         }
         #endregion
     }

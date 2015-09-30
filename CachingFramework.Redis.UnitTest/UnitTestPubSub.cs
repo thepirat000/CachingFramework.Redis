@@ -105,7 +105,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[1].Id, objects[1].Id);
             Assert.AreEqual(1, user0count);
 
-            _cache.Unsubscribe(ch + "*");
+            _cache.Unsubscribe(ch + ".*");
             Thread.Sleep(500);
             _cache.Publish(ch + ".user2", users[2]);
             Assert.AreEqual(2, channels.Count);

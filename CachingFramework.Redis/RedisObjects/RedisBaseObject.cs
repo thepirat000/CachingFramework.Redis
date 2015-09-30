@@ -1,8 +1,8 @@
 ﻿using System;
-using CachingFramework.Redis.Serializers;
+using CachingFramework.Redis.Contracts;
 using StackExchange.Redis;
 
-namespace CachingFramework.Redis.Contracts
+namespace CachingFramework.Redis.RedisObjects
 {
     /// <summary>
     /// Base class for Managed collections using Redis types
