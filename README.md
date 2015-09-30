@@ -204,9 +204,7 @@ The Geospatial Redis API is not yet available in a stable version of Redis. Down
 Add a user to a geospatial index by its coordinates:
 ```c#
 string redisKey = "users:geo";
-double latitude = 20.637;
-double longitude = -103.402;
-context.GeoAdd<User>(redisKey, latitude, longitude, user);
+context.GeoAdd<User>(redisKey, new GeoCoordinate(20.637, -103.402), user);
 ```
 
 ### Get the coordinates for an item
@@ -226,12 +224,18 @@ double dist = context.GeoDistance(redisKey, user1, user2, Unit.Kilometers);
 Get the users within a 100 Km radius: 
 ```c#
 string redisKey = "users:geo";
-double latitude = 20.553;
-double longitude = -102.925;
+var center = new GeoCoordinate(20.553, -102.925);
 double radius = 100;
-IEnumerable<GeoMember<User>> results = _context.GeoRadius<User>(redisKey, latitude, longitude, radius, Unit.Kilometers);
+IEnumerable<GeoMember<User>> results = _context.GeoRadius<User>(redisKey, center, radius, Unit.Kilometers);
 ```
-
-
-
+The results includes the position and the distance from the center:
+```c#
+foreach (var r in results)
+{
+    double dist = r.DistanceToCenter;
+    GeoCoordinate pos = r.Position;
+    User user = r.Value;
+    ...
+}
+```
 
