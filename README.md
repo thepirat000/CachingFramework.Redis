@@ -10,6 +10,7 @@
  * **Compressed binary serialization** to minimize network and memory load.
  * **Handle Redis List, Sets and Hashes** from common interfaces IList<T>, ISet<T> and IDictionary<K, V>.
  * **Pub/Sub with typed messages**.
+ * **Geospatial support** to handle geospatial indexed items.
  
 ## Usage
 
@@ -22,12 +23,12 @@ PM> Install-Package CachingFramework.Redis
 #### Default configuration
 Connect to Redis on localhost port 6379:
 ```c#
-var cache = new CacheContext();
+var context = new CacheContext();
 ```
 
 #### Custom configuration
 ```c#
-var cache = new CacheContext("10.0.0.1:7000, 10.0.0.2:7000, 10.0.0.3:7000, connectRetry=10, syncTimeout=5000, abortConnect=false, allowAdmin=true");
+var context = new CacheContext("10.0.0.1:7000, 10.0.0.2:7000, 10.0.0.3:7000, connectRetry=10, syncTimeout=5000, abortConnect=false, allowAdmin=true");
 ```
 See https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md for StackExchange.Redis configuration options.
 
@@ -38,45 +39,45 @@ Add a single object to the cache:
 ```c#
 string redisKey = "user:1";
 User value = new User() { Id = 1 };  // any serializable object 
-cache.SetObject(redisKey, value);
+context.SetObject(redisKey, value);
 ```
 
 #### Add a single object with tags
 Add a single object to the cache and associate it with tags *tag1* and *tag2*:
 ```c#
-cache.SetObject(redisKey, value, new[] { "tag1", "tag2" });
+context.SetObject(redisKey, value, new[] { "tag1", "tag2" });
 ```
 
 #### Add a single object with TTL
 Add a single object to the cache with a Time-To-Live of 1 day:
 ```c#
-cache.SetObject(redisKey, value, TimeSpan.FromDays(1));
+context.SetObject(redisKey, value, TimeSpan.FromDays(1));
 ```
 
 ### Getting objects
 
 #### Get a single object
 ```c#
-User user = cache.GetObject<User>(redisKey);
+User user = context.GetObject<User>(redisKey);
 ```
 
 ### Removing objects
 
 #### Remove a key
 ```c#
-cache.Remove(redisKey);
+context.Remove(redisKey);
 ```
 
 #### Invalidate by tag
 Remove all the keys related to *tag1*:
 ```c#
-cache.InvalidateKeysByTag("tag1");
+context.InvalidateKeysByTag("tag1");
 ```
 
 #### Get objects by tag
 Get all the objects related to *tag1*. Assuming all the keys related to the tag are of type `User`:
 ```c#
-IEnumerable<User> users = cache.GetObjectsByTag<User>("tag1");
+IEnumerable<User> users = context.GetObjectsByTag<User>("tag1");
 ```
 
 ### Fetching objects
@@ -84,7 +85,7 @@ IEnumerable<User> users = cache.GetObjectsByTag<User>("tag1");
 #### Fetch an object
 Try to get an object from the cache, inserting it to the cache if it does not exists:
 ```c#
-var user = cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id));
+var user = context.FetchObject<User>(redisKey, () => GetUserFromDatabase(id));
 ```
 The method `GetUserFromDatabase` will only be called when the value is not present on the cache, in which case will be added to the cache before returning it.
 
@@ -98,23 +99,23 @@ void InsertUser(User user)
 {
     var redisKey = "users:hash";
     var fieldKey = "user:id:" + user.Id;
-    cache.SetHashed(redisKey, fieldKey, user);
+    context.SetHashed(redisKey, fieldKey, user);
 }
 ```
 #### Get hashed object
 Get an object by the redis key and a field key:
 ```c#
-User u = cache.GetHashed<User>(redisKey, "user:id:1");
+User u = context.GetHashed<User>(redisKey, "user:id:1");
 ```
 #### Get all the objects in a hash 
 ```c#
-IDictionary<string, User> users = cache.GetHashedAll<User>(redisKey);
+IDictionary<string, User> users = context.GetHashedAll<User>(redisKey);
 ```
 Objects within a hash can be of different types. 
 
 #### Remove object from hash
 ```c#
-cache.RemoveHashed(redisKey, "user:id:1");
+context.RemoveHashed(redisKey, "user:id:1");
 ```
 
 ### .NET Collections
@@ -122,17 +123,17 @@ Implementations of .NET IList, ISet and IDictionary that internally uses Redis a
 
 #### Get a .NET IList stored as a Redis List
 ```c#
-IList<User> users = cache.GetCachedList<User>(redisKey);
+IList<User> users = context.GetCachedList<User>(redisKey);
 ```
 
 #### Get a .NET ISet stored as a Redis Set
 ```c#
-ISet<User> users = cache.GetCachedSet<User>(redisKey);
+ISet<User> users = context.GetCachedSet<User>(redisKey);
 ```
 
 #### Get a .NET IDictionary stored as a Redis Hash
 ```c#
-IDictionary<string, User> users = cache.GetCachedDictionary<string, User>(redisKey);
+IDictionary<string, User> users = context.GetCachedDictionary<string, User>(redisKey);
 ```
 
 Pub/Sub
@@ -143,29 +144,29 @@ A typed Publish/Subscribe mechanism is provided.
 #### Subscribe to a channel
 Listen for messages of type `User` on the channel *users*:
 ```c#
-cache.Subscribe<User>("users", user => Console.WriteLine(user.Id));
+context.Subscribe<User>("users", user => Console.WriteLine(user.Id));
 ```
 
 #### Publish to a channel
 Publishes a messages of type `User` to the channel *users*:
 ```c#
-cache.Publish<User>("users", new User() { Id = 1 });
+context.Publish<User>("users", new User() { Id = 1 });
 ```
 
 #### Unsubscribe from a channel
 ```c#
-cache.Unsubscribe("users");
+context.Unsubscribe("users");
 ```
 
 #### Messages types
 Each subscription listen to messages of the specified type (or inherited from it):
 ```c#
-cache.Subscribe<User>("entities", user => Console.WriteLine(user.Id));
-cache.Subscribe<Manager>("entities", mgr => Console.WriteLine(mgr.Id));
+context.Subscribe<User>("entities", user => Console.WriteLine(user.Id));
+context.Subscribe<Manager>("entities", mgr => Console.WriteLine(mgr.Id));
 ```
 Subscription of type object will listen to all types:
 ```c#
-cache.Subscribe<object>("entities", obj => Console.WriteLine(obj));
+context.Subscribe<object>("entities", obj => Console.WriteLine(obj));
 ```
 
 ### Pattern-matching subscriptions
@@ -173,29 +174,36 @@ Redis Pub/Sub supports pattern matching in which clients may subscribe to glob-s
 
 #### Subscribe using channel pattern 
 ```c#
-cache.Subscribe<User>("users.*", user => Console.WriteLine(user.Id));
+context.Subscribe<User>("users.*", user => Console.WriteLine(user.Id));
 ```
 This will listen to any channel whose name starts with "*users.*".
 
 #### Unsubscribe using channel pattern 
 ```c#
-cache.Unsubscribe("users.*");
+context.Unsubscribe("users.*");
 ```
 
 #### Naïve 4-lines chat application
 ```c#
 static void Main()
 {
-    var cache = new CacheContext("10.0.0.1:7000");
-    cache.Subscribe<string>("chat", m => Console.WriteLine(m));
+    var context = new CacheContext("10.0.0.1:7000");
+    context.Subscribe<string>("chat", m => Console.WriteLine(m));
     while (true)
     {
-        cache.Publish("chat", Console.ReadLine());
+        context.Publish("chat", Console.ReadLine());
     }
 }
 ```
 
+Geospatial index
+=====
+The Geospatial Redis API is not yet available in a stable version of Redis. Download unstable if you want to test these commands.
 
+### Add a Geospatial item
+```c#
+
+```
 
 
 
