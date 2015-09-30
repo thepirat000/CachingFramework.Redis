@@ -1,5 +1,5 @@
 # CachingFramework.Redis
-.NET Redis Distributed Cache library.
+.NET Redis Distributed Cache library based on StackExchange.Redis
 
 ##Features
  * **Tagging mechanism**
@@ -13,7 +13,7 @@
  
 ## Usage
 
-### NuGet
+### [NuGet](https://www.nuget.org/packages/CachingFramework.Redis/)
 ```
 PM> Install-Package CachingFramework.Redis
 ```
@@ -182,6 +182,18 @@ This will listen to any channel whose name starts with "*users.*".
 cache.Unsubscribe("users.*");
 ```
 
+#### Naïve 4-lines chat application
+```c#
+static void Main()
+{
+    var cache = new CacheContext("10.0.0.1:7000");
+    cache.Subscribe<string>("chat", m => Console.WriteLine(m));
+    while (true)
+    {
+        cache.Publish("chat", Console.ReadLine());
+    }
+}
+```
 
 
 
