@@ -226,7 +226,7 @@ Get the users within a 100 Km radius:
 string redisKey = "users:geo";
 var center = new GeoCoordinate(20.553, -102.925);
 double radius = 100;
-IEnumerable<GeoMember<User>> results = context.GeoRadius<User>(redisKey, center, radius, Unit.Kilometers);
+var results = context.GeoRadius<User>(redisKey, center, radius, Unit.Kilometers);
 ```
 The results includes the position and the distance from the center:
 ```c#
