@@ -136,7 +136,7 @@ ISet<User> users = context.GetCachedSet<User>(redisKey);
 IDictionary<string, User> users = context.GetCachedDictionary<string, User>(redisKey);
 ```
 
-Pub/Sub
+Pub/Sub API
 =====
 
 A typed Publish/Subscribe mechanism is provided.
@@ -196,7 +196,7 @@ static void Main()
 }
 ```
 
-Geospatial index
+Geospatial API
 =====
 The Geospatial Redis API is not yet available in a stable version of Redis. Download unstable if you want to test these commands.
 
