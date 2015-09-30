@@ -3,12 +3,12 @@
 namespace CachingFramework.Redis.Contracts
 {
     /// <summary>
-    /// A typed Geospacial index Provider interface
+    /// A typed geospatial index Provider interface
     /// </summary>
     internal interface IGeoProvider
     {
         /// <summary>
-        /// Adds the specified members to a geospacial index.
+        /// Adds the specified members to a geospatial index.
         /// </summary>
         /// <typeparam name="T">The member type</typeparam>
         /// <param name="key">The redis key.</param>

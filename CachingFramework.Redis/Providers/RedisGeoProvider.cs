@@ -7,7 +7,7 @@ using StackExchange.Redis;
 namespace CachingFramework.Redis.Providers
 {
     /// <summary>
-    /// Geospacial index provider implementation using Redis.
+    /// geospatial index provider implementation using Redis.
     /// </summary>
     internal class RedisGeoProvider : RedisProviderBase, IGeoProvider
     {

@@ -373,10 +373,23 @@ namespace CachingFramework.Redis
         /// <param name="item">The item.</param>
         public void Publish<T>(string channel, T item)
         {
-            _pubsubProvider.Publish<T>(channel, item);
+            _pubsubProvider.Publish(channel, item);
         }
         /// <summary>
-        /// Adds the specified members to a geospacial index.
+        /// Adds the specified members to a geospatial index.
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="latitude">The member latitude coordinate.</param>
+        /// <param name="longitude">The member longitude coordinate.</param>
+        /// <param name="member">The member to add.</param>
+        /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
+        public int GeoAdd<T>(string key, double latitude, double longitude, T member)
+        {
+            return GeoAdd(key, new GeoCoordinate(latitude, longitude), member);
+        }
+        /// <summary>
+        /// Adds the specified members to a geospatial index.
         /// </summary>
         /// <typeparam name="T">The member type</typeparam>
         /// <param name="key">The redis key.</param>
@@ -388,7 +401,7 @@ namespace CachingFramework.Redis
             return GeoAdd(key, new[] {coordinate}, new[] {member});
         }
         /// <summary>
-        /// Adds the specified members to a geospacial index.
+        /// Adds the specified members to a geospatial index.
         /// </summary>
         /// <typeparam name="T">The member type</typeparam>
         /// <param name="key">The redis key.</param>
@@ -405,9 +418,9 @@ namespace CachingFramework.Redis
         /// <typeparam name="T">The member type</typeparam>
         /// <param name="key">The redis key.</param>
         /// <param name="member">The member.</param>
-        public GeoMember<T> GeoPosition<T>(string key, T member)
+        public GeoCoordinate GeoPosition<T>(string key, T member)
         {
-            return GeoPositions(key, new [] { member }).FirstOrDefault();
+            return GeoPositions(key, new [] { member }).First().Position;
         }
         /// <summary>
         /// Return the positions (longitude,latitude) of all the specified members of the geospatial index at key.
@@ -441,6 +454,19 @@ namespace CachingFramework.Redis
         public string GeoHash<T>(string key, T member)
         {
             return _geoProvider.GeoHash(key, member);
+        }
+        /// <summary>
+        /// Return the members of a geospatial index, which are within the borders of the area specified with the center location and the maximum distance from the center (the radius).
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="latitude">The latitude of the center.</param>
+        /// <param name="longitude">The latitude of the center.</param>
+        /// <param name="radius">The radius.</param>
+        /// <param name="unit">The unit.</param>
+        public IEnumerable<GeoMember<T>> GeoRadius<T>(string key, double latitude, double longitude, double radius, Unit unit)
+        {
+            return GeoRadius<T>(key, new GeoCoordinate(latitude, longitude), radius, unit, -1);
         }
         /// <summary>
         /// Return the members of a geospatial index, which are within the borders of the area specified with the center location and the maximum distance from the center (the radius).

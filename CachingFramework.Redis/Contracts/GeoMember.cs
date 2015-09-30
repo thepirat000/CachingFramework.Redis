@@ -1,7 +1,7 @@
 ﻿namespace CachingFramework.Redis.Contracts
 {
     /// <summary>
-    /// Represents a member of type T with geospacial information (coordinates and distance)
+    /// Represents a member of type T with geospatial information (coordinates and distance)
     /// </summary>
     /// <typeparam name="T">The member type.</typeparam>
     public class GeoMember<T>
