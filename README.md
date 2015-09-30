@@ -239,3 +239,25 @@ foreach (var r in results)
 }
 ```
 
+### Get the distance between two cities
+
+Get the distance (in kilometers) between two addresses by using [GoogleMaps.LocationServices](https://github.com/sethwebster/GoogleMaps.LocationServices):
+```c#
+private CacheContext _context = new CacheContext();
+private GoogleLocationService _location = new GoogleLocationService();
+        
+public double Distance(string address1, string address2)
+{
+    var redisKey = "dist";
+    var loc1 = _location.GetLatLongFromAddress(address1);
+    var loc2 = _location.GetLatLongFromAddress(address2);
+    _context.GeoAdd(redisKey,
+        new[] { new GeoCoordinate(loc1.Latitude, loc1.Longitude), new GeoCoordinate(loc2.Latitude, loc2.Longitude) },
+        new[] { address1, address2 });
+    return _context.GeoDistance(redisKey, address1, address2, Unit.Kilometers);
+}
+```
+For example:
+```c#
+double km = Distance("London", "Buenos Aires");
+```
