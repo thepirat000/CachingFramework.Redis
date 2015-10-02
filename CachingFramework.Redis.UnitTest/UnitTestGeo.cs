@@ -43,7 +43,7 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_Geo_GeoAdd";
             var users = GetUsers();
             var cnt = _context.GeoAdd(key, _coordZapopan, users[0]);
-            cnt += _context.GeoAdd(key, _coordLondon, users[1]);
+            cnt += _context.GeoAdd(key, _coordLondon.Latitude, _coordLondon.Longitude, users[1]);
             var coord = _context.GeoPosition(key, users[0]);
             Assert.AreEqual(2, cnt);
             Assert.AreEqual(_coordZapopan.Latitude, coord.Latitude, 0.00001);
@@ -67,7 +67,9 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoPosMultiple()
         {
             var key = "UT_Geo_GeoPosMultiple";
-            var cnt = _context.GeoAdd(key, new [] { _coordZapopan, _coordLondon }, new[] {"Zapopan", "London"});
+            var cnt = _context.GeoAdd(key, new[] { 
+                new GeoMember<string>(_coordZapopan, "Zapopan"),
+                new GeoMember<string>(_coordLondon, "London") });
             var coords = _context.GeoPositions(key, new[] { "London", "not exists", "Zapopan" }).ToArray();
             Assert.AreEqual(2, cnt);
             Assert.AreEqual(3, coords.Length);
@@ -84,7 +86,9 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoDistance()
         {
             var key = "UT_Geo_GeoDistance";
-            var cnt = _context.GeoAdd(key, new [] { _coordZapopan, _coordLondon }, new[] {"Zapopan", "London"});
+            var cnt = _context.GeoAdd(key, new[] { 
+                new GeoMember<string>(_coordZapopan, "Zapopan"),
+                new GeoMember<string>(_coordLondon, "London") });
             var kmzz = _context.GeoDistance(key, "Zapopan", "Zapopan", Unit.Kilometers);
             var kmzl = _context.GeoDistance(key, "Zapopan", "London", Unit.Kilometers);
             var kmlz = _context.GeoDistance(key, "London", "Zapopan", Unit.Kilometers);
@@ -102,7 +106,9 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_Geo_GeoDistanceDirect";
             var mdq = _locationSvc.GetLatLongFromAddress("Mar del Plata").ToGeoCoord();
             var bue = _locationSvc.GetLatLongFromAddress("Buenos Aires").ToGeoCoord();
-            _context.GeoAdd(key, new GeoCoordinate[] {mdq, bue}, new[] {"mdq", "bue"});
+            _context.GeoAdd(key, new[] { 
+                new GeoMember<string>(mdq, "mdq"),
+                new GeoMember<string>(bue, "bue") });
             var km = _context.GeoDistance(key, "mdq", "bue", Unit.Kilometers);
             Assert.AreEqual(385, km, 15);
         }

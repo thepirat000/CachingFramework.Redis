@@ -474,7 +474,7 @@ namespace CachingFramework.Redis.UnitTest
             Exception exItem = null;
             try
             {
-                throw new ApplicationException("this is a test exception to test serialization", new ArgumentException("thit is an inner exception", "param"));
+                throw new ApplicationException("this is a test exception to test serialization", new ArgumentException("this is an inner exception", "param"));
             }
             catch (Exception ex)
             {
@@ -486,6 +486,19 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(exItem.Data.Count, exFinal.Data.Count);
             Assert.AreEqual(exItem.InnerException.Message, exFinal.InnerException.Message);
             Assert.AreEqual(exItem.StackTrace, exFinal.StackTrace);
+        }
+
+        [TestMethod]
+        public void UT_Cache_HllAddCount()
+        {
+            string key = "UT_Cache_HllAddCount";
+            _cache.Remove(key);
+            _cache.HyperLogLogAdd(key, new[] { 1, 2, 3, 4, 5, 6 });
+            _cache.HyperLogLogAdd(key, new[] { 4, 5, 6, 7, 8, 9 });
+            _cache.HyperLogLogAdd(key, 10);
+
+            var cnt = _cache.HyperLogLogCount(key);
+            Assert.AreEqual(10, cnt);
         }
 
         private List<User> GetUsers()

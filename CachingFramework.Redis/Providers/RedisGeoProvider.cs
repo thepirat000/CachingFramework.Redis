@@ -24,20 +24,24 @@ namespace CachingFramework.Redis.Providers
 
         #region IGeoProvider implementation
         /// <summary>
-        /// Adds the specified geospatial members (latitude, longitude, name) to the specified key.
+        /// Adds the specified geospatial members (latitude, longitude, object) to the specified key.
         /// </summary>
         /// <typeparam name="T">The member type</typeparam>
         /// <param name="key">The redis key.</param>
-        /// <param name="coordinates">The member coordinates.</param>
         /// <param name="members">The members to add.</param>
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
-        public int GeoAdd<T>(string key, GeoCoordinate[] coordinates, T[] members)
+        public int GeoAdd<T>(string key, GeoMember<T>[] members)
         {
             var db = RedisConnection.GetDatabase();
             var values = new List<RedisValue>();
-            for (int i = 0; i < coordinates.Length; i++)
+            foreach(var member in members)
             {
-                values.AddRange(new RedisValue[] { coordinates[i].Longitude, coordinates[i].Latitude, Serializer.Serialize(members[i]) });
+                values.AddRange(new RedisValue[] 
+                { 
+                    member.Position.Longitude, 
+                    member.Position.Latitude, 
+                    Serializer.Serialize(member.Value) 
+                });
             }
             return (int)db.ScriptEvaluate(LuaScriptResource.GeoAdd, new RedisKey[] { key }, values.ToArray());
         }

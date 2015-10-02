@@ -278,6 +278,28 @@ namespace CachingFramework.Redis.Providers
                 .HashGetAll(key)
                 .ToDictionary(k => k.Name.ToString(), v => Serializer.Deserialize<T>(v.Value));
         }
+        /// <summary>
+        /// Adds all the element arguments to the HyperLogLog data structure stored at the specified key.
+        /// </summary>
+        /// <typeparam name="T">The items type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="items">The items to add.</param>
+        /// <returns><c>true</c> if at least 1 HyperLogLog internal register was altered, <c>false</c> otherwise.</returns>
+        public bool HyperLogLogAdd<T>(string key, T[] items)
+        {
+            return RedisConnection.GetDatabase()
+                    .HyperLogLogAdd(key, items.Select(x => (RedisValue) Serializer.Serialize(x)).ToArray());
+        }
+        /// <summary>
+        /// Returns the approximated cardinality computed by the HyperLogLog data structure stored at the specified key, which is 0 if the variable does not exist.
+        /// </summary>
+        /// <param name="key">The redis key.</param>
+        /// <returns>System.Int64.</returns>
+        public long HyperLogLogCount(string key)
+        {
+            return RedisConnection.GetDatabase()
+                    .HyperLogLogLength(key);
+        }
         #endregion
 
         #region Private Methods

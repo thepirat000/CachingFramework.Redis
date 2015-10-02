@@ -8,14 +8,13 @@ namespace CachingFramework.Redis.Contracts
     internal interface IGeoProvider
     {
         /// <summary>
-        /// Adds the specified members to a geospatial index.
+        /// Adds the specified geospatial members (latitude, longitude, object) to the specified key.
         /// </summary>
         /// <typeparam name="T">The member type</typeparam>
         /// <param name="key">The redis key.</param>
-        /// <param name="coordinates">The member coordinates.</param>
         /// <param name="members">The members to add.</param>
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
-        int GeoAdd<T>(string key, GeoCoordinate[] coordinates, T[] members);
+        int GeoAdd<T>(string key, GeoMember<T>[] members);
         /// <summary>
         /// Return Geohash strings representing the position of a member in a geospatial index (where elements were added using GEOADD).
         /// </summary>

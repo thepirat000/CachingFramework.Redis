@@ -118,5 +118,18 @@ namespace CachingFramework.Redis.Contracts
         /// Flushes all the databases on every master node.
         /// </summary>
         void FlushAll();
+        /// <summary>
+        /// Adds all the element arguments to the HyperLogLog data structure stored at the specified key.
+        /// </summary>
+        /// <typeparam name="T">The items type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="items">The items to add.</param>
+        /// <returns><c>true</c> if at least 1 HyperLogLog internal register was altered, <c>false</c> otherwise.</returns>
+        bool HyperLogLogAdd<T>(string key, T[] items);
+        /// <summary>
+        /// Returns the approximated cardinality computed by the HyperLogLog data structure stored at the specified key, which is 0 if the variable does not exist.
+        /// </summary>
+        /// <param name="key">The redis key.</param>
+        long HyperLogLogCount(string key);
     }
 }

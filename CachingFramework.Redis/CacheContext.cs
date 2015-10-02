@@ -183,20 +183,9 @@ namespace CachingFramework.Redis
         /// <typeparam name="T">The objects types</typeparam>
         /// <param name="tags">The tags</param>
         /// <returns>IEnumerable{``0}.</returns>
-        public IEnumerable<T> GetObjectsByTag<T>(string[] tags)
+        public IEnumerable<T> GetObjectsByTag<T>(params string[] tags)
         {
             return _cacheProvider.GetObjectsByTag<T>(tags);
-        }
-        /// <summary>
-        /// Returns all the objects that has the given tag related.
-        /// Assumes all the objects are of the same type <typeparamref name="T" />.
-        /// </summary>
-        /// <typeparam name="T">The objects types</typeparam>
-        /// <param name="tag">The tag</param>
-        /// <returns>IEnumerable{``0}.</returns>
-        public IEnumerable<T> GetObjectsByTag<T>(string tag)
-        {
-            return GetObjectsByTag<T>(new[] { tag });
         }
         /// <summary>
         /// Removes the keys by all tags.
@@ -229,7 +218,7 @@ namespace CachingFramework.Redis
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="tags">The tag(s).</param>
-        public void AddTagsToKey(string key, string[] tags)
+        public void AddTagsToKey(string key, params string[] tags)
         {
             _cacheProvider.AddTagsToKey(key, tags);
         }
@@ -238,7 +227,7 @@ namespace CachingFramework.Redis
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="tags">The tag(s).</param>
-        public void RemoveTagsFromKey(string key, string[] tags)
+        public void RemoveTagsFromKey(string key, params string[] tags)
         {
             _cacheProvider.RemoveTagsFromKey(key, tags);
         }
@@ -398,19 +387,18 @@ namespace CachingFramework.Redis
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
         public int GeoAdd<T>(string key, GeoCoordinate coordinate, T member)
         {
-            return GeoAdd(key, new[] {coordinate}, new[] {member});
+            return GeoAdd(key, new[] { new GeoMember<T>(coordinate, member) });
         }
         /// <summary>
         /// Adds the specified members to a geospatial index.
         /// </summary>
         /// <typeparam name="T">The member type</typeparam>
         /// <param name="key">The redis key.</param>
-        /// <param name="coordinates">The member coordinates.</param>
         /// <param name="members">The members to add.</param>
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
-        public int GeoAdd<T>(string key, GeoCoordinate[] coordinates, T[] members)
+        public int GeoAdd<T>(string key, params GeoMember<T>[] members)
         {
-            return _geoProvider.GeoAdd(key, coordinates, members);
+            return _geoProvider.GeoAdd(key, members);
         }
         /// <summary>
         /// Return the position (longitude,latitude) of the specified member of the geospatial index at key.
@@ -418,9 +406,11 @@ namespace CachingFramework.Redis
         /// <typeparam name="T">The member type</typeparam>
         /// <param name="key">The redis key.</param>
         /// <param name="member">The member.</param>
+        /// <returns>NULL if the member does not exists</returns>
         public GeoCoordinate GeoPosition<T>(string key, T member)
         {
-            return GeoPositions(key, new [] { member }).First().Position;
+            var pos = GeoPositions(key, new [] { member }).FirstOrDefault();
+            return pos != null ? pos.Position : null;
         }
         /// <summary>
         /// Return the positions (longitude,latitude) of all the specified members of the geospatial index at key.
@@ -492,6 +482,38 @@ namespace CachingFramework.Redis
         public IEnumerable<GeoMember<T>> GeoRadius<T>(string key, GeoCoordinate center, double radius, Unit unit, int count)
         {
             return _geoProvider.GeoRadius<T>(key, center, radius, unit, count);
+        }
+        /// <summary>
+        /// Adds all the element arguments to the HyperLogLog data structure stored at the specified key.
+        /// </summary>
+        /// <typeparam name="T">The items type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="items">The items to add.</param>
+        /// <returns><c>true</c> if at least 1 HyperLogLog internal register was altered, <c>false</c> otherwise.</returns>
+        public bool HyperLogLogAdd<T>(string key, T[] items)
+        {
+            return _cacheProvider.HyperLogLogAdd(key, items);
+        }
+        /// <summary>
+        /// Adds the element to the HyperLogLog data structure stored at the specified key.
+        /// </summary>
+        /// <typeparam name="T">The items type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="item">The item to add.</param>
+        /// <returns><c>true</c> if at least 1 HyperLogLog internal register was altered, <c>false</c> otherwise.</returns>
+        public bool HyperLogLogAdd<T>(string key, T item)
+        {
+            return _cacheProvider.HyperLogLogAdd(key, new [] { item });
+            
+        }
+        /// <summary>
+        /// Returns the approximated cardinality computed by the HyperLogLog data structure stored at the specified key, which is 0 if the variable does not exist.
+        /// </summary>
+        /// <param name="key">The redis key.</param>
+        /// <returns>System.Int64.</returns>
+        public long HyperLogLogCount(string key)
+        {
+            return _cacheProvider.HyperLogLogCount(key);
         }
         #endregion
     }

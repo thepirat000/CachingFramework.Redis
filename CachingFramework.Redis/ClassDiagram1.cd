@@ -4,10 +4,9 @@
     <Position X="1" Y="0.5" Width="5.5" />
     <Members>
       <Method Name="CacheContext" Hidden="true" />
-      <Method Name="GetCachedCollectionProvider" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAAAABAAAMCAAAohAJAAEAAqICAAACAAEAAAABIA=</HashCode>
+      <HashCode>AAAAAAhABCQEMCAAAsBAJAIEAAqKAAACSAAEBAgCRIA=</HashCode>
       <FileName>CacheContext.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -35,18 +34,10 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="CachingFramework.Redis.Contracts.RedisBaseObject">
-    <Position X="4" Y="6" Width="2.75" />
-    <TypeIdentifier>
-      <HashCode>AAAIAAAAAAAAAKEAAAAAAABAACBAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Contracts\RedisBaseObject.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
   <Class Name="CachingFramework.Redis.Providers.RedisCacheProvider">
     <Position X="2.75" Y="10.5" Width="5.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAANCAAMDAAAgBAJAAEAAqACAAACAAEAAAABIQ=</HashCode>
+      <HashCode>AAAAAAAANCQEMDAAAgBAJAAEAAoAAAAACAAEAAAAAAA=</HashCode>
       <FileName>Providers\RedisCacheProvider.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

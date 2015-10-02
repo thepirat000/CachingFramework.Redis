@@ -24,6 +24,15 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="GeoMember{T}"/> class.
         /// </summary>
+        /// <param name="coordinate">The coordinate.</param>
+        /// <param name="value">The value.</param>
+        public GeoMember(GeoCoordinate coordinate, T value)
+            : this(coordinate.Latitude, coordinate.Longitude, value, -1)
+        {
+        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoMember{T}"/> class.
+        /// </summary>
         /// <param name="latitude">The latitude.</param>
         /// <param name="longitude">The longitude.</param>
         /// <param name="value">The value.</param>
