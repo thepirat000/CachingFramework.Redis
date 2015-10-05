@@ -2,13 +2,12 @@
 .NET Redis Distributed Cache library based on StackExchange.Redis
 
 ##Features
- * **Tagging mechanism**
- to store cache items with tags allowing to retrieve or invalidate items by tag.
+ * **Tagging mechanism** to store cache items with tags allowing to retrieve or invalidate items by tag.
  * **Fetching mechanism** as shortcut methods for atomic Add/Get operations.
  * **Time-To-Live mechanism**.
  * **Fully compatible with Redis Cluster**.
- * **Compressed binary serialization** to minimize network and memory load.
- * **Handle Redis List, Sets and Hashes** from common interfaces IList<T>, ISet<T> and IDictionary<K, V>.
+ * **Compressed binary serialization** to minimize network and memory load, or use the serialization implementation of your choice.
+ * **Handle Redis List, Sets, Sorted Sets and Hashes** from common interfaces IList<T>, ISet<T>, ICollection<T> and IDictionary<K, V>.
  * **Pub/Sub with typed messages**.
  * **Geospatial support** to handle geospatial indexed items.
  
@@ -131,10 +130,17 @@ IList<User> users = context.GetCachedList<User>(redisKey);
 ISet<User> users = context.GetCachedSet<User>(redisKey);
 ```
 
+#### Get a .NET ICollection stored as a Redis Sorted Set
+```c#
+ICollection<User> users = context.GetCachedSortedSet<User>(redisKey);
+```
+
 #### Get a .NET IDictionary stored as a Redis Hash
 ```c#
 IDictionary<string, User> users = context.GetCachedDictionary<string, User>(redisKey);
 ```
+
+For more detail please see (COLLECTIONS.md)[file://COLLECTIONS.md] documentation file
 
 Pub/Sub API
 =====
