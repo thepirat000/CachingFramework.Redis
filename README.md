@@ -140,7 +140,7 @@ ICollection<User> users = context.GetCachedSortedSet<User>(redisKey);
 IDictionary<string, User> users = context.GetCachedDictionary<string, User>(redisKey);
 ```
 
-For more details please see (COLLECTIONS.md)[file://COLLECTIONS.md] documentation file
+**For more details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
 
 Pub/Sub API
 =====
