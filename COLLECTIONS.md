@@ -14,9 +14,9 @@ var context = new CacheContext();
 ICachedSortedSet<User> sortedSet = context.GetCachedSortedSet<User>("some:key");
 ```
 
-## Redis List
+# Redis Lists
 
-To obtain a new (or existing) Redis List implementing a .NET IList, use the ```GetCachedList()``` method of the ```CacheContext``` class:
+To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetCachedList()``` method of the ```CacheContext``` class:
 
 ```c#
 ICachedList<User> userList = context.GetCachedList<User>("user:list");
@@ -37,7 +37,7 @@ For example, this will return all the elements except the first and the last ele
 IEnumerable<User> range = users.GetRange(1, -2);
 ```
 
-## ICachedList mapping to Redis
+## ICachedList mapping to Redis List
 
 |ICachedList interface|Redis command|Time complexity|
 |------|------|-------|
@@ -60,9 +60,9 @@ IEnumerable<User> range = users.GetRange(1, -2);
 |First|[LINDEX](http://redis.io/commands/lindex)|O(1)|
 |Last|[LINDEX](http://redis.io/commands/lindex)|O(1)|
 
-## Redis Set
+# Redis Sets
 
-To obtain a new (or existing) Redis Set implementing a .NET ISet, use the ```GetCachedSet()``` method of the ```CacheContext``` class:
+To obtain a new (or existing) Redis Set implementing a .NET `ISet`, use the ```GetCachedSet()``` method of the ```CacheContext``` class:
 
 ```c#
 ICachedSet<User> userSet = context.GetCachedSet<User>("user:set");
@@ -75,12 +75,12 @@ userSet.Add(new User() { Id = 1 });
 userSet.AddRange(new [] { new User() { Id = 2 }, new User() { Id = 3 } });
 ```
 
-To check if an element exists:
+To check if an element exists, use the `Contains` methos:
 ```c#
-bool contains = userSet.Contains(user);
+bool exists = userSet.Contains(user);
 ```
 
-## ICachedSet mapping to Redis
+## ICachedSet mapping to Redis Set
 
 |ICachedSet interface|Redis command|Time complexity|
 |------|------|-------|
@@ -90,3 +90,37 @@ bool contains = userSet.Contains(user);
 |Contains(T item)|[SISMEMBER](http://redis.io/commands/sismember)|O(1)|
 |Remove(T item)|[SREM](http://redis.io/commands/srem)|O(1)|
 |Count|[SCARD](http://redis.io/commands/scard)|O(1)|
+
+# Redis Hashes
+
+To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetCachedDictionary()``` method of the ```CacheContext``` class:
+
+```c#
+ICachedDictionary<int, User> userHash = context.GetCachedDictionary<int, User>("user:hash");
+```
+
+To add elements to the list, use `Add` or `AddRange` methods:
+
+```c#
+userHash.Add(1, new User() { Id = 1 });
+userHash.AddRange(usersQuery.ToDictionary(k => k.Id));
+```
+
+To check if a hash element exists, use `ContainsKey` method:
+```c#
+bool exists = userHash.ContainsKey(1);
+```
+
+## ICachedDictionary mapping to Redis Hash
+
+|ICachedDictionary interface|Redis command|Time complexity|
+|------|------|-------|
+|AddRange(IEnum<KVP<TK, TV>> items)|[HMSET](http://redis.io/commands/hmset)|O(M) where M is the number of fields being added|
+|Add(TK key, TV value)|[HSET](http://redis.io/commands/hset)|O(1)|
+|ContainsKey(TK key)|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
+|Remove(TK key)|[HDEL](http://redis.io/commands/hdel)|O(1)|
+|this[] get|[HGET](http://redis.io/commands/hget)|O(1)|
+|this[] set|[HSET](http://redis.io/commands/hget)|O(1)|
+|Contains(KeyValuePair<TK, TV> item)|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
+|Count|[HLEN](http://redis.io/commands/hlen)|O(1)|
+|Clear()|[DEL](http://redis.io/commands/del)|O(1)|
