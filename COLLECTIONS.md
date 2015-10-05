@@ -159,9 +159,9 @@ var byScore = userSortedSet.GetRangeByScore(double.NegativeInfinity, 100.00);
 |AddRange(IEnu<SortedMember<T>> items)|[ZADD](http://redis.io/commands/zadd)|O(log(N))
 |CountByScore(double min, double max)|[ZCOUNT](http://redis.io/commands/zcount)|O(log(N))
 |GetRangeByScore(double min, double max, bool desc, long skip, long)|[ZRANGEBYSCORE](http://redis.io/commands/zrangebyscore) / [ZREVRANGEBYSCORE](http://redis.io/commands/zrevrangebyscore)|O(log(N)+M) : M the number of elements being returned|
-|GetRangeByRank(long start, long stop, bool desc)|[ZRANGE](http://redis.io/commands/zrange) / [ZREVRANGE](http://redis.io/commands/zrevrange)|O(log(N)+M) : M the number of elements being returned
-|RemoveRangeByScore(double min, double max)|[ZREMRANGEBYSCORE](http://redis.io/commands/zremrangebyscore)|O(log(N)+M) : M the number of elements being removed
-|RemoveRangeByRank(long start, long stop)|[ZREMRANGEBYRANK](http://redis.io/commands/zremrangebyrank)|O(log(N)+M) : M the number of elements being removed
+|GetRangeByRank(long start, long stop, bool desc)|[ZRANGE](http://redis.io/commands/zrange) / [ZREVRANGE](http://redis.io/commands/zrevrange)|O(log(N)+M)
+|RemoveRangeByScore(double min, double max)|[ZREMRANGEBYSCORE](http://redis.io/commands/zremrangebyscore)|O(log(N)+M)
+|RemoveRangeByRank(long start, long stop)|[ZREMRANGEBYRANK](http://redis.io/commands/zremrangebyrank)|O(log(N)+M)
 |IncrementScore(T item, double value)|[ZINCRBY](http://redis.io/commands/zincrby)|O(log(N))
 |RankOf(T item, bool desc)|[ZRANK](http://redis.io/commands/zrank)|O(log(N))
 |ScoreOf(T item)|[ZSCORE](http://redis.io/commands/zscore)|O(1)
