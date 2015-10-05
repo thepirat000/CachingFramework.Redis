@@ -9,7 +9,7 @@
  * **Compressed binary serialization** (or implement your own serialization).
  * **Redis List, Sets, Sorted Sets and Hashes support**.
  * **Pub/Sub support with typed messages**.
- * **Geospatial support** to handle geospatial indexed items.
+ * **Geospatial indexes support**.
  
 ## Usage
 
