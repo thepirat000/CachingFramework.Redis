@@ -42,24 +42,24 @@ IEnumerable<User> range = users.GetRange(1, -2);
 
 |ICachedList interface|Redis command|Time complexity|
 |------|------|-------|
-|AddRange(IEnumerable<T> collection)|[RPUSH](http://redis.io/commands/rpush)|O(M) : M the number of elements to add|
-|Add(T item)|[RPUSH](http://redis.io/commands/rpush)|O(1)|
-|Contains(T item)|[LRANGE](http://redis.io/commands/lrange)|O(N)|
-|GetRange(long start, long stop)|[LRANGE](http://redis.io/commands/lrange)|O(S+M) : S is dist. from HEAD/TAIL|
-|Insert(long index, T item)|[LINDEX](http://redis.io/commands/lindex) + [LINSERT](http://redis.io/commands/linsert)|O(N)|
-|RemoveAt(long index)|[LINDEX](http://redis.io/commands/lindex) + [LREM](http://redis.io/commands/lrem)|O(N)|
-|this[] get|[LINDEX](http://redis.io/commands/lindex)|O(N)|
-|this[] set|[LSET](http://redis.io/commands/lset)|O(N)|
-|IndexOf(T item)|[LINDEX](http://redis.io/commands/lindex)|O(M) : M is the # of elements to traverse|
-|Remove(T item)|[LREM](http://redis.io/commands/lrem)|O(N)|
-|Clear()|[DEL](http://redis.io/commands/del)|O(1)|
-|AddFirst(T item)|[LPUSH](http://redis.io/commands/lpush)|O(1)|
-|AddLast(T item)|[RPUSH](http://redis.io/commands/rpush)|O(1)|
-|RemoveFirst()|[LPOP](http://redis.io/commands/lpop)|O(1)|
-|RemoveLast()|[RPOP](http://redis.io/commands/rpop)|O(1)|
-|Count|[LLEN](http://redis.io/commands/llen)|O(1)|
-|First|[LINDEX](http://redis.io/commands/lindex)|O(1)|
-|Last|[LINDEX](http://redis.io/commands/lindex)|O(1)|
+|`AddRange(IEnumerable<T> collection)`|[RPUSH](http://redis.io/commands/rpush)|O(M) : M the number of elements to add|
+|`Add(T item)`|[RPUSH](http://redis.io/commands/rpush)|O(1)|
+|`Contains(T item)`|[LRANGE](http://redis.io/commands/lrange)|O(N)|
+|`GetRange(long start, long stop)`|[LRANGE](http://redis.io/commands/lrange)|O(S+M) : S is dist. from HEAD/TAIL|
+|`Insert(long index, T item)`|[LINDEX](http://redis.io/commands/lindex) + [LINSERT](http://redis.io/commands/linsert)|O(N)|
+|`RemoveAt(long index)`|[LINDEX](http://redis.io/commands/lindex) + [LREM](http://redis.io/commands/lrem)|O(N)|
+|`this[] get`|[LINDEX](http://redis.io/commands/lindex)|O(N)|
+|`this[] set`|[LSET](http://redis.io/commands/lset)|O(N)|
+|`IndexOf(T item)`|[LINDEX](http://redis.io/commands/lindex)|O(M) : M is the # of elements to traverse|
+|`Remove(T item)`|[LREM](http://redis.io/commands/lrem)|O(N)|
+|`Clear()`|[DEL](http://redis.io/commands/del)|O(1)|
+|`AddFirst(T item)`|[LPUSH](http://redis.io/commands/lpush)|O(1)|
+|`AddLast(T item)`|[RPUSH](http://redis.io/commands/rpush)|O(1)|
+|`RemoveFirst()`|[LPOP](http://redis.io/commands/lpop)|O(1)|
+|`RemoveLast()`|[RPOP](http://redis.io/commands/rpop)|O(1)|
+|`Count`|[LLEN](http://redis.io/commands/llen)|O(1)|
+|`First`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
+|`Last`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
 
 # Redis Sets
 
