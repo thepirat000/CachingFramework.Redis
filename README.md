@@ -117,7 +117,7 @@ Objects within a hash can be of different types.
 context.RemoveHashed(redisKey, "user:id:1");
 ```
 
-### .NET Collections
+### [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
 Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
 
 #### Get a .NET IList stored as a Redis List
