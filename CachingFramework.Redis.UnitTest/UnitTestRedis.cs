@@ -12,15 +12,12 @@ namespace CachingFramework.Redis.UnitTest
     [TestClass]
     public class UnitTestRedis
     {
-        private CacheContext _cache;
+        private CacheContext _context;
         private string _defaultConfig;
         [TestInitialize]
         public void Initialize()
         {
-            // Config doc: https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md
-            _defaultConfig = "192.168.15.15:7001, 192.168.15.15:7006, 192.168.15.15:7002, 192.168.15.15:7003, 192.168.15.15:7004, 192.168.15.15:7005, 192.168.15.15:7000, connectRetry=10, syncTimeout=10000, abortConnect=false, keepAlive=10, allowAdmin=true";
-            _cache = new CacheContext(_defaultConfig);
-            _cache.FlushAll();
+            _context = Common.GetContextAndFlush();
         }
 
         [TestMethod]
@@ -36,31 +33,31 @@ namespace CachingFramework.Redis.UnitTest
             var kpUInt16 = "primitive:uint16";
             var kpUInt32 = "primitive:uint32";
             var kpUInt64 = "primitive:uint64";
-            _cache.Remove(kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64);
+            _context.Remove(kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64);
             var ss = "this is a short string";
             var ls = @"UTF-8 is a character encoding capable of encoding all possible characters, or code points, in Unicode.
 The encoding is variable-length and uses 8-bit code units. It was designed for backward compatibility with ASCII, and to avoid the complications of endianness and byte order marks in the alternative UTF-16 and UTF-32 encodings. The name is derived from: Universal Coded Character Set + Transformation Format—8-bit.";
-            _cache.SetObject(kss, ss);
-            _cache.SetObject(kls, ls);
+            _context.SetObject(kss, ss);
+            _context.SetObject(kls, ls);
 
-            _cache.SetObject<bool>(kpBool, true);
-            _cache.SetObject<int>(kpInt, int.MaxValue);
-            _cache.SetObject<long>(kpLong, long.MaxValue);
-            _cache.SetObject<Single>(kpSingle, Single.MaxValue);
-            _cache.SetObject<IntPtr>(kpIntPtr, new IntPtr(int.MaxValue));
-            _cache.SetObject<UInt16>(kpUInt16, UInt16.MaxValue);
-            _cache.SetObject<UInt32>(kpUInt32, UInt32.MaxValue);
-            _cache.SetObject<UInt64>(kpUInt64, UInt64.MaxValue);
+            _context.SetObject<bool>(kpBool, true);
+            _context.SetObject<int>(kpInt, int.MaxValue);
+            _context.SetObject<long>(kpLong, long.MaxValue);
+            _context.SetObject<Single>(kpSingle, Single.MaxValue);
+            _context.SetObject<IntPtr>(kpIntPtr, new IntPtr(int.MaxValue));
+            _context.SetObject<UInt16>(kpUInt16, UInt16.MaxValue);
+            _context.SetObject<UInt32>(kpUInt32, UInt32.MaxValue);
+            _context.SetObject<UInt64>(kpUInt64, UInt64.MaxValue);
 
-            var ss_ = _cache.GetObject<string>(kss);
-            var ls_ = _cache.GetObject<string>(kls);
-            var pInt_ = _cache.GetObject<int>(kpInt);
-            var pLong_ = _cache.GetObject<long>(kpLong);
-            var pSingle_ = _cache.GetObject<Single>(kpSingle);
-            var pIntPtr_ = _cache.GetObject<IntPtr>(kpIntPtr);
-            var pUint16_ = _cache.GetObject<UInt16>(kpUInt16);
-            var pUint32_ = _cache.GetObject<UInt32>(kpUInt32);
-            var pUint64_ = _cache.GetObject<UInt64>(kpUInt64);
+            var ss_ = _context.GetObject<string>(kss);
+            var ls_ = _context.GetObject<string>(kls);
+            var pInt_ = _context.GetObject<int>(kpInt);
+            var pLong_ = _context.GetObject<long>(kpLong);
+            var pSingle_ = _context.GetObject<Single>(kpSingle);
+            var pIntPtr_ = _context.GetObject<IntPtr>(kpIntPtr);
+            var pUint16_ = _context.GetObject<UInt16>(kpUInt16);
+            var pUint32_ = _context.GetObject<UInt32>(kpUInt32);
+            var pUint64_ = _context.GetObject<UInt64>(kpUInt64);
 
 
             Assert.AreEqual(ss, ss_);
@@ -71,15 +68,15 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             Assert.AreEqual(UInt16.MaxValue, pUint16_);
             Assert.AreEqual(UInt32.MaxValue, pUint32_);
             Assert.AreEqual(UInt64.MaxValue, pUint64_);
-            _cache.Remove(kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64);
+            _context.Remove(kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64);
         }
 
 
         [TestMethod]
         public void UT_CacheByteArray()
         {
-            _cache.SetObject("key", "jpeg");
-            var o = _cache.GetObject<string>("key");
+            _context.SetObject("key", "jpeg");
+            var o = _context.GetObject<string>("key");
 
 
             string key = "UT_CacheByteArray";
@@ -88,9 +85,9 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
                 Data = Enumerable.Range(0, 200000)
                        .Select(i => (byte)((i * 223) % 256)).ToArray()
             };
-            _cache.Remove(key);
-            _cache.SetObject(key, jpeg);
-            var jpeg2 = _cache.GetObject<Jpeg>(key);
+            _context.Remove(key);
+            _context.SetObject(key, jpeg);
+            var jpeg2 = _context.GetObject<Jpeg>(key);
             Assert.IsTrue(Enumerable.SequenceEqual(jpeg.Data, jpeg2.Data));
         }
 
@@ -100,10 +97,10 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             // Test the Add and Get methods
             var users = GetUsers();
             string key = "UT_CacheAddGet";
-            _cache.Remove(key);
-            _cache.SetObject(key, users[1]);
-            _cache.SetObject(key, users[0], new string[]{});
-            var user = _cache.GetObject<User>(key);
+            _context.Remove(key);
+            _context.SetObject(key, users[1]);
+            _context.SetObject(key, users[0], new string[]{});
+            var user = _context.GetObject<User>(key);
             Assert.AreEqual(1, user.Id);
             Assert.AreEqual(2, user.Deparments[0].Size);
             Assert.AreEqual("one", user.Deparments[0].Location.Name);
@@ -115,10 +112,10 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             // Test the Fetch method
             string key = "UT_CacheFetch";
             int count = 0;
-            _cache.Remove(key);
-            _cache.FetchObject(key, () => { count++; return GetUsers(); });
-            _cache.FetchObject(key, () => { count++; return GetUsers(); });
-            _cache.FetchObject(key, () => { count++; return GetUsers(); });
+            _context.Remove(key);
+            _context.FetchObject(key, () => { count++; return GetUsers(); });
+            _context.FetchObject(key, () => { count++; return GetUsers(); });
+            _context.FetchObject(key, () => { count++; return GetUsers(); });
             Assert.AreEqual(1, count);
         }
 
@@ -127,12 +124,12 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         {
             // Test the FetchHashed method
             string key = "UT_CacheFetchHashed";
-            bool r = _cache.Remove(key);
+            bool r = _context.Remove(key);
             var users = GetUsers();
             bool enteredFirstTime = false;
             bool enteredSecondTime = false;
-            var returnedUser1 = _cache.FetchHashed<User>(key, users[0].Id.ToString(), () => users[0]);
-            var returnedUser2 = _cache.FetchHashed<User>(key, users[0].Id.ToString(), () => null);
+            var returnedUser1 = _context.FetchHashed<User>(key, users[0].Id.ToString(), () => users[0]);
+            var returnedUser2 = _context.FetchHashed<User>(key, users[0].Id.ToString(), () => null);
             Assert.AreEqual(users[0].Id, returnedUser1.Id);
             Assert.AreEqual(users[0].Id, returnedUser2.Id);
         }
@@ -142,14 +139,14 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         {
             // Test the GetHashAll method
             string key = "UT_CacheGetHashAll";
-            bool r = _cache.Remove(key);
+            bool r = _context.Remove(key);
             var users = GetUsers();
             foreach (var u in users)
             {
                 User user = u;
-                _cache.SetHashed(key, user.Id.ToString(), user);
+                _context.SetHashed(key, user.Id.ToString(), user);
             }
-            var dict = _cache.GetHashedAll<User>(key);
+            var dict = _context.GetHashedAll<User>(key);
             Assert.AreEqual(users.Count, dict.Count);
             Assert.AreEqual(1, dict["1"].Id);
             Assert.AreEqual(2, dict["2"].Id);
@@ -159,20 +156,20 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         public void UT_CacheSetHashed_MultipleFieldsDistinctTypes()
         {
             string key = "UT_CacheSetHashed_MultipleFieldsDistinctTypes";
-            _cache.Remove(key);
+            _context.Remove(key);
             var dict = new Dictionary<string, object>()
             {
                 { "a", new User { Id = 222 }},
                 { "2", new Department { Id = 3 }}
             };
-            _cache.SetHashed(key, "a", dict["a"]);
-            _cache.SetHashed(key, "2", dict["2"]);
-            _cache.SetHashed(key, "D", new Location() { Id = 444 });
+            _context.SetHashed(key, "a", dict["a"]);
+            _context.SetHashed(key, "2", dict["2"]);
+            _context.SetHashed(key, "D", new Location() { Id = 444 });
 
-            var user = _cache.GetHashed<User>(key, "a");
-            var dept = _cache.GetHashed<Department>(key, "2");
-            var loc = _cache.GetHashed<Location>(key, "D");
-            var all = _cache.GetHashedAll<object>(key);
+            var user = _context.GetHashed<User>(key, "a");
+            var dept = _context.GetHashed<Department>(key, "2");
+            var loc = _context.GetHashed<Location>(key, "D");
+            var all = _context.GetHashedAll<object>(key);
 
             Assert.AreEqual(222, user.Id);
             Assert.AreEqual(3, dept.Id);
@@ -190,16 +187,16 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         {
             // Test the Remove method
             string key = "UT_CacheRemove";
-            bool r = _cache.Remove(key);
+            bool r = _context.Remove(key);
             var users = GetUsers();
-            _cache.SetObject(key, users[0]);
+            _context.SetObject(key, users[0]);
 
-            r = _cache.Remove(key);
+            r = _context.Remove(key);
             Assert.IsTrue(r);
             Thread.Sleep(500);
-            r = _cache.Remove(key);
+            r = _context.Remove(key);
             Assert.IsFalse(r);
-            var returnedUser = _cache.GetObject<User>(key);
+            var returnedUser = _context.GetObject<User>(key);
             Assert.IsNull(returnedUser);
         }
 
@@ -209,16 +206,16 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             string key = "UT_CacheRemoveMultiple";
             for (int i = 0; i < 255; i++)
             {
-                _cache.SetObject(key + i, new User() { Id = i });
+                _context.SetObject(key + i, new User() { Id = i });
             }
             for (int i = 0; i < 255; i++)
             {
-                Assert.IsNotNull(_cache.GetObject<User>(key + i));
+                Assert.IsNotNull(_context.GetObject<User>(key + i));
             }
-            _cache.Remove(Enumerable.Range(0, 255).Select(i => key + i).ToArray());
+            _context.Remove(Enumerable.Range(0, 255).Select(i => key + i).ToArray());
             for (int i = 0; i < 255; i++)
             {
-                Assert.IsNull(_cache.GetObject<User>(key + i));
+                Assert.IsNull(_context.GetObject<User>(key + i));
             }
         }
 
@@ -227,21 +224,21 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         {
             // Test the Remove method for a complete hash set
             string key = "UT_CacheRemove_PreviouslyHashed";
-            bool r = _cache.Remove(key);
+            bool r = _context.Remove(key);
             var users = GetUsers();
             foreach (var u in users)
             {
                 User user = u;
-                _cache.SetHashed(key, user.Id.ToString(), user);
+                _context.SetHashed(key, user.Id.ToString(), user);
             }
-            r = _cache.RemoveHashed(key, "1");
+            r = _context.RemoveHashed(key, "1");
             Assert.IsTrue(r);
             Thread.Sleep(200);
-            r = _cache.RemoveHashed(key, "1");
+            r = _context.RemoveHashed(key, "1");
             Assert.IsFalse(r);
 
-            var returnedUser1 = _cache.GetHashed<User>(key, 1.ToString());
-            var returnedUser2 = _cache.GetHashed<User>(key, 2.ToString());
+            var returnedUser1 = _context.GetHashed<User>(key, 1.ToString());
+            var returnedUser2 = _context.GetHashed<User>(key, 2.ToString());
 
             Assert.IsNull(returnedUser1);
             Assert.AreEqual(2, returnedUser2.Id);
@@ -252,21 +249,21 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         {
             // Test the Remove hashed method
             string key = "UT_CacheRemoveHashed";
-            bool r = _cache.Remove(key);
+            bool r = _context.Remove(key);
             var users = GetUsers();
             foreach (var u in users)
             {
                 User user = u;
-                _cache.SetHashed(key, user.Id.ToString(), user);
+                _context.SetHashed(key, user.Id.ToString(), user);
             }
-            r = _cache.Remove(key);
+            r = _context.Remove(key);
             Assert.IsTrue(r);
             Thread.Sleep(200);
-            r = _cache.Remove(key);
+            r = _context.Remove(key);
             Assert.IsFalse(r);
 
-            var returnedUser1 = _cache.GetHashed<User>(key, 1.ToString());
-            var returnedUser2 = _cache.GetHashed<User>(key, 2.ToString());
+            var returnedUser1 = _context.GetHashed<User>(key, 1.ToString());
+            var returnedUser2 = _context.GetHashed<User>(key, 2.ToString());
 
             Assert.IsNull(returnedUser1);
             Assert.IsNull(returnedUser2);
@@ -278,14 +275,14 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             // Test the expiration of the Add method
             var users = GetUsers();
             string key = "SomeKey";
-            _cache.Remove(key);
-            _cache.SetObject(key, users[0], TimeSpan.FromMilliseconds(1000));
-            var user = _cache.GetObject<User>(key);
+            _context.Remove(key);
+            _context.SetObject(key, users[0], TimeSpan.FromMilliseconds(1000));
+            var user = _context.GetObject<User>(key);
             Assert.AreEqual(1, user.Id);
             Assert.AreEqual(2, user.Deparments[0].Size);
             Assert.AreEqual("one", user.Deparments[0].Location.Name);
             Thread.Sleep(1500);
-            user = _cache.GetObject<User>(key);
+            user = _context.GetObject<User>(key);
             Assert.IsNull(user);
         }
 
@@ -295,14 +292,14 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             // Test the expiration of the AddHashed method (MAX ttl applies)
             var users = GetUsers();
             string key = "SomeKey";
-            _cache.Remove(key);
+            _context.Remove(key);
 
-            _cache.SetHashed(key, "2", users[1], TimeSpan.FromMilliseconds(10000));
-            _cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(1000));
+            _context.SetHashed(key, "2", users[1], TimeSpan.FromMilliseconds(10000));
+            _context.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(1000));
             Thread.Sleep(1200);
 
-            var user1 = _cache.GetHashed<User>(key, "1");
-            var user2 = _cache.GetHashed<User>(key, "2");
+            var user1 = _context.GetHashed<User>(key, "1");
+            var user2 = _context.GetHashed<User>(key, "2");
             Assert.IsNotNull(user1);
             Assert.IsNotNull(user2);
         }
@@ -313,14 +310,14 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             // Test the expiration of the Fetch method (last larger expiration applies)
             var users = GetUsers();
             string key = "SomeKey";
-            _cache.Remove(key);
+            _context.Remove(key);
 
-            _cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(1000));
-            _cache.SetHashed(key, "2", users[1], TimeSpan.FromMilliseconds(10000));
+            _context.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(1000));
+            _context.SetHashed(key, "2", users[1], TimeSpan.FromMilliseconds(10000));
             Thread.Sleep(1200);
 
-            var user1 = _cache.GetHashed<User>(key, "1");
-            var user2 = _cache.GetHashed<User>(key, "2");
+            var user1 = _context.GetHashed<User>(key, "1");
+            var user2 = _context.GetHashed<User>(key, "2");
             Assert.IsNotNull(user1);
             Assert.IsNotNull(user2);
         }
@@ -331,14 +328,14 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             // Test the expiration of the Fetch method (last no-expiration applies)
             var users = GetUsers();
             string key = "SomeKey";
-            _cache.Remove(key);
+            _context.Remove(key);
             var ms = 1000;
-            _cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(ms));
-            _cache.SetHashed(key, "2", users[1]);
+            _context.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(ms));
+            _context.SetHashed(key, "2", users[1]);
             Thread.Sleep(ms + 200);
 
-            var user1 = _cache.GetHashed<User>(key, "1");
-            var user2 = _cache.GetHashed<User>(key, "2");
+            var user1 = _context.GetHashed<User>(key, "1");
+            var user2 = _context.GetHashed<User>(key, "2");
             Assert.IsNotNull(user1);
             Assert.IsNotNull(user2);
         }
@@ -347,11 +344,11 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         public void UT_CacheSetWithTags()
         {
             string key = "miset"; //UT_CacheSetWithTags
-            _cache.Remove(key);
+            _context.Remove(key);
             var users = GetUsers();
-            _cache.SetObject(key, users[0], new[] { "user:" + users[0].Id });
-            var keys = _cache.GetKeysByTag(new[] { "user:" + users[0].Id });
-            var value = _cache.GetObject<User>(keys.First());
+            _context.SetObject(key, users[0], new[] { "user:" + users[0].Id });
+            var keys = _context.GetKeysByTag(new[] { "user:" + users[0].Id });
+            var value = _context.GetObject<User>(keys.First());
             Assert.IsTrue(keys.Contains(key));
             Assert.IsNotNull(value);
         }
@@ -360,16 +357,16 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         public void UT_CacheFetchWithTags()
         {
             string key = "UT_CacheFetchWithTags";
-            _cache.Remove(key);
+            _context.Remove(key);
             string tag1 = "UT_CacheFetchWithTags-Tag1";
             string tag2 = "UT_CacheFetchWithTags-Tag2";
-            _cache.FetchObject(key, () => "test value 1", new[] {tag1});
-            _cache.FetchObject(key, () => "should not be updated", new[] { tag2 });
-            var keys = _cache.GetKeysByTag(new [] {tag1});
-            var value = _cache.GetObject<string>(keys.First());
+            _context.FetchObject(key, () => "test value 1", new[] {tag1});
+            _context.FetchObject(key, () => "should not be updated", new[] { tag2 });
+            var keys = _context.GetKeysByTag(new [] {tag1});
+            var value = _context.GetObject<string>(keys.First());
             Assert.IsTrue(keys.Contains(key));
             Assert.IsNotNull(value);
-            keys = _cache.GetKeysByTag(new [] {tag2});
+            keys = _context.GetKeysByTag(new [] {tag2});
             Assert.IsFalse(keys.Contains(key));
         }
 
@@ -379,18 +376,18 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             string key1 = "UT_CacheSetWithTags_Special1";
             string key2 = "UT_CacheSetWithTags_Special2";
             string tag = "UT_CacheSetWithTags_Special-Tag1";
-            _cache.InvalidateKeysByTag(tag);
-            _cache.SetObject(key1, "test value 1", new[] { tag }, TimeSpan.FromSeconds(1));
-            _cache.SetObject(key2, "test value 2", new[] { tag });
+            _context.InvalidateKeysByTag(tag);
+            _context.SetObject(key1, "test value 1", new[] { tag }, TimeSpan.FromSeconds(1));
+            _context.SetObject(key2, "test value 2", new[] { tag });
             Thread.Sleep(2000);
-            var keys = _cache.GetKeysByTag(new[] { tag });
-            var keysCleaned = _cache.GetKeysByTag(new[] { tag }, true);
+            var keys = _context.GetKeysByTag(new[] { tag });
+            var keysCleaned = _context.GetKeysByTag(new[] { tag }, true);
             Assert.AreEqual(2, keys.Count);
             Assert.AreEqual(1, keysCleaned.Count);
             Assert.IsTrue(keys.Contains(key1));
             Assert.IsTrue(keys.Contains(key2));
             Assert.IsTrue(keysCleaned.Contains(key2));
-            _cache.InvalidateKeysByTag(tag);
+            _context.InvalidateKeysByTag(tag);
         }
 
 
@@ -399,26 +396,26 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         {
             string key = "UT_CacheSetWithTags_Expiration";
             string key2 = "UT_CacheSetWithTags_Expiration2";
-            _cache.Remove(key);
-            _cache.Remove(key2);
+            _context.Remove(key);
+            _context.Remove(key2);
             var users = GetUsers();
-            _cache.InvalidateKeysByTag("user:" + users[0].Id, "user:" + users[1].Id, "user-info");
+            _context.InvalidateKeysByTag("user:" + users[0].Id, "user:" + users[1].Id, "user-info");
 
-            _cache.SetObject(key, users[0], new[] { "user:" + users[0].Id, "user-info" }, TimeSpan.FromSeconds(1));
-            _cache.SetObject(key2, users[1], new[] { "user:" + users[1].Id, "user-info" }, TimeSpan.FromSeconds(5));
-            var keys = _cache.GetKeysByTag(new[] { "user:" + users[0].Id });
+            _context.SetObject(key, users[0], new[] { "user:" + users[0].Id, "user-info" }, TimeSpan.FromSeconds(1));
+            _context.SetObject(key2, users[1], new[] { "user:" + users[1].Id, "user-info" }, TimeSpan.FromSeconds(5));
+            var keys = _context.GetKeysByTag(new[] { "user:" + users[0].Id });
             Assert.IsTrue(keys.Contains(key));
-            var value = _cache.GetObject<User>(keys.First());
+            var value = _context.GetObject<User>(keys.First());
             Assert.IsNotNull(value);
             Thread.Sleep(1200);
-            var keys2 = _cache.GetKeysByTag(new[] { "user:" + users[0].Id });
+            var keys2 = _context.GetKeysByTag(new[] { "user:" + users[0].Id });
             Assert.IsFalse(keys2.Contains(key));
-            value = _cache.GetObject<User>(key);
+            value = _context.GetObject<User>(key);
             Assert.IsNull(value);
-            var keys3 = _cache.GetKeysByTag(new[] { "user-info" });
+            var keys3 = _context.GetKeysByTag(new[] { "user-info" });
             Assert.IsTrue(keys3.Contains(key2));
             Thread.Sleep(4000);
-            var keys4 = _cache.GetKeysByTag(new[] { "user-info" });
+            var keys4 = _context.GetKeysByTag(new[] { "user-info" });
             Assert.IsFalse(keys4.Contains(key2));
         }
 
@@ -426,15 +423,15 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         public void UT_CacheSetWithTags_Removal()
         {
             string key = "UT_CacheSetWithTags_Removal";
-            _cache.Remove(key);
+            _context.Remove(key);
             var users = GetUsers();
-            _cache.InvalidateKeysByTag("user:" + users[0].Id);
+            _context.InvalidateKeysByTag("user:" + users[0].Id);
 
-            _cache.SetObject(key, users[0], new[] { "user:" + users[0].Id });
-            var keys = _cache.GetKeysByTag(new[] { "user:" + users[0].Id }, true);
+            _context.SetObject(key, users[0], new[] { "user:" + users[0].Id });
+            var keys = _context.GetKeysByTag(new[] { "user:" + users[0].Id }, true);
             Assert.IsTrue(keys.Contains(key));
-            _cache.Remove(key);
-            var keys2 = _cache.GetKeysByTag(new[] { "user:" + users[0].Id }, true);
+            _context.Remove(key);
+            var keys2 = _context.GetKeysByTag(new[] { "user:" + users[0].Id }, true);
             Assert.IsFalse(keys2.Contains(key));
         }
 
@@ -443,16 +440,16 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         {
             string key0 = "UT_CacheSetWithTags_Multiple0";
             string key1 = "UT_CacheSetWithTags_Multiple1";
-            _cache.Remove(key0);
-            _cache.Remove(key1);
+            _context.Remove(key0);
+            _context.Remove(key1);
             var users = GetUsers();
-            _cache.InvalidateKeysByTag("user:" + users[0].Id, "user:" + users[1].Id, "user-info");
+            _context.InvalidateKeysByTag("user:" + users[0].Id, "user:" + users[1].Id, "user-info");
 
-            _cache.SetObject(key0, users[0], new[] { "user:" + users[0].Id, "user-info" });
-            _cache.SetObject(key1, users[1], new[] { "user:" + users[1].Id, "user-info" });
-            var keys0 = _cache.GetKeysByTag(new[] { "user:" + users[0].Id });
-            var keys1 = _cache.GetKeysByTag(new[] { "user:" + users[1].Id });
-            var keys = _cache.GetKeysByTag(new[] { "user-info" });
+            _context.SetObject(key0, users[0], new[] { "user:" + users[0].Id, "user-info" });
+            _context.SetObject(key1, users[1], new[] { "user:" + users[1].Id, "user-info" });
+            var keys0 = _context.GetKeysByTag(new[] { "user:" + users[0].Id });
+            var keys1 = _context.GetKeysByTag(new[] { "user:" + users[1].Id });
+            var keys = _context.GetKeysByTag(new[] { "user-info" });
             Assert.IsTrue(keys0.Contains(key0));
             Assert.IsTrue(keys1.Contains(key1));
             Assert.IsTrue(keys.Contains(key0) && keys.Contains(key1));
@@ -463,17 +460,17 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         {
             string key1 = "UT_CacheRemoveByTags1";
             string key2 = "UT_CacheRemoveByTags2";
-            _cache.Remove(key1);
-            _cache.Remove(key2);
+            _context.Remove(key1);
+            _context.Remove(key2);
             var users = GetUsers();
             string tag1 = "user:" + users[0].Id;
             string tag2 = "user:" + users[1].Id;
-            _cache.InvalidateKeysByTag(tag1, tag2);
-            _cache.SetObject(key1, users[0], new[] { tag1 });
-            _cache.SetObject(key2, users[1], new[] { tag2 });
-            _cache.InvalidateKeysByTag(tag1, tag2);
-            var keys = _cache.GetKeysByTag(new [] {tag1, tag2});
-            var user = _cache.GetObject<User>(key1);
+            _context.InvalidateKeysByTag(tag1, tag2);
+            _context.SetObject(key1, users[0], new[] { tag1 });
+            _context.SetObject(key2, users[1], new[] { tag2 });
+            _context.InvalidateKeysByTag(tag1, tag2);
+            var keys = _context.GetKeysByTag(new [] {tag1, tag2});
+            var user = _context.GetObject<User>(key1);
             Assert.IsNull(user);
             Assert.AreEqual(0, keys.Count);
         }
@@ -492,18 +489,18 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
                 {
                     Id = i, Deparments = new List<Department>() { new Department() {Id = i, Distance = i, Location = new Location() {Id = i}, Size = i} }
                 });
-                _cache.SetObject(string.Format(key, i), users[users.Count - 1], new[] { i % 3 == 0 ? tag1 : i % 3 == 1 ? tag2 : tag3 });
+                _context.SetObject(string.Format(key, i), users[users.Count - 1], new[] { i % 3 == 0 ? tag1 : i % 3 == 1 ? tag2 : tag3 });
             }
-            var t1Users = _cache.GetObjectsByTag<User>(tag1).ToList();
-            var t2Users = _cache.GetObjectsByTag<User>(tag2).ToList();
-            var t3Users = _cache.GetObjectsByTag<User>(tag3).ToList();
+            var t1Users = _context.GetObjectsByTag<User>(tag1).ToList();
+            var t2Users = _context.GetObjectsByTag<User>(tag2).ToList();
+            var t3Users = _context.GetObjectsByTag<User>(tag3).ToList();
             Assert.IsTrue(t1Users.TrueForAll(u => u.Id % 3 == 0));
             Assert.IsTrue(t2Users.TrueForAll(u => u.Id % 3 == 1));
             Assert.IsTrue(t3Users.TrueForAll(u => u.Id % 3 == 2));
-            _cache.InvalidateKeysByTag(tag1, tag2, tag3);
-            t1Users = _cache.GetObjectsByTag<User>(tag1).ToList();
+            _context.InvalidateKeysByTag(tag1, tag2, tag3);
+            t1Users = _context.GetObjectsByTag<User>(tag1).ToList();
             Assert.AreEqual(0, t1Users.Count);
-            Assert.IsNull(_cache.GetObject<User>(string.Format(key, 1)));
+            Assert.IsNull(_context.GetObject<User>(string.Format(key, 1)));
         }
 
         [TestMethod]
@@ -511,13 +508,13 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         {
             string key = "UT_CacheAddRemoveTagToKey";
             string tag = "UT_CacheAddRemoveTagToKey_Tag";
-            _cache.Remove(key);
-            _cache.SetObject(key, "value");
-            _cache.AddTagsToKey(key, new[] { tag });
-            var keys = _cache.GetKeysByTag(tag).ToList();
+            _context.Remove(key);
+            _context.SetObject(key, "value");
+            _context.AddTagsToKey(key, new[] { tag });
+            var keys = _context.GetKeysByTag(tag).ToList();
             Assert.IsTrue(keys.Contains(key));
-            _cache.RemoveTagsFromKey(key, new[] { tag });
-            keys = _cache.GetKeysByTag(tag).ToList();
+            _context.RemoveTagsFromKey(key, new[] { tag });
+            keys = _context.GetKeysByTag(tag).ToList();
             Assert.IsFalse(keys.Contains(key));
 
         }
@@ -526,11 +523,11 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         public void UT_CacheSetHashedAll()
         {
             string key = "UT_CacheSetHashedAll";
-            _cache.Remove(key);
+            _context.Remove(key);
             var users = GetUsers();
             IDictionary<string, User> allUsers = users.ToDictionary(k => k.Id.ToString());
-            _cache.SetHashed(key, allUsers);
-            var response = _cache.GetHashedAll<User>(key);
+            _context.SetHashed(key, allUsers);
+            var response = _context.GetHashedAll<User>(key);
             Assert.AreEqual(users.Count, response.Count);
             Assert.IsTrue(users.All(x => response.ContainsKey(x.Id.ToString())));
         }
@@ -539,7 +536,7 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         public void UT_CacheSerialization()
         {
             string key = "UT_CacheSerialization";
-            _cache.Remove(key);
+            _context.Remove(key);
             Exception exItem = null;
             try
             {
@@ -550,8 +547,8 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
                 ex.Data.Add("some data", "to test");
                 exItem = ex;
             }
-            _cache.SetObject(key, exItem);
-            var exFinal = _cache.GetObject<Exception>(key);
+            _context.SetObject(key, exItem);
+            var exFinal = _context.GetObject<Exception>(key);
             Assert.AreEqual(exItem.Data.Count, exFinal.Data.Count);
             Assert.AreEqual(exItem.InnerException.Message, exFinal.InnerException.Message);
             Assert.AreEqual(exItem.StackTrace, exFinal.StackTrace);
@@ -561,12 +558,12 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         public void UT_Cache_HllAddCount()
         {
             string key = "UT_Cache_HllAddCount";
-            _cache.Remove(key);
-            _cache.HyperLogLogAdd(key, new[] { 1, 2, 3, 4, 5, 6 });
-            _cache.HyperLogLogAdd(key, new[] { 4, 5, 6, 7, 8, 9 });
-            _cache.HyperLogLogAdd(key, 10);
+            _context.Remove(key);
+            _context.HyperLogLogAdd(key, new[] { 1, 2, 3, 4, 5, 6 });
+            _context.HyperLogLogAdd(key, new[] { 4, 5, 6, 7, 8, 9 });
+            _context.HyperLogLogAdd(key, 10);
 
-            var cnt = _cache.HyperLogLogCount(key);
+            var cnt = _context.HyperLogLogCount(key);
             Assert.AreEqual(10, cnt);
         }
 

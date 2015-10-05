@@ -62,6 +62,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="BinaryStringSerializer.cs" />
+    <Compile Include="Common.cs" />
     <Compile Include="RedisStressTest.cs" />
     <Compile Include="Dto.cs" />
     <Compile Include="UnitTestGeo.cs" />

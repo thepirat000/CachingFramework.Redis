@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using CachingFramework.Redis.Contracts.Providers;
 using StackExchange.Redis;
 
@@ -404,24 +405,27 @@ namespace CachingFramework.Redis.Providers
         /// <param name="action">The action.</param>
         private void RunInAllMasters(Action<IServer> action)
         {
-            ICollection<ClusterNode> nodes = null;
+            var masters = new List<EndPoint>();
             foreach (var ep in RedisConnection.GetEndPoints())
             {
-                if (RedisConnection.GetServer(ep).IsConnected)
+                var server = RedisConnection.GetServer(ep);
+                if (server.IsConnected)
                 {
-                    nodes = RedisConnection.GetServer(ep).ClusterConfiguration.Nodes;
-                    break;
-                }
-            }
-            if (nodes != null)
-            {
-                foreach (var node in nodes)
-                {
-                    if (!node.IsSlave)
+                    if (server.ServerType == ServerType.Cluster)
                     {
-                        action(RedisConnection.GetServer(node.EndPoint));
+                        masters.AddRange(server.ClusterConfiguration.Nodes.Where(n => !n.IsSlave).Select(n => n.EndPoint));
+                        break;
+                    }
+                    if (server.ServerType == ServerType.Standalone && !server.IsSlave)
+                    {
+                        masters.Add(ep);
+                        break;
                     }
                 }
+            }
+            foreach (var ep in masters)
+            {
+                action(RedisConnection.GetServer(ep));
             }
         }
         /// <summary>
