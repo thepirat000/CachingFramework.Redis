@@ -1,5 +1,6 @@
 .NET adapted Redis collections
 =====
+The following are the four .NET generic collections provided to handle Redis collections:
 
 | Redis object | Common interface | Interface name | CacheContext method |
 | ------------ | ---------------- | -------------- | ------------------- |
@@ -124,3 +125,45 @@ bool exists = userHash.ContainsKey(1);
 |Contains(KeyValuePair<TK, TV> item)|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
 |Count|[HLEN](http://redis.io/commands/hlen)|O(1)|
 |Clear()|[DEL](http://redis.io/commands/del)|O(1)|
+
+# Redis Sorted Sets
+
+To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetCachedSortedSet()``` method of the ```CacheContext``` class:
+
+```c#
+ICachedSortedSet<User> userSortedSet = context.GetCachedSortedSet<User>("user:sset");
+```
+
+To add elements to the sorted set, use `Add` or `AddRange` methods prividing the score of the items as a `double`:
+
+```c#
+userSortedSet.Add(12.34, new User() { Id = 1 });
+```
+
+To get a range of elements by rank or by score, use the `GetRangeByScore` and `GetRangeByRank` methods.
+For example to get all the elements with the exception of the top and the bottom ranked values:
+```c#
+var byRank = userSortedSet.GetRangeByRank(1, -2);
+```
+
+For example to get elements with score less than or equal to 100:
+```c#
+var byScore = userSortedSet.GetRangeByScore(double.NegativeInfinity, 100.00);
+```
+
+## ICachedSortedSet mapping to Redis Sorted Set
+
+|ICachedSortedSet interface|Redis command|Time complexity|
+|------|------|-------|
+|Add(T item, double score)|[ZADD](http://redis.io/commands/zadd)|O(log(N))
+|AddRange(IEnu<SortedMember<T>> items)|[ZADD](http://redis.io/commands/zadd)|O(log(N))
+|CountByScore(double min, double max)|[ZCOUNT](http://redis.io/commands/zcount)|O(log(N))
+|GetRangeByScore(double min, double max, bool desc, long skip, long)|[ZRANGEBYSCORE](http://redis.io/commands/zrangebyscore) / [ZREVRANGEBYSCORE](http://redis.io/commands/zrevrangebyscore)|O(log(N)+M) : M the number of elements being returned|
+|GetRangeByRank(long start, long stop, bool desc)|[ZRANGE](http://redis.io/commands/zrange) / [ZREVRANGE](http://redis.io/commands/zrevrange)|O(log(N)+M) : M the number of elements being returned
+|RemoveRangeByScore(double min, double max)|[ZREMRANGEBYSCORE](http://redis.io/commands/zremrangebyscore)|O(log(N)+M) : M the number of elements being removed
+|RemoveRangeByRank(long start, long stop)|[ZREMRANGEBYRANK](http://redis.io/commands/zremrangebyrank)|O(log(N)+M) : M the number of elements being removed
+|IncrementScore(T item, double value)|[ZINCRBY](http://redis.io/commands/zincrby)|O(log(N))
+|RankOf(T item, bool desc)|[ZRANK](http://redis.io/commands/zrank)|O(log(N))
+|ScoreOf(T item)|[ZSCORE](http://redis.io/commands/zscore)|O(1)
+|Count|[ZCARD](http://redis.io/commands/zcard)|O(1)|
+
