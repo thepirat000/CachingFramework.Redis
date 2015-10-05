@@ -40,7 +40,7 @@ IEnumerable<User> range = users.GetRange(1, -2);
 
 ## ICachedList mapping to Redis List
 
-Mapping between `ICachedList` methods/properties to the Redis Commands used:
+Mapping between `ICachedList` methods/properties to the Redis commands used:
 
 |ICachedList interface|Redis command|Time complexity|
 |------|------|-------|
@@ -85,7 +85,7 @@ bool exists = userSet.Contains(user);
 
 ## ICachedSet mapping to Redis Set
 
-Mapping between `ICachedSet` methods/properties to the Redis Commands used:
+Mapping between `ICachedSet` methods/properties to the Redis commands used:
 
 |ICachedSet interface|Redis command|Time complexity|
 |------|------|-------|
@@ -118,7 +118,7 @@ bool exists = userHash.ContainsKey(1);
 
 ## ICachedDictionary mapping to Redis Hash
 
-Mapping between `ICachedDictionary` methods/properties to the Redis Commands used:
+Mapping between `ICachedDictionary` methods/properties to the Redis commands used:
 
 |ICachedDictionary interface|Redis command|Time complexity|
 |------|------|-------|
@@ -159,7 +159,7 @@ var byScore = userSortedSet.GetRangeByScore(double.NegativeInfinity, 100.00);
 
 ## ICachedSortedSet mapping to Redis Sorted Set
 
-Mapping between `ICachedSortedSet` methods/properties to the Redis Commands used:
+Mapping between `ICachedSortedSet` methods/properties to the Redis commands used:
 
 |ICachedSortedSet interface|Redis command|Time complexity|
 |------|------|-------|
