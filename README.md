@@ -6,9 +6,9 @@
  * **Fetching mechanism** as shortcut methods for atomic Add/Get operations.
  * **Time-To-Live mechanism**.
  * **Fully compatible with Redis Cluster**.
- * **Compressed binary serialization** to minimize load, or use the serialization implementation of your choice.
- * **Handle Redis List, Sets, Sorted Sets and Hashes** from common interfaces IList<T>, ISet<T>, ICollection<T> and IDictionary<K, V>.
- * **Pub/Sub with typed messages**.
+ * **Compressed binary serialization** (or implement your own serialization).
+ * **Redis List, Sets, Sorted Sets and Hashes support**.
+ * **Pub/Sub support with typed messages**.
  * **Geospatial support** to handle geospatial indexed items.
  
 ## Usage
