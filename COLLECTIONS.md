@@ -85,12 +85,12 @@ bool exists = userSet.Contains(user);
 
 |ICachedSet interface|Redis command|Time complexity|
 |------|------|-------|
-|AddRange(IEnumerable<T> collection)|[SADD](http://redis.io/commands/sadd)|O(M) : M the number of elements to add|
-|RemoveWhere(Predicate<T> match)|[SMEMBERS](http://redis.io/commands/smembers) + [SREM](http://redis.io/commands/srem)|O(N)|
-|Add(T item)|[SADD](http://redis.io/commands/sadd)|O(1)|
-|Contains(T item)|[SISMEMBER](http://redis.io/commands/sismember)|O(1)|
-|Remove(T item)|[SREM](http://redis.io/commands/srem)|O(1)|
-|Count|[SCARD](http://redis.io/commands/scard)|O(1)|
+|`AddRange(IEnumerable<T> collection)`|[SADD](http://redis.io/commands/sadd)|O(M) : M the number of elements to add|
+|`RemoveWhere(Predicate<T> match)`|[SMEMBERS](http://redis.io/commands/smembers) + [SREM](http://redis.io/commands/srem)|O(N)|
+|`Add(T item)`|[SADD](http://redis.io/commands/sadd)|O(1)|
+|`Contains(T item)`|[SISMEMBER](http://redis.io/commands/sismember)|O(1)|
+|`Remove(T item)`|[SREM](http://redis.io/commands/srem)|O(1)|
+|`Count`|[SCARD](http://redis.io/commands/scard)|O(1)|
 
 # Redis Hashes
 
@@ -116,15 +116,15 @@ bool exists = userHash.ContainsKey(1);
 
 |ICachedDictionary interface|Redis command|Time complexity|
 |------|------|-------|
-|AddRange(IEnum<KVP<TK, TV>> items)|[HMSET](http://redis.io/commands/hmset)|O(M) where M is the number of fields being added|
-|Add(TK key, TV value)|[HSET](http://redis.io/commands/hset)|O(1)|
-|ContainsKey(TK key)|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
-|Remove(TK key)|[HDEL](http://redis.io/commands/hdel)|O(1)|
-|this[] get|[HGET](http://redis.io/commands/hget)|O(1)|
-|this[] set|[HSET](http://redis.io/commands/hget)|O(1)|
-|Contains(KeyValuePair<TK, TV> item)|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
-|Count|[HLEN](http://redis.io/commands/hlen)|O(1)|
-|Clear()|[DEL](http://redis.io/commands/del)|O(1)|
+|`AddRange(IEnum<KVP<TK, TV>> items)`|[HMSET](http://redis.io/commands/hmset)|O(M) where M is the number of fields being added|
+|`Add(TK key, TV value)`|[HSET](http://redis.io/commands/hset)|O(1)|
+|`ContainsKey(TK key)`|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
+|`Remove(TK key)`|[HDEL](http://redis.io/commands/hdel)|O(1)|
+|`this[] get`|[HGET](http://redis.io/commands/hget)|O(1)|
+|`this[] set`|[HSET](http://redis.io/commands/hget)|O(1)|
+|`Contains(KeyValuePair<TK, TV> item)`|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
+|`Count`|[HLEN](http://redis.io/commands/hlen)|O(1)|
+|`Clear()`|[DEL](http://redis.io/commands/del)|O(1)|
 
 # Redis Sorted Sets
 
@@ -155,15 +155,15 @@ var byScore = userSortedSet.GetRangeByScore(double.NegativeInfinity, 100.00);
 
 |ICachedSortedSet interface|Redis command|Time complexity|
 |------|------|-------|
-|Add(T item, double score)|[ZADD](http://redis.io/commands/zadd)|O(log(N))
-|AddRange(IEnu<SortedMember<T>> items)|[ZADD](http://redis.io/commands/zadd)|O(log(N))
-|CountByScore(double min, double max)|[ZCOUNT](http://redis.io/commands/zcount)|O(log(N))
-|GetRangeByScore(double min, double max, bool desc, long skip, long)|[ZRANGEBYSCORE](http://redis.io/commands/zrangebyscore) / [ZREVRANGEBYSCORE](http://redis.io/commands/zrevrangebyscore)|O(log(N)+M) : M the number of elements being returned|
-|GetRangeByRank(long start, long stop, bool desc)|[ZRANGE](http://redis.io/commands/zrange) / [ZREVRANGE](http://redis.io/commands/zrevrange)|O(log(N)+M)
-|RemoveRangeByScore(double min, double max)|[ZREMRANGEBYSCORE](http://redis.io/commands/zremrangebyscore)|O(log(N)+M)
-|RemoveRangeByRank(long start, long stop)|[ZREMRANGEBYRANK](http://redis.io/commands/zremrangebyrank)|O(log(N)+M)
-|IncrementScore(T item, double value)|[ZINCRBY](http://redis.io/commands/zincrby)|O(log(N))
-|RankOf(T item, bool desc)|[ZRANK](http://redis.io/commands/zrank)|O(log(N))
-|ScoreOf(T item)|[ZSCORE](http://redis.io/commands/zscore)|O(1)
-|Count|[ZCARD](http://redis.io/commands/zcard)|O(1)|
+|`Add(T item, double score)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))
+|`AddRange(IEnu<SortedMember<T>> items)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))
+|`CountByScore(double min, double max)`|[ZCOUNT](http://redis.io/commands/zcount)|O(log(N))
+|`GetRangeByScore(double min, double max, bool desc, long skip, long)`|[ZRANGEBYSCORE](http://redis.io/commands/zrangebyscore) / [ZREVRANGEBYSCORE](http://redis.io/commands/zrevrangebyscore)|O(log(N)+M) : M the number of elements being returned|
+|`GetRangeByRank(long start, long stop, bool desc)`|[ZRANGE](http://redis.io/commands/zrange) / [ZREVRANGE](http://redis.io/commands/zrevrange)|O(log(N)+M)
+|`RemoveRangeByScore(double min, double max)`|[ZREMRANGEBYSCORE](http://redis.io/commands/zremrangebyscore)|O(log(N)+M)
+|`RemoveRangeByRank(long start, long stop)`|[ZREMRANGEBYRANK](http://redis.io/commands/zremrangebyrank)|O(log(N)+M)
+|`IncrementScore(T item, double value)`|[ZINCRBY](http://redis.io/commands/zincrby)|O(log(N))
+|`RankOf(T item, bool desc)`|[ZRANK](http://redis.io/commands/zrank)|O(log(N))
+|`ScoreOf(T item)`|[ZSCORE](http://redis.io/commands/zscore)|O(1)
+|`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
 
