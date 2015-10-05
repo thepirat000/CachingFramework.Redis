@@ -17,19 +17,6 @@
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
-        /// <returns>``0.</returns>
         T Deserialize<T>(byte[] value);
-        /// <summary>
-        /// Serializes the specified value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>System.String.</returns>
-        byte[] Serialize(object value);
-        /// <summary>
-        /// Deserializes the specified value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>System.Object.</returns>
-        object Deserialize(byte[] value);
     }
 }

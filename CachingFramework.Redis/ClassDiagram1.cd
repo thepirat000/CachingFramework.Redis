@@ -10,26 +10,18 @@
       <FileName>CacheContext.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CachingFramework.Redis.RedisObjects.RedisDictionary&lt;TKey, TValue&gt;" BaseTypeListCollapsed="true">
+  <Class Name="CachingFramework.Redis.RedisObjects.RedisDictionary&lt;TK, TV&gt;" BaseTypeListCollapsed="true">
     <Position X="7" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>CCIAAAAAAAAEABAQCAAABAQAAAAAAAAAAAAgAABQIAA=</HashCode>
+      <HashCode>CCIAAAAAAAAEABgQCAAABAQAAAAAAAAAAAAgAAAUIAA=</HashCode>
       <FileName>RedisObjects\RedisDictionary.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="CachingFramework.Redis.RedisObjects.RedisHashSet&lt;T&gt;" BaseTypeListCollapsed="true">
-    <Position X="9.25" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>ACoAABBAACBAQBBQAAAAFAQAIAAAACAAAgAAAABQIAA=</HashCode>
-      <FileName>RedisObjects\RedisHashSet.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="CachingFramework.Redis.RedisObjects.RedisList&lt;T&gt;" BaseTypeListCollapsed="true">
     <Position X="11.25" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AGIAAEAAAAAAABAQCAAABAQAAAAAAAAACAgAAABUIAA=</HashCode>
+      <HashCode>AGIIAFAAAEAAARAQCAAAJAQAAAAQAAAACAgCAAAUIAA=</HashCode>
       <FileName>RedisObjects\RedisList.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -42,26 +34,13 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Interface Name="CachingFramework.Redis.Contracts.ICachedDictionary&lt;TKey, TValue&gt;" Collapsed="true">
-    <Position X="7" Y="1.25" Width="1.5" />
+  <Class Name="CachingFramework.Redis.RedisObjects.RedisSet&lt;T&gt;" BaseTypeListCollapsed="true">
+    <Position X="9.25" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Contracts\ICachedDictionary.cs</FileName>
+      <HashCode>ACoAABBAAGBAQBBQAAAAFAQAIAAAACAAAgAAAAAUIAA=</HashCode>
+      <FileName>RedisObjects\RedisSet.cs</FileName>
     </TypeIdentifier>
-  </Interface>
-  <Interface Name="CachingFramework.Redis.Contracts.ICachedList&lt;T&gt;" Collapsed="true">
-    <Position X="11.25" Y="1.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAAA=</HashCode>
-      <FileName>Contracts\ICachedList.cs</FileName>
-    </TypeIdentifier>
-  </Interface>
-  <Interface Name="CachingFramework.Redis.Contracts.ICachedSet&lt;T&gt;" Collapsed="true">
-    <Position X="9.25" Y="1.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAIAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Contracts\ICachedSet.cs</FileName>
-    </TypeIdentifier>
-  </Interface>
+    <Lollipop Position="0.2" />
+  </Class>
   <Font Name="Tahoma" Size="8.25" />
 </ClassDiagram>

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.Contracts.Providers;
+using CachingFramework.Redis.Contracts.RedisObjects;
 using CachingFramework.Redis.Providers;
-using CachingFramework.Redis.RedisObjects;
 using CachingFramework.Redis.Serializers;
-using StackExchange.Redis;
 
 namespace CachingFramework.Redis
 {
@@ -32,7 +31,6 @@ namespace CachingFramework.Redis
         /// The Geo Spacial provider
         /// </summary>
         private readonly IGeoProvider _geoProvider;
-
         #endregion
         #region Constructors
         /// <summary>
@@ -214,6 +212,14 @@ namespace CachingFramework.Redis
             return _cacheProvider.Remove(key);
         }
         /// <summary>
+        /// Removes multiple keys.
+        /// </summary>
+        /// <param name="keys">The keys to remove.</param>
+        public void Remove(params string[] keys)
+        {
+            _cacheProvider.Remove(keys);
+        }
+        /// <summary>
         /// Relates the given tags to a key.
         /// </summary>
         /// <param name="key">The key.</param>
@@ -289,7 +295,7 @@ namespace CachingFramework.Redis
             return _cacheProvider.RemoveHashed(key, field);
         }
         /// <summary>
-        /// Returns an IList implemented using a Redis List
+        /// Returns an ICachedList implemented using a Redis List
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
@@ -299,7 +305,7 @@ namespace CachingFramework.Redis
             return _collectionProvider.GetCachedList<T>(key);
         }
         /// <summary>
-        /// Returns an IDictionary implemented using a Redis Hash
+        /// Returns an ICachedDictionary implemented using a Redis Hash
         /// </summary>
         /// <typeparam name="TKey">The key type</typeparam>
         /// <typeparam name="TValue">The object type</typeparam>
@@ -310,7 +316,7 @@ namespace CachingFramework.Redis
             return _collectionProvider.GetCachedDictionary<TKey, TValue>(key);
         }
         /// <summary>
-        /// Returns an ISet implemented using a Redis Set
+        /// Returns an ICachedSet implemented using a Redis Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
@@ -318,6 +324,16 @@ namespace CachingFramework.Redis
         public ICachedSet<T> GetCachedSet<T>(string key)
         {
             return _collectionProvider.GetCachedSet<T>(key);
+        }
+        /// <summary>
+        /// Returns an ICachedSortedSet implemented using a Redis Set
+        /// </summary>
+        /// <typeparam name="T">The object type</typeparam>
+        /// <param name="key">The redis key</param>
+        /// <returns>ICachedSet{``0}.</returns>
+        public ICachedSortedSet<T> GetCachedSortedSet<T>(string key)
+        {
+            return _collectionProvider.GetCachedSortedSet<T>(key);
         }
         /// <summary>
         /// Flushes all the databases on every master node.

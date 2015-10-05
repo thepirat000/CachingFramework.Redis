@@ -24,6 +24,58 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [TestMethod]
+        public void UT_CacheSerializer()
+        {
+            var kss = "short:string";
+            var kls = "long:string";
+            var kpBool = "primitive:bool";
+            var kpInt = "primitive:int";
+            var kpLong = "primitive:long";
+            var kpSingle = "primitive:single";
+            var kpIntPtr = "primitive:intptr";
+            var kpUInt16 = "primitive:uint16";
+            var kpUInt32 = "primitive:uint32";
+            var kpUInt64 = "primitive:uint64";
+            _cache.Remove(kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64);
+            var ss = "this is a short string";
+            var ls = @"UTF-8 is a character encoding capable of encoding all possible characters, or code points, in Unicode.
+The encoding is variable-length and uses 8-bit code units. It was designed for backward compatibility with ASCII, and to avoid the complications of endianness and byte order marks in the alternative UTF-16 and UTF-32 encodings. The name is derived from: Universal Coded Character Set + Transformation Format—8-bit.";
+            _cache.SetObject(kss, ss);
+            _cache.SetObject(kls, ls);
+
+            _cache.SetObject<bool>(kpBool, true);
+            _cache.SetObject<int>(kpInt, int.MaxValue);
+            _cache.SetObject<long>(kpLong, long.MaxValue);
+            _cache.SetObject<Single>(kpSingle, Single.MaxValue);
+            _cache.SetObject<IntPtr>(kpIntPtr, new IntPtr(int.MaxValue));
+            _cache.SetObject<UInt16>(kpUInt16, UInt16.MaxValue);
+            _cache.SetObject<UInt32>(kpUInt32, UInt32.MaxValue);
+            _cache.SetObject<UInt64>(kpUInt64, UInt64.MaxValue);
+
+            var ss_ = _cache.GetObject<string>(kss);
+            var ls_ = _cache.GetObject<string>(kls);
+            var pInt_ = _cache.GetObject<int>(kpInt);
+            var pLong_ = _cache.GetObject<long>(kpLong);
+            var pSingle_ = _cache.GetObject<Single>(kpSingle);
+            var pIntPtr_ = _cache.GetObject<IntPtr>(kpIntPtr);
+            var pUint16_ = _cache.GetObject<UInt16>(kpUInt16);
+            var pUint32_ = _cache.GetObject<UInt32>(kpUInt32);
+            var pUint64_ = _cache.GetObject<UInt64>(kpUInt64);
+
+
+            Assert.AreEqual(ss, ss_);
+            Assert.AreEqual(int.MaxValue, pInt_);
+            Assert.AreEqual(long.MaxValue, pLong_);
+            Assert.AreEqual(Single.MaxValue, pSingle_);
+            Assert.AreEqual(new IntPtr(int.MaxValue), pIntPtr_);
+            Assert.AreEqual(UInt16.MaxValue, pUint16_);
+            Assert.AreEqual(UInt32.MaxValue, pUint32_);
+            Assert.AreEqual(UInt64.MaxValue, pUint64_);
+            _cache.Remove(kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64);
+        }
+
+
+        [TestMethod]
         public void UT_CacheByteArray()
         {
             _cache.SetObject("key", "jpeg");
@@ -147,10 +199,27 @@ namespace CachingFramework.Redis.UnitTest
             Thread.Sleep(500);
             r = _cache.Remove(key);
             Assert.IsFalse(r);
-
             var returnedUser = _cache.GetObject<User>(key);
-
             Assert.IsNull(returnedUser);
+        }
+
+        [TestMethod]
+        public void UT_CacheRemoveMultiple()
+        {
+            string key = "UT_CacheRemoveMultiple";
+            for (int i = 0; i < 255; i++)
+            {
+                _cache.SetObject(key + i, new User() { Id = i });
+            }
+            for (int i = 0; i < 255; i++)
+            {
+                Assert.IsNotNull(_cache.GetObject<User>(key + i));
+            }
+            _cache.Remove(Enumerable.Range(0, 255).Select(i => key + i).ToArray());
+            for (int i = 0; i < 255; i++)
+            {
+                Assert.IsNull(_cache.GetObject<User>(key + i));
+            }
         }
 
         [TestMethod]

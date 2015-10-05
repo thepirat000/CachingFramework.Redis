@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using StackExchange.Redis;
 
-namespace CachingFramework.Redis.Contracts
+namespace CachingFramework.Redis.Contracts.Providers
 {
     /// <summary>
     /// Cache Provider internal contract
@@ -73,8 +72,12 @@ namespace CachingFramework.Redis.Contracts
         /// Removes the specified key-value.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         bool Remove(string key);
+        /// <summary>
+        /// Removes the specified keys.
+        /// </summary>
+        /// <param name="keys">The keys to remove.</param>
+        void Remove(string[] keys);
         /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)

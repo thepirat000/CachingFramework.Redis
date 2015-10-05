@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.Contracts.RedisObjects;
 using CachingFramework.Redis.Serializers;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.RedisObjects
 {
     /// <summary>
-    /// Managed hashset using a Redis Hash
+    /// Managed collection using a Redis Sorted Set
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    internal class RedisHashSet<T> : RedisBaseObject, ICachedSet<T>
+    internal class RedisSet<T> : RedisBaseObject, ICachedSet<T>
     {
         #region Constructors
         /// <summary>
@@ -20,7 +20,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="connection">The connection.</param>
         /// <param name="redisKey">The redis key.</param>
         /// <param name="serializer">The serializer.</param>
-        internal RedisHashSet(ConnectionMultiplexer connection, string redisKey, ISerializer serializer)
+        internal RedisSet(ConnectionMultiplexer connection, string redisKey, ISerializer serializer)
             : base(connection, redisKey, serializer)
         {
         }
@@ -30,7 +30,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// Adds the specified items.
         /// </summary>
         /// <param name="collection">The items to add</param>
-        public void AddMultiple(IEnumerable<T> collection)
+        public void AddRange(IEnumerable<T> collection)
         {
             var db = GetRedisDb();
             db.SetAdd(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
@@ -154,9 +154,9 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="other">The collection to compare to the current set.</param>
         private bool SetEquals(ICollection<T> other)
         {
-            int otherLen = other.Count;
-            int thisLen = this.Count;
-            if (otherLen != thisLen)
+            long cLen = this.Count;
+            long oLen = other.Count;
+            if (oLen != cLen)
             {
                 return false;
             }
@@ -204,13 +204,6 @@ namespace CachingFramework.Redis.RedisObjects
             Add(item);
         }
         /// <summary>
-        /// Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </summary>
-        public void Clear()
-        {
-            GetRedisDb().KeyDelete(RedisKey);
-        }
-        /// <summary>
         /// Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.
         /// </summary>
         /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
@@ -226,16 +219,23 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            GetRedisDb().SetMembers(RedisKey).Select(x => Deserialize<T>(x)).ToArray().CopyTo(array, arrayIndex);
+            GetRedisDb().SetMembers(RedisKey).Select(Deserialize<T>).ToArray().CopyTo(array, arrayIndex);
         }
         /// <summary>
-        /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
+        /// Gets the number of elements contained in the set.
         /// </summary>
         /// <value>The count.</value>
         /// <returns>The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
-        public int Count
+        public long Count
         {
-            get { return (int)GetRedisDb().SetLength(RedisKey); }
+            get { return GetRedisDb().SetLength(RedisKey); }
+        }
+        /// <summary>
+        /// Gets the number of elements contained in the set.
+        /// </summary>
+        int ICollection<T>.Count
+        {
+            get { return (int)Count; }
         }
         /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
@@ -299,13 +299,13 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns><c>true</c> if [is subset of] [the specified proper]; otherwise, <c>false</c>.</returns>
         private bool IsSubsetOf(bool proper, ICollection<T> other)
         {
-            int currentLen = this.Count;
-            int otherLen = other.Count;
-            if (otherLen < currentLen)
+            long cLen = this.Count;
+            long oLen = other.Count;
+            if (oLen < cLen)
             {
                 return false;
             }
-            if (proper && otherLen == currentLen)
+            if (proper && oLen == cLen)
             {
                 return false;
             }
@@ -333,18 +333,19 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns><c>true</c> if [is superset of] [the specified proper]; otherwise, <c>false</c>.</returns>
         private bool IsSupersetOf(bool proper, ICollection<T> other)
         {
-            int currentLen = this.Count;
-            int otherLen = other.Count;
-            if (currentLen < otherLen)
+            long cLen = this.Count;
+            long oLen = other.Count;
+            if (cLen < oLen)
             {
                 return false;
             }
-            if (proper && otherLen == currentLen)
+            if (proper && oLen == cLen)
             {
                 return false;
             }
             return other.All(this.Contains);
         }
         #endregion
+
     }
 }

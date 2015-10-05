@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
+using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.RedisObjects;
+using CachingFramework.Redis.Serializers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CachingFramework.Redis.UnitTest
@@ -11,12 +13,14 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestRedisObjects
     {
         private CacheContext _cache;
+
         [TestInitialize]
         public void Initialize()
         {
             // Config doc: https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md
-            var config = "192.168.15.15:7001,192.168.15.15:7006,192.168.15.15:7002,192.168.15.15:7003,192.168.15.15:7004,192.168.15.15:7005,192.168.15.15:7000,connectRetry=10,syncTimeout=5000,abortConnect=false,keepAlive=10, allowAdmin=true";
-            _cache = new CacheContext(config);
+            var config =
+                "192.168.15.15:7001,192.168.15.15:7006,192.168.15.15:7002,192.168.15.15:7003,192.168.15.15:7004,192.168.15.15:7005,192.168.15.15:7000,connectRetry=10,syncTimeout=5000,abortConnect=false,keepAlive=10, allowAdmin=true";
+            _cache = new CacheContext(config, new BinarySerializer());
             _cache.FlushAll();
         }
 
@@ -26,38 +30,66 @@ namespace CachingFramework.Redis.UnitTest
             string key1 = "UT_CacheListObject1";
             _cache.Remove(key1);
             var users = GetUsers();
-            var rl = _cache.GetCachedList<User>(key1);
-            rl.AddRange(users);
+            var rl = _cache.GetCachedList<int>(key1);
+            rl.AddRange(users.Select(u => u.Id));
             // Test GetEnumerator
             foreach (var item in rl)
             {
-                Assert.IsTrue(users.Any(u => u.Id == item.Id));
+                Assert.IsTrue(users.Any(u => u.Id == item));
             }
             // Test Count
             Assert.AreEqual(users.Count, rl.Count);
+            // Test First and Last
+            var first = rl.First();
+            Assert.AreEqual(users.First().Id, first);
+            var firstod = rl.FirstOrDefault();
+            Assert.AreEqual(users.First().Id, firstod);
+            Assert.AreEqual(users.Last().Id, rl.Last());
+            Assert.AreEqual(users.Last().Id, rl.LastOrDefault());
             // Test Contains
-            Assert.IsTrue(rl.Contains(users[2]));
+            Assert.IsTrue(rl.Contains(users[2].Id));
             // Test Insert
-            rl.Insert(0, new User() { Id = 0 });
-            Assert.AreEqual(0, rl[0].Id);
+            rl.Insert(0, 0);
+            Assert.AreEqual(0, rl[0]);
             // Test RemoveAt
             rl.RemoveAt(0);
-            Assert.AreEqual(1, rl[0].Id);
+            Assert.AreEqual(1, rl[0]);
             // Test Add
-            rl.Add(new User() { Id = 5 });
-            Assert.AreEqual(5, rl.Last().Id);
+            rl.Add(5);
+            Assert.AreEqual(5, rl.Last());
             // Test IndexOf
-            Assert.AreEqual(2, rl.IndexOf(users[2]));
+            Assert.AreEqual(2, rl.IndexOf(users[2].Id));
             // Test Remove
-            rl.Remove(users[2]);
-            Assert.IsFalse(rl.Contains(users[2]));
+            rl.Remove(users[2].Id);
+            Assert.IsFalse(rl.Contains(users[2].Id));
             // Test CopyTo
-            User[] array = new User[50];
+            int[] array = new int[50];
             rl.CopyTo(array, 10);
-            Assert.AreEqual(1, array[10].Id);
+            Assert.AreEqual(1, array[10]);
             // Test Clear
             rl.Clear();
             Assert.AreEqual(0, rl.Count);
+            Assert.AreEqual(0, rl.LastOrDefault());
+
+        }
+
+        [TestMethod]
+        public void UT_CacheListPushPop()
+        {
+            string key = "UT_CacheListPushPop";
+            _cache.Remove(key);
+            var users = GetUsers();
+            var rl = _cache.GetCachedList<User>(key);
+            rl.AddRange(users);
+            rl.AddFirst(new User() { Id = 0 });
+            rl.AddLast(new User() { Id = 666 });
+            Assert.AreEqual(0, rl[0].Id);
+            Assert.AreEqual(0, rl.First.Id);
+            Assert.AreEqual(666, rl.Last.Id);
+            var remf = rl.RemoveFirst();
+            Assert.AreEqual(0, remf.Id);
+            var reml = rl.RemoveLast();
+            Assert.AreEqual(666, reml.Id);
         }
 
         [TestMethod]
@@ -81,16 +113,16 @@ namespace CachingFramework.Redis.UnitTest
             int total = 100;
             _cache.Remove(key);
             var rl = _cache.GetCachedList<User>(key);
-            rl.AddRange(Enumerable.Range(1, total).Select(i => new User() { Id = i }));
+            rl.AddRange(Enumerable.Range(1, total).Select(i => new User() {Id = i}));
 
-            var range = rl.GetRange();
+            var range = rl.GetRange().ToList();
             Assert.AreEqual(total, rl.Count);
 
-            range = rl.GetRange(3, 10);
+            range = rl.GetRange(3, 10).ToList();
             Assert.AreEqual(8, range.Count);
             Assert.AreEqual(4, range[0].Id);
 
-            range = rl.GetRange(10, -10);
+            range = rl.GetRange(10, -10).ToList();
             Assert.AreEqual(11, range[0].Id);
             Assert.AreEqual(91, range[range.Count - 1].Id);
         }
@@ -104,7 +136,7 @@ namespace CachingFramework.Redis.UnitTest
             var rd = _cache.GetCachedDictionary<int, User>(key1);
             // Test AddMultiple
             var usersKv = users.Select(x => new KeyValuePair<int, User>(x.Id, x));
-            rd.AddMultiple(usersKv);
+            rd.AddRange(usersKv);
             // Test GetEnumerator
             foreach (var item in rd)
             {
@@ -117,7 +149,7 @@ namespace CachingFramework.Redis.UnitTest
             // Test Contains
             Assert.IsTrue(rd.Contains(new KeyValuePair<int, User>(users.Last().Id, users.Last())));
             // Test Add
-            rd.Add(0, new User() { Id = 0 });
+            rd.Add(0, new User() {Id = 0});
             Assert.AreEqual(users.Count + 1, rd.Count);
             Assert.AreEqual(0, rd[0].Id);
             // Test Remove
@@ -157,7 +189,7 @@ namespace CachingFramework.Redis.UnitTest
             _cache.Remove(key1);
             var users = GetUsers();
             var rl = _cache.GetCachedDictionary<int, User>(key1);
-            rl.AddMultiple(users.ToDictionary(k => k.Id));
+            rl.AddRange(users.ToDictionary(k => k.Id));
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
             Assert.AreEqual(users.Count, rl.Count);
             Thread.Sleep(2000);
@@ -171,7 +203,7 @@ namespace CachingFramework.Redis.UnitTest
             _cache.Remove(key1);
             var users = GetUsers();
             var rs = _cache.GetCachedSet<User>(key1);
-            rs.AddMultiple(users);
+            rs.AddRange(users);
             // Test GetEnumerator
             foreach (var item in rs)
             {
@@ -204,7 +236,7 @@ namespace CachingFramework.Redis.UnitTest
             _cache.Remove(key1);
             var users = GetUsers();
             var rl = _cache.GetCachedSet<User>(key1);
-            rl.AddMultiple(users);
+            rl.AddRange(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
             Assert.AreEqual(users.Count, rl.Count);
             Thread.Sleep(2000);
@@ -220,10 +252,10 @@ namespace CachingFramework.Redis.UnitTest
             _cache.Remove(keyAbc);
             _cache.Remove(keyCde);
             var abcSet = _cache.GetCachedSet<char>(keyAbc);
-            abcSet.AddMultiple("ABC");
+            abcSet.AddRange("ABC");
             
             var cdeSet = _cache.GetCachedSet<char>(keyCde);
-            cdeSet.AddMultiple("CDE");
+            cdeSet.AddRange("CDE");
 
             // Test Count
             Assert.AreEqual(3, abcSet.Count);
@@ -240,7 +272,7 @@ namespace CachingFramework.Redis.UnitTest
             abcSet.IntersectWith(cdeSet);
             Assert.AreEqual(1, abcSet.Count);
             Assert.IsTrue(abcSet.Contains('C'));
-            abcSet.AddMultiple("AB");
+            abcSet.AddRange("AB");
 
             // Test IsProperSubsetOf
             Assert.IsFalse(abcSet.IsProperSubsetOf(cdeSet));
@@ -289,6 +321,119 @@ namespace CachingFramework.Redis.UnitTest
             abcSet.Clear();
             cdeSet.Clear();
         }
+
+        [TestMethod]
+        public void UT_CacheSortedSet_GetRange()
+        {
+            var key = "UT_CacheSortedSet_GetRange";
+            _cache.Remove(key);
+            var ss = _cache.GetCachedSortedSet<User>(key);
+            var users = GetUsers();
+
+            ss.Add(double.NegativeInfinity, users[3]);
+            ss.Add(double.PositiveInfinity, users[2]);
+            ss.Add(12.34, users[0]);
+            ss.Add(23.45, users[1]);
+
+            var count = ss.Count();
+            var byRank = ss.GetRangeByRank().ToList();
+            Assert.AreEqual(4, count);
+            Assert.AreEqual(count, byRank.Count);
+            Assert.AreEqual(12.34, byRank[1].Score);
+            Assert.AreEqual(double.NegativeInfinity, byRank[0].Score);
+            // This seems to be a StackExhange.Redis issue: https://github.com/StackExchange/StackExchange.Redis/issues/287
+            //Assert.AreEqual(double.PositiveInfinity, byRank[3].Score);
+
+            var byScore = ss.GetRangeByScore(12.34, 23.449).ToList();
+            Assert.AreEqual(1, byScore.Count);
+            Assert.AreEqual(users[0].Id, byScore[0].Value.Id);
+
+            byScore = ss.GetRangeByScore(12.34, 23.45).ToList();
+            Assert.AreEqual(2, byScore.Count);
+            Assert.AreEqual(users[1].Id, byScore[1].Value.Id);
+        }
+
+        [TestMethod]
+        public void UT_CacheSortedSet_GetRangeByRankNegative()
+        {
+            var key = "UT_CacheSortedSet_GetRangeByRankNegative";
+            _cache.Remove(key);
+            var ss = _cache.GetCachedSortedSet<string>(key);
+            ss.AddRange(new[] { new SortedMember<string>(33, "c"), new SortedMember<string>(0, "a"), new SortedMember<string>(22, "b") });
+
+            var byRank = ss.GetRangeByRank(-2, -1).ToList();
+            var byRankRev = ss.GetRangeByRank(-2, -1, true).ToList();
+
+            Assert.AreEqual(2, byRank.Count);
+            Assert.AreEqual("b", byRank[0].Value);
+            Assert.AreEqual("c", byRank[1].Value);
+            Assert.AreEqual("a", byRankRev[1].Value);
+            Assert.AreEqual("b", byRankRev[0].Value);
+        }
+
+        [TestMethod]
+        public void UT_CacheSortedSet_etc()
+        {
+            var key = "UT_CacheSortedSet_etc";
+            var ss = _cache.GetCachedSortedSet<string>(key);
+            _cache.Remove(key);
+            for (int i = 0; i < 255; i++)
+            {
+                ss.Add(i, "member " + i);
+            }
+            Assert.AreEqual(10, ss.CountByScore(1, 10));
+            var incremented = ss.IncrementScore("member 10", 1000);
+            Assert.AreEqual(1010, incremented);
+            Assert.AreEqual(255, ss.Count);
+
+            int x = 0;
+            foreach (var item in ss)
+            {
+                x++;
+            }
+            Assert.AreEqual(255, x);
+
+            var r0 = ss.RankOf("member 0");
+            var r9 = ss.RankOf("member 9");
+            var r10 = ss.RankOf("member 10");
+            var r11 = ss.RankOf("member 11");
+            var r254 = ss.RankOf("member 254");
+            var r255 = ss.RankOf("member 255");
+            var r0Rev = ss.RankOf("member 0", true);
+
+            Assert.AreEqual(0, r0);
+            Assert.AreEqual(9, r9);
+            Assert.AreEqual(10, r11);
+            Assert.AreEqual(254, r10);
+            Assert.AreEqual(253, r254);
+            Assert.AreEqual(254, r0Rev);
+            Assert.IsNull(r255);
+
+            var s0 = ss.ScoreOf("member 0");
+            var s254 = ss.ScoreOf("member 254");
+            var s255 = ss.ScoreOf("member 255");
+            Assert.AreEqual(0, s0);
+            Assert.AreEqual(254, s254);
+            Assert.IsNull(s255);
+
+            ss.RemoveRangeByRank(0, 2);
+            Assert.AreEqual(252, ss.Count);
+
+            ss.RemoveRangeByScore(double.NegativeInfinity, 9);
+            Assert.AreEqual(245, ss.Count);
+
+            Assert.IsTrue(ss.Contains("member 100"));
+            Assert.IsFalse(ss.Contains("member 0"));
+
+            ss.Remove("member 100");
+            Assert.IsFalse(ss.Contains("member 100"));
+
+            ss.Clear();
+            Assert.AreEqual(0, ss.Count);
+
+
+        }
+
 
         private List<User> GetUsers()
         {

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.Contracts.Providers;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.Providers
@@ -204,6 +202,19 @@ namespace CachingFramework.Redis.Providers
         public bool Remove(string key)
         {
             return RedisConnection.GetDatabase().KeyDelete(key);
+        }
+        /// <summary>
+        /// Removes the specified keys.
+        /// </summary>
+        /// <param name="keys">The keys to remove.</param>
+        public void Remove(string[] keys)
+        {
+            var batch = RedisConnection.GetDatabase().CreateBatch();
+            foreach (var key in keys)
+            {
+                batch.KeyDeleteAsync(key);
+            }
+            batch.Execute();
         }
         /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CachingFramework.Redis.Contracts
+namespace CachingFramework.Redis.Contracts.RedisObjects
 {
     /// <summary>
     /// Redis object interface

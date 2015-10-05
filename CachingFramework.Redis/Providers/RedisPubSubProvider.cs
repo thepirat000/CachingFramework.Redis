@@ -1,5 +1,5 @@
 using System;
-using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.Contracts.Providers;
 
 namespace CachingFramework.Redis.Providers
 {

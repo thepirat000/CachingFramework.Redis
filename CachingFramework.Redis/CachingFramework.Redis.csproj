@@ -46,15 +46,17 @@
     <Compile Include="CacheContext.cs" />
     <Compile Include="Contracts\GeoCoordinate.cs" />
     <Compile Include="Contracts\GeoMember.cs" />
-    <Compile Include="Contracts\ICachedDictionary.cs" />
-    <Compile Include="Contracts\ICachedCollectionProvider.cs" />
-    <Compile Include="Contracts\ICachedSet.cs" />
-    <Compile Include="Contracts\ICacheProvider.cs" />
-    <Compile Include="Contracts\ICachedList.cs" />
-    <Compile Include="Contracts\IGeoProvider.cs" />
-    <Compile Include="Contracts\IPubSubProvider.cs" />
-    <Compile Include="Contracts\IRedisObject.cs" />
     <Compile Include="Contracts\ISerializer.cs" />
+    <Compile Include="Contracts\Providers\ICachedCollectionProvider.cs" />
+    <Compile Include="Contracts\Providers\ICacheProvider.cs" />
+    <Compile Include="Contracts\Providers\IGeoProvider.cs" />
+    <Compile Include="Contracts\Providers\IPubSubProvider.cs" />
+    <Compile Include="Contracts\RedisObjects\ICachedDictionary.cs" />
+    <Compile Include="Contracts\RedisObjects\ICachedList.cs" />
+    <Compile Include="Contracts\RedisObjects\ICachedSet.cs" />
+    <Compile Include="Contracts\RedisObjects\ICachedSortedSet.cs" />
+    <Compile Include="Contracts\RedisObjects\IRedisObject.cs" />
+    <Compile Include="Contracts\SortedMember.cs" />
     <Compile Include="Contracts\Unit.cs" />
     <Compile Include="Contracts\UnitAttribute.cs" />
     <Compile Include="LuaScriptResource.Designer.cs">
@@ -71,8 +73,11 @@
     <Compile Include="Providers\RedisPubSubProvider.cs" />
     <Compile Include="RedisObjects\RedisBaseObject.cs" />
     <Compile Include="RedisObjects\RedisDictionary.cs" />
-    <Compile Include="RedisObjects\RedisHashSet.cs" />
     <Compile Include="RedisObjects\RedisList.cs" />
+    <Compile Include="RedisObjects\RedisSet.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RedisObjects\RedisSortedSet.cs" />
     <Compile Include="Serializers\BinarySerializer.cs" />
   </ItemGroup>
   <ItemGroup>

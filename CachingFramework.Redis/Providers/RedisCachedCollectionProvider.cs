@@ -1,4 +1,5 @@
-using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.Contracts.Providers;
+using CachingFramework.Redis.Contracts.RedisObjects;
 using CachingFramework.Redis.RedisObjects;
 
 namespace CachingFramework.Redis.Providers
@@ -46,7 +47,16 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The redis key</param>
         public ICachedSet<T> GetCachedSet<T>(string key)
         {
-            return new RedisHashSet<T>(RedisConnection, key, Serializer);
+            return new RedisSet<T>(RedisConnection, key, Serializer);
+        }
+        /// <summary>
+        /// Returns an ICollection implemented using a Redis Sorted Set
+        /// </summary>
+        /// <typeparam name="T">The object type</typeparam>
+        /// <param name="key">The redis key</param>
+        public ICachedSortedSet<T> GetCachedSortedSet<T>(string key)
+        {
+            return new RedisSortedSet<T>(RedisConnection, key, Serializer);
         }
         #endregion
     }

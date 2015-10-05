@@ -1,5 +1,6 @@
 ﻿using System;
 using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.Contracts.RedisObjects;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.RedisObjects
@@ -49,7 +50,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// Gets the redis database.
         /// </summary>
         /// <returns>IDatabase.</returns>
-        protected IDatabase GetRedisDb()
+        internal IDatabase GetRedisDb()
         {
             return Connection.GetDatabase();
         }
@@ -57,17 +58,18 @@ namespace CachingFramework.Redis.RedisObjects
         /// Serializes the specified object.
         /// </summary>
         /// <param name="obj">The object.</param>
-        protected byte[] Serialize(object obj)
+        protected byte[] Serialize<T>(T obj)
         {
             return Serializer.Serialize(obj);
         }
         /// <summary>
-        /// Deserializes the specified string.
+        /// Deserializes the specified redis value. 
+        /// Returns the type default if the value RedisValue IsNull.
         /// </summary>
         /// <param name="serialized">The serialized string.</param>
-        protected T Deserialize<T>(byte[] serialized)
+        protected T Deserialize<T>(RedisValue serialized)
         {
-            return Serializer.Deserialize<T>(serialized);
+            return serialized.IsNull ? default(T) : Serializer.Deserialize<T>(serialized);
         }
         /// <summary>
         /// Gets or sets the time to live.
@@ -78,6 +80,13 @@ namespace CachingFramework.Redis.RedisObjects
         {
             get { return GetRedisDb().KeyTimeToLive(RedisKey); }
             set { GetRedisDb().KeyExpire(RedisKey, value); }
+        }
+        /// <summary>
+        /// Removes all items from the collection
+        /// </summary>
+        public void Clear()
+        {
+            GetRedisDb().KeyDelete(RedisKey);
         }
     }
 }

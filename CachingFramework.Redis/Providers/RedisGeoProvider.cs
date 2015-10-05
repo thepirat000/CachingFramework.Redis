@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.Contracts.Providers;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.Providers

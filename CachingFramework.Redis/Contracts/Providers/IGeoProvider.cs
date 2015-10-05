@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CachingFramework.Redis.Contracts
+namespace CachingFramework.Redis.Contracts.Providers
 {
     /// <summary>
     /// A typed geospatial index Provider interface

@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.Contracts.RedisObjects;
 using CachingFramework.Redis.Serializers;
 using StackExchange.Redis;
 
@@ -34,6 +36,38 @@ namespace CachingFramework.Redis.RedisObjects
             db.ListRightPush(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
         }
         /// <summary>
+        /// Adds a new item to the list at the start of the list.
+        /// </summary>
+        /// <param name="item">The item to add</param>
+        public void AddFirst(T item)
+        {
+            GetRedisDb().ListLeftPush(RedisKey, Serialize(item));
+        }
+        /// <summary>
+        /// Adds a new item to the list at the end of the list (has the same effect as Add method).
+        /// </summary>
+        /// <param name="item">The item to add</param>
+        public void AddLast(T item)
+        {
+            GetRedisDb().ListRightPush(RedisKey, Serialize(item));
+        }
+        /// <summary>
+        /// Removes the item at the start of the list and returns the item removed.
+        /// </summary>
+        public T RemoveFirst()
+        {
+            var value = GetRedisDb().ListLeftPop(RedisKey);
+            return Deserialize<T>(value);
+        }
+        /// <summary>
+        /// Removes the item at the end of the list and returns the item removed.
+        /// </summary>
+        public T RemoveLast()
+        {
+            var value = GetRedisDb().ListRightPop(RedisKey);
+            return Deserialize<T>(value);
+        }
+        /// <summary>
         /// Returns the specified elements of the list stored at key. The offsets start and stop are zero-based indexes, with 0 being the first element of the list (the head of the list), 1 being the next element and so on.
         /// These offsets can also be negative numbers indicating offsets starting at the end of the list. For example, -1 is the last element of the list, -2 the penultimate, and so on.
         /// 
@@ -41,10 +75,56 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="start">The start.</param>
         /// <param name="stop">The stop.</param>
         /// <returns>IList{`0}.</returns>
-        public IList<T> GetRange(long start = 0, long stop = -1)
+        public IEnumerable<T> GetRange(long start = 0, long stop = -1)
         {
             var db = GetRedisDb();
-            return db.ListRange(RedisKey, start, stop).Select(x => Deserialize<T>(x)).ToList();
+            return db.ListRange(RedisKey, start, stop).Select(Deserialize<T>);
+        }
+        /// <summary>
+        /// Returns the first element of the list, returns the type default if the list contains no elements.
+        /// </summary>
+        public T First
+        {
+            get
+            {
+                var value = GetRedisDb().ListGetByIndex(RedisKey, 0);
+                return Deserialize<T>(value);
+            }
+        }
+        /// <summary>
+        /// Returns the last element of the list, returns the type default if the list contains no elements.
+        /// </summary>
+        public T Last
+        {
+            get 
+            {
+                var value = GetRedisDb().ListGetByIndex(RedisKey, -1);
+                return Deserialize<T>(value);
+            }
+        }
+        /// <summary>
+        /// Inserts an item to the <see cref="T:System.Collections.Generic.IList`1" /> at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which <paramref name="item" /> should be inserted.</param>
+        /// <param name="item">The object to insert into the <see cref="T:System.Collections.Generic.IList`1" />.</param>
+        public void Insert(long index, T item)
+        {
+            var db = GetRedisDb();
+            var before = db.ListGetByIndex(RedisKey, index);
+            db.ListInsertBefore(RedisKey, before, Serialize(item));
+        }
+        /// <summary>
+        /// Removes the item at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index of the item to remove.</param>
+        public void RemoveAt(long index)
+        {
+            var db = GetRedisDb();
+            var value = db.ListGetByIndex(RedisKey, index);
+            if (!value.IsNull)
+            {
+                db.ListRemove(RedisKey, value);
+            }
         }
         #endregion
         #region IList implementation
@@ -55,9 +135,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="item">The object to insert into the <see cref="T:System.Collections.Generic.IList`1" />.</param>
         public void Insert(int index, T item)
         {
-            var db = GetRedisDb();
-            var before = db.ListGetByIndex(RedisKey, index);
-            db.ListInsertBefore(RedisKey, before, Serialize(item));
+            Insert((long) index, item);
         }
         /// <summary>
         /// Removes the <see cref="T:System.Collections.Generic.IList`1" /> item at the specified index.
@@ -65,12 +143,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="index">The zero-based index of the item to remove.</param>
         public void RemoveAt(int index)
         {
-            var db = GetRedisDb();
-            var value = db.ListGetByIndex(RedisKey, index);
-            if (!value.IsNull)
-            {
-                db.ListRemove(RedisKey, value);
-            }
+            RemoveAt((long) index);
         }
         /// <summary>
         /// Gets or sets the element at the specified index.
@@ -81,7 +154,7 @@ namespace CachingFramework.Redis.RedisObjects
             get
             {
                 var redisValue = GetRedisDb().ListGetByIndex(RedisKey, index);
-                return redisValue.IsNull ? default(T) : Deserialize<T>(redisValue);
+                return Deserialize<T>(redisValue);
             }
             set
             {
@@ -89,19 +162,12 @@ namespace CachingFramework.Redis.RedisObjects
             }
         }
         /// <summary>
-        /// Adds an item to the collection.
+        /// Adds an item to the collection (has the same effect as AddLast method).
         /// </summary>
         /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
         public void Add(T item)
         {
-            GetRedisDb().ListRightPush(RedisKey, Serialize(item));
-        }
-        /// <summary>
-        /// Removes all items from the collection.
-        /// </summary>
-        public void Clear()
-        {
-            GetRedisDb().KeyDelete(RedisKey);
+            AddLast(item);
         }
         /// <summary>
         /// Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.
@@ -126,7 +192,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            GetRedisDb().ListRange(RedisKey).Select(x => Deserialize<T>(x)).ToArray().CopyTo(array, arrayIndex);
+            GetRedisDb().ListRange(RedisKey).Select(Deserialize<T>).ToArray().CopyTo(array, arrayIndex);
         }
         /// <summary>
         /// Determines the index of a specific item in the <see cref="T:System.Collections.Generic.IList`1" />.
@@ -149,9 +215,16 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         /// <value>The count.</value>
         /// <returns>The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
-        public int Count
+        public long Count
         {
-            get { return (int)GetRedisDb().ListLength(RedisKey); }
+            get { return GetRedisDb().ListLength(RedisKey); }
+        }
+        /// <summary>
+        /// Gets the number of elements contained in the collection.
+        /// </summary>
+        int ICollection<T>.Count
+        {
+            get { return (int)Count; }
         }
         /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
