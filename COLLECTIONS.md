@@ -20,15 +20,15 @@ ICachedSortedSet<User> sortedSet = context.GetCachedSortedSet<User>("some:key");
 To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetCachedList()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedList<User> userList = context.GetCachedList<User>("user:list");
+ICachedList<User> list = context.GetCachedList<User>("user:list");
 ```
 
 To add elements to the list, use `Add` / `AddRange` / `Insert` / `AddFirst` or `AddLast` methods:
 
 ```c#
-userList.Add(new User() { Id = 1 });
-userList.AddRange(new [] { new User() { Id = 2 }, new User() { Id = 3 } });
-userList.AddFirst(new User() { Id = 0 });
+list.Add(new User() { Id = 1 });
+list.AddRange(new [] { new User() { Id = 2 }, new User() { Id = 3 } });
+list.AddFirst(new User() { Id = 0 });
 ```
 
 To get a range of elements from the list, use the `GetRange` method.
@@ -68,19 +68,19 @@ Mapping between `ICachedList` methods/properties to the Redis commands used:
 To obtain a new (or existing) Redis Set implementing a .NET `ISet`, use the ```GetCachedSet()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedSet<User> userSet = context.GetCachedSet<User>("user:set");
+ICachedSet<User> set = context.GetCachedSet<User>("user:set");
 ```
 
 To insert elements to the set, use `Add` or `AddRange` methods:
 
 ```c#
-userSet.Add(new User() { Id = 1 });
-userSet.AddRange(new [] { new User() { Id = 2 }, new User() { Id = 3 } });
+set.Add(new User() { Id = 1 });
+set.AddRange(new [] { new User() { Id = 2 }, new User() { Id = 3 } });
 ```
 
 To check if an element exists, use the `Contains` methos:
 ```c#
-bool exists = userSet.Contains(user);
+bool exists = set.Contains(user);
 ```
 
 ## ICachedSet mapping to Redis Set
@@ -101,19 +101,19 @@ Mapping between `ICachedSet` methods/properties to the Redis commands used:
 To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetCachedDictionary()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedDictionary<int, User> userHash = context.GetCachedDictionary<int, User>("user:hash");
+ICachedDictionary<int, User> hash = context.GetCachedDictionary<int, User>("user:hash");
 ```
 
 To add elements to the list, use `Add` or `AddRange` methods:
 
 ```c#
-userHash.Add(1, new User() { Id = 1 });
-userHash.AddRange(usersQuery.ToDictionary(k => k.Id));
+hash.Add(1, new User() { Id = 1 });
+hash.AddRange(usersQuery.ToDictionary(k => k.Id));
 ```
 
 To check if a hash element exists, use `ContainsKey` method:
 ```c#
-bool exists = userHash.ContainsKey(1);
+bool exists = hash.ContainsKey(1);
 ```
 
 ## ICachedDictionary mapping to Redis Hash
@@ -137,24 +137,24 @@ Mapping between `ICachedDictionary` methods/properties to the Redis commands use
 To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetCachedSortedSet()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedSortedSet<User> userSortedSet = context.GetCachedSortedSet<User>("user:sset");
+ICachedSortedSet<User> sortedSet = context.GetCachedSortedSet<User>("user:sset");
 ```
 
 To add elements to the sorted set, use `Add` or `AddRange` methods prividing the score of the items as a `double`:
 
 ```c#
-userSortedSet.Add(12.34, new User() { Id = 1 });
+sortedSet.Add(12.34, new User() { Id = 1 });
 ```
 
 To get a range of elements by rank or by score, use the `GetRangeByScore` and `GetRangeByRank` methods.
 For example to get all the elements with the exception of the top and the bottom ranked values:
 ```c#
-var byRank = userSortedSet.GetRangeByRank(1, -2);
+var byRank = sortedSet.GetRangeByRank(1, -2);
 ```
 
 For example to get elements with score less than or equal to 100:
 ```c#
-var byScore = userSortedSet.GetRangeByScore(double.NegativeInfinity, 100.00);
+var byScore = sortedSet.GetRangeByScore(double.NegativeInfinity, 100.00);
 ```
 
 ## ICachedSortedSet mapping to Redis Sorted Set
