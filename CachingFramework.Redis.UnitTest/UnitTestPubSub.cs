@@ -13,10 +13,10 @@ namespace CachingFramework.Redis.UnitTest
     [TestClass]
     public class UnitTestPubSub
     {
-        private CacheContext _context;
+        private static CacheContext _context;
         private string _defaultConfig;
-        [TestInitialize]
-        public void Initialize()
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
         {
             _context = Common.GetContextAndFlush();
         }

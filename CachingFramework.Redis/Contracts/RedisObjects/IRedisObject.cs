@@ -9,8 +9,13 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     {
         /// <summary>
         /// Gets or sets the time to live.
-        /// Null means persistent.
+        /// Null means the key is persistent.
         /// </summary>
         TimeSpan? TimeToLive { get; set; }
+        /// <summary>
+        /// Gets or sets the Expiration as a local datetime.
+        /// Null means the key is persistent.
+        /// </summary>
+        DateTime? Expiration { get; set; }
     }
 }

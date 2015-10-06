@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
-using CachingFramework.Redis.Serializers;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.RedisObjects

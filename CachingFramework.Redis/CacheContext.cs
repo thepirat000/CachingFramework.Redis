@@ -212,6 +212,44 @@ namespace CachingFramework.Redis
             return _cacheProvider.Remove(key);
         }
         /// <summary>
+        /// Determines if a key exists.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        public bool KeyExists(string key)
+        {
+            return _cacheProvider.KeyExists(key);
+        }
+        /// <summary>
+        /// Sets the expiration of a key from a local date time expiration value.
+        /// </summary>
+        /// <param name="key">The key to expire</param>
+        /// <param name="expiration">The expiration local date time</param>
+        /// <returns>True is the key expiration was updated</returns>
+        public bool KeyExpire(string key, DateTime expiration)
+        {
+            return _cacheProvider.KeyExpire(key, expiration);
+            
+        }
+        /// <summary>
+        /// Sets the time-to-live of a key from a timespan value.
+        /// </summary>
+        /// <param name="key">The key to expire</param>
+        /// <param name="ttl">The TTL timespan</param>
+        /// <returns>True is the key expiration was updated</returns>
+        public bool KeyTimeToLive(string key, TimeSpan ttl)
+        {
+            return _cacheProvider.KeyTimeToLive(key, ttl);
+        }
+        /// <summary>
+        /// Removes the expiration of the given key.
+        /// </summary>
+        /// <param name="key">The key to persist</param>
+        /// <returns>True is the key expiration was removed</returns>
+        public bool KeyPersist(string key)
+        {
+            return _cacheProvider.KeyPersist(key);
+        }
+        /// <summary>
         /// Removes multiple keys.
         /// </summary>
         /// <param name="keys">The keys to remove.</param>

@@ -14,8 +14,8 @@ namespace CachingFramework.Redis.UnitTest
         private static CacheContext _context;
         private string defaultConfig;
 
-        [TestInitialize]
-        public void Initialize()
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
         {
             _context = Common.GetContextAndFlush();
         }
@@ -144,7 +144,7 @@ namespace CachingFramework.Redis.UnitTest
         [TestMethod]
         public void UT_RedisStress_GetAllTags()
         {
-            const string test = "UT_RedisStress_GetKeysByTag";
+            const string test = "UT_RedisStress_GetAllTags";
             const int keyCount = 1500;
             var realTags = new HashSet<string>();
             for (int mod = 1; mod <= 216; mod++)
@@ -156,7 +156,8 @@ namespace CachingFramework.Redis.UnitTest
             RemoveKeys(keyCount, test);
             CreateKeys(keyCount, test);
             var tags = _context.GetAllTags();
-            Assert.IsTrue(tags.IsSubsetOf(realTags));
+            Debug.WriteLine("{0} {1}", tags.Count, realTags.Count);
+            Assert.IsTrue(realTags.IsSubsetOf(tags));
         }
 
         [TestMethod]

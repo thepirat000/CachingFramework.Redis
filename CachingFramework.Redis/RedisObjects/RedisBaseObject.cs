@@ -82,6 +82,15 @@ namespace CachingFramework.Redis.RedisObjects
             set { GetRedisDb().KeyExpire(RedisKey, value); }
         }
         /// <summary>
+        /// Gets or sets the Expiration as a local datetime.
+        /// Null means the key is persistent.
+        /// </summary>
+        public DateTime? Expiration
+        {
+            get { return DateTime.Now + GetRedisDb().KeyTimeToLive(RedisKey); }
+            set { GetRedisDb().KeyExpire(RedisKey, value); }
+        }
+        /// <summary>
         /// Removes all items from the collection
         /// </summary>
         public void Clear()

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
-using CachingFramework.Redis.Serializers;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.RedisObjects
@@ -261,7 +259,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
         #endregion
     }

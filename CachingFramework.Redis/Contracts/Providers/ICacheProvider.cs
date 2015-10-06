@@ -74,6 +74,31 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="key">The key.</param>
         bool Remove(string key);
         /// <summary>
+        /// Determines if a key exists.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        bool KeyExists(string key);
+        /// <summary>
+        /// Sets the expiration of a key from a local date time expiration value.
+        /// </summary>
+        /// <param name="key">The key to expire</param>
+        /// <param name="expiration">The expiration local date time</param>
+        /// <returns>True is the key expiration was updated</returns>
+        bool KeyExpire(string key, DateTime expiration);
+        /// <summary>
+        /// Sets the time-to-live of a key from a timespan value.
+        /// </summary>
+        /// <param name="key">The key to expire</param>
+        /// <param name="ttl">The TTL timespan</param>
+        /// <returns>True is the key expiration was updated</returns>
+        bool KeyTimeToLive(string key, TimeSpan ttl);
+        /// <summary>
+        /// Removes the expiration of the given key.
+        /// </summary>
+        /// <param name="key">The key to persist</param>
+        /// <returns>True is the key expiration was removed</returns>
+        bool KeyPersist(string key);
+        /// <summary>
         /// Removes the specified keys.
         /// </summary>
         /// <param name="keys">The keys to remove.</param>

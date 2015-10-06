@@ -12,10 +12,10 @@ namespace CachingFramework.Redis.UnitTest
     [TestClass]
     public class UnitTestRedisObjects
     {
-        private CacheContext _cache;
+        private static CacheContext _cache;
 
-        [TestInitialize]
-        public void Initialize()
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
         {
             _cache = Common.GetContextAndFlush();
         }
@@ -191,6 +191,28 @@ namespace CachingFramework.Redis.UnitTest
             Thread.Sleep(2000);
             Assert.AreEqual(0, rl.Count);
         }
+
+        [TestMethod]
+        public void UT_CacheList_EXP()
+        {
+            string key = "UT_CacheList_EXP";
+            _cache.Remove(key);
+            var set = _cache.GetCachedSet<string>(key);
+            set.AddRange(new [] { "test1", "test2", "test3" });
+            set.Expiration = DateTime.Now.AddSeconds(2);
+            var startedOn = DateTime.Now;
+            Assert.AreEqual(3, set.Count);
+            while (_cache.KeyExists(key) && DateTime.Now < startedOn.AddSeconds(10))
+            {
+                Thread.Sleep(100);
+            }
+            Assert.IsFalse(_cache.KeyExists(key));
+            Assert.AreEqual(0, set.Count);
+            var stoppedOn = DateTime.Now;
+            var span = stoppedOn - startedOn;
+            Assert.AreEqual(2, span.TotalSeconds, 1);
+        }
+
 
         [TestMethod]
         public void UT_CacheSetObject()

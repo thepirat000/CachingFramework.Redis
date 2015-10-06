@@ -20,13 +20,13 @@ namespace CachingFramework.Redis.UnitTest
     [TestClass]
     public class UnitTestGeo
     {
-        private GeoCoordinate _coordZapopan;
-        private GeoCoordinate _coordLondon;
-        private CacheContext _context;
+        private static GeoCoordinate _coordZapopan;
+        private static GeoCoordinate _coordLondon;
+        private static CacheContext _context;
         private string _defaultConfig;
-        private GoogleLocationService _locationSvc;
-        [TestInitialize]
-        public void Initialize()
+        private static GoogleLocationService _locationSvc;
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
         {
             _context = Common.GetContextAndFlush();
             _locationSvc = new GoogleLocationService();
