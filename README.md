@@ -10,6 +10,7 @@
  * **Redis List, Sets, Sorted Sets and Hashes support**.
  * **Pub/Sub support with typed messages**.
  * **Geospatial indexes support**.
+ * **HyperLogLog algorithm support**.
  
 ## Usage
 
