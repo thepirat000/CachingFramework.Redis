@@ -374,6 +374,22 @@ namespace CachingFramework.Redis
             return _collectionProvider.GetCachedSortedSet<T>(key);
         }
         /// <summary>
+        /// Returns an ICollection implemented using a Redis string as a bitmap
+        /// </summary>
+        /// <param name="key">The redis key</param>
+        public ICachedBitmap GetCachedBitmap(string key)
+        {
+            return _collectionProvider.GetCachedBitmap(key);
+        }
+        /// <summary>
+        /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
+        /// </summary>
+        /// <param name="key">The redis key</param>
+        public ICachedLexicographicSet GetCachedLexicographicSet(string key)
+        {
+            return _collectionProvider.GetCachedLexicographicSet(key);
+        }
+        /// <summary>
         /// Flushes all the databases on every master node.
         /// </summary>
         public void FlushAll()

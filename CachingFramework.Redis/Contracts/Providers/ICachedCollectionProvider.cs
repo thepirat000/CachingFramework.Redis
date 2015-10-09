@@ -32,5 +32,15 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
         ICachedSortedSet<T> GetCachedSortedSet<T>(string key);
+        /// <summary>
+        /// Returns an ICollection implemented using a Redis string as a bitmap
+        /// </summary>
+        /// <param name="key">The redis key</param>
+        ICachedBitmap GetCachedBitmap(string key);
+        /// <summary>
+        /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
+        /// </summary>
+        /// <param name="key">The redis key</param>
+        ICachedLexicographicSet GetCachedLexicographicSet(string key);
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using CachingFramework.Redis.Contracts;
+using CachingFramework.Redis.Contracts.RedisObjects;
 using CachingFramework.Redis.RedisObjects;
 using CachingFramework.Redis.Serializers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -452,6 +454,92 @@ namespace CachingFramework.Redis.UnitTest
 
         }
 
+        [TestMethod]
+        public void UT_CacheBitmap()
+        {
+            var key = "UT_CacheBitmap";
+            _cache.Remove(key);
+            var bm = _cache.GetCachedBitmap(key);
+            bm.Add(true);           // 11111111 
+            Assert.IsFalse(bm.Contains(false));
+            bm.Add(false);          // 11111111 00000000
+            Assert.IsTrue(bm.Contains(false));
+            bm.Add(true);           // 11111111 00000000 11111111
+            bm.SetBit(24, true);    // 11111111 00000000 11111111 10000000
+            bm.SetBit(25, false);   // 11111111 00000000 11111111 10000000
+            bm.SetBit(26, true);    // 11111111 00000000 11111111 10100000
+            bm.SetBit(27, true);    // 11111111 00000000 11111111 10110000
+            Assert.IsFalse(bm.Contains(false, 0, 0));
+            Assert.IsFalse(bm.Contains(true, 1, 1));
+            Assert.IsTrue(bm.Contains(false, -1, -1));
+            Assert.IsTrue(bm.Contains(true, -1, -1));
+            Assert.AreEqual(0, bm.BitPosition(true));
+            Assert.AreEqual(8, bm.BitPosition(false));
+            Assert.AreEqual(24+1, bm.BitPosition(false, -1, -1));
+            Assert.AreEqual(24+0, bm.BitPosition(true, -1, -1));
+            Assert.AreEqual(false, bm.GetBit(25));
+            Assert.AreEqual(true, bm.GetBit(26));
+            Assert.AreEqual(true, bm.GetBit(27));
+            Assert.AreEqual(3, bm.Count(-1, -1));
+            Assert.AreEqual(11, bm.Count(-2, -1));
+            Assert.AreEqual(11, bm.Count(2, -1));
+            Assert.AreEqual(19, bm.Count());
+            Assert.AreEqual(8, bm.Count(0, 1));
+            var sb = new StringBuilder();
+            foreach (var bit in bm)
+            {
+                sb.Append(bit ? '1' : '0');
+            }
+            Assert.AreEqual("11111111000000001111111110110000", sb.ToString());
+            bm.SetBit(9999999, true);
+            Assert.AreEqual(20, bm.Count());
+            Assert.AreEqual(true, bm.GetBit(9999999));    
+            bm.Clear();
+            Assert.AreEqual(0, bm.Count());
+            bm.Remove(false);
+            Assert.AreEqual(1, bm.Count());
+            Assert.AreEqual(true, bm.GetBit(0));
+        }
+
+        [TestMethod]
+        public void UT_CacheLexSet()
+        {
+            var key = "UT_CacheLexSet";
+            _cache.Remove(key);
+            var bm = _cache.GetCachedLexicographicSet(key);
+
+            bm.Add("zero");
+            bm.AddRange(new [] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" });
+
+            Assert.AreEqual(13, bm.Count);
+
+            var suggestions = bm.AutoComplete("t", 3).ToList();
+            Assert.AreEqual(3, suggestions.Count);
+            Assert.AreEqual("ten", suggestions[0]);
+            Assert.AreEqual("three", suggestions[1]);
+            Assert.AreEqual("twelve", suggestions[2]);
+
+            suggestions = bm.AutoComplete("tw").ToList();
+            Assert.AreEqual(2, suggestions.Count);
+            Assert.AreEqual("twelve", suggestions[0]);
+            Assert.AreEqual("two", suggestions[1]);
+
+            var lst = new List<string>();
+            foreach (var s in bm)
+            {
+                lst.Add(s);
+            }
+            Assert.AreEqual(13, lst.Count);
+            Assert.AreEqual("eight", lst[0]);
+            Assert.AreEqual("eleven", lst[1]);
+            Assert.AreEqual("two", lst[11]);
+            Assert.AreEqual("zero", lst[12]);
+
+            Assert.IsTrue(bm.Contains("zero"));
+            bm.Remove("zero");
+            Assert.IsFalse(bm.Contains("zero"));
+            Assert.AreEqual(12, bm.Count);
+        }
 
         private List<User> GetUsers()
         {

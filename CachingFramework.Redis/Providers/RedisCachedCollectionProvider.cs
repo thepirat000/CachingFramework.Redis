@@ -58,6 +58,22 @@ namespace CachingFramework.Redis.Providers
         {
             return new RedisSortedSet<T>(RedisConnection, key, Serializer);
         }
+        /// <summary>
+        /// Returns an ICollection implemented using a Redis string as a bitmap
+        /// </summary>
+        /// <param name="key">The redis key</param>
+        public ICachedBitmap GetCachedBitmap(string key)
+        {
+            return new RedisBitmap(RedisConnection, key, Serializer);
+        }
+        /// <summary>
+        /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
+        /// </summary>
+        /// <param name="key">The redis key</param>
+        public ICachedLexicographicSet GetCachedLexicographicSet(string key)
+        {
+            return new RedisLexicographicSet(RedisConnection, key, Serializer);
+        }
         #endregion
     }
 }

@@ -51,7 +51,9 @@
     <Compile Include="Contracts\Providers\ICacheProvider.cs" />
     <Compile Include="Contracts\Providers\IGeoProvider.cs" />
     <Compile Include="Contracts\Providers\IPubSubProvider.cs" />
+    <Compile Include="Contracts\RedisObjects\ICachedBitmap.cs" />
     <Compile Include="Contracts\RedisObjects\ICachedDictionary.cs" />
+    <Compile Include="Contracts\RedisObjects\ICachedLexicographicSet.cs" />
     <Compile Include="Contracts\RedisObjects\ICachedList.cs" />
     <Compile Include="Contracts\RedisObjects\ICachedSet.cs" />
     <Compile Include="Contracts\RedisObjects\ICachedSortedSet.cs" />
@@ -72,7 +74,9 @@
     <Compile Include="Providers\RedisProviderContext.cs" />
     <Compile Include="Providers\RedisPubSubProvider.cs" />
     <Compile Include="RedisObjects\RedisBaseObject.cs" />
+    <Compile Include="RedisObjects\RedisBitmap.cs" />
     <Compile Include="RedisObjects\RedisDictionary.cs" />
+    <Compile Include="RedisObjects\RedisLexicographicSet.cs" />
     <Compile Include="RedisObjects\RedisList.cs" />
     <Compile Include="RedisObjects\RedisSet.cs">
       <SubType>Code</SubType>

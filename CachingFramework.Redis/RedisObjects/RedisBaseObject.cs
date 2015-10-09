@@ -91,6 +91,15 @@ namespace CachingFramework.Redis.RedisObjects
             set { GetRedisDb().KeyExpire(RedisKey, value); }
         }
         /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
+        /// </summary>
+        /// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+        /// <returns>true if the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only; otherwise, false.</returns>
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
+        /// <summary>
         /// Removes all items from the collection
         /// </summary>
         public void Clear()

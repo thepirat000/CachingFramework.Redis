@@ -91,5 +91,24 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// Returns the number of elements in the sorted set.
         /// </summary>
         new long Count { get; }
+        /// <summary>
+        /// Returns an enumerator that iterates through the sorted set collection.
+        /// The returned items will NOT be sorted by score.
+        /// Use GetRangeByScore if you need an ordered iterator. 
+        /// </summary>
+        /// <returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        new IEnumerator<T> GetEnumerator();
+        /// <summary>
+        /// Adds the specified item with score 0, to the sorted set. 
+        /// If key does not exist, a new sorted set with the specified member as sole member is created, like if the sorted set was empty. 
+        /// </summary>
+        /// <param name="item">The item to add.</param>
+        new void Add(T item);
+        /// <summary>
+        /// Determines whether the sorted set contains a specific item.
+        /// </summary>
+        /// <param name="item">The object to locate.</param>
+        /// <returns>true if <paramref name="item" /> is found; otherwise, false.</returns>
+        new bool Contains(T item);
     }
 }
