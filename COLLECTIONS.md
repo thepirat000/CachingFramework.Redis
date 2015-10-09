@@ -1,13 +1,15 @@
 .NET adapted Redis collections
 =====
-The following are the four .NET generic collections provided to handle Redis collections:
+The following are the five .NET collections provided to handle Redis collections:
 
-| Redis object | Common interface | Interface name | CacheContext method |
-| ------------ | ---------------- | -------------- | ------------------- |
-| List | ```IList``` | ```ICachedList``` | ```GetCachedList()``` |
-| Hash | ```IDictionary``` | ```ICachedDictionary``` | ```GetCachedDictionary()``` |
-| Set | ```ISet``` | ```ICachedSet``` | ```GetCachedSet()``` |
-| Sorted Set | ```ICollection``` | ```ICachedSortedSet``` | ```GetCachedSortedSet()``` |
+| Redis object | Common interface | Interface name | CacheContext method | Description |
+| ------------ | ---------------- | -------------- | ------------------- | ----------- |
+| List | ```IList``` | ```ICachedList<T>``` | ```GetCachedList()``` | Double-linked list of objects |
+| Hash | ```IDictionary``` | ```ICachedDictionary<TK, TV>``` | ```GetCachedDictionary()``` | Dictionary of values |
+| Set | ```ISet``` | ```ICachedSet<T>``` | ```GetCachedSet()``` | Set of unique objects |
+| Sorted Set | ```ICollection<T>``` | ```ICachedSortedSet``` | ```GetCachedSortedSet()``` | Set of objects sorted by score |
+| Bitmap | ```ICollection<bool>``` | ```ICachedBitmap``` | ```GetCachedBitmap()``` | Binary value |
+| Sorted Set | ```ICollection<string>``` | ```ICachedLexicographicSet``` | ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
@@ -175,3 +177,108 @@ Mapping between `ICachedSortedSet` methods/properties to the Redis commands used
 |`ScoreOf(T item)`|[ZSCORE](http://redis.io/commands/zscore)|O(1)
 |`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
 
+# Redis Bitmaps
+
+To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetCachedBitmap()``` method of the ```CacheContext``` class:
+
+```c#
+ICachedBitmap bitmap = context.GetCachedBitmap("users:visit");
+```
+
+To get or set bits, use the `GetBit` or `SetBit` methods:
+
+```c#
+bitmap.SetBit(0, false); // Set the first bit to 0
+
+bool bit = bitmap.GetBit(8); // Get the 9th bit
+```
+
+To count bits within a range, use the `Count` method:
+```c#
+long count = bitmap.Count(0, 1); // Count the bits in 1 within the first two bytes
+```
+
+To get the position of the first bit within a range, use the `BitPosition` method:
+```c#
+bitmap.BitPosition(true, -1, -1); // Return the position of the first 1 in the last byte
+```
+
+## Bitmap example: count unique users logged per day
+Set up a bitmap where the key is a function of the day, and each user is identified by an offset value. 
+
+When a user logs in, set the bit to 1 at the offset representing user id:
+```c#
+void Login(int userId)
+{
+    var key = "visits:" + DateTime.Now.ToString("yyyy-MM-dd");
+    var bitmap = _context.GetCachedBitmap(key);
+    bitmap.SetBit(userId, true);
+}
+```
+
+Get a count of the unique visits for a given date:
+```c#
+long CountVisits(DateTime date)
+{
+    var key = "visits:" + date.ToString("yyyy-MM-dd");
+    var bitmap = _context.GetCachedBitmap(key);
+    return bitmap.Count();
+}
+```
+
+Determine if a user has logged in a given date:
+```c#
+bool HasVisited(int userId, DateTime date)
+{
+    var key = "visits:" + date.ToString("yyyy-MM-dd");
+    var bitmap = _context.GetCachedBitmap(key);
+    return bitmap.GetBit(userId);
+}
+```
+
+## ICachedBitmap mapping to Redis bitmap
+
+Mapping between `ICachedBitmap` methods/properties to the Redis commands used:
+
+|ICachedBitmap interface|Redis command|Time complexity|
+|------|------|-------|
+|`Add(bool value)`|[APPEND](http://redis.io/commands/append)|O(1)|
+|`SetBit(long offset, bool bit)`|[SETBIT](http://redis.io/commands/setbit)|O(1)|
+|`GetBit(long offset)`|[GETBIT](http://redis.io/commands/getbit)|O(1)|
+|`BitPosition(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)|O(N)|
+|`Contains(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)+[STRLEN](http://redis.io/commands/strlen)|O(N)|
+|`Count`|[BITCOUNT](http://redis.io/commands/bitcount)|O(N)|
+
+# Redis lexicographical Sorted Set
+
+To obtain a new (or existing) Redis lexicographical sorted set implementing a .NET `ICollection<string>`, use the ```GetCachedLexicographicSet()``` method of the ```CacheContext``` class:
+
+```c#
+ICachedLexicographicSet lex = context.GetCachedLexicographicSet("autocomplete");
+```
+
+To add elements to the lex sorted set, use `Add` / `AddRange` methods:
+
+```c#
+lex.Add("zero");
+lex.AddRange(new [] { "one", "two", "three" });
+```
+
+To get a suggestion list from a partial match, like an autocomplete suggestions:
+```c#
+IEnumerable<string> suggestions = lex.AutoComplete("t");
+```
+Will return an `IEnumerable<string>` alphabetically sorted with the matches (in this case "two" and "three").
+
+## ICachedLexicographicSet mapping to Redis Sorted Set
+
+Mapping between `ICachedLexicographicSet` methods/properties to the Redis commands used:
+
+|ICachedLexicographicSet interface|Redis command|Time complexity|
+|------|------|-------|
+|`Add(string item)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
+|`AddRange(IEnu<string> items)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
+|`AutoComplete(string partial, long take)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N)+M) : M number of elements being returned|
+|`Contains(string item)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N))|
+|`Remove(string item)`|[ZREM](http://redis.io/commands/zrem)|O(log(N))|
+|`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
