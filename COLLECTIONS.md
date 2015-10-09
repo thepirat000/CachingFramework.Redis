@@ -202,7 +202,7 @@ To get the position of the first bit within a range, use the `BitPosition` metho
 bitmap.BitPosition(true, -1, -1); // Return the position of the first 1 in the last byte
 ```
 
-## Bitmap example: count unique users logged per day.
+## Bitmap example: count unique users logged per day
 Set up a bitmap where the key is a function of the day, and each user is identified by an offset value. 
 
 When a user logs in, set the bit to 1 at the offset representing user id:
@@ -241,10 +241,43 @@ Mapping between `ICachedBitmap` methods/properties to the Redis commands used:
 
 |ICachedBitmap interface|Redis command|Time complexity|
 |------|------|-------|
+|`Add(bool value)`|[APPEND](http://redis.io/commands/append)|O(1)|
 |`SetBit(long offset, bool bit)`|[SETBIT](http://redis.io/commands/setbit)|O(1)|
 |`GetBit(long offset)`|[GETBIT](http://redis.io/commands/getbit)|O(1)|
 |`BitPosition(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)|O(N)|
 |`Contains(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)+[STRLEN](http://redis.io/commands/strlen)|O(N)|
 |`Count`|[BITCOUNT](http://redis.io/commands/bitcount)|O(N)|
 
+# Redis lexicographical Sorted Set
 
+To obtain a new (or existing) Redis lexicographical sorted set implementing a .NET `ICollection<string>`, use the ```GetCachedLexicographicSet()``` method of the ```CacheContext``` class:
+
+```c#
+ICachedLexicographicSet lex = context.GetCachedLexicographicSet("autocomplete");
+```
+
+To add elements to the lex sorted set, use `Add` / `AddRange` methods:
+
+```c#
+lex.Add("zero");
+lex.AddRange(new [] { "one", "two", "three" });
+```
+
+To get a suggestion list from a partial match, like an autocomplete suggestions:
+```c#
+IEnumerable<string> suggestions = lex.AutoComplete("t");
+```
+Will return an `IEnumerable<string>` alphabetically sorted with the matches (in this case "two" and "three").
+
+## ICachedLexicographicSet mapping to Redis Sorted Set
+
+Mapping between `ICachedLexicographicSet` methods/properties to the Redis commands used:
+
+|ICachedLexicographicSet interface|Redis command|Time complexity|
+|------|------|-------|
+|`Add(string item)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
+|`AddRange(IEnu<string> items)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
+|`AutoComplete(string partial, long take)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N)+M) : M number of elements being returned|
+|`Contains(string item)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N))|
+|`Remove(string item)`|[ZREM](http://redis.io/commands/zrem)|O(log(N))|
+|`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
