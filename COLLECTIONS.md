@@ -1,13 +1,14 @@
 .NET adapted Redis collections
 =====
-The following are the four .NET generic collections provided to handle Redis collections:
+The following are the five .NET collections provided to handle Redis collections:
 
 | Redis object | Common interface | Interface name | CacheContext method |
 | ------------ | ---------------- | -------------- | ------------------- |
-| List | ```IList``` | ```ICachedList``` | ```GetCachedList()``` |
-| Hash | ```IDictionary``` | ```ICachedDictionary``` | ```GetCachedDictionary()``` |
-| Set | ```ISet``` | ```ICachedSet``` | ```GetCachedSet()``` |
-| Sorted Set | ```ICollection``` | ```ICachedSortedSet``` | ```GetCachedSortedSet()``` |
+| List | ```IList``` | ```ICachedList<T>``` | ```GetCachedList()``` |
+| Hash | ```IDictionary``` | ```ICachedDictionary<TK, TV>``` | ```GetCachedDictionary()``` |
+| Set | ```ISet``` | ```ICachedSet<T>``` | ```GetCachedSet()``` |
+| Sorted Set | ```ICollection<T>``` | ```ICachedSortedSet``` | ```GetCachedSortedSet()``` |
+| Bitmap | ```ICollection<bool>``` | ```ICachedBitmap``` | ```GetCachedBitmap()``` |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
