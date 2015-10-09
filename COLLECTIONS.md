@@ -2,13 +2,14 @@
 =====
 The following are the five .NET collections provided to handle Redis collections:
 
-| Redis object | Common interface | Interface name | CacheContext method |
-| ------------ | ---------------- | -------------- | ------------------- |
-| List | ```IList``` | ```ICachedList<T>``` | ```GetCachedList()``` |
-| Hash | ```IDictionary``` | ```ICachedDictionary<TK, TV>``` | ```GetCachedDictionary()``` |
-| Set | ```ISet``` | ```ICachedSet<T>``` | ```GetCachedSet()``` |
-| Sorted Set | ```ICollection<T>``` | ```ICachedSortedSet``` | ```GetCachedSortedSet()``` |
-| Bitmap | ```ICollection<bool>``` | ```ICachedBitmap``` | ```GetCachedBitmap()``` |
+| Redis object | Common interface | Interface name | CacheContext method | Description |
+| ------------ | ---------------- | -------------- | ------------------- | ----------- |
+| List | ```IList``` | ```ICachedList<T>``` | ```GetCachedList()``` | Double-linked list of objects |
+| Hash | ```IDictionary``` | ```ICachedDictionary<TK, TV>``` | ```GetCachedDictionary()``` | Dictionary of values |
+| Set | ```ISet``` | ```ICachedSet<T>``` | ```GetCachedSet()``` | Set of unique objects |
+| Sorted Set | ```ICollection<T>``` | ```ICachedSortedSet``` | ```GetCachedSortedSet()``` | Set of objects sorted by score |
+| Bitmap | ```ICollection<bool>``` | ```ICachedBitmap``` | ```GetCachedBitmap()``` | Binary value |
+| Sorted Set | ```ICollection<string>``` | ```ICachedLexicographicSet``` | ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
