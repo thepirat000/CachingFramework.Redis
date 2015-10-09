@@ -175,3 +175,42 @@ Mapping between `ICachedSortedSet` methods/properties to the Redis commands used
 |`ScoreOf(T item)`|[ZSCORE](http://redis.io/commands/zscore)|O(1)
 |`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
 
+# Redis Bitmaps
+
+To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetCachedBitmap()``` method of the ```CacheContext``` class:
+
+```c#
+ICachedBitmap bitmap = context.GetCachedBitmap("users:visit");
+```
+
+To get or set bits, use the `GetBit` or `SetBit` methods:
+
+```c#
+bitmap.SetBit(0, false); // Set the first bit to 0
+
+bool bit = bitmap.GetBit(32); // Get the first bit
+```
+
+To count bits within a range, use the `Count` method:
+```c#
+long count = bitmap.Count(0, 1); // Count the bits in 1 within the first two bytes
+```
+
+To get the position of the first bit within a range, use the `BitPosition` method:
+```c#
+bitmap.BitPosition(true, -1, -1); // Return the position of the first 1 in the last byte
+```
+
+## ICachedBitmap mapping to Redis bitmap
+
+Mapping between `ICachedBitmap` methods/properties to the Redis commands used:
+
+|ICachedBitmap interface|Redis command|Time complexity|
+|------|------|-------|
+|`SetBit(long offset, bool bit)`|[SETBIT](http://redis.io/commands/setbit)|O(1)|
+|`GetBit(long offset)`|[GETBIT](http://redis.io/commands/getbit)|O(1)|
+|`BitPosition(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)|O(N)|
+|`Contains(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)+[STRLEN](http://redis.io/commands/strlen)|O(N)|
+|`Count`|[BITCOUNT](http://redis.io/commands/bitcount)|O(N)|
+
+
