@@ -189,7 +189,7 @@ To get or set bits, use the `GetBit` or `SetBit` methods:
 ```c#
 bitmap.SetBit(0, false); // Set the first bit to 0
 
-bool bit = bitmap.GetBit(32); // Get the first bit
+bool bit = bitmap.GetBit(8); // Get the 9th bit
 ```
 
 To count bits within a range, use the `Count` method:
