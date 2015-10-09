@@ -202,6 +202,39 @@ To get the position of the first bit within a range, use the `BitPosition` metho
 bitmap.BitPosition(true, -1, -1); // Return the position of the first 1 in the last byte
 ```
 
+## Bitmap example: count unique users logged per day.
+Set up a bitmap where the key is a function of the day, and each user is identified by an offset value. 
+
+When a user logs in, set the bit to 1 at the offset representing user id:
+```c#
+void Login(int userId)
+{
+    var key = "visits:" + DateTime.Now.ToString("yyyy-MM-dd");
+    var bitmap = _context.GetCachedBitmap(key);
+    bitmap.SetBit(userId, true);
+}
+```
+
+Get a count of the unique visits for a given date:
+```c#
+long CountVisits(DateTime date)
+{
+    var key = "visits:" + date.ToString("yyyy-MM-dd");
+    var bitmap = _context.GetCachedBitmap(key);
+    return bitmap.Count();
+}
+```
+
+Determine if a user has logged in a given date:
+```c#
+bool HasVisited(int userId, DateTime date)
+{
+    var key = "visits:" + date.ToString("yyyy-MM-dd");
+    var bitmap = _context.GetCachedBitmap(key);
+    return bitmap.GetBit(userId);
+}
+```
+
 ## ICachedBitmap mapping to Redis bitmap
 
 Mapping between `ICachedBitmap` methods/properties to the Redis commands used:
