@@ -10,6 +10,7 @@ The following are the five .NET collections provided to handle Redis collections
 | Sorted Set | ```ICollection<T>``` | ```ICachedSortedSet``` | ```GetCachedSortedSet()``` | Set of objects sorted by score |
 | Bitmap | ```ICollection<bool>``` | ```ICachedBitmap``` | ```GetCachedBitmap()``` | Binary value |
 | Sorted Set | ```ICollection<string>``` | ```ICachedLexicographicSet``` | ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted |
+| String | ```IEnumerable<byte>``` | ```ICachedString``` | ```GetCachedString()``` | Binary-safe string |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
@@ -282,3 +283,44 @@ Mapping between `ICachedLexicographicSet` methods/properties to the Redis comman
 |`Contains(string item)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N))|
 |`Remove(string item)`|[ZREM](http://redis.io/commands/zrem)|O(log(N))|
 |`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
+
+# Redis String
+
+To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetCachedString()``` method of the ```CacheContext``` class:
+
+```c#
+ICachedString cstr = context.GetCachedString("key");
+```
+
+To write to the string use the `SetRange` method:
+
+```c#
+cstr.SetRange(0, "Some text");
+```
+
+To write starting at a specific position:
+```c#
+cstr.SetRange(5, "T");
+```
+
+To read from the string, use the `GetRange` method or the indexed property:
+```c#
+string s = cstr.GetRange(0, -1);   // This will return the entire string: "Some Text"
+```
+
+```c#
+string s = cstr[0, -1];   // This will return the entire string: "Some Text"
+```
+
+## ICachedString mapping to Redis String
+
+Mapping between `ICachedString` methods/properties to the Redis commands used:
+
+|ICachedString interface|Redis command|Time complexity|
+|------|------|-------|
+|`GetRange(long start, long stop)`|[GETRANGE](http://redis.io/commands/getrange)|O(M) : M is the length of the returned string |
+|`SetRange(long offset, string item)`|[SETRANGE](http://redis.io/commands/setrange)|O(1)|
+|`Length`|[STRLEN](http://redis.io/commands/strlen)|O(1)|
+
+
+
