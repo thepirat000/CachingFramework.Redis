@@ -22,7 +22,7 @@ PM> Install-Package CachingFramework.Redis
 ```
 
 ### Context
-The `Context` class provides all the functionality divided into four categories, each of which is exposed as a property in with the following names:
+The `Context` class provides all the functionality divided into four categories, each of which is exposed as a property with the following names:
 - Cache
 - Collections
 - GeoSpatial
