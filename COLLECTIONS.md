@@ -2,15 +2,15 @@
 =====
 The following are the .NET objects provided to handle Redis collections:
 
-| Redis object | Common interface | Interface name | CacheContext method | Description |
+| CacheContext method | Description | Redis object | Common interface | Interface name |
 | ------------ | ---------------- | -------------- | ------------------- | ----------- |
-| List | ```IList<T>``` | ```ICachedList<T>``` | ```GetCachedList()``` | Double-linked list of objects |
-| Hash | ```IDictionary<TK, TV>``` | ```ICachedDictionary<TK, TV>``` | ```GetCachedDictionary()``` | Dictionary of values |
-| Set | ```ISet``` | ```ICachedSet<T>``` | ```GetCachedSet()``` | Set of unique objects |
-| Sorted Set | ```ICollection<T>``` | ```ICachedSortedSet``` | ```GetCachedSortedSet()``` | Set of objects sorted by score |
-| Bitmap | ```ICollection<bool>``` | ```ICachedBitmap``` | ```GetCachedBitmap()``` | Binary value |
-| Sorted Set | ```ICollection<string>``` | ```ICachedLexicographicSet``` | ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted |
-| String | ```IEnumerable<byte>``` | ```ICachedString``` | ```GetCachedString()``` | Binary-safe string |
+| ```GetCachedList()``` | Double-linked list of objects | List | ```IList<T>``` | ```ICachedList<T>``` |
+| ```GetCachedDictionary()``` | Dictionary of values | Hash | ```IDictionary<TK, TV>``` | ```ICachedDictionary<TK, TV>``` |
+| ```GetCachedSet()``` | Set of unique objects | Set | ```ISet``` | ```ICachedSet<T>``` |
+| ```GetCachedSortedSet()``` | Set of objects sorted by score | Sorted Set | ```ICollection<T>``` | ```ICachedSortedSet``` |
+| ```GetCachedBitmap()``` | Binary value | Bitmap | ```ICollection<bool>``` | ```ICachedBitmap``` |
+| ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` | ```ICachedLexicographicSet``` |
+| ```GetCachedString()``` | Binary-safe string | String | ```IEnumerable<byte>``` | ```ICachedString``` |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
