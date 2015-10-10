@@ -7,10 +7,12 @@
  * **Time-To-Live mechanism**.
  * **Fully compatible with Redis Cluster**.
  * **Compressed binary serialization** (or implement your own serialization).
- * **Redis List, Sets, Sorted Sets and Hashes support**.
+ * **Redis Strings, List, Sets, Sorted Sets, Hashes and Bitmaps support**.
+ * **Lexicographically sorted sets** for fast auto-complete suggestion. 
  * **Pub/Sub support with typed messages**.
  * **Geospatial indexes support**.
  * **HyperLogLog algorithm support**.
+ 
  
 ## Usage
 
