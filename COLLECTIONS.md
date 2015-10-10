@@ -1,15 +1,16 @@
 .NET adapted Redis collections
 =====
-The following are the five .NET collections provided to handle Redis collections:
+The following are the .NET objects provided to handle Redis collections:
 
-| Redis object | Common interface | Interface name | CacheContext method | Description |
-| ------------ | ---------------- | -------------- | ------------------- | ----------- |
-| List | ```IList``` | ```ICachedList<T>``` | ```GetCachedList()``` | Double-linked list of objects |
-| Hash | ```IDictionary``` | ```ICachedDictionary<TK, TV>``` | ```GetCachedDictionary()``` | Dictionary of values |
-| Set | ```ISet``` | ```ICachedSet<T>``` | ```GetCachedSet()``` | Set of unique objects |
-| Sorted Set | ```ICollection<T>``` | ```ICachedSortedSet``` | ```GetCachedSortedSet()``` | Set of objects sorted by score |
-| Bitmap | ```ICollection<bool>``` | ```ICachedBitmap``` | ```GetCachedBitmap()``` | Binary value |
-| Sorted Set | ```ICollection<string>``` | ```ICachedLexicographicSet``` | ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted |
+| CacheContext method | Description | Redis object | Common interface |
+| ------------ | ---------------- | -------------- | ------------------- |
+| ```GetCachedList()``` | Double-linked list of objects | List | ```IList<T>``` |
+| ```GetCachedDictionary()``` | Dictionary of values | Hash | ```IDictionary<TK, TV>``` |
+| ```GetCachedSet()``` | Set of unique objects | Set | ```ISet<T>``` |
+| ```GetCachedSortedSet()``` | Set of objects sorted by score | Sorted Set | ```ICollection<T>``` |
+| ```GetCachedBitmap()``` | Binary value | Bitmap | ```ICollection<bool>``` |
+| ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` |
+| ```GetCachedString()``` | Binary-safe string | String | ```IEnumerable<byte>``` |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
@@ -282,3 +283,44 @@ Mapping between `ICachedLexicographicSet` methods/properties to the Redis comman
 |`Contains(string item)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N))|
 |`Remove(string item)`|[ZREM](http://redis.io/commands/zrem)|O(log(N))|
 |`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
+
+# Redis String
+
+To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetCachedString()``` method of the ```CacheContext``` class:
+
+```c#
+ICachedString cstr = context.GetCachedString("key");
+```
+
+To write to the string use the `SetRange` method:
+
+```c#
+cstr.SetRange(0, "Some text");
+```
+
+To write starting at a specific position:
+```c#
+cstr.SetRange(5, "T");
+```
+
+To read from the string, use the `GetRange` method or the indexed property:
+```c#
+string s = cstr.GetRange(0, -1);   // This will return the entire string: "Some Text"
+```
+
+```c#
+string s = cstr[0, -1];   // This will return the entire string: "Some Text"
+```
+
+## ICachedString mapping to Redis String
+
+Mapping between `ICachedString` methods/properties to the Redis commands used:
+
+|ICachedString interface|Redis command|Time complexity|
+|------|------|-------|
+|`GetRange(long start, long stop)`|[GETRANGE](http://redis.io/commands/getrange)|O(M) : M is the length of the returned string |
+|`SetRange(long offset, string item)`|[SETRANGE](http://redis.io/commands/setrange)|O(1)|
+|`Length`|[STRLEN](http://redis.io/commands/strlen)|O(1)|
+
+
+
