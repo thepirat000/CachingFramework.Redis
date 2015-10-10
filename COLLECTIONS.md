@@ -20,7 +20,7 @@ ICachedSortedSet<User> sortedSet = context.Collections.GetCachedSortedSet<User>(
 
 # Redis Lists
 
-To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetCachedList()``` method of the ```CacheContext``` class:
+To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetCachedList()``` method:
 
 ```c#
 ICachedList<User> list = context.Collections.GetCachedList<User>("user:list");
@@ -68,7 +68,7 @@ Mapping between `ICachedList` methods/properties to the Redis commands used:
 
 # Redis Sets
 
-To obtain a new (or existing) Redis Set implementing a .NET `ISet`, use the ```GetCachedSet()``` method of the ```CacheContext``` class:
+To obtain a new (or existing) Redis Set implementing a .NET `ISet`, use the ```GetCachedSet()``` method:
 
 ```c#
 ICachedSet<User> set = context.Collections.GetCachedSet<User>("user:set");
@@ -101,7 +101,7 @@ Mapping between `ICachedSet` methods/properties to the Redis commands used:
 
 # Redis Hashes
 
-To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetCachedDictionary()``` method of the ```CacheContext``` class:
+To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetCachedDictionary()``` method:
 
 ```c#
 ICachedDictionary<int, User> hash = context.Collections.GetCachedDictionary<int, User>("user:hash");
@@ -137,7 +137,7 @@ Mapping between `ICachedDictionary` methods/properties to the Redis commands use
 
 # Redis Sorted Sets
 
-To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetCachedSortedSet()``` method of the ```CacheContext``` class:
+To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetCachedSortedSet()``` method:
 
 ```c#
 ICachedSortedSet<User> sortedSet = context.Collections.GetCachedSortedSet<User>("user:sset");
@@ -180,7 +180,7 @@ Mapping between `ICachedSortedSet` methods/properties to the Redis commands used
 
 # Redis Bitmaps
 
-To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetCachedBitmap()``` method of the ```CacheContext``` class:
+To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetCachedBitmap()``` method:
 
 ```c#
 ICachedBitmap bitmap = context.Collections.GetCachedBitmap("users:visit");
@@ -252,7 +252,7 @@ Mapping between `ICachedBitmap` methods/properties to the Redis commands used:
 
 # Redis lexicographical Sorted Set
 
-To obtain a new (or existing) Redis lexicographical sorted set implementing a .NET `ICollection<string>`, use the ```GetCachedLexicographicSet()``` method of the ```CacheContext``` class:
+To obtain a new (or existing) Redis lexicographical sorted set implementing a .NET `ICollection<string>`, use the ```GetCachedLexicographicSet()``` method:
 
 ```c#
 ICachedLexicographicSet lex = context.Collections.GetCachedLexicographicSet("autocomplete");
@@ -286,7 +286,7 @@ Mapping between `ICachedLexicographicSet` methods/properties to the Redis comman
 
 # Redis String
 
-To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetCachedString()``` method of the ```CacheContext``` class:
+To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetCachedString()``` method:
 
 ```c#
 ICachedString cstr = context.Collections.GetCachedString("key");
