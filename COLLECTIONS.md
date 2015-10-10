@@ -4,8 +4,8 @@ The following are the .NET objects provided to handle Redis collections:
 
 | Redis object | Common interface | Interface name | CacheContext method | Description |
 | ------------ | ---------------- | -------------- | ------------------- | ----------- |
-| List | ```IList``` | ```ICachedList<T>``` | ```GetCachedList()``` | Double-linked list of objects |
-| Hash | ```IDictionary``` | ```ICachedDictionary<TK, TV>``` | ```GetCachedDictionary()``` | Dictionary of values |
+| List | ```IList<T>``` | ```ICachedList<T>``` | ```GetCachedList()``` | Double-linked list of objects |
+| Hash | ```IDictionary<TK, TV>``` | ```ICachedDictionary<TK, TV>``` | ```GetCachedDictionary()``` | Dictionary of values |
 | Set | ```ISet``` | ```ICachedSet<T>``` | ```GetCachedSet()``` | Set of unique objects |
 | Sorted Set | ```ICollection<T>``` | ```ICachedSortedSet``` | ```GetCachedSortedSet()``` | Set of objects sorted by score |
 | Bitmap | ```ICollection<bool>``` | ```ICachedBitmap``` | ```GetCachedBitmap()``` | Binary value |
