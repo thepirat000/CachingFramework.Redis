@@ -10,7 +10,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// Managed collection using a Redis Sorted Set
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class RedisSortedSet<T> : RedisBaseObject, ICachedSortedSet<T>
+    internal class RedisSortedSet<T> : RedisBaseObject, ICachedSortedSet<T>, ICollection<T>
     {
         #region Constructors
         /// <summary>

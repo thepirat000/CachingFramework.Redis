@@ -14,21 +14,21 @@ namespace CachingFramework.Redis.UnitTest
     [TestClass]
     public class UnitTestRedisObjects
     {
-        private static CacheContext _cache;
+        private static Context _context;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
-            _cache = Common.GetContextAndFlush();
+            _context = Common.GetContextAndFlush();
         }
 
         [TestMethod]
         public void UT_CacheListObject()
         {
             string key1 = "UT_CacheListObject1";
-            _cache.Remove(key1);
+            _context.Cache.Remove(key1);
             var users = GetUsers();
-            var rl = _cache.GetCachedList<int>(key1);
+            var rl = _context.Collections.GetCachedList<int>(key1);
             rl.AddRange(users.Select(u => u.Id));
             // Test GetEnumerator
             foreach (var item in rl)
@@ -75,9 +75,9 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheListPushPop()
         {
             string key = "UT_CacheListPushPop";
-            _cache.Remove(key);
+            _context.Cache.Remove(key);
             var users = GetUsers();
-            var rl = _cache.GetCachedList<User>(key);
+            var rl = _context.Collections.GetCachedList<User>(key);
             rl.AddRange(users);
             rl.AddFirst(new User() { Id = 0 });
             rl.AddLast(new User() { Id = 666 });
@@ -94,9 +94,9 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheListObjectTTL()
         {
             string key1 = "UT_CacheListObject_TTL1";
-            _cache.Remove(key1);
+            _context.Cache.Remove(key1);
             var users = GetUsers();
-            var rl = _cache.GetCachedList<User>(key1);
+            var rl = _context.Collections.GetCachedList<User>(key1);
             rl.AddRange(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
             Assert.AreEqual(users.Count, rl.Count);
@@ -109,8 +109,8 @@ namespace CachingFramework.Redis.UnitTest
         {
             string key = "UT_CacheListObject_GetRange";
             int total = 100;
-            _cache.Remove(key);
-            var rl = _cache.GetCachedList<User>(key);
+            _context.Cache.Remove(key);
+            var rl = _context.Collections.GetCachedList<User>(key);
             rl.AddRange(Enumerable.Range(1, total).Select(i => new User() {Id = i}));
 
             var range = rl.GetRange().ToList();
@@ -129,9 +129,9 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheDictionaryObject()
         {
             string key1 = "UT_CacheDictionaryObject1";
-            _cache.Remove(key1);
+            _context.Cache.Remove(key1);
             var users = GetUsers();
-            var rd = _cache.GetCachedDictionary<int, User>(key1);
+            var rd = _context.Collections.GetCachedDictionary<int, User>(key1);
             // Test AddMultiple
             var usersKv = users.Select(x => new KeyValuePair<int, User>(x.Id, x));
             rd.AddRange(usersKv);
@@ -184,9 +184,9 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheDictionaryObject_TTL()
         {
             string key1 = "UT_CacheDictionaryObjectTTL1";
-            _cache.Remove(key1);
+            _context.Cache.Remove(key1);
             var users = GetUsers();
-            var rl = _cache.GetCachedDictionary<int, User>(key1);
+            var rl = _context.Collections.GetCachedDictionary<int, User>(key1);
             rl.AddRange(users.ToDictionary(k => k.Id));
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
             Assert.AreEqual(users.Count, rl.Count);
@@ -198,17 +198,17 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheList_EXP()
         {
             string key = "UT_CacheList_EXP";
-            _cache.Remove(key);
-            var set = _cache.GetCachedSet<string>(key);
+            _context.Cache.Remove(key);
+            var set = _context.Collections.GetCachedSet<string>(key);
             set.AddRange(new [] { "test1", "test2", "test3" });
             set.Expiration = DateTime.Now.AddSeconds(2);
             var startedOn = DateTime.Now;
             Assert.AreEqual(3, set.Count);
-            while (_cache.KeyExists(key) && DateTime.Now < startedOn.AddSeconds(10))
+            while (_context.Cache.KeyExists(key) && DateTime.Now < startedOn.AddSeconds(10))
             {
                 Thread.Sleep(100);
             }
-            Assert.IsFalse(_cache.KeyExists(key));
+            Assert.IsFalse(_context.Cache.KeyExists(key));
             Assert.AreEqual(0, set.Count);
             var stoppedOn = DateTime.Now;
             var span = stoppedOn - startedOn;
@@ -220,9 +220,9 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheSetObject()
         {
             string key1 = "UT_CacheSetObject1";
-            _cache.Remove(key1);
+            _context.Cache.Remove(key1);
             var users = GetUsers();
-            var rs = _cache.GetCachedSet<User>(key1);
+            var rs = _context.Collections.GetCachedSet<User>(key1);
             rs.AddRange(users);
             // Test GetEnumerator
             foreach (var item in rs)
@@ -253,9 +253,9 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheSetObject_TTL()
         {
             string key1 = "UT_CacheSetObject_TTL";
-            _cache.Remove(key1);
+            _context.Cache.Remove(key1);
             var users = GetUsers();
-            var rl = _cache.GetCachedSet<User>(key1);
+            var rl = _context.Collections.GetCachedSet<User>(key1);
             rl.AddRange(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
             Assert.AreEqual(users.Count, rl.Count);
@@ -269,12 +269,12 @@ namespace CachingFramework.Redis.UnitTest
             string keyAbc = "UT_CacheSetObject_SetModifiers_ABC";
             string keyCde = "UT_CacheSetObject_SetModifiers_CDE";
 
-            _cache.Remove(keyAbc);
-            _cache.Remove(keyCde);
-            var abcSet = _cache.GetCachedSet<char>(keyAbc);
+            _context.Cache.Remove(keyAbc);
+            _context.Cache.Remove(keyCde);
+            var abcSet = _context.Collections.GetCachedSet<char>(keyAbc);
             abcSet.AddRange("ABC");
             
-            var cdeSet = _cache.GetCachedSet<char>(keyCde);
+            var cdeSet = _context.Collections.GetCachedSet<char>(keyCde);
             cdeSet.AddRange("CDE");
 
             // Test Count
@@ -346,8 +346,8 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheSortedSet_GetRange()
         {
             var key = "UT_CacheSortedSet_GetRange";
-            _cache.Remove(key);
-            var ss = _cache.GetCachedSortedSet<User>(key);
+            _context.Cache.Remove(key);
+            var ss = _context.Collections.GetCachedSortedSet<User>(key);
             var users = GetUsers();
 
             ss.Add(double.NegativeInfinity, users[3]);
@@ -377,8 +377,8 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheSortedSet_GetRangeByRankNegative()
         {
             var key = "UT_CacheSortedSet_GetRangeByRankNegative";
-            _cache.Remove(key);
-            var ss = _cache.GetCachedSortedSet<string>(key);
+            _context.Cache.Remove(key);
+            var ss = _context.Collections.GetCachedSortedSet<string>(key);
             ss.AddRange(new[] { new SortedMember<string>(33, "c"), new SortedMember<string>(0, "a"), new SortedMember<string>(22, "b") });
 
             var byRank = ss.GetRangeByRank(-2, -1).ToList();
@@ -395,8 +395,8 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheSortedSet_etc()
         {
             var key = "UT_CacheSortedSet_etc";
-            var ss = _cache.GetCachedSortedSet<string>(key);
-            _cache.Remove(key);
+            var ss = _context.Collections.GetCachedSortedSet<string>(key);
+            _context.Cache.Remove(key);
             for (int i = 0; i < 255; i++)
             {
                 ss.Add(i, "member " + i);
@@ -458,8 +458,8 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheBitmap()
         {
             var key = "UT_CacheBitmap";
-            _cache.Remove(key);
-            var bm = _cache.GetCachedBitmap(key);
+            _context.Cache.Remove(key);
+            var bm = _context.Collections.GetCachedBitmap(key);
             bm.Add(true);           // 11111111 
             Assert.IsFalse(bm.Contains(false));
             bm.Add(false);          // 11111111 00000000
@@ -505,8 +505,8 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheLexSet()
         {
             var key = "UT_CacheLexSet";
-            _cache.Remove(key);
-            var bm = _cache.GetCachedLexicographicSet(key);
+            _context.Cache.Remove(key);
+            var bm = _context.Collections.GetCachedLexicographicSet(key);
 
             bm.Add("zero");
             bm.AddRange(new [] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" });
@@ -545,8 +545,8 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheString()
         {
             var key = "UT_CacheString";
-            _cache.Remove(key);
-            var cs = _cache.GetCachedString(key);
+            _context.Cache.Remove(key);
+            var cs = _context.Collections.GetCachedString(key);
 
             cs.SetRange(3, "Test");
             Assert.AreEqual(7, cs.Length);
@@ -578,8 +578,8 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheString_Unicode()
         {
             var key = "UT_CacheString_Unicode";
-            _cache.Remove(key);
-            var cs = _cache.GetCachedString(key);
+            _context.Cache.Remove(key);
+            var cs = _context.Collections.GetCachedString(key);
             Assert.AreEqual(0, cs.Length);
             var str = "元来は有力貴族や諸大";
             cs.SetRange(0, str);
@@ -600,8 +600,8 @@ namespace CachingFramework.Redis.UnitTest
         {
             var key = "UT_CacheString_BigString";
             int i = 9999999;
-            _cache.Remove(key);
-            var cs = _cache.GetCachedString(key);
+            _context.Cache.Remove(key);
+            var cs = _context.Collections.GetCachedString(key);
             cs.SetRange(i, "test");
             Assert.AreEqual(i + 4, cs.Length);
             Assert.AreEqual("\0", cs[0, 0]);
@@ -609,7 +609,13 @@ namespace CachingFramework.Redis.UnitTest
             var big = cs[0, -1];
             Assert.IsTrue(big.EndsWith("test"));
             Assert.AreEqual(i + 4, big.Length);
-            _cache.Remove(key);
+            _context.Cache.Remove(key);
+        }
+
+        public void TestTimeout()
+        {
+            var ctx = new Context("localhost:6379", new BinarySerializer());
+
         }
 
         private List<User> GetUsers()

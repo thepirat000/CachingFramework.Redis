@@ -9,7 +9,7 @@ using StackExchange.Redis;
 
 namespace CachingFramework.Redis.RedisObjects
 {
-    internal class RedisBitmap : RedisBaseObject, ICachedBitmap
+    internal class RedisBitmap : RedisBaseObject, ICachedBitmap, ICollection<bool>
     {
         #region fields
         private const byte ByteSize = 8;

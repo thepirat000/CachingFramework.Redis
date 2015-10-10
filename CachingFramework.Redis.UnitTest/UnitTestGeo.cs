@@ -22,7 +22,7 @@ namespace CachingFramework.Redis.UnitTest
     {
         private static GeoCoordinate _coordZapopan;
         private static GeoCoordinate _coordLondon;
-        private static CacheContext _context;
+        private static Context _context;
         private string _defaultConfig;
         private static GoogleLocationService _locationSvc;
         [ClassInitialize]
@@ -39,9 +39,9 @@ namespace CachingFramework.Redis.UnitTest
         {
             var key = "UT_Geo_GeoAdd";
             var users = GetUsers();
-            var cnt = _context.GeoAdd(key, _coordZapopan, users[0]);
-            cnt += _context.GeoAdd(key, _coordLondon.Latitude, _coordLondon.Longitude, users[1]);
-            var coord = _context.GeoPosition(key, users[0]);
+            var cnt = _context.GeoSpatial.GeoAdd(key, _coordZapopan, users[0]);
+            cnt += _context.GeoSpatial.GeoAdd(key, _coordLondon.Latitude, _coordLondon.Longitude, users[1]);
+            var coord = _context.GeoSpatial.GeoPosition(key, users[0]);
             Assert.AreEqual(2, cnt);
             Assert.AreEqual(_coordZapopan.Latitude, coord.Latitude, 0.00001);
             Assert.AreEqual(_coordZapopan.Longitude, coord.Longitude, 0.00001);
@@ -51,9 +51,9 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoPos()
         {
             var key = "UT_Geo_GeoPos";
-            var cnt = _context.GeoAdd(key, _coordZapopan, "Zapopan");
-            var coordGet = _context.GeoPosition(key, "Zapopan");
-            var coordErr = _context.GeoPosition(key, "not exists");
+            var cnt = _context.GeoSpatial.GeoAdd(key, _coordZapopan, "Zapopan");
+            var coordGet = _context.GeoSpatial.GeoPosition(key, "Zapopan");
+            var coordErr = _context.GeoSpatial.GeoPosition(key, "not exists");
             Assert.IsNull(coordErr);
             Assert.AreEqual(1, cnt);
             Assert.AreEqual(_coordZapopan.Latitude, coordGet.Latitude, 0.00001);
@@ -64,10 +64,10 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoPosMultiple()
         {
             var key = "UT_Geo_GeoPosMultiple";
-            var cnt = _context.GeoAdd(key, new[] { 
+            var cnt = _context.GeoSpatial.GeoAdd(key, new[] { 
                 new GeoMember<string>(_coordZapopan, "Zapopan"),
                 new GeoMember<string>(_coordLondon, "London") });
-            var coords = _context.GeoPositions(key, new[] { "London", "not exists", "Zapopan" }).ToArray();
+            var coords = _context.GeoSpatial.GeoPosition(key, new[] { "London", "not exists", "Zapopan" }).ToArray();
             Assert.AreEqual(2, cnt);
             Assert.AreEqual(3, coords.Length);
             Assert.AreEqual("London", coords[0].Value);
@@ -83,13 +83,13 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoDistance()
         {
             var key = "UT_Geo_GeoDistance";
-            var cnt = _context.GeoAdd(key, new[] { 
+            var cnt = _context.GeoSpatial.GeoAdd(key, new[] { 
                 new GeoMember<string>(_coordZapopan, "Zapopan"),
                 new GeoMember<string>(_coordLondon, "London") });
-            var kmzz = _context.GeoDistance(key, "Zapopan", "Zapopan", Unit.Kilometers);
-            var kmzl = _context.GeoDistance(key, "Zapopan", "London", Unit.Kilometers);
-            var kmlz = _context.GeoDistance(key, "London", "Zapopan", Unit.Kilometers);
-            var err = _context.GeoDistance(key, "London", "not exists", Unit.Kilometers);
+            var kmzz = _context.GeoSpatial.GeoDistance(key, "Zapopan", "Zapopan", Unit.Kilometers);
+            var kmzl = _context.GeoSpatial.GeoDistance(key, "Zapopan", "London", Unit.Kilometers);
+            var kmlz = _context.GeoSpatial.GeoDistance(key, "London", "Zapopan", Unit.Kilometers);
+            var err = _context.GeoSpatial.GeoDistance(key, "London", "not exists", Unit.Kilometers);
             Assert.AreEqual(-1, err);
             Assert.AreEqual(2, cnt);
             Assert.AreEqual(0, kmzz, 0.00001);
@@ -103,10 +103,10 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_Geo_GeoDistanceDirect";
             var mdq = _locationSvc.GetLatLongFromAddress("Mar del Plata").ToGeoCoord();
             var bue = _locationSvc.GetLatLongFromAddress("Buenos Aires").ToGeoCoord();
-            _context.GeoAdd(key, new[] { 
+            _context.GeoSpatial.GeoAdd(key, new[] { 
                 new GeoMember<string>(mdq, "mdq"),
                 new GeoMember<string>(bue, "bue") });
-            var km = _context.GeoDistance(key, "mdq", "bue", Unit.Kilometers);
+            var km = _context.GeoSpatial.GeoDistance(key, "mdq", "bue", Unit.Kilometers);
             Assert.AreEqual(385, km, 15);
         }
 
@@ -114,9 +114,9 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoHash()
         {
             var key = "UT_Geo_GeoHash";
-            _context.GeoAdd(key, _coordZapopan, "zapopan");
-            var hash = _context.GeoHash(key, "zapopan");
-            var hashErr = _context.GeoHash(key, "not exists");
+            _context.GeoSpatial.GeoAdd(key, _coordZapopan, "zapopan");
+            var hash = _context.GeoSpatial.GeoHash(key, "zapopan");
+            var hashErr = _context.GeoSpatial.GeoHash(key, "not exists");
             Assert.IsNull(hashErr);
             Assert.IsTrue(hash.StartsWith("9ewmwenq"));
         }
@@ -125,17 +125,17 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoRadius()
         {
             var key = "UT_Geo_GeoRadius";
-            _context.GeoAdd(key, _coordZapopan, "zapopan");
-            _context.GeoAdd(key, _coordLondon, "london");
+            _context.GeoSpatial.GeoAdd(key, _coordZapopan, "zapopan");
+            _context.GeoSpatial.GeoAdd(key, _coordLondon, "london");
             var coordMx = _locationSvc.GetLatLongFromAddress("Mexico DF").ToGeoCoord();
-            _context.GeoAdd(key, coordMx, "mexico");
+            _context.GeoSpatial.GeoAdd(key, coordMx, "mexico");
             var coordZam = _locationSvc.GetLatLongFromAddress("Zamora, Michoacan").ToGeoCoord();
-            _context.GeoAdd(key, coordZam, "zamora");
+            _context.GeoSpatial.GeoAdd(key, coordZam, "zamora");
             var coordMor = _locationSvc.GetLatLongFromAddress("Morelia, Michoacan").ToGeoCoord();
-            var results500 = _context.GeoRadius<string>(key, coordMor, 500, Unit.Kilometers).ToList();
-            var results200 = _context.GeoRadius<string>(key, coordMor, 200, Unit.Kilometers).ToList();
-            var results500_count1 = _context.GeoRadius<string>(key, coordMor, 500, Unit.Kilometers, 1).ToList();
-            var results0 = _context.GeoRadius<string>(key, coordMor, 1, Unit.Kilometers).ToList();
+            var results500 = _context.GeoSpatial.GeoRadius<string>(key, coordMor, 500, Unit.Kilometers).ToList();
+            var results200 = _context.GeoSpatial.GeoRadius<string>(key, coordMor, 200, Unit.Kilometers).ToList();
+            var results500_count1 = _context.GeoSpatial.GeoRadius<string>(key, coordMor, 500, Unit.Kilometers, 1).ToList();
+            var results0 = _context.GeoSpatial.GeoRadius<string>(key, coordMor, 1, Unit.Kilometers).ToList();
             Assert.AreEqual(0, results0.Count);
             Assert.AreEqual(3, results500.Count);
             Assert.AreEqual(1, results200.Count);

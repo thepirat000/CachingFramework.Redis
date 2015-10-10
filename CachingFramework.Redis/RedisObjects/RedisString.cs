@@ -8,7 +8,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// <summary>
     /// Managed string using a Redis string.
     /// </summary>
-    internal class RedisString : RedisBaseObject, ICachedString
+    internal class RedisString : RedisBaseObject, ICachedString, IEnumerable<byte>
     {
         #region Constructors
         /// <summary>

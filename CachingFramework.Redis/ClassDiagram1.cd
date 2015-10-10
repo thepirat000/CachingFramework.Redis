@@ -1,44 +1,103 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
-  <Class Name="CachingFramework.Redis.CacheContext">
-    <Position X="1" Y="0.5" Width="5.5" />
+  <Class Name="CachingFramework.Redis.RedisObjects.RedisDictionary&lt;TK, TV&gt;" BaseTypeListCollapsed="true">
+    <Position X="7" Y="1.5" Width="2.75" />
     <Members>
-      <Method Name="CacheContext" Hidden="true" />
+      <Property Name="ICollection&lt;KeyValuePair&lt;TK, TV&gt;&gt;.Count" Hidden="true" />
+      <Method Name="RedisDictionary" Hidden="true" />
+      <Method Name="System.Collections.IEnumerable.GetEnumerator" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAAhABCQEMCAAAsBAJAIEAAqKAAACSAAEBAgCRIA=</HashCode>
-      <FileName>CacheContext.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="CachingFramework.Redis.RedisObjects.RedisDictionary&lt;TK, TV&gt;" BaseTypeListCollapsed="true">
-    <Position X="7" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>CCIAAAAAAAAEABgQCAAABAQAAAAAAAAAAAAgAAAUIAA=</HashCode>
+      <HashCode>CCIAAAAAAAAEABgACAAABAQAAAAAAAAAAAAgAAAUIAA=</HashCode>
       <FileName>RedisObjects\RedisDictionary.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="CachingFramework.Redis.RedisObjects.RedisList&lt;T&gt;" BaseTypeListCollapsed="true">
-    <Position X="11.25" Y="2.5" Width="1.5" />
+    <Position X="13" Y="2.5" Width="2.5" />
+    <Members>
+      <Property Name="ICollection&lt;T&gt;.Count" Hidden="true" />
+      <Method Name="RedisList" Hidden="true" />
+      <Method Name="System.Collections.IEnumerable.GetEnumerator" Hidden="true" />
+    </Members>
     <TypeIdentifier>
-      <HashCode>AGIIAFAAAEAAARAQCAAAJAQAAAAQAAAACAgCAAAUIAA=</HashCode>
+      <HashCode>AGIIAFAAAEAAARAACAAAJAQAAAAQAAAACAgCAAAUIAA=</HashCode>
       <FileName>RedisObjects\RedisList.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="CachingFramework.Redis.Providers.RedisCacheProvider">
-    <Position X="2.75" Y="10.5" Width="5.75" />
+  <Class Name="CachingFramework.Redis.RedisObjects.RedisSet&lt;T&gt;" BaseTypeListCollapsed="true">
+    <Position X="10" Y="1.5" Width="2.5" />
+    <Members>
+      <Method Name="ICollection&lt;T&gt;.Add" Hidden="true" />
+      <Property Name="ICollection&lt;T&gt;.Count" Hidden="true" />
+      <Method Name="IsSubsetOf" Hidden="true" />
+      <Method Name="IsSupersetOf" Hidden="true" />
+      <Method Name="RedisSet" Hidden="true" />
+      <Method Name="SetEquals" Hidden="true" />
+      <Method Name="System.Collections.IEnumerable.GetEnumerator" Hidden="true" />
+    </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAAAANCQEMDAAAgBAJAAEAAoAAAAACAAEAAAAAAA=</HashCode>
-      <FileName>Providers\RedisCacheProvider.cs</FileName>
+      <HashCode>ACoAABBAAGBAQBBAAAAAFAQAIAAAACAAAgAAAAAUIAA=</HashCode>
+      <FileName>RedisObjects\RedisSet.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="CachingFramework.Redis.RedisObjects.RedisSet&lt;T&gt;" BaseTypeListCollapsed="true">
-    <Position X="9.25" Y="2.5" Width="1.5" />
+  <Class Name="CachingFramework.Redis.RedisObjects.RedisBitmap" BaseTypeListCollapsed="true">
+    <Position X="7" Y="9.25" Width="2.75" />
+    <Members>
+      <Method Name="BitCount" Hidden="true" />
+      <Field Name="ByteSize" Hidden="true" />
+      <Method Name="ICachedBitmap.Count" Hidden="true" />
+      <Method Name="ICollection&lt;bool&gt;.Contains" Hidden="true" />
+      <Property Name="ICollection&lt;bool&gt;.Count" Hidden="true" />
+      <Method Name="RedisBitmap" Hidden="true" />
+      <Method Name="System.Collections.IEnumerable.GetEnumerator" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
-      <HashCode>ACoAABBAAGBAQBBQAAAAFAQAIAAAACAAAgAAAAAUIAA=</HashCode>
-      <FileName>RedisObjects\RedisSet.cs</FileName>
+      <HashCode>ACIAAAgEAgAAABCAAAAABgQAAAAAQAAAAAAAAAAQaAA=</HashCode>
+      <FileName>RedisObjects\RedisBitmap.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="CachingFramework.Redis.RedisObjects.RedisLexicographicSet" BaseTypeListCollapsed="true">
+    <Position X="7" Y="6.25" Width="2.75" />
+    <Members>
+      <Property Name="ICollection&lt;string&gt;.Count" Hidden="true" />
+      <Method Name="RedisLexicographicSet" Hidden="true" />
+      <Method Name="System.Collections.IEnumerable.GetEnumerator" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>ACIAAAAAQAAAABAAAAAABAQAAAAAAAAAAAEAAAAUIAA=</HashCode>
+      <FileName>RedisObjects\RedisLexicographicSet.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="CachingFramework.Redis.RedisObjects.RedisSortedSet&lt;T&gt;" BaseTypeListCollapsed="true">
+    <Position X="10" Y="6.75" Width="2.75" />
+    <Members>
+      <Property Name="ICollection&lt;T&gt;.Count" Hidden="true" />
+      <Method Name="RedisSortedSet" Hidden="true" />
+      <Method Name="System.Collections.IEnumerable.GetEnumerator" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>ACIAAICAAEAAABAAAAAABAQAAAEAAAIEAIAAAAA0IAA=</HashCode>
+      <FileName>RedisObjects\RedisSortedSet.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="CachingFramework.Redis.RedisObjects.RedisString" BaseTypeListCollapsed="true">
+    <Position X="13.75" Y="7" Width="2.75" />
+    <Members>
+      <Method Name="RedisString" Hidden="true" />
+      <Method Name="System.Collections.IEnumerable.GetEnumerator" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAABAECAAAAABAAAAAAIAAAAgAAAAAAAA=</HashCode>
+      <FileName>RedisObjects\RedisString.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>

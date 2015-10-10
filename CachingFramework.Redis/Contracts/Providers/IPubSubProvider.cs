@@ -5,7 +5,7 @@ namespace CachingFramework.Redis.Contracts.Providers
     /// <summary>
     /// A typed PubSub Provider interface
     /// </summary>
-    internal interface IPubSubProvider
+    public interface IPubSubProvider
     {
         /// <summary>
         /// Subscribes to a specified channel for a speficied type.

@@ -47,6 +47,31 @@ namespace CachingFramework.Redis.Providers
             return (int)db.ScriptEvaluate(LuaScriptResource.GeoAdd, new RedisKey[] { key }, values.ToArray());
         }
         /// <summary>
+        /// Adds the specified members to a geospatial index.
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="latitude">The member latitude coordinate.</param>
+        /// <param name="longitude">The member longitude coordinate.</param>
+        /// <param name="member">The member to add.</param>
+        /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
+        public int GeoAdd<T>(string key, double latitude, double longitude, T member)
+        {
+            return GeoAdd(key, new GeoCoordinate(latitude, longitude), member);
+        }
+        /// <summary>
+        /// Adds the specified members to a geospatial index.
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="coordinate">The member coordinates.</param>
+        /// <param name="member">The member to add.</param>
+        /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
+        public int GeoAdd<T>(string key, GeoCoordinate coordinate, T member)
+        {
+            return GeoAdd(key, new[] { new GeoMember<T>(coordinate, member) });
+        }
+        /// <summary>
         /// Return Geohash strings representing the position of a member in a geospatial index (where elements were added using GEOADD).
         /// </summary>
         /// <typeparam name="T">The member type</typeparam>
@@ -85,6 +110,18 @@ namespace CachingFramework.Redis.Providers
                     yield return new GeoMember<T>((double)values[1], (double)values[0], members[i]);
                 }
             }
+        }
+        /// <summary>
+        /// Return the position (longitude,latitude) of the specified member of the geospatial index at key.
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="member">The member.</param>
+        /// <returns>NULL if the member does not exists</returns>
+        public GeoCoordinate GeoPosition<T>(string key, T member)
+        {
+            var pos = GeoPosition(key, new[] { member }).FirstOrDefault();
+            return pos != null ? pos.Position : null;
         }
         /// <summary>
         /// Return the distance between two members in the geospatial index at key.
@@ -139,6 +176,31 @@ namespace CachingFramework.Redis.Providers
                 var member = Serializer.Deserialize<T>((Byte[])values[0]);
                 yield return new GeoMember<T>((double)coords[1], (double)coords[0], member, distance);
             }
+        }
+        /// <summary>
+        /// Return the members of a geospatial index, which are within the borders of the area specified with the center location and the maximum distance from the center (the radius).
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="latitude">The latitude of the center.</param>
+        /// <param name="longitude">The latitude of the center.</param>
+        /// <param name="radius">The radius.</param>
+        /// <param name="unit">The unit.</param>
+        public IEnumerable<GeoMember<T>> GeoRadius<T>(string key, double latitude, double longitude, double radius, Unit unit)
+        {
+            return GeoRadius<T>(key, new GeoCoordinate(latitude, longitude), radius, unit, -1);
+        }
+        /// <summary>
+        /// Return the members of a geospatial index, which are within the borders of the area specified with the center location and the maximum distance from the center (the radius).
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="center">The center.</param>
+        /// <param name="radius">The radius.</param>
+        /// <param name="unit">The unit.</param>
+        public IEnumerable<GeoMember<T>> GeoRadius<T>(string key, GeoCoordinate center, double radius, Unit unit)
+        {
+            return GeoRadius<T>(key, center, radius, unit, -1);
         }
         #endregion
     }

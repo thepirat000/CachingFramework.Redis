@@ -7,7 +7,7 @@ namespace CachingFramework.Redis.Providers
     /// <summary>
     /// Cached Collection provider using Redis
     /// </summary>
-    internal class RedisCachedCollectionProvider : RedisProviderBase, ICachedCollectionProvider
+    internal class RedisCachedCollectionProvider : RedisProviderBase, ICollectionProvider
     {
         #region Constructor
         /// <summary>

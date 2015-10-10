@@ -32,6 +32,55 @@ namespace CachingFramework.Redis.Providers
 
         #region ICacheProvider Implementation
         /// <summary>
+        /// Fetches data from the cache, using the given cache key.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key and associated to the given tags, and that will be returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tags">The tags to associate with the key. Only associated when there is a cache miss.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        public T FetchObject<T>(string key, Func<T> func, string[] tags = null, TimeSpan? expiry = null)
+        {
+            T value = GetObject<T>(key);
+            if (null == value)
+            {
+                value = func();
+                if (tags == null || tags.Length == 0)
+                {
+                    SetObject(key, value, expiry);
+                }
+                else
+                {
+                    SetObject(key, value, tags, expiry);
+                }
+            }
+            return value;
+        }
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        public T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null)
+        {
+            T value = GetHashed<T>(key, field);
+            if (null == value)
+            {
+                value = func();
+                SetHashed(key, field, value, expiry);
+            }
+            return value;
+        }
+        /// <summary>
         /// Set the value of a key
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -53,6 +102,11 @@ namespace CachingFramework.Redis.Providers
         /// <param name="ttl">The expiry.</param>
         public void SetObject<T>(string key, T value, string[] tags, TimeSpan? ttl = null)
         {
+            if (tags == null || tags.Length == 0)
+            {
+                SetObject(key, value, ttl);
+                return;
+            }
             var serialized = Serializer.Serialize(value);
             var db = RedisConnection.GetDatabase();
             var batch = db.CreateBatch();
@@ -114,7 +168,7 @@ namespace CachingFramework.Redis.Providers
         /// Removes all the keys related to the given tag(s).
         /// </summary>
         /// <param name="tags">The tags.</param>
-        public void InvalidateKeysByTag(string[] tags)
+        public void InvalidateKeysByTag(params string[] tags)
         {
             var db = RedisConnection.GetDatabase();
             var keys = GetKeysByAllTagsNoCleanup(db, tags);
@@ -156,7 +210,7 @@ namespace CachingFramework.Redis.Providers
         /// <typeparam name="T">The objects types</typeparam>
         /// <param name="tags">The tags</param>
         /// <returns>IEnumerable{``0}.</returns>
-        public IEnumerable<T> GetObjectsByTag<T>(string[] tags)
+        public IEnumerable<T> GetObjectsByTag<T>(params string[] tags)
         {
             var db = RedisConnection.GetDatabase();
             ISet<string> keys = GetKeysByAllTagsNoCleanup(db, tags);
@@ -339,6 +393,17 @@ namespace CachingFramework.Redis.Providers
         {
             return RedisConnection.GetDatabase()
                     .HyperLogLogAdd(key, items.Select(x => (RedisValue) Serializer.Serialize(x)).ToArray());
+        }
+        /// <summary>
+        /// Adds the element to the HyperLogLog data structure stored at the specified key.
+        /// </summary>
+        /// <typeparam name="T">The items type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="item">The item to add.</param>
+        /// <returns><c>true</c> if at least 1 HyperLogLog internal register was altered, <c>false</c> otherwise.</returns>
+        public bool HyperLogLogAdd<T>(string key, T item)
+        {
+            return HyperLogLogAdd(key, new[] { item });
         }
         /// <summary>
         /// Returns the approximated cardinality computed by the HyperLogLog data structure stored at the specified key, which is 0 if the variable does not exist.

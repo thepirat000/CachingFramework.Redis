@@ -43,11 +43,11 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CacheContext.cs" />
+    <Compile Include="Context.cs" />
     <Compile Include="Contracts\GeoCoordinate.cs" />
     <Compile Include="Contracts\GeoMember.cs" />
     <Compile Include="Contracts\ISerializer.cs" />
-    <Compile Include="Contracts\Providers\ICachedCollectionProvider.cs" />
+    <Compile Include="Contracts\Providers\ICollectionProvider.cs" />
     <Compile Include="Contracts\Providers\ICacheProvider.cs" />
     <Compile Include="Contracts\Providers\IGeoProvider.cs" />
     <Compile Include="Contracts\Providers\IPubSubProvider.cs" />

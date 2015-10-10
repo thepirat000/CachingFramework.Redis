@@ -9,7 +9,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// <summary>
     /// Managed list using a Redis List
     /// </summary>
-    internal class RedisList<T> : RedisBaseObject, ICachedList<T>
+    internal class RedisList<T> : RedisBaseObject, ICachedList<T>, IList<T>
     {
         #region Constructors
         /// <summary>

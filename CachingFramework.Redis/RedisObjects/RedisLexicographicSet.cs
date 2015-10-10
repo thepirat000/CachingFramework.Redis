@@ -9,7 +9,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// <summary>
     /// Managed string collection using a Redis Sorted Set with lexicographical order
     /// </summary>
-    internal class RedisLexicographicSet : RedisBaseObject, ICachedLexicographicSet
+    internal class RedisLexicographicSet : RedisBaseObject, ICachedLexicographicSet, ICollection<string>
     {
         #region Constructors
         /// <summary>

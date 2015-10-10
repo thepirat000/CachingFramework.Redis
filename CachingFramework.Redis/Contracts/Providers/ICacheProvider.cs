@@ -6,8 +6,34 @@ namespace CachingFramework.Redis.Contracts.Providers
     /// <summary>
     /// Cache Provider internal contract
     /// </summary>
-    internal interface ICacheProvider
+    public interface ICacheProvider
     {
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        /// <returns>``0.</returns>
+        T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null);
+        /// <summary>
+        /// Fetches data from the cache, using the given cache key.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key and associated to the given tags, and that will be returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tags">The tags to associate with the key. Only associated when there is a cache miss.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        /// <returns>``0.</returns>
+        T FetchObject<T>(string key, Func<T> func, string[] tags = null, TimeSpan? expiry = null);
         /// <summary>
         /// Set the value of a key
         /// </summary>
@@ -58,21 +84,16 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// </summary>
         /// <typeparam name="T">The objects types</typeparam>
         /// <param name="tags">The tags</param>
-        IEnumerable<T> GetObjectsByTag<T>(string[] tags);
+        IEnumerable<T> GetObjectsByTag<T>(params string[] tags);
         /// <summary>
         /// Removes all the keys related to the given tag(s).
         /// </summary>
         /// <param name="tags">The tags.</param>
-        void InvalidateKeysByTag(string[] tags);
+        void InvalidateKeysByTag(params string[] tags);
         /// <summary>
         /// Returns the entire collection of tags
         /// </summary>
         ISet<string> GetAllTags();
-        /// <summary>
-        /// Removes the specified key-value.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        bool Remove(string key);
         /// <summary>
         /// Determines if a key exists.
         /// </summary>
@@ -103,6 +124,11 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// </summary>
         /// <param name="keys">The keys to remove.</param>
         void Remove(string[] keys);
+        /// <summary>
+        /// Removes the specified key-value.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        bool Remove(string key);
         /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)
@@ -154,6 +180,14 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="items">The items to add.</param>
         /// <returns><c>true</c> if at least 1 HyperLogLog internal register was altered, <c>false</c> otherwise.</returns>
         bool HyperLogLogAdd<T>(string key, T[] items);
+        /// <summary>
+        /// Adds the element to the HyperLogLog data structure stored at the specified key.
+        /// </summary>
+        /// <typeparam name="T">The items type</typeparam>
+        /// <param name="key">The redis key.</param>
+        /// <param name="item">The item to add.</param>
+        /// <returns><c>true</c> if at least 1 HyperLogLog internal register was altered, <c>false</c> otherwise.</returns>
+        bool HyperLogLogAdd<T>(string key, T item);
         /// <summary>
         /// Returns the approximated cardinality computed by the HyperLogLog data structure stored at the specified key, which is 0 if the variable does not exist.
         /// </summary>

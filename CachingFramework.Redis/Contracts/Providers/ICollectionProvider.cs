@@ -5,7 +5,7 @@ namespace CachingFramework.Redis.Contracts.Providers
     /// <summary>
     /// Cached objects provider internal contract
     /// </summary>
-    internal interface ICachedCollectionProvider
+    public interface ICollectionProvider
     {
         /// <summary>
         /// Returns an ICachedList implemented using a Redis List
