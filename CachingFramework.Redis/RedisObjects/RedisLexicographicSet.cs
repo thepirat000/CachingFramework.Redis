@@ -17,7 +17,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="redisKey">The redis key.</param>
-        /// <param name="serializer">The serializer.</param>
+        /// <param name="serializer">The serializer (not used in this class).</param>
         internal RedisLexicographicSet(ConnectionMultiplexer connection, string redisKey, ISerializer serializer)
             : base(connection, redisKey, serializer)
         {

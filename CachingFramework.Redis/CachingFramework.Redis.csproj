@@ -57,6 +57,7 @@
     <Compile Include="Contracts\RedisObjects\ICachedList.cs" />
     <Compile Include="Contracts\RedisObjects\ICachedSet.cs" />
     <Compile Include="Contracts\RedisObjects\ICachedSortedSet.cs" />
+    <Compile Include="Contracts\RedisObjects\ICachedString.cs" />
     <Compile Include="Contracts\RedisObjects\IRedisObject.cs" />
     <Compile Include="Contracts\SortedMember.cs" />
     <Compile Include="Contracts\Unit.cs" />
@@ -82,6 +83,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="RedisObjects\RedisSortedSet.cs" />
+    <Compile Include="RedisObjects\RedisString.cs" />
     <Compile Include="Serializers\BinarySerializer.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -74,6 +74,14 @@ namespace CachingFramework.Redis.Providers
         {
             return new RedisLexicographicSet(RedisConnection, key, Serializer);
         }
+        /// <summary>
+        /// Returns an ICollection(char) implemented using a Redis string
+        /// </summary>
+        /// <param name="key">The redis key</param>
+        public ICachedString GetCachedString(string key)
+        {
+            return new RedisString(RedisConnection, key, Serializer);
+        }
         #endregion
     }
 }

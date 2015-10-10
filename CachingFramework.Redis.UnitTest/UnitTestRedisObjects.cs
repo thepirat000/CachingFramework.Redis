@@ -541,6 +541,77 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(12, bm.Count);
         }
 
+        [TestMethod]
+        public void UT_CacheString()
+        {
+            var key = "UT_CacheString";
+            _cache.Remove(key);
+            var cs = _cache.GetCachedString(key);
+
+            cs.SetRange(3, "Test");
+            Assert.AreEqual(7, cs.Length);
+            Assert.AreEqual("\0", cs.GetRange(0, 0));
+            Assert.AreEqual("\0", cs[0, 0]);
+            Assert.AreEqual("T", cs[3, 3]);
+            Assert.AreEqual("t", cs[6, 6]);
+            Assert.AreEqual("Test", cs[3, -1]);
+            Assert.AreEqual("\0\0\0Test", cs[0, -1]);
+            Assert.AreEqual("\0\0\0Test", cs[0, 999]);
+
+            var len = cs.SetRange(0, "123");
+            Assert.AreEqual(7, len);
+            Assert.AreEqual(7, cs.Length);
+            Assert.AreEqual("123Test", cs.GetRange());
+            
+            cs.SetRange(0, "abc");
+
+            var lst = new List<byte>();
+            foreach (byte b in cs)
+            {
+                lst.Add(b);
+            }
+            Assert.AreEqual("abcTest", Encoding.UTF8.GetString(lst.ToArray()));
+
+        }
+
+        [TestMethod]
+        public void UT_CacheString_Unicode()
+        {
+            var key = "UT_CacheString_Unicode";
+            _cache.Remove(key);
+            var cs = _cache.GetCachedString(key);
+            Assert.AreEqual(0, cs.Length);
+            var str = "元来は有力貴族や諸大";
+            cs.SetRange(0, str);
+            Assert.AreEqual(10*3, cs.Length);
+            var g = cs.GetRange(0, 2);
+            Assert.AreEqual("元", cs[0, 2]);
+            Assert.AreEqual("大", cs[-3, -1]);
+            var lst = new List<byte>();
+            foreach (byte b in cs)
+            {
+                lst.Add(b);
+            }
+            Assert.AreEqual(str, Encoding.UTF8.GetString(lst.ToArray()));
+        }
+
+        [TestMethod]
+        public void UT_CacheString_BigString()
+        {
+            var key = "UT_CacheString_BigString";
+            int i = 9999999;
+            _cache.Remove(key);
+            var cs = _cache.GetCachedString(key);
+            cs.SetRange(i, "test");
+            Assert.AreEqual(i + 4, cs.Length);
+            Assert.AreEqual("\0", cs[0, 0]);
+            Assert.AreEqual("test", cs[i, -1]);
+            var big = cs[0, -1];
+            Assert.IsTrue(big.EndsWith("test"));
+            Assert.AreEqual(i + 4, big.Length);
+            _cache.Remove(key);
+        }
+
         private List<User> GetUsers()
         {
             var loc1 = new Location()

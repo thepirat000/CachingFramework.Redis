@@ -390,6 +390,14 @@ namespace CachingFramework.Redis
             return _collectionProvider.GetCachedLexicographicSet(key);
         }
         /// <summary>
+        /// Returns an ICollection(char) implemented using a Redis string
+        /// </summary>
+        /// <param name="key">The redis key</param>
+        public ICachedString GetCachedString(string key)
+        {
+            return _collectionProvider.GetCachedString(key);
+        }
+        /// <summary>
         /// Flushes all the databases on every master node.
         /// </summary>
         public void FlushAll()

@@ -42,5 +42,10 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// </summary>
         /// <param name="key">The redis key</param>
         ICachedLexicographicSet GetCachedLexicographicSet(string key);
+        /// <summary>
+        /// Returns an ICollection(char) implemented using a Redis string
+        /// </summary>
+        /// <param name="key">The redis key</param>
+        ICachedString GetCachedString(string key);
     }
 }
