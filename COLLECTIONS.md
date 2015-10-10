@@ -2,15 +2,15 @@
 =====
 The following are the .NET objects provided to handle Redis collections:
 
-| CacheContext method | Description | Redis object | Common interface | Interface name |
-| ------------ | ---------------- | -------------- | ------------------- | ----------- |
-| ```GetCachedList()``` | Double-linked list of objects | List | ```IList<T>``` | ```ICachedList<T>``` |
-| ```GetCachedDictionary()``` | Dictionary of values | Hash | ```IDictionary<TK, TV>``` | ```ICachedDictionary<TK, TV>``` |
-| ```GetCachedSet()``` | Set of unique objects | Set | ```ISet``` | ```ICachedSet<T>``` |
-| ```GetCachedSortedSet()``` | Set of objects sorted by score | Sorted Set | ```ICollection<T>``` | ```ICachedSortedSet``` |
-| ```GetCachedBitmap()``` | Binary value | Bitmap | ```ICollection<bool>``` | ```ICachedBitmap``` |
-| ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` | ```ICachedLexicographicSet``` |
-| ```GetCachedString()``` | Binary-safe string | String | ```IEnumerable<byte>``` | ```ICachedString``` |
+| CacheContext method | Description | Redis object | Common interface |
+| ------------ | ---------------- | -------------- | ------------------- |
+| ```GetCachedList()``` | Double-linked list of objects | List | ```IList<T>``` |
+| ```GetCachedDictionary()``` | Dictionary of values | Hash | ```IDictionary<TK, TV>``` |
+| ```GetCachedSet()``` | Set of unique objects | Set | ```ISet``` |
+| ```GetCachedSortedSet()``` | Set of objects sorted by score | Sorted Set | ```ICollection<T>``` |
+| ```GetCachedBitmap()``` | Binary value | Bitmap | ```ICollection<bool>``` |
+| ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` |
+| ```GetCachedString()``` | Binary-safe string | String | ```IEnumerable<byte>``` |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
