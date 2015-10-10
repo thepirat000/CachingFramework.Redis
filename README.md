@@ -21,7 +21,13 @@
 PM> Install-Package CachingFramework.Redis
 ```
 
-### Configuration
+### Context
+The `Context` class provides all the functionality divided into four categories, each of which is exposed as a property in with the following names:
+- Cache
+- Collections
+- GeoSpatial
+- PubSub
+ 
 #### Default configuration
 Connect to Redis on localhost port 6379:
 ```c#
@@ -32,12 +38,6 @@ var context = new Context();
 var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, 10.0.0.3:7000, connectRetry=10, syncTimeout=5000, abortConnect=false, allowAdmin=true");
 ```
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
-
-The Context class provides all the functionality divided into four categories, each of which exposed as a property in the `Context` class with the following names:
-- Cache
-- Collections
-- GeoSpatial
-- PubSub
 
 ### Adding objects
 
