@@ -6,7 +6,7 @@ The following are the .NET objects provided to handle Redis collections:
 | ------------ | ---------------- | -------------- | ------------------- |
 | ```GetCachedList()``` | Double-linked list of objects | List | ```IList<T>``` |
 | ```GetCachedDictionary()``` | Dictionary of values | Hash | ```IDictionary<TK, TV>``` |
-| ```GetCachedSet()``` | Set of unique objects | Set | ```ISet``` |
+| ```GetCachedSet()``` | Set of unique objects | Set | ```ISet<T>``` |
 | ```GetCachedSortedSet()``` | Set of objects sorted by score | Sorted Set | ```ICollection<T>``` |
 | ```GetCachedBitmap()``` | Binary value | Bitmap | ```ICollection<bool>``` |
 | ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` |
