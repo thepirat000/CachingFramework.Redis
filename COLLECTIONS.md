@@ -14,8 +14,8 @@ The following are the .NET objects provided to handle Redis collections:
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
-var context = new CacheContext();
-ICachedSortedSet<User> sortedSet = context.GetCachedSortedSet<User>("some:key");
+var context = new Context();
+ICachedSortedSet<User> sortedSet = context.Collections.GetCachedSortedSet<User>("some:key");
 ```
 
 # Redis Lists
@@ -23,7 +23,7 @@ ICachedSortedSet<User> sortedSet = context.GetCachedSortedSet<User>("some:key");
 To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetCachedList()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedList<User> list = context.GetCachedList<User>("user:list");
+ICachedList<User> list = context.Collections.GetCachedList<User>("user:list");
 ```
 
 To add elements to the list, use `Add` / `AddRange` / `Insert` / `AddFirst` or `AddLast` methods:
@@ -71,7 +71,7 @@ Mapping between `ICachedList` methods/properties to the Redis commands used:
 To obtain a new (or existing) Redis Set implementing a .NET `ISet`, use the ```GetCachedSet()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedSet<User> set = context.GetCachedSet<User>("user:set");
+ICachedSet<User> set = context.Collections.GetCachedSet<User>("user:set");
 ```
 
 To insert elements to the set, use `Add` or `AddRange` methods:
@@ -104,7 +104,7 @@ Mapping between `ICachedSet` methods/properties to the Redis commands used:
 To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetCachedDictionary()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedDictionary<int, User> hash = context.GetCachedDictionary<int, User>("user:hash");
+ICachedDictionary<int, User> hash = context.Collections.GetCachedDictionary<int, User>("user:hash");
 ```
 
 To add elements to the list, use `Add` or `AddRange` methods:
@@ -140,7 +140,7 @@ Mapping between `ICachedDictionary` methods/properties to the Redis commands use
 To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetCachedSortedSet()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedSortedSet<User> sortedSet = context.GetCachedSortedSet<User>("user:sset");
+ICachedSortedSet<User> sortedSet = context.Collections.GetCachedSortedSet<User>("user:sset");
 ```
 
 To add elements to the sorted set, use `Add` or `AddRange` methods prividing the score of the items as a `double`:
@@ -183,7 +183,7 @@ Mapping between `ICachedSortedSet` methods/properties to the Redis commands used
 To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetCachedBitmap()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedBitmap bitmap = context.GetCachedBitmap("users:visit");
+ICachedBitmap bitmap = context.Collections.GetCachedBitmap("users:visit");
 ```
 
 To get or set bits, use the `GetBit` or `SetBit` methods:
@@ -255,7 +255,7 @@ Mapping between `ICachedBitmap` methods/properties to the Redis commands used:
 To obtain a new (or existing) Redis lexicographical sorted set implementing a .NET `ICollection<string>`, use the ```GetCachedLexicographicSet()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedLexicographicSet lex = context.GetCachedLexicographicSet("autocomplete");
+ICachedLexicographicSet lex = context.Collections.GetCachedLexicographicSet("autocomplete");
 ```
 
 To add elements to the lex sorted set, use `Add` / `AddRange` methods:
@@ -289,7 +289,7 @@ Mapping between `ICachedLexicographicSet` methods/properties to the Redis comman
 To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetCachedString()``` method of the ```CacheContext``` class:
 
 ```c#
-ICachedString cstr = context.GetCachedString("key");
+ICachedString cstr = context.Collections.GetCachedString("key");
 ```
 
 To write to the string use the `SetRange` method:
