@@ -33,7 +33,7 @@ var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, 10.0.0.3:7000, connectR
 ```
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
-The Context class provides all the functionality divided into four categories:
+The Context class provides all the functionality divided into four categories, each of which exposed as a property in the `Context` class with the following names:
 - Cache
 - Collections
 - GeoSpatial
