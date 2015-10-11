@@ -51,8 +51,8 @@ Mapping between `ICachedList` methods/properties to the Redis commands used:
 |`Add(T item)`|[RPUSH](http://redis.io/commands/rpush)|O(1)|
 |`Contains(T item)`|[LRANGE](http://redis.io/commands/lrange)|O(N)|
 |`GetRange(long start, long stop)`|[LRANGE](http://redis.io/commands/lrange)|O(S+M) : S is dist. from HEAD/TAIL|
-|`Insert(long index, T item)`|[LINDEX](http://redis.io/commands/lindex) + [LINSERT](http://redis.io/commands/linsert)|O(N)|
-|`RemoveAt(long index)`|[LINDEX](http://redis.io/commands/lindex) + [LREM](http://redis.io/commands/lrem)|O(N)|
+|`Insert(long index, T item)`|[LSET](http://redis.io/commands/lset) + [LINSERT](http://redis.io/commands/linsert)|O(N)|
+|`RemoveAt(long index)`|[LSET](http://redis.io/commands/lset) + [LREM](http://redis.io/commands/lrem)|O(N)|
 |`this[] get`|[LINDEX](http://redis.io/commands/lindex)|O(N)|
 |`this[] set`|[LSET](http://redis.io/commands/lset)|O(N)|
 |`IndexOf(T item)`|[LINDEX](http://redis.io/commands/lindex)|O(M) : M is the # of elements to traverse|
