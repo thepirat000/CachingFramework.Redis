@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
@@ -101,15 +102,33 @@ namespace CachingFramework.Redis.RedisObjects
             }
         }
         /// <summary>
-        /// Inserts an item to the <see cref="T:System.Collections.Generic.IList`1" /> at the specified index.
+        /// Inserts an item to the list at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index at which <paramref name="item" /> should be inserted.</param>
         /// <param name="item">The object to insert into the <see cref="T:System.Collections.Generic.IList`1" />.</param>
-        public void Insert(long index, T item)
+        public void Insert(long index, T item) 
         {
+            if (index == 0)
+            {
+                AddFirst(item);
+                return;
+            }
+            if (index == Count)
+            {
+                AddLast(item);
+                return;
+            }
+            var tempKey = GetTempKey();
             var db = GetRedisDb();
             var before = db.ListGetByIndex(RedisKey, index);
-            db.ListInsertBefore(RedisKey, before, Serialize(item));
+            if (!before.IsNull)
+            {
+                var batch = db.CreateBatch();
+                batch.ListSetByIndexAsync(RedisKey, index, tempKey);
+                batch.ListInsertBeforeAsync(RedisKey, tempKey, Serialize(item));
+                batch.ListSetByIndexAsync(RedisKey, index + 1, (byte[])before);
+                batch.Execute();
+            }
         }
         /// <summary>
         /// Removes the item at the specified index.
@@ -117,14 +136,14 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="index">The zero-based index of the item to remove.</param>
         public void RemoveAt(long index)
         {
-            var db = GetRedisDb();
-            var value = db.ListGetByIndex(RedisKey, index);
-            if (!value.IsNull)
-            {
-                db.ListRemove(RedisKey, value);
-            }
+            var tempKey = GetTempKey();
+            var batch = GetRedisDb().CreateBatch();
+            batch.ListSetByIndexAsync(RedisKey, index, tempKey);
+            batch.ListRemoveAsync(RedisKey, tempKey, 1);
+            batch.Execute();
         }
         #endregion
+
         #region IList implementation
         /// <summary>
         /// Inserts an item to the <see cref="T:System.Collections.Generic.IList`1" /> at the specified index.
@@ -147,17 +166,25 @@ namespace CachingFramework.Redis.RedisObjects
         /// Gets or sets the element at the specified index.
         /// </summary>
         /// <param name="index">The index.</param>
-        public T this[int index]
+        public T this[long index]
         {
             get
             {
-                var redisValue = GetRedisDb().ListGetByIndex(RedisKey, index);
-                return Deserialize<T>(redisValue);
+                return Deserialize<T>(GetRedisDb().ListGetByIndex(RedisKey, index));
             }
             set
             {
-                Insert(index, value);
+                GetRedisDb().ListSetByIndex(RedisKey, index, Serialize(value));
             }
+        }
+        /// <summary>
+        /// Gets or sets the element at the specified index.
+        /// </summary>
+        /// <param name="index">The index.</param>        
+        public T this[int index]
+        {
+            get { return this[(long) index]; }
+            set { this[(long) index] = value; }
         }
         /// <summary>
         /// Adds an item to the collection (has the same effect as AddLast method).
@@ -251,6 +278,16 @@ namespace CachingFramework.Redis.RedisObjects
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+        #endregion
+
+        #region Private methods
+        /// <summary>
+        /// Gets a temporary key.
+        /// </summary>
+        private string GetTempKey()
+        {
+            return string.Format("TEMP_{0}", Guid.NewGuid());
         }
         #endregion
     }

@@ -22,6 +22,43 @@ namespace CachingFramework.Redis.UnitTest
             _context = Common.GetContextAndFlush();
         }
 
+
+        [TestMethod]
+        public void UT_CacheList_Remove()
+        {
+            string key = "UT_CacheList_Remove";
+            _context.Cache.Remove(key);
+            var lst = _context.Collections.GetCachedList<string>(key);
+            lst.AddRange(new [] { "test", "test", "anothertest" });
+            Assert.AreEqual(3, lst.Count);
+            lst.RemoveAt(0);
+            Assert.AreEqual(2, lst.Count);
+            Assert.AreEqual("test", lst[0]);
+            Assert.AreEqual("anothertest", lst[1]);
+        }
+
+        [TestMethod]
+        public void UT_CacheList_Insert()
+        {
+            string key = "UT_CacheList_Insert";
+            _context.Cache.Remove(key);
+            var rl = _context.Collections.GetCachedList<string>(key);
+            rl.Insert(0, "test");
+            rl.Insert(0, "test");
+            rl.Insert(0, "test");
+            Assert.AreEqual(3, rl.Count);
+            rl.Insert(2, "test2");
+            Assert.AreEqual(4, rl.Count);
+            Assert.AreEqual("test", rl[0]);
+            Assert.AreEqual("test2", rl[2]);
+            rl.Insert(rl.Count, "LAST");
+            Assert.AreEqual(5, rl.Count);
+            Assert.AreEqual("LAST", rl[rl.Count - 1]);
+            rl[rl.Count - 1] = "NEW LAST";
+            Assert.AreEqual(5, rl.Count);
+            Assert.AreEqual("NEW LAST", rl[rl.Count - 1]);
+        }
+
         [TestMethod]
         public void UT_CacheListObject()
         {

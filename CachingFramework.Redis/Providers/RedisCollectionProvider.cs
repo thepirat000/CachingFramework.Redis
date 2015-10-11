@@ -5,16 +5,16 @@ using CachingFramework.Redis.RedisObjects;
 namespace CachingFramework.Redis.Providers
 {
     /// <summary>
-    /// Cached Collection provider using Redis
+    /// Collection provider using Redis
     /// </summary>
-    internal class RedisCachedCollectionProvider : RedisProviderBase, ICollectionProvider
+    internal class RedisCollectionProvider : RedisProviderBase, ICollectionProvider
     {
         #region Constructor
         /// <summary>
-        /// Initializes a new instance of the <see cref="RedisCachedCollectionProvider"/> class.
+        /// Initializes a new instance of the <see cref="RedisCollectionProvider"/> class.
         /// </summary>
         /// <param name="context">The context.</param>
-        public RedisCachedCollectionProvider(RedisProviderContext context)
+        public RedisCollectionProvider(RedisProviderContext context)
             : base(context)
         {
         }

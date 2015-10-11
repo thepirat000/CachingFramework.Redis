@@ -68,7 +68,7 @@
       <DependentUpon>LuaScriptResource.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Providers\RedisCachedCollectionProvider.cs" />
+    <Compile Include="Providers\RedisCollectionProvider.cs" />
     <Compile Include="Providers\RedisCacheProvider.cs" />
     <Compile Include="Providers\RedisGeoProvider.cs" />
     <Compile Include="Providers\RedisProviderBase.cs" />

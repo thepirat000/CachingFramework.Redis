@@ -60,5 +60,10 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// </summary>
         /// <param name="index">The zero-based index of the item to remove.</param>
         void RemoveAt(long index);
+        /// <summary>
+        /// Gets or sets the element at the specified index.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        T this[long index] { get; set; }
     }
 }
