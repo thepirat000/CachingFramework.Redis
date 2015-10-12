@@ -50,6 +50,15 @@ namespace CachingFramework.Redis.RedisObjects
 
         #region ICachedString implementation
         /// <summary>
+        /// Appends the value at the end of the string. 
+        /// Returns the length of the string after the append operation.
+        /// </summary>
+        /// <param name="value">The value to append.</param>
+        public long Append(string value)
+        {
+            return GetRedisDb().StringAppend(RedisKey, value);
+        }
+        /// <summary>
         /// Gets the <see cref="System.String"/> with the specified start.
         /// </summary>
         /// <param name="start">The start.</param>
@@ -74,9 +83,9 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="offset">The zero-based offset in bytes.</param>
         /// <param name="item">The string to write.</param>
         /// <returns>The length of the string after it was modified by the command</returns>
-        public long SetRange(long offset, string item)
+        public long SetRange(long offset, string value)
         {
-            return (long)GetRedisDb().StringSetRange(RedisKey, offset, item);
+            return (long)GetRedisDb().StringSetRange(RedisKey, offset, value);
         }
         /// <summary>
         /// Returns the substring of the string value stored at key, determined by the offsets start and stop (both are inclusive).

@@ -9,14 +9,19 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     public interface ICachedString : IEnumerable<byte>
     {
         /// <summary>
+        /// Appends the value at the end of the string. 
+        /// </summary>
+        /// <param name="value">The value to append.</param>
+        long Append(string value);
+        /// <summary>
         /// Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value. 
         /// If the offset is larger than the current length of the string at key, the string is padded with zero-bytes to make offset fit. 
         /// Non-existing keys are considered as empty strings, so this command will make sure it holds a string large enough to be able to set value at offset.
         /// </summary>
         /// <param name="offset">The zero-based offset in bytes.</param>
-        /// <param name="item">The string to write.</param>
+        /// <param name="value">The string to write.</param>
         /// <returns>The length of the string after it was modified by the command</returns>
-        long SetRange(long offset, string item);
+        long SetRange(long offset, string value);
         /// <summary>
         /// Returns the substring of the string value stored at key, determined by the offsets start and stop (both are inclusive). 
         /// Negative offsets can be used in order to provide an offset starting from the end of the string. So -1 means the last character.
