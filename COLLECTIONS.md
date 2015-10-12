@@ -318,8 +318,9 @@ Mapping between `ICachedString` methods/properties to the Redis commands used:
 
 |ICachedString interface|Redis command|Time complexity|
 |------|------|-------|
+|`Append(string value)`|[APPEND](http://redis.io/commands/append)|O(1)|
 |`GetRange(long start, long stop)`|[GETRANGE](http://redis.io/commands/getrange)|O(M) : M is the length of the returned string |
-|`SetRange(long offset, string item)`|[SETRANGE](http://redis.io/commands/setrange)|O(1)|
+|`SetRange(long offset, string value)`|[SETRANGE](http://redis.io/commands/setrange)|O(1)|
 |`Length`|[STRLEN](http://redis.io/commands/strlen)|O(1)|
 
 
