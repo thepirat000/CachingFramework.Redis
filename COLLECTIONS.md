@@ -60,11 +60,11 @@ Mapping between `ICachedList` methods/properties to the Redis commands used:
 |`Clear()`|[DEL](http://redis.io/commands/del)|O(1)|
 |`AddFirst(T item)`|[LPUSH](http://redis.io/commands/lpush)|O(1)|
 |`AddLast(T item)`|[RPUSH](http://redis.io/commands/rpush)|O(1)|
-|`RemoveFirst()`|[LPOP](http://redis.io/commands/lpop)|O(1)|
-|`RemoveLast()`|[RPOP](http://redis.io/commands/rpop)|O(1)|
+|`PopFirst()`|[LPOP](http://redis.io/commands/lpop)|O(1)|
+|`PopLast()`|[RPOP](http://redis.io/commands/rpop)|O(1)|
 |`Count`|[LLEN](http://redis.io/commands/llen)|O(1)|
-|`First`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
-|`Last`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
+|`FirstOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
+|`LastOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
 
 # Redis Sets
 
