@@ -398,8 +398,6 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(count, byRank.Count);
             Assert.AreEqual(12.34, byRank[1].Score);
             Assert.AreEqual(double.NegativeInfinity, byRank[0].Score);
-            // This seems to be a StackExhange.Redis issue: https://github.com/StackExchange/StackExchange.Redis/issues/287
-            //Assert.AreEqual(double.PositiveInfinity, byRank[3].Score);
 
             var byScore = ss.GetRangeByScore(12.34, 23.449).ToList();
             Assert.AreEqual(1, byScore.Count);
@@ -408,6 +406,25 @@ namespace CachingFramework.Redis.UnitTest
             byScore = ss.GetRangeByScore(12.34, 23.45).ToList();
             Assert.AreEqual(2, byScore.Count);
             Assert.AreEqual(users[1].Id, byScore[1].Value.Id);
+        }
+
+        [TestMethod]
+        public void UT_CacheSortedSet_SE_Issue287()
+        {
+            var key = "UT_CacheSortedSet_SE_Issue287";
+            _context.Cache.Remove(key);
+            var ss = _context.Collections.GetCachedSortedSet<User>(key);
+            var users = GetUsers();
+
+            ss.Add(double.NegativeInfinity, users[3]);
+            ss.Add(double.PositiveInfinity, users[2]);
+
+            var byRank = ss.GetRangeByRank().ToList();
+            Assert.AreEqual(double.NegativeInfinity, byRank[0].Score);
+            // This is a StackExhange.Redis bug: https://github.com/StackExchange/StackExchange.Redis/issues/287
+            // This was corrected and should be included in the next SE.Redis version
+            Assert.AreEqual(double.NegativeInfinity, byRank[0].Score);
+            Assert.AreEqual(double.PositiveInfinity, byRank[1].Score);
         }
 
         [TestMethod]

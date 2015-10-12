@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CachingFramework.Redis")]
-[assembly: AssemblyDescription("Distributed caching based on StackExchange.Redis and Redis. Includes support for tagging, cache invalidation and is cluster-compatible.")]
+[assembly: AssemblyDescription("Distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Federico Colombo")]
 [assembly: AssemblyProduct("CachingFramework.Redis")]
