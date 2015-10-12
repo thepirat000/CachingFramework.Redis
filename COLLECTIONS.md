@@ -292,24 +292,24 @@ To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte
 ICachedString cstr = context.Collections.GetCachedString("key");
 ```
 
-To write to the string use the `SetRange` method:
+To append to the string use the `Append` method:
 
 ```c#
-cstr.SetRange(0, "Some text");
+cstr.Append("Hello world!");
 ```
 
-To write starting at a specific position:
+To write starting at a specific position use the `SetRange` method:
 ```c#
-cstr.SetRange(5, "T");
+cstr.SetRange(6, "WORLD");
 ```
 
 To read from the string, use the `GetRange` method or the indexed property:
 ```c#
-string s = cstr.GetRange(0, -1);   // This will return the entire string: "Some Text"
+string s = cstr.GetRange(0, -1);   // will return the entire string.
 ```
 
 ```c#
-string s = cstr[0, -1];   // This will return the entire string: "Some Text"
+string s = cstr[0, -1];   // will return the entire string.
 ```
 
 ## ICachedString mapping to Redis String
