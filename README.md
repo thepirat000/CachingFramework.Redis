@@ -49,7 +49,7 @@ User value = new User() { Id = 1 };  // any serializable object
 context.Cache.SetObject(redisKey, value);
 ```
 
-#### Add a single object with tags
+#### Add a single object related to multiple tags
 Add a single object to the cache and associate it with tags *tag1* and *tag2*:
 ```c#
 context.Cache.SetObject(redisKey, value, new[] { "tag1", "tag2" });
@@ -75,16 +75,16 @@ User user = context.Cache.GetObject<User>(redisKey);
 context.Cache.Remove(redisKey);
 ```
 
-#### Invalidate by tag
-Remove all the keys related to *tag1*:
+#### Invalidate keys by multiple tags
+Remove all the keys related to *tag1* or *tag2*:
 ```c#
-context.Cache.InvalidateKeysByTag("tag1");
+context.Cache.InvalidateKeysByTag("tag1", "tag2");
 ```
 
 #### Get objects by tag
-Get all the objects related to *tag1*. Assuming all the keys related to the tag are of type `User`:
+Get all the objects related to *tag1* or *tag2*. Assuming all the keys related to the tags are of type `User`:
 ```c#
-IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("tag1");
+IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("tag1", "tag2");
 ```
 
 ### Fetching objects
