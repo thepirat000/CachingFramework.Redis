@@ -59,6 +59,15 @@ namespace CachingFramework.Redis.RedisObjects
             return GetRedisDb().StringAppend(RedisKey, value);
         }
         /// <summary>
+        /// Overwrites the entire string stored at key. 
+        /// </summary>
+        /// <param name="value">The new string to write.</param>
+        /// <returns>The length of the string after it was modified by the command</returns>
+        public long Set(string value)
+        {
+            return GetRedisDb().StringSet(RedisKey, value);
+        }
+        /// <summary>
         /// Gets the <see cref="System.String"/> with the specified start.
         /// </summary>
         /// <param name="start">The start.</param>

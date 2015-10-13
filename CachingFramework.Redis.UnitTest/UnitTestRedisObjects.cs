@@ -668,6 +668,9 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(10, cs.Append("def"));
             Assert.AreEqual("abcTestdef", cs.ToString());
 
+            cs.Set("new string");
+            Assert.AreEqual("new string", cs.ToString());
+
         }
 
         [TestMethod]
