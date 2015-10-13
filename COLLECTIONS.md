@@ -309,7 +309,7 @@ string s = cstr.GetRange(0, -1);   // will return the entire string.
 ```
 
 ```c#
-string s = cstr[0, -1];   // will return the entire string.
+string s = cstr[6, 8];   // will return the string "WOR".
 ```
 
 ## ICachedString mapping to Redis String
@@ -322,6 +322,5 @@ Mapping between `ICachedString` methods/properties to the Redis commands used:
 |`GetRange(long start, long stop)`|[GETRANGE](http://redis.io/commands/getrange)|O(M) : M is the length of the returned string |
 |`SetRange(long offset, string value)`|[SETRANGE](http://redis.io/commands/setrange)|O(1)|
 |`Length`|[STRLEN](http://redis.io/commands/strlen)|O(1)|
-
-
-
+|`IncrementBy(long increment)`|[INCRBY](http://redis.io/commands/incrby)|O(1)|
+|`IncrementByFloat(double increment)`|[INCRBYFLOAT](http://redis.io/commands/incrbyfloat)|O(1)|
