@@ -17,8 +17,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// Overwrites the entire string stored at key. 
         /// </summary>
         /// <param name="value">The new string to write.</param>
-        /// <returns>The length of the string after it was modified by the command</returns>
-        long Set(string value);
+        void Set(string value);
         /// <summary>
         /// Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value. 
         /// If the offset is larger than the current length of the string at key, the string is padded with zero-bytes to make offset fit. 
