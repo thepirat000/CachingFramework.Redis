@@ -8,7 +8,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// <summary>
     /// Managed string using a Redis string.
     /// </summary>
-    internal class RedisString : RedisBaseObject, ICachedString, IEnumerable<byte>
+    internal class RedisString : RedisBaseObject, IRedisString, IEnumerable<byte>
     {
         #region Constructors
         /// <summary>
@@ -48,7 +48,7 @@ namespace CachingFramework.Redis.RedisObjects
         }
         #endregion
 
-        #region ICachedString implementation
+        #region IRedisString implementation
         /// <summary>
         /// Appends the value at the end of the string. 
         /// Returns the length of the string after the append operation.

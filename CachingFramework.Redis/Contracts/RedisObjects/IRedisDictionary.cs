@@ -5,7 +5,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     /// <summary>
     /// Managed dictionary using a Redis Hash
     /// </summary>
-    public interface ICachedDictionary<TK, TV> : IDictionary<TK, TV>, IRedisObject
+    public interface IRedisDictionary<TK, TV> : IDictionary<TK, TV>, IRedisObject
     {
         /// <summary>
         /// Adds multiple elements to the dictionary.

@@ -6,7 +6,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     /// Managed ICollection using a Redis Sorted Set
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ICachedSortedSet<T> : IRedisObject, ICollection<T> 
+    public interface IRedisSortedSet<T> : IRedisObject, ICollection<T> 
     {
         /// <summary>
         /// Adds the specified member with the specified score to the sorted set stored at key. 

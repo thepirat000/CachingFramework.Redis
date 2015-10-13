@@ -9,7 +9,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// <summary>
     /// Managed string collection using a Redis Sorted Set with lexicographical order
     /// </summary>
-    internal class RedisLexicographicSet : RedisBaseObject, ICachedLexicographicSet, ICollection<string>
+    internal class RedisLexicographicSet : RedisBaseObject, IRedisLexicographicSet, ICollection<string>
     {
         #region Constructors
         /// <summary>
@@ -24,7 +24,7 @@ namespace CachingFramework.Redis.RedisObjects
         }
         #endregion
 
-        #region ICachedLexicographicSet implementation
+        #region IRedisLexicographicSet implementation
         /// <summary>
         /// Adds a range of string values to the set.
         /// </summary>

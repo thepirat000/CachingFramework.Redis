@@ -6,7 +6,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     /// Managed string using a Redis string.
     /// Redis Strings are limited to 512 megabytes
     /// </summary>
-    public interface ICachedString : IEnumerable<byte>
+    public interface IRedisString : IEnumerable<byte>
     {
         /// <summary>
         /// Appends the value at the end of the string. 

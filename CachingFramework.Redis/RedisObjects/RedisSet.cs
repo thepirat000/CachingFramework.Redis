@@ -10,7 +10,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// <summary>
     /// Managed collection using a Redis Sorted Set
     /// </summary>
-    internal class RedisSet<T> : RedisBaseObject, ICachedSet<T>, ISet<T>
+    internal class RedisSet<T> : RedisBaseObject, IRedisSet<T>, ISet<T>
     {
         #region Constructors
         /// <summary>
@@ -24,7 +24,7 @@ namespace CachingFramework.Redis.RedisObjects
         {
         }
         #endregion
-        #region ICachedSet implementation
+        #region IRedisSet implementation
         /// <summary>
         /// Adds the specified items.
         /// </summary>

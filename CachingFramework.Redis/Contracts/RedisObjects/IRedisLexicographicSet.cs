@@ -5,7 +5,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     /// <summary>
     /// Managed collection of strings using Redis sorted set
     /// </summary>
-    public interface ICachedLexicographicSet : ICollection<string>
+    public interface IRedisLexicographicSet : ICollection<string>
     {
         /// <summary>
         /// Adds a range of string values to the set.

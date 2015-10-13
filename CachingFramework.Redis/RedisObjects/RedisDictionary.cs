@@ -10,7 +10,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// <summary>
     /// Managed dictionary using a Redis Hash
     /// </summary>
-    internal class RedisDictionary<TK, TV> : RedisBaseObject, ICachedDictionary<TK, TV>, IDictionary<TK, TV>
+    internal class RedisDictionary<TK, TV> : RedisBaseObject, IRedisDictionary<TK, TV>, IDictionary<TK, TV>
     {
         #region Constructors
         /// <summary>
@@ -24,7 +24,7 @@ namespace CachingFramework.Redis.RedisObjects
         {
         }
         #endregion
-        #region ICachedDictionary implementation
+        #region IRedisDictionary implementation
         /// <summary>
         /// Adds multiple elements to the dictionary.
         /// </summary>

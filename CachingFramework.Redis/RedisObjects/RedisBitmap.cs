@@ -9,7 +9,7 @@ using StackExchange.Redis;
 
 namespace CachingFramework.Redis.RedisObjects
 {
-    internal class RedisBitmap : RedisBaseObject, ICachedBitmap, ICollection<bool>
+    internal class RedisBitmap : RedisBaseObject, IRedisBitmap, ICollection<bool>
     {
         #region fields
         private const byte ByteSize = 8;
@@ -27,7 +27,7 @@ namespace CachingFramework.Redis.RedisObjects
         }
         #endregion
 
-        #region ICachedBitmap implementation
+        #region IRedisBitmap implementation
         /// <summary>
         /// Sets or clears the bit at offset. The bit is either set or cleared depending on <param name="bit"></param>.
         /// When key does not exist, a new string value is created. The string is grown to make sure it can hold a bit at offset.
@@ -103,7 +103,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         /// <param name="start">The start position (in bytes)</param>
         /// <param name="end">The end position (in bytes)</param>
-        long ICachedBitmap.Count(long start, long end)
+        long IRedisBitmap.Count(long start, long end)
         {
             return BitCount(start, end);
         }

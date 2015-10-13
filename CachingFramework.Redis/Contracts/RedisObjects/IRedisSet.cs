@@ -6,7 +6,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     /// <summary>
     /// Managed HashSet using a Redis Set
     /// </summary>
-    public interface ICachedSet<T> : ISet<T>, IRedisObject
+    public interface IRedisSet<T> : ISet<T>, IRedisObject
     {
         /// <summary>
         /// Adds multiple elements to the set.

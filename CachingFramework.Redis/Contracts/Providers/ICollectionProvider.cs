@@ -8,44 +8,44 @@ namespace CachingFramework.Redis.Contracts.Providers
     public interface ICollectionProvider
     {
         /// <summary>
-        /// Returns an ICachedList implemented using a Redis List
+        /// Returns an IRedisList implemented using a Redis List
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        ICachedList<T> GetCachedList<T>(string key);
+        IRedisList<T> GetRedisList<T>(string key);
         /// <summary>
-        /// Returns an ICachedDictionary implemented using a Redis Hash
+        /// Returns an IRedisDictionary implemented using a Redis Hash
         /// </summary>
         /// <typeparam name="TKey">The key type</typeparam>
         /// <typeparam name="TValue">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        ICachedDictionary<TKey, TValue> GetCachedDictionary<TKey, TValue>(string key);
+        IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key);
         /// <summary>
-        /// Returns an ICachedSet implemented using a Redis Set
+        /// Returns an IRedisSet implemented using a Redis Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        ICachedSet<T> GetCachedSet<T>(string key);
+        IRedisSet<T> GetRedisSet<T>(string key);
         /// <summary>
-        /// Returns an ICachedSortedSet implemented using a Redis Sorted Set
+        /// Returns an IRedisSortedSet implemented using a Redis Sorted Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        ICachedSortedSet<T> GetCachedSortedSet<T>(string key);
+        IRedisSortedSet<T> GetRedisSortedSet<T>(string key);
         /// <summary>
         /// Returns an ICollection implemented using a Redis string as a bitmap
         /// </summary>
         /// <param name="key">The redis key</param>
-        ICachedBitmap GetCachedBitmap(string key);
+        IRedisBitmap GetRedisBitmap(string key);
         /// <summary>
         /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
         /// </summary>
         /// <param name="key">The redis key</param>
-        ICachedLexicographicSet GetCachedLexicographicSet(string key);
+        IRedisLexicographicSet GetRedisLexicographicSet(string key);
         /// <summary>
         /// Returns an ICollection(char) implemented using a Redis string
         /// </summary>
         /// <param name="key">The redis key</param>
-        ICachedString GetCachedString(string key);
+        IRedisString GetRedisString(string key);
     }
 }

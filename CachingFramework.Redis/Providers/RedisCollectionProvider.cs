@@ -20,13 +20,13 @@ namespace CachingFramework.Redis.Providers
         }
         #endregion
 
-        #region ICachedObjectsProvider Implementation
+        #region IRedisObjectsProvider Implementation
         /// <summary>
         /// Returns an IList implemented using a Redis List
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public ICachedList<T> GetCachedList<T>(string key)
+        public IRedisList<T> GetRedisList<T>(string key)
         {
             return new RedisList<T>(RedisConnection, key, Serializer);
         }
@@ -36,7 +36,7 @@ namespace CachingFramework.Redis.Providers
         /// <typeparam name="TKey">The key type</typeparam>
         /// <typeparam name="TValue">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public ICachedDictionary<TKey, TValue> GetCachedDictionary<TKey, TValue>(string key)
+        public IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key)
         {
             return new RedisDictionary<TKey, TValue>(RedisConnection, key, Serializer);
         }
@@ -45,7 +45,7 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public ICachedSet<T> GetCachedSet<T>(string key)
+        public IRedisSet<T> GetRedisSet<T>(string key)
         {
             return new RedisSet<T>(RedisConnection, key, Serializer);
         }
@@ -54,7 +54,7 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public ICachedSortedSet<T> GetCachedSortedSet<T>(string key)
+        public IRedisSortedSet<T> GetRedisSortedSet<T>(string key)
         {
             return new RedisSortedSet<T>(RedisConnection, key, Serializer);
         }
@@ -62,7 +62,7 @@ namespace CachingFramework.Redis.Providers
         /// Returns an ICollection implemented using a Redis string as a bitmap
         /// </summary>
         /// <param name="key">The redis key</param>
-        public ICachedBitmap GetCachedBitmap(string key)
+        public IRedisBitmap GetRedisBitmap(string key)
         {
             return new RedisBitmap(RedisConnection, key, Serializer);
         }
@@ -70,7 +70,7 @@ namespace CachingFramework.Redis.Providers
         /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
         /// </summary>
         /// <param name="key">The redis key</param>
-        public ICachedLexicographicSet GetCachedLexicographicSet(string key)
+        public IRedisLexicographicSet GetRedisLexicographicSet(string key)
         {
             return new RedisLexicographicSet(RedisConnection, key, Serializer);
         }
@@ -78,7 +78,7 @@ namespace CachingFramework.Redis.Providers
         /// Returns an ICollection(char) implemented using a Redis string
         /// </summary>
         /// <param name="key">The redis key</param>
-        public ICachedString GetCachedString(string key)
+        public IRedisString GetRedisString(string key)
         {
             return new RedisString(RedisConnection, key, Serializer);
         }

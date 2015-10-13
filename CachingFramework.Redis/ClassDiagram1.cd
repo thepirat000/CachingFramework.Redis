@@ -35,7 +35,7 @@
     <Members>
       <Method Name="BitCount" Hidden="true" />
       <Field Name="ByteSize" Hidden="true" />
-      <Method Name="ICachedBitmap.Count" Hidden="true" />
+      <Method Name="IRedisBitmap.Count" Hidden="true" />
       <Method Name="ICollection&lt;bool&gt;.Contains" Hidden="true" />
       <Property Name="ICollection&lt;bool&gt;.Count" Hidden="true" />
       <Method Name="RedisBitmap" Hidden="true" />

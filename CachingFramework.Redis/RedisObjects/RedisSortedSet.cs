@@ -10,7 +10,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// Managed collection using a Redis Sorted Set
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class RedisSortedSet<T> : RedisBaseObject, ICachedSortedSet<T>, ICollection<T>
+    internal class RedisSortedSet<T> : RedisBaseObject, IRedisSortedSet<T>, ICollection<T>
     {
         #region Constructors
         /// <summary>
@@ -25,7 +25,7 @@ namespace CachingFramework.Redis.RedisObjects
         }
         #endregion
 
-        #region ICachedSortedSet implementation
+        #region IRedisSortedSet implementation
         /// <summary>
         /// Adds the specified member with the specified score to the sorted set stored at key. 
         /// If key does not exist, a new sorted set with the specified member as sole member is created, like if the sorted set was empty. 

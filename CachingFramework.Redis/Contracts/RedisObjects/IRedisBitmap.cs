@@ -9,7 +9,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     /// <summary>
     /// Managed collection of bools using Redis bitmaps
     /// </summary>
-    public interface ICachedBitmap : ICollection<bool>, IRedisObject
+    public interface IRedisBitmap : ICollection<bool>, IRedisObject
     {
         /// <summary>
         /// Sets or clears the bit at offset. The bit is either set or cleared depending on <param name="bit"></param>.

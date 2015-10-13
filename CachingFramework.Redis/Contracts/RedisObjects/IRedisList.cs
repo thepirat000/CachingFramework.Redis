@@ -5,7 +5,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     /// <summary>
     /// Managed list using a Redis List
     /// </summary>
-    public interface ICachedList<T> : IList<T>, IRedisObject
+    public interface IRedisList<T> : IList<T>, IRedisObject
     {
         /// <summary>
         /// Adds a range of values to the end of the list.

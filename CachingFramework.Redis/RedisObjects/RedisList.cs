@@ -10,7 +10,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// <summary>
     /// Managed list using a Redis List
     /// </summary>
-    internal class RedisList<T> : RedisBaseObject, ICachedList<T>, IList<T>
+    internal class RedisList<T> : RedisBaseObject, IRedisList<T>, IList<T>
     {
         #region Constructors
         /// <summary>
@@ -24,7 +24,7 @@ namespace CachingFramework.Redis.RedisObjects
         {
         }
         #endregion
-        #region ICachedList implementation
+        #region IRedisList implementation
         /// <summary>
         /// Adds a range of values to the end of the list.
         /// </summary>
