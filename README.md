@@ -76,13 +76,13 @@ context.Cache.Remove(redisKey);
 ```
 
 #### Invalidate keys by multiple tags
-Remove all the keys related to *tag1* or *tag2*:
+Remove all the keys related to *tag1* and/or *tag2*:
 ```c#
 context.Cache.InvalidateKeysByTag("tag1", "tag2");
 ```
 
 #### Get objects by tag
-Get all the objects related to *tag1* or *tag2*. Assuming all the keys related to the tags are of type `User`:
+Get all the objects related to *tag1* and/or *tag2*. Assuming all the keys related to the tags are of type `User`:
 ```c#
 IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("tag1", "tag2");
 ```
