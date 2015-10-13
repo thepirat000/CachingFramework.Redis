@@ -130,22 +130,27 @@ Implementations of .NET IList, ISet and IDictionary that internally uses Redis a
 
 #### Get a .NET IList stored as a Redis List
 ```c#
-IList<User> users = context.Collections.GetCachedList<User>(redisKey);
+IList<User> users = context.Collections.GetRedisList<User>(redisKey);
 ```
 
 #### Get a .NET ISet stored as a Redis Set
 ```c#
-ISet<User> users = context.Collections.GetCachedSet<User>(redisKey);
+ISet<User> users = context.Collections.GetRedisSet<User>(redisKey);
 ```
 
 #### Get a .NET ICollection stored as a Redis Sorted Set
 ```c#
-ICollection<User> users = context.Collections.GetCachedSortedSet<User>(redisKey);
+ICollection<User> users = context.Collections.GetRedisSortedSet<User>(redisKey);
 ```
 
 #### Get a .NET IDictionary stored as a Redis Hash
 ```c#
-IDictionary<string, User> users = context.Collections.GetCachedDictionary<string, User>(redisKey);
+IDictionary<string, User> users = context.Collections.GetRedisDictionary<string, User>(redisKey);
+```
+
+#### Get a .NET ICollection<bool> stored as a Redis Bitmap
+```c#
+ICollection<bool> bitmap = context.Collections.GetRedisBitmap(redisKey);
 ```
 
 **For more details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
