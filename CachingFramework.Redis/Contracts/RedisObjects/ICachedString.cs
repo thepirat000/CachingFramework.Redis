@@ -56,5 +56,9 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="increment">The increment value</param>
         /// <returns>The value represented in the string after the increment.</returns>
         double IncrementByFloat(double increment);
+        /// <summary>
+        /// Clears the string
+        /// </summary>
+        void Clear();
     }
 }

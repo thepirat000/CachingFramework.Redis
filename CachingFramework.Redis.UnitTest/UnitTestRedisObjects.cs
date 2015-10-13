@@ -606,7 +606,6 @@ namespace CachingFramework.Redis.UnitTest
             bm.AddRange(new [] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" });
 
             Assert.AreEqual(13, bm.Count);
-
             var suggestions = bm.AutoComplete("t", 3).ToList();
             Assert.AreEqual(3, suggestions.Count);
             Assert.AreEqual("ten", suggestions[0]);
@@ -706,7 +705,8 @@ namespace CachingFramework.Redis.UnitTest
             var big = cs[0, -1];
             Assert.IsTrue(big.EndsWith("test"));
             Assert.AreEqual(i + 4, big.Length);
-            _context.Cache.Remove(key);
+            cs.Clear();
+            Assert.AreEqual(0, cs.Length);
         }
 
         [TestMethod]
