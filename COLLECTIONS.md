@@ -4,26 +4,26 @@ The following are the .NET objects provided to handle Redis collections:
 
 | CacheContext method | Description | Redis object | Common interface |
 | ------------ | ---------------- | -------------- | ------------------- |
-| ```GetCachedList()``` | Double-linked list of objects | List | ```IList<T>``` |
-| ```GetCachedDictionary()``` | Dictionary of values | Hash | ```IDictionary<TK, TV>``` |
-| ```GetCachedSet()``` | Set of unique objects | Set | ```ISet<T>``` |
-| ```GetCachedSortedSet()``` | Set of objects sorted by score | Sorted Set | ```ICollection<T>``` |
-| ```GetCachedBitmap()``` | Binary value | Bitmap | ```ICollection<bool>``` |
-| ```GetCachedLexicographicSet()``` | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` |
-| ```GetCachedString()``` | Binary-safe string | String | ```IEnumerable<byte>``` |
+| ```GetRedisList()``` | Double-linked list of objects | List | ```IList<T>``` |
+| ```GetRedisDictionary()``` | Dictionary of values | Hash | ```IDictionary<TK, TV>``` |
+| ```GetRedisSet()``` | Set of unique objects | Set | ```ISet<T>``` |
+| ```GetRedisSortedSet()``` | Set of objects sorted by score | Sorted Set | ```ICollection<T>``` |
+| ```GetRedisBitmap()``` | Binary value | Bitmap | ```ICollection<bool>``` |
+| ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` |
+| ```GetRedisString()``` | Binary-safe string | String | ```IEnumerable<byte>``` |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
 var context = new Context();
-ICachedSortedSet<User> sortedSet = context.Collections.GetCachedSortedSet<User>("some:key");
+IRedisSortedSet<User> sortedSet = context.Collections.GetRedisSortedSet<User>("some:key");
 ```
 
 # Redis Lists
 
-To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetCachedList()``` method:
+To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetRedisList()``` method:
 
 ```c#
-ICachedList<User> list = context.Collections.GetCachedList<User>("user:list");
+IRedisList<User> list = context.Collections.GetRedisList<User>("user:list");
 ```
 
 To add elements to the list, use `Add` / `AddRange` / `Insert` / `AddFirst` or `AddLast` methods:
@@ -41,11 +41,11 @@ For example, this will return all the elements except the first and the last ele
 IEnumerable<User> range = users.GetRange(1, -2);
 ```
 
-## ICachedList mapping to Redis List
+## IRedisList mapping to Redis List
 
-Mapping between `ICachedList` methods/properties to the Redis commands used:
+Mapping between `IRedisList` methods/properties to the Redis commands used:
 
-|ICachedList interface|Redis command|Time complexity|
+|IRedisList interface|Redis command|Time complexity|
 |------|------|-------|
 |`AddRange(IEnumerable<T> collection)`|[RPUSH](http://redis.io/commands/rpush)|O(M) : M the number of elements to add|
 |`Add(T item)`|[RPUSH](http://redis.io/commands/rpush)|O(1)|
@@ -68,10 +68,10 @@ Mapping between `ICachedList` methods/properties to the Redis commands used:
 
 # Redis Sets
 
-To obtain a new (or existing) Redis Set implementing a .NET `ISet`, use the ```GetCachedSet()``` method:
+To obtain a new (or existing) Redis Set implementing a .NET `ISet`, use the ```GetRedisSet()``` method:
 
 ```c#
-ICachedSet<User> set = context.Collections.GetCachedSet<User>("user:set");
+IRedisSet<User> set = context.Collections.GetRedisSet<User>("user:set");
 ```
 
 To insert elements to the set, use `Add` or `AddRange` methods:
@@ -86,11 +86,11 @@ To check if an element exists, use the `Contains` methos:
 bool exists = set.Contains(user);
 ```
 
-## ICachedSet mapping to Redis Set
+## IRedisSet mapping to Redis Set
 
-Mapping between `ICachedSet` methods/properties to the Redis commands used:
+Mapping between `IRedisSet` methods/properties to the Redis commands used:
 
-|ICachedSet interface|Redis command|Time complexity|
+|IRedisSet interface|Redis command|Time complexity|
 |------|------|-------|
 |`AddRange(IEnumerable<T> collection)`|[SADD](http://redis.io/commands/sadd)|O(M) : M the number of elements to add|
 |`RemoveWhere(Predicate<T> match)`|[SMEMBERS](http://redis.io/commands/smembers) + [SREM](http://redis.io/commands/srem)|O(N)|
@@ -101,10 +101,10 @@ Mapping between `ICachedSet` methods/properties to the Redis commands used:
 
 # Redis Hashes
 
-To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetCachedDictionary()``` method:
+To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetRedisDictionary()``` method:
 
 ```c#
-ICachedDictionary<int, User> hash = context.Collections.GetCachedDictionary<int, User>("user:hash");
+IRedisDictionary<int, User> hash = context.Collections.GetRedisDictionary<int, User>("user:hash");
 ```
 
 To add elements to the list, use `Add` or `AddRange` methods:
@@ -119,11 +119,11 @@ To check if a hash element exists, use `ContainsKey` method:
 bool exists = hash.ContainsKey(1);
 ```
 
-## ICachedDictionary mapping to Redis Hash
+## IRedisDictionary mapping to Redis Hash
 
-Mapping between `ICachedDictionary` methods/properties to the Redis commands used:
+Mapping between `IRedisDictionary` methods/properties to the Redis commands used:
 
-|ICachedDictionary interface|Redis command|Time complexity|
+|IRedisDictionary interface|Redis command|Time complexity|
 |------|------|-------|
 |`AddRange(IEnum<KVP<TK, TV>> items)`|[HMSET](http://redis.io/commands/hmset)|O(M) where M is the number of fields being added|
 |`Add(TK key, TV value)`|[HSET](http://redis.io/commands/hset)|O(1)|
@@ -137,10 +137,10 @@ Mapping between `ICachedDictionary` methods/properties to the Redis commands use
 
 # Redis Sorted Sets
 
-To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetCachedSortedSet()``` method:
+To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetRedisSortedSet()``` method:
 
 ```c#
-ICachedSortedSet<User> sortedSet = context.Collections.GetCachedSortedSet<User>("user:sset");
+IRedisSortedSet<User> sortedSet = context.Collections.GetRedisSortedSet<User>("user:sset");
 ```
 
 To add elements to the sorted set, use `Add` or `AddRange` methods prividing the score of the items as a `double`:
@@ -160,11 +160,11 @@ For example to get elements with score less than or equal to 100:
 var byScore = sortedSet.GetRangeByScore(double.NegativeInfinity, 100.00);
 ```
 
-## ICachedSortedSet mapping to Redis Sorted Set
+## IRedisSortedSet mapping to Redis Sorted Set
 
-Mapping between `ICachedSortedSet` methods/properties to the Redis commands used:
+Mapping between `IRedisSortedSet` methods/properties to the Redis commands used:
 
-|ICachedSortedSet interface|Redis command|Time complexity|
+|IRedisSortedSet interface|Redis command|Time complexity|
 |------|------|-------|
 |`Add(T item, double score)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))
 |`AddRange(IEnu<SortedMember<T>> items)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))
@@ -180,10 +180,10 @@ Mapping between `ICachedSortedSet` methods/properties to the Redis commands used
 
 # Redis Bitmaps
 
-To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetCachedBitmap()``` method:
+To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetRedisBitmap()``` method:
 
 ```c#
-ICachedBitmap bitmap = context.Collections.GetCachedBitmap("users:visit");
+IRedisBitmap bitmap = context.Collections.GetRedisBitmap("users:visit");
 ```
 
 To get or set bits, use the `GetBit` or `SetBit` methods:
@@ -212,7 +212,7 @@ When a user logs in, set the bit to 1 at the offset representing user id:
 void Login(int userId)
 {
     var key = "visits:" + DateTime.Now.ToString("yyyy-MM-dd");
-    var bitmap = _context.GetCachedBitmap(key);
+    var bitmap = _context.GetRedisBitmap(key);
     bitmap.SetBit(userId, true);
 }
 ```
@@ -222,7 +222,7 @@ Get a count of the unique visits for a given date:
 long CountVisits(DateTime date)
 {
     var key = "visits:" + date.ToString("yyyy-MM-dd");
-    var bitmap = _context.GetCachedBitmap(key);
+    var bitmap = _context.GetRedisBitmap(key);
     return bitmap.Count();
 }
 ```
@@ -232,16 +232,16 @@ Determine if a user has logged in a given date:
 bool HasVisited(int userId, DateTime date)
 {
     var key = "visits:" + date.ToString("yyyy-MM-dd");
-    var bitmap = _context.GetCachedBitmap(key);
+    var bitmap = _context.GetRedisBitmap(key);
     return bitmap.GetBit(userId);
 }
 ```
 
-## ICachedBitmap mapping to Redis bitmap
+## IRedisBitmap mapping to Redis bitmap
 
-Mapping between `ICachedBitmap` methods/properties to the Redis commands used:
+Mapping between `IRedisBitmap` methods/properties to the Redis commands used:
 
-|ICachedBitmap interface|Redis command|Time complexity|
+|IRedisBitmap interface|Redis command|Time complexity|
 |------|------|-------|
 |`Add(bool value)`|[APPEND](http://redis.io/commands/append)|O(1)|
 |`SetBit(long offset, bool bit)`|[SETBIT](http://redis.io/commands/setbit)|O(1)|
@@ -252,10 +252,10 @@ Mapping between `ICachedBitmap` methods/properties to the Redis commands used:
 
 # Redis lexicographical Sorted Set
 
-To obtain a new (or existing) Redis lexicographical sorted set implementing a .NET `ICollection<string>`, use the ```GetCachedLexicographicSet()``` method:
+To obtain a new (or existing) Redis lexicographical sorted set implementing a .NET `ICollection<string>`, use the ```GetRedisLexicographicSet()``` method:
 
 ```c#
-ICachedLexicographicSet lex = context.Collections.GetCachedLexicographicSet("autocomplete");
+IRedisLexicographicSet lex = context.Collections.GetRedisLexicographicSet("autocomplete");
 ```
 
 To add elements to the lex sorted set, use `Add` / `AddRange` methods:
@@ -271,11 +271,11 @@ IEnumerable<string> suggestions = lex.AutoComplete("t");
 ```
 Will return an `IEnumerable<string>` alphabetically sorted with the matches (in this case "two" and "three").
 
-## ICachedLexicographicSet mapping to Redis Sorted Set
+## IRedisLexicographicSet mapping to Redis Sorted Set
 
-Mapping between `ICachedLexicographicSet` methods/properties to the Redis commands used:
+Mapping between `IRedisLexicographicSet` methods/properties to the Redis commands used:
 
-|ICachedLexicographicSet interface|Redis command|Time complexity|
+|IRedisLexicographicSet interface|Redis command|Time complexity|
 |------|------|-------|
 |`Add(string item)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
 |`AddRange(IEnu<string> items)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
@@ -286,10 +286,10 @@ Mapping between `ICachedLexicographicSet` methods/properties to the Redis comman
 
 # Redis String
 
-To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetCachedString()``` method:
+To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetRedisString()``` method:
 
 ```c#
-ICachedString cstr = context.Collections.GetCachedString("key");
+IRedisString cstr = context.Collections.GetRedisString("key");
 ```
 
 To append to the string use the `Append` method:
@@ -312,11 +312,11 @@ string s = cstr.GetRange(0, -1);   // will return the entire string.
 string s = cstr[6, 8];   // will return the string "WOR".
 ```
 
-## ICachedString mapping to Redis String
+## IRedisString mapping to Redis String
 
-Mapping between `ICachedString` methods/properties to the Redis commands used:
+Mapping between `IRedisString` methods/properties to the Redis commands used:
 
-|ICachedString interface|Redis command|Time complexity|
+|IRedisString interface|Redis command|Time complexity|
 |------|------|-------|
 |`Append(string value)`|[APPEND](http://redis.io/commands/append)|O(1)|
 |`GetRange(long start, long stop)`|[GETRANGE](http://redis.io/commands/getrange)|O(M) : M is the length of the returned string |
