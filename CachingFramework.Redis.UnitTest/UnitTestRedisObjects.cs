@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using CachingFramework.Redis.Contracts;
-using CachingFramework.Redis.Contracts.RedisObjects;
-using CachingFramework.Redis.RedisObjects;
 using CachingFramework.Redis.Serializers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,7 +19,6 @@ namespace CachingFramework.Redis.UnitTest
         {
             _context = Common.GetContextAndFlush();
         }
-
 
         [TestMethod]
         public void UT_CacheList_Remove()
@@ -105,7 +102,6 @@ namespace CachingFramework.Redis.UnitTest
             rl.Clear();
             Assert.AreEqual(0, rl.Count);
             Assert.AreEqual(0, rl.LastOrDefault());
-
         }
 
         [TestMethod]
@@ -115,16 +111,48 @@ namespace CachingFramework.Redis.UnitTest
             _context.Cache.Remove(key);
             var users = GetUsers();
             var rl = _context.Collections.GetCachedList<User>(key);
+            Assert.IsNull(rl.FirstOrDefault());
+            Assert.IsNull(rl.LastOrDefault());
             rl.AddRange(users);
-            rl.AddFirst(new User() { Id = 0 });
-            rl.AddLast(new User() { Id = 666 });
+            rl.PushFirst(new User() { Id = 0 });
+            rl.PushLast(new User() { Id = 666 });
             Assert.AreEqual(0, rl[0].Id);
-            Assert.AreEqual(0, rl.First.Id);
-            Assert.AreEqual(666, rl.Last.Id);
-            var remf = rl.RemoveFirst();
+            Assert.AreEqual(0, rl.FirstOrDefault().Id);
+            Assert.AreEqual(666, rl.LastOrDefault().Id);
+            Assert.AreEqual(users.Count + 2, rl.Count);
+            var remf = rl.PopFirst();
+            Assert.AreEqual(users.Count + 1, rl.Count);
             Assert.AreEqual(0, remf.Id);
-            var reml = rl.RemoveLast();
+            var reml = rl.PopLast();
+            Assert.AreEqual(users.Count, rl.Count);
             Assert.AreEqual(666, reml.Id);
+        }
+
+        [TestMethod]
+        public void UT_CacheListRemoveAt()
+        {
+            string key = "UT_CacheListRemoveAt";
+            _context.Cache.Remove(key);
+            var rl = _context.Collections.GetCachedList<string>(key);
+            rl.RemoveAt(0);
+            rl.PushLast("test 1");
+            rl.PushLast("test 2");
+            rl.PushLast("test 3");
+            rl.PushLast("test 4");
+            rl.PushLast("test 5");
+
+            rl.RemoveAt(0);
+            Assert.AreEqual(4, rl.Count);
+            Assert.AreEqual("test 2", rl[0]);
+
+            rl.RemoveAt(rl.Count - 1);
+            Assert.AreEqual(3, rl.Count);
+            Assert.AreEqual("test 4", rl.LastOrDefault());
+
+            rl.RemoveAt(1);
+            Assert.AreEqual(2, rl.Count);
+            Assert.AreEqual("test 2", rl.FirstOrDefault());
+            Assert.AreEqual("test 4", rl.LastOrDefault());
         }
 
         [TestMethod]
@@ -252,6 +280,18 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, span.TotalSeconds, 1);
         }
 
+        [TestMethod]
+        public void UT_CacheList_StrObj()
+        {
+            string key = "UT_CacheList_StrObj";
+            _context.Cache.Remove(key);
+            _context.Cache.SetObject<string>(key, "test value 1");
+            var obj = _context.Cache.GetObject<object>(key);
+            Assert.IsTrue(obj is string);
+            _context.Cache.SetObject<string>(key, Encoding.UTF8.GetString(new byte[] { 0x1f, 0x8b }));
+            obj = _context.Cache.GetObject<object>(key);
+            Assert.IsTrue(obj is string);
+        }
 
         [TestMethod]
         public void UT_CacheSetObject()
@@ -669,10 +709,27 @@ namespace CachingFramework.Redis.UnitTest
             _context.Cache.Remove(key);
         }
 
-        public void TestTimeout()
+        [TestMethod]
+        public void UT_CacheString_AsInteger()
         {
-            var ctx = new Context("localhost:6379", new BinarySerializer());
+            var key = "UT_CacheString_AsInteger";
+            _context.Cache.Remove(key);
+            var str = _context.Collections.GetCachedString(key);
+            str.Append((long.MaxValue - 1).ToString());
+            var value = str.IncrementBy(1);
+            Assert.AreEqual(long.MaxValue, value);
+        }
 
+        [TestMethod]
+        public void UT_CacheString_AsFloat()
+        {
+            var key = "UT_CacheString_AsFloat";
+            _context.Cache.Remove(key);
+            var str = _context.Collections.GetCachedString(key);
+            str.Append(Math.PI.ToString());
+            var fract = (double) 1/3;
+            var value = str.IncrementByFloat(fract);
+            Assert.AreEqual(Math.PI + fract, value, 0.000000001);
         }
 
         private List<User> GetUsers()

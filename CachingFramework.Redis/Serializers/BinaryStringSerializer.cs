@@ -1,10 +1,10 @@
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using CachingFramework.Redis.Contracts;
 
-namespace CachingFramework.Redis.UnitTest
+namespace CachingFramework.Redis.Serializers
 {
     /// <summary>
     /// Binary Serializer with GZIP compression with the exception of strings that are encoded UTF-8 and not compressed.
@@ -12,21 +12,7 @@ namespace CachingFramework.Redis.UnitTest
     /// </summary>
     public class BinaryStringSerializer : ISerializer
     {
-        #region Constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BinaryStringSerializer"/> class.
-        /// </summary>
-        /// <param name="compressionEnabled">if set to <c>true</c> the binary serialized items will be GZIP compressed.</param>
-        public BinaryStringSerializer(bool compressionEnabled = true)
-        {
-            _compressionEnabled = compressionEnabled;
-        }
-        #endregion
         #region Fields
-        /// <summary>
-        /// To indicate if the compression es enabled for binary serialization
-        /// </summary>
-        private readonly bool _compressionEnabled;
         /// <summary>
         /// The buffer size
         /// </summary>
@@ -74,7 +60,7 @@ namespace CachingFramework.Redis.UnitTest
             {
                 _formatter.Serialize(mStream, value);
                 var serialized = mStream.ToArray();
-                return _compressionEnabled ? Compress(serialized) : serialized;
+                return Compress(serialized);
             }
         }
         /// <summary>
@@ -84,12 +70,10 @@ namespace CachingFramework.Redis.UnitTest
         /// <returns>System.Object.</returns>
         private object Deserialize(byte[] value)
         {
-            if ((_compressionEnabled && value.Length > 1 && value[0] == 0x1F && value[1] == 0x8B)                   // GZip magic number
-                ||
-                (!_compressionEnabled && value.Length > 1 && value[0] == 0x00 && value[value.Length - 1] == 0x0B))  // Binary serialization "magic" number
+            if (value.Length > 1 && value[0] == 0x1F && value[1] == 0x8B)  // GZip magic number
             {
-                // It's a Binary serialized array
-                using (var memoryStream = new MemoryStream(_compressionEnabled ? Decompress(value) : value))
+                // It's a Binary serialized GZip stream
+                using (var memoryStream = new MemoryStream(Decompress(value)))
                 {
                     return _formatter.Deserialize(memoryStream);
                 }

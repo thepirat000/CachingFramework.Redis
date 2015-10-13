@@ -85,6 +85,7 @@
     <Compile Include="RedisObjects\RedisSortedSet.cs" />
     <Compile Include="RedisObjects\RedisString.cs" />
     <Compile Include="Serializers\BinarySerializer.cs" />
+    <Compile Include="Serializers\BinaryStringSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />

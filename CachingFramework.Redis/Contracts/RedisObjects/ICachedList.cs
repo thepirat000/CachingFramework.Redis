@@ -8,7 +8,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     public interface ICachedList<T> : IList<T>, IRedisObject
     {
         /// <summary>
-        /// Adds a range of values to the list.
+        /// Adds a range of values to the end of the list.
         /// </summary>
         /// <param name="collection">The collection.</param>
         void AddRange(IEnumerable<T> collection);
@@ -16,20 +16,20 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// Adds a new item to the list at the start of the list.
         /// </summary>
         /// <param name="item">The item to add</param>
-        void AddFirst(T item);
+        void PushFirst(T item);
         /// <summary>
         /// Adds a new item to the list at the end of the list (has the same effect as Add method).
         /// </summary>
         /// <param name="item">The item to add</param>
-        void AddLast(T item);
+        void PushLast(T item);
         /// <summary>
-        /// Removes the item at the start of the list and returns the item removed.
+        /// Removes and return the item at the start of the list.
         /// </summary>
-        T RemoveFirst();
+        T PopFirst();
         /// <summary>
-        /// Removes the item at the end of the list and returns the item removed.
+        /// Removes and return the item at the end of the list.
         /// </summary>
-        T RemoveLast();
+        T PopLast();
         /// <summary>
         /// Returns the specified elements of the list stored at key. The offsets start and stop are zero-based indexes, with 0 being the first element of the list (the head of the list), 1 being the next element and so on.
         /// These offsets can also be negative numbers indicating offsets starting at the end of the list. For example, -1 is the last element of the list, -2 the penultimate, and so on.
@@ -44,11 +44,11 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <summary>
         /// Returns the first element of the list, returns the type default if the list contains no elements.
         /// </summary>
-        T First { get; }
+        T FirstOrDefault();
         /// <summary>
         /// Returns the last element of the list, returns the type default if the list contains no elements.
         /// </summary>
-        T Last { get; }
+        T LastOrDefault();
         /// <summary>
         /// Inserts an item to the <see cref="T:System.Collections.Generic.IList`1" /> at the specified index.
         /// </summary>

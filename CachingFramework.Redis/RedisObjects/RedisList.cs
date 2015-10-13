@@ -38,7 +38,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// Adds a new item to the list at the start of the list.
         /// </summary>
         /// <param name="item">The item to add</param>
-        public void AddFirst(T item)
+        public void PushFirst(T item)
         {
             GetRedisDb().ListLeftPush(RedisKey, Serialize(item));
         }
@@ -46,14 +46,14 @@ namespace CachingFramework.Redis.RedisObjects
         /// Adds a new item to the list at the end of the list (has the same effect as Add method).
         /// </summary>
         /// <param name="item">The item to add</param>
-        public void AddLast(T item)
+        public void PushLast(T item)
         {
             GetRedisDb().ListRightPush(RedisKey, Serialize(item));
         }
         /// <summary>
         /// Removes the item at the start of the list and returns the item removed.
         /// </summary>
-        public T RemoveFirst()
+        public T PopFirst()
         {
             var value = GetRedisDb().ListLeftPop(RedisKey);
             return Deserialize<T>(value);
@@ -61,7 +61,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <summary>
         /// Removes the item at the end of the list and returns the item removed.
         /// </summary>
-        public T RemoveLast()
+        public T PopLast()
         {
             var value = GetRedisDb().ListRightPop(RedisKey);
             return Deserialize<T>(value);
@@ -82,24 +82,18 @@ namespace CachingFramework.Redis.RedisObjects
         /// <summary>
         /// Returns the first element of the list, returns the type default if the list contains no elements.
         /// </summary>
-        public T First
+        public T FirstOrDefault()
         {
-            get
-            {
-                var value = GetRedisDb().ListGetByIndex(RedisKey, 0);
-                return Deserialize<T>(value);
-            }
+            var value = GetRedisDb().ListGetByIndex(RedisKey, 0);
+            return Deserialize<T>(value);
         }
         /// <summary>
         /// Returns the last element of the list, returns the type default if the list contains no elements.
         /// </summary>
-        public T Last
+        public T LastOrDefault()
         {
-            get 
-            {
-                var value = GetRedisDb().ListGetByIndex(RedisKey, -1);
-                return Deserialize<T>(value);
-            }
+            var value = GetRedisDb().ListGetByIndex(RedisKey, -1);
+            return Deserialize<T>(value);
         }
         /// <summary>
         /// Inserts an item to the list at the specified index.
@@ -110,12 +104,12 @@ namespace CachingFramework.Redis.RedisObjects
         {
             if (index == 0)
             {
-                AddFirst(item);
+                PushFirst(item);
                 return;
             }
             if (index == Count)
             {
-                AddLast(item);
+                PushLast(item);
                 return;
             }
             var tempKey = GetTempKey();
@@ -136,6 +130,16 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="index">The zero-based index of the item to remove.</param>
         public void RemoveAt(long index)
         {
+            if (index == 0)
+            {
+                PopFirst();
+                return;
+            }
+            if (index == Count - 1)
+            {
+                PopLast();
+                return;
+            }
             var tempKey = GetTempKey();
             var batch = GetRedisDb().CreateBatch();
             batch.ListSetByIndexAsync(RedisKey, index, tempKey);
@@ -192,7 +196,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
         public void Add(T item)
         {
-            AddLast(item);
+            PushLast(item);
         }
         /// <summary>
         /// Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.

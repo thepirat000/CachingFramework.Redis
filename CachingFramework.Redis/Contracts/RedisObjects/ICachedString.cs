@@ -40,5 +40,21 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="start">The start zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
         /// <param name="stop">The stop zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
         string this[long start, long stop] { get; }
+        /// <summary>
+        /// Increments the number stored at key by <param name="increment"></param>. 
+        /// If the key does not exist, it is set to 0 before performing the operation. 
+        /// An exception is thrown if the key content can not be represented as integer.
+        /// </summary>
+        /// <param name="increment">The increment value</param>
+        /// <returns>The value represented in the string after the increment.</returns>
+        long IncrementBy(long increment);
+        /// <summary>
+        /// Increment the string representing a floating point number stored at key by the specified increment. 
+        /// If the key does not exist, it is set to 0 before performing the operation. 
+        /// An exception is thrown if the key content is not parsable as a double precision floating point number.
+        /// </summary>
+        /// <param name="increment">The increment value</param>
+        /// <returns>The value represented in the string after the increment.</returns>
+        double IncrementByFloat(double increment);
     }
 }

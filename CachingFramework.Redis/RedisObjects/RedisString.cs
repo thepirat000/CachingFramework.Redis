@@ -109,6 +109,30 @@ namespace CachingFramework.Redis.RedisObjects
                 return GetRedisDb().StringLength(RedisKey);
             }
         }
+        /// <summary>
+        /// Increments the number stored at key by <param name="increment"></param>.
+        /// If the key does not exist, it is set to 0 before performing the operation.
+        /// An exception is thrown if the key content can not be represented as integer.
+        /// </summary>
+        /// <param name="increment">The increment value</param>
+        /// <returns>The value represented in the string after the increment.</returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public long IncrementBy(long increment)
+        {
+            return GetRedisDb().StringIncrement(RedisKey, increment);
+        }
+        /// <summary>
+        /// Increment the string representing a floating point number stored at key by the specified increment.
+        /// If the key does not exist, it is set to 0 before performing the operation.
+        /// An exception is thrown if the key content is not parsable as a double precision floating point number.
+        /// </summary>
+        /// <param name="increment">The increment value</param>
+        /// <returns>The value represented in the string after the increment.</returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public double IncrementByFloat(double increment)
+        {
+            return GetRedisDb().StringIncrement(RedisKey, increment);
+        }
         #endregion
     }
 }
