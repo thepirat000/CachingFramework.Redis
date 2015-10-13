@@ -309,7 +309,7 @@ string s = cstr.GetRange(0, -1);   // will return the entire string.
 ```
 
 ```c#
-string s = cstr[0, -1];   // will return the entire string.
+string s = cstr[6, 8];   // will return the string "WOR".
 ```
 
 ## ICachedString mapping to Redis String
