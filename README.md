@@ -49,7 +49,7 @@ User value = new User() { Id = 1 };  // any serializable object
 context.Cache.SetObject(redisKey, value);
 ```
 
-#### Add a single object with tags
+#### Add a single object related to multiple tags
 Add a single object to the cache and associate it with tags *tag1* and *tag2*:
 ```c#
 context.Cache.SetObject(redisKey, value, new[] { "tag1", "tag2" });
@@ -75,16 +75,16 @@ User user = context.Cache.GetObject<User>(redisKey);
 context.Cache.Remove(redisKey);
 ```
 
-#### Invalidate by tag
-Remove all the keys related to *tag1*:
+#### Invalidate keys by multiple tags
+Remove all the keys related to *tag1* and/or *tag2*:
 ```c#
-context.Cache.InvalidateKeysByTag("tag1");
+context.Cache.InvalidateKeysByTag("tag1", "tag2");
 ```
 
 #### Get objects by tag
-Get all the objects related to *tag1*. Assuming all the keys related to the tag are of type `User`:
+Get all the objects related to *tag1* and/or *tag2*. Assuming all the keys related to the tags are of type `User`:
 ```c#
-IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("tag1");
+IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("tag1", "tag2");
 ```
 
 ### Fetching objects
@@ -130,22 +130,27 @@ Implementations of .NET IList, ISet and IDictionary that internally uses Redis a
 
 #### Get a .NET IList stored as a Redis List
 ```c#
-IList<User> users = context.Collections.GetCachedList<User>(redisKey);
+IList<User> users = context.Collections.GetRedisList<User>(redisKey);
 ```
 
 #### Get a .NET ISet stored as a Redis Set
 ```c#
-ISet<User> users = context.Collections.GetCachedSet<User>(redisKey);
+ISet<User> users = context.Collections.GetRedisSet<User>(redisKey);
 ```
 
 #### Get a .NET ICollection stored as a Redis Sorted Set
 ```c#
-ICollection<User> users = context.Collections.GetCachedSortedSet<User>(redisKey);
+ICollection<User> users = context.Collections.GetRedisSortedSet<User>(redisKey);
 ```
 
 #### Get a .NET IDictionary stored as a Redis Hash
 ```c#
-IDictionary<string, User> users = context.Collections.GetCachedDictionary<string, User>(redisKey);
+IDictionary<string, User> users = context.Collections.GetRedisDictionary<string, User>(redisKey);
+```
+
+#### Get a .NET ICollection<bool> stored as a Redis Bitmap
+```c#
+ICollection<bool> bitmap = context.Collections.GetRedisBitmap(redisKey);
 ```
 
 **For more details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
