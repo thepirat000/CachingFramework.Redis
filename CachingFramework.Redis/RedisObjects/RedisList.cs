@@ -24,6 +24,7 @@ namespace CachingFramework.Redis.RedisObjects
         {
         }
         #endregion
+
         #region IRedisList implementation
         /// <summary>
         /// Adds a range of values to the end of the list.

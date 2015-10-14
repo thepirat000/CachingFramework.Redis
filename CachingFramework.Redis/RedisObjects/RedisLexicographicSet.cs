@@ -34,7 +34,7 @@ namespace CachingFramework.Redis.RedisObjects
             GetRedisDb().SortedSetAdd(RedisKey, collection.Select(x => new SortedSetEntry(x, 0)).ToArray());
         }
         /// <summary>
-        /// Returns a list with the strings that starts with the specified <param name="partial"></param> string.
+        /// Returns the strings that starts with the specified <param name="partial"></param> string.
         /// </summary>
         /// <param name="partial">The partial string to match.</param>
         /// <param name="take">The take number for result pagination.</param>
@@ -44,6 +44,14 @@ namespace CachingFramework.Redis.RedisObjects
             return GetRedisDb()
                     .SortedSetRangeByValue(RedisKey, partial, partial + (char) 255, Exclude.None, 0, take)
                     .Select(value => (string)value);
+        }
+        /// <summary>
+        /// Iterates over the strings that matches the specified glob-style pattern.
+        /// </summary>
+        /// <param name="pattern">The glob-style pattern.</param>
+        public IEnumerable<string> Match(string pattern)
+        {
+            return GetRedisDb().SortedSetScan(RedisKey, pattern).Select(x => (string) x.Element);
         }
         #endregion
 

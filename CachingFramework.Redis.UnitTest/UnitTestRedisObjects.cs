@@ -601,7 +601,6 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_CacheLexSet";
             _context.Cache.Remove(key);
             var bm = _context.Collections.GetRedisLexicographicSet(key);
-
             bm.Add("zero");
             bm.AddRange(new [] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" });
 
@@ -632,6 +631,13 @@ namespace CachingFramework.Redis.UnitTest
             bm.Remove("zero");
             Assert.IsFalse(bm.Contains("zero"));
             Assert.AreEqual(12, bm.Count);
+
+            Assert.AreEqual(12, bm.Match("*").Count());
+
+            lst = bm.Match("*eve*").ToList();
+            Assert.AreEqual(2, lst.Count);
+            Assert.AreEqual("eleven", lst[0]);
+            Assert.AreEqual("seven", lst[1]);
         }
 
         [TestMethod]

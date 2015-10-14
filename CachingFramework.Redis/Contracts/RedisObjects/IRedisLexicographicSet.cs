@@ -22,5 +22,10 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// Gets the number of elements contained in the collection/>.
         /// </summary>
         new long Count { get; }
+        /// <summary>
+        /// Iterates over the strings that matches the specified glob-style pattern.
+        /// </summary>
+        /// <param name="pattern">The glob-style pattern.</param>
+        IEnumerable<string> Match(string pattern);
     }
 }
