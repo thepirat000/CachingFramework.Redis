@@ -269,7 +269,13 @@ To get a suggestion list from a partial match, like an autocomplete suggestions:
 ```c#
 IEnumerable<string> suggestions = lex.AutoComplete("t");
 ```
-Will return an `IEnumerable<string>` alphabetically sorted with the matches (in this case "two" and "three").
+Will return an `IEnumerable<string>` alphabetically sorted with the strings that starts with 't'.
+
+To match any glob-style pattern, use the `Match` method:
+```c#
+IEnumerable<string> matches = lex.Match("*o");
+```
+Will return the strings that ends with 'o'.
 
 ## IRedisLexicographicSet mapping to Redis Sorted Set
 
@@ -280,6 +286,7 @@ Mapping between `IRedisLexicographicSet` methods/properties to the Redis command
 |`Add(string item)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
 |`AddRange(IEnu<string> items)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
 |`AutoComplete(string partial, long take)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N)+M) : M number of elements being returned|
+|`Match(pattern)`|[ZSCAN](http://redis.io/commands/zscan)|O(1)|
 |`Contains(string item)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N))|
 |`Remove(string item)`|[ZREM](http://redis.io/commands/zrem)|O(log(N))|
 |`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
