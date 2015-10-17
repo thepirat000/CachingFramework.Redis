@@ -39,9 +39,9 @@ var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, 10.0.0.3:7000, connectR
 ```
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
-### Adding objects
+### Adding objects to the cache
 
-#### Add a single object 
+#### Add a single object to the cache
 Add a single object to the cache:
 ```c#
 string redisKey = "user:1";
