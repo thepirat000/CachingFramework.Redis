@@ -282,3 +282,6 @@ For example:
 ```c#
 double km = Distance("London", "Buenos Aires");
 ```
+
+
+##### See also [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file.
