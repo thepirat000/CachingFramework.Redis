@@ -217,7 +217,7 @@ static void Main()
 
 Geospatial API
 =====
-The Geospatial Redis API is not yet available in a stable version of Redis. Download unstable if you want to test these commands.
+The Geospatial Redis API is not yet available in a stable version of Redis. Download [unstable](https://github.com/antirez/redis/archive/unstable.tar.gz) if you want to test these commands.
 
 ### Add a Geospatial item
 Add a user to a geospatial index by its coordinates:
