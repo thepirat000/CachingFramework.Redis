@@ -183,7 +183,7 @@ Each subscription listen to messages of the specified type (or inherited from it
 context.PubSub.Subscribe<User>("entities", user => Console.WriteLine(user.Id));
 context.PubSub.Subscribe<Manager>("entities", mgr => Console.WriteLine(mgr.Id));
 ```
-Subscription of type object will listen to all types:
+Subscription of type `object` will listen to all types:
 ```c#
 context.PubSub.Subscribe<object>("entities", obj => Console.WriteLine(obj));
 ```
