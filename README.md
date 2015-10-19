@@ -288,7 +288,7 @@ HyperLogLog
 The [Redis HyperLogLog implementation](http://antirez.com/news/75) provides a very good approximation of the cardinality of a set using a very small amount of memory.
 
 ### Add elements
-To add elements to the HLL use the `HyperLogLogAdd` method:
+To add elements to the HLL, use the `HyperLogLogAdd` method:
 ```c#
 bool result = context.Cache.HyperLogLogAdd<string>("key", "10.0.0.1");
 ```
