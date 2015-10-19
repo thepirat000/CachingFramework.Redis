@@ -7,7 +7,7 @@
  * **Time-To-Live mechanism** each key can be associated to a TimeSpan defining its time-to-live.
  * **Fully compatible with Redis Cluster** all commands are cluster-safe.
  * **Compressed binary serialization** a generic serialization module (or implement your own serialization).
- * **Redis Strings, List, Sets, Sorted Sets, Hashes and Bitmaps support** as managed [collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md).
+ * **Redis Strings, List, Sets, Sorted Sets, Hashes and Bitmaps supporhyt** as managed [collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md).
  * **Lexicographically sorted sets** for fast string matching and auto-complete suggestion. 
  * **Pub/Sub support** Publish-Subscribe implementation with typed messages.
  * **Geospatial indexes** with radius queries support.
@@ -281,6 +281,44 @@ public double Distance(string address1, string address2)
 For example:
 ```c#
 double km = Distance("London", "Buenos Aires");
+```
+
+HyperLogLog
+=====
+The [Redis HyperLogLog implementation](http://antirez.com/news/75) provides a very good approximation of the cardinality of a set using a very small amount of memory.
+
+### Add elements
+To add elements to the HLL use the `HyperLogLogAdd` method:
+```c#
+bool result = context.Cache.HyperLogLogAdd<string>("key", "10.0.0.1");
+```
+The method returns `True` if the underlying HLL count was modified.
+
+To get the cardinality (the count of unique elements) use the `HyperLogLogCount` method:
+```c#
+long count = context.Cache.HyperLogLogCount("key");
+```
+
+### Count unique logins per day
+Considering a unique login as the Username + IP address combination.
+
+Each time a user login, add the element to the HLL with the `HyperLogLogAdd` method:
+```c#
+public void Login(string userName, string ipAddress)
+{
+    var info = new LoginInfo(userName, ipAddress);
+    var key = "logins:" + DateTime.Now.ToString("yyyyMMdd");
+    context.Cache.HyperLogLogAdd(key, info);
+}
+```
+
+To get the unique login count for a specific date, use the `HyperLogLogCount` method:
+```c#
+public long GetLoginCount(DateTime date)
+{
+    var key = "logins:" + date.ToString("yyyyMMdd");
+    return context.Cache.HyperLogLogCount(key);
+}
 ```
 
 
