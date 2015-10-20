@@ -209,7 +209,7 @@ Set up a bitmap where the key is a function of the day, and each user is identif
 
 When a user logs in, set the bit to 1 at the offset representing user id:
 ```c#
-void Login(int userId)
+void OnLogin(int userId)
 {
     var key = "visits:" + DateTime.Now.ToString("yyyy-MM-dd");
     var bitmap = _context.GetRedisBitmap(key);
