@@ -283,7 +283,7 @@ For example:
 double km = Distance("London", "Buenos Aires");
 ```
 
-HyperLogLog
+HyperLogLog API
 =====
 The [Redis HyperLogLog implementation](http://antirez.com/news/75) provides a very good approximation of the cardinality of a set using a very small amount of memory.
 
@@ -304,7 +304,7 @@ Considering a unique login as the Username + IP address combination.
 
 Each time a user login, add the element to the HLL with the `HyperLogLogAdd` method:
 ```c#
-public void Login(string userName, string ipAddress)
+public void OnLogin(string userName, string ipAddress)
 {
     var info = new LoginInfo(userName, ipAddress);
     var key = "logins:" + DateTime.Now.ToString("yyyyMMdd");
