@@ -319,6 +319,8 @@ string s = cstr.GetRange(0, -1);   // will return the entire string.
 string s = cstr[6, 8];   // will return the string "WOR".
 ```
 
+### Redis string as a number
+
 If the contents of the redis string can be parsed as an integer/double, the value can be changed in one operation with the `IncrementBy` / `IncrementByFloat` methods.
 
 For example to maintain a real-time counter of the users online.
@@ -344,7 +346,6 @@ To get the online counter use the `AsInteger` method:
 ```c#
 long GetOnlineCount()
 {
-    var context = _context;
     return context.Collections.GetRedisString("online:count").AsInteger();
 }
 ```
