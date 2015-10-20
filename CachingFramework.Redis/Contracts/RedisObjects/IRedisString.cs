@@ -65,5 +65,19 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// Clears the string
         /// </summary>
         void Clear();
+        /// <summary>
+        /// Returns the contents of the string as an integer value.
+        /// Returns the <param name="default"></param> when the key does not exists.
+        /// Throws an exception if the string value cannot be parsed as an integer
+        /// </summary>
+        /// <param name="default">The default value to return when the key does not exists (default is 0).</param>
+        long AsInteger(long @default = 0);
+        /// <summary>
+        /// Returns the contents of the string as a floating point value.
+        /// Returns the <param name="default"></param> when the key does not exists.
+        /// Throws an exception if the string value cannot be parsed as a double precision floating point number.
+        /// </summary>
+        /// <param name="default">The default value to return when the key does not exists (default is 0).</param>
+        double AsFloat(double @default = 0);
     }
 }

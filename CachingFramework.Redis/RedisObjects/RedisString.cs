@@ -141,6 +141,20 @@ namespace CachingFramework.Redis.RedisObjects
         {
             return GetRedisDb().StringIncrement(RedisKey, increment);
         }
+
+        public long AsInteger(long @default = 0)
+        {
+            var value = GetRedisDb().StringGet(RedisKey);
+            return value.IsNull ? @default : (long)value;
+        }
+
+        public double AsFloat(double @default = 0)
+        {
+            var value = GetRedisDb().StringGet(RedisKey);
+            return value.IsNull ? @default : (double)value;
+        }
+
+
         #endregion
     }
 }
