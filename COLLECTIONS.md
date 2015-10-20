@@ -267,9 +267,9 @@ lex.AddRange(new [] { "one", "two", "three" });
 
 To get a suggestion list from a partial match, like an autocomplete suggestions:
 ```c#
-IEnumerable<string> suggestions = lex.AutoComplete("t");
+IEnumerable<string> suggestions = lex.AutoComplete("t", 10);
 ```
-Will return an `IEnumerable<string>` alphabetically sorted with the strings that starts with 't'.
+Will return at most 10 elements as an `IEnumerable<string>` alphabetically sorted with the strings that starts with 't'.
 
 To match any glob-style pattern, use the `Match` method:
 ```c#
