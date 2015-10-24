@@ -10,7 +10,7 @@ namespace CachingFramework.Redis.RedisObjects
     /// <summary>
     /// Managed collection using a Redis Sorted Set
     /// </summary>
-    internal class RedisSet<T> : RedisBaseObject, IRedisSet<T>, ISet<T>
+    internal class RedisSet<T> : RedisBaseObject, IRedisSet<T>, ICollection<T>
     {
         #region Constructors
         /// <summary>
@@ -43,7 +43,7 @@ namespace CachingFramework.Redis.RedisObjects
             return (int)GetRedisDb().SetRemove(RedisKey, this.Where(x => match(x)).Select(x => (RedisValue)Serialize(x)).ToArray());
         }
         #endregion
-        #region ISet implementation
+        #region ICollection implementation
         /// <summary>
         /// Adds the specified item.
         /// </summary>
@@ -54,146 +54,7 @@ namespace CachingFramework.Redis.RedisObjects
             var db = GetRedisDb();
             return db.SetAdd(RedisKey, Serialize(item));
         }
-        /// <summary>
-        /// Removes all elements in the specified collection from the current set.
-        /// </summary>
-        /// <param name="other">The other set.</param>
-        public void ExceptWith(IEnumerable<T> other)
-        {
-            var db = GetRedisDb();
-            db.SetRemove(RedisKey, other.Select(x => (RedisValue) Serialize(x)).ToArray());
-        }
-        /// <summary>
-        /// Modifies the current set so that it contains only elements that are also in a specified collection.
-        /// </summary>
-        /// <param name="other">The other set.</param>
-        public void IntersectWith(IEnumerable<T> other)
-        {
-            this.RemoveWhere(x => !other.Contains(x));
-        }
-        /// <summary>
-        /// Determines whether [is proper subset of] [the specified other].
-        /// </summary>
-        /// <param name="other">The collection to copmare to the current set.</param>
-        /// <returns><c>true</c> if [is proper subset of] [the specified other]; otherwise, <c>false</c>.</returns>
-        public bool IsProperSubsetOf(IEnumerable<T> other)
-        {
-            return IsSubsetOf(true, other);
-        }
-        /// <summary>
-        /// Determines whether [is proper superset of] [the specified other].
-        /// </summary>
-        /// <param name="other">The collection to copmare to the current set.</param>
-        /// <returns><c>true</c> if [is proper superset of] [the specified other]; otherwise, <c>false</c>.</returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public bool IsProperSupersetOf(IEnumerable<T> other)
-        {
-            return IsSupersetOf(true, other);
-        }
-        /// <summary>
-        /// Determines whether [is subset of] [the specified other].
-        /// </summary>
-        /// <param name="other">The collection to copmare to the current set.</param>
-        /// <returns><c>true</c> if [is subset of] [the specified other]; otherwise, <c>false</c>.</returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public bool IsSubsetOf(IEnumerable<T> other)
-        {
-            return IsSubsetOf(false, other);
-        }
-        /// <summary>
-        /// Determines whether [is superset of] [the specified other].
-        /// </summary>
-        /// <param name="other">The collection to copmare to the current set.</param>
-        /// <returns><c>true</c> if [is superset of] [the specified other]; otherwise, <c>false</c>.</returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public bool IsSupersetOf(IEnumerable<T> other)
-        {
-            return IsSupersetOf(false, other);
-        }
-        /// <summary>
-        /// Determines whether the current set overlaps with the specified collection.
-        /// </summary>
-        /// <param name="other">The collection to copmare to the current set.</param>
-        /// <returns>true if the current set and other share at least one common element; otherwise, false.</returns>
-        public bool Overlaps(IEnumerable<T> other)
-        {
-            foreach (var item in other)
-            {
-                if (this.Contains(item))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        /// <summary>
-        /// Determines whether the current set and the specified collection contain the same elements.
-        /// </summary>
-        /// <param name="other">The collection to compare to the current set.</param>
-        public bool SetEquals(IEnumerable<T> other)
-        {
-            if (other is ICollection<T>)
-            {
-                return SetEquals((ICollection<T>)other);
-            }
-            int count = 0;
-            foreach (var item in other)
-            {
-                if (!this.Contains(item))
-                {
-                    return false;
-                }
-                count++;
-            }
-            return count == this.Count;
-        }
-        /// <summary>
-        /// Determines whether the current set and the specified collection contain the same elements.
-        /// </summary>
-        /// <param name="other">The collection to compare to the current set.</param>
-        private bool SetEquals(ICollection<T> other)
-        {
-            long cLen = this.Count;
-            long oLen = other.Count;
-            if (oLen != cLen)
-            {
-                return false;
-            }
-            return other.All(this.Contains);
-        }
-        /// <summary>
-        /// Modifies the current set so that it contains only elements that are present either in the current set or in the specified collection, but not both.
-        /// </summary>
-        /// <param name="other">The collection to compare to the current set.</param>
-        public void SymmetricExceptWith(IEnumerable<T> other)
-        {
-            foreach (var item in other)
-            {
-                if (this.Contains(item))
-                {
-                    this.Remove(item);
-                }
-                else
-                {
-                    this.Add(item);
-                }
-            }
-        }
-        /// <summary>
-        /// Modifies the current set so that it contains all elements that are present in the current set, in the specified collection, or in both.
-        /// </summary>
-        /// <param name="other">The other.</param>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public void UnionWith(IEnumerable<T> other)
-        {
-            foreach (var item in other)
-            {
-                if (!this.Contains(item))
-                {
-                    this.Add(item);
-                }
-            }
-        }
+       
         /// <summary>
         /// Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1" />.
         /// </summary>
@@ -266,76 +127,5 @@ namespace CachingFramework.Redis.RedisObjects
             return GetEnumerator();
         }
         #endregion
-        #region Private methods
-        /// <summary>
-        /// Determines whether [is subset of] [the specified proper].
-        /// </summary>
-        /// <param name="proper">if set to <c>true</c> [proper].</param>
-        /// <param name="other">The other.</param>
-        /// <returns><c>true</c> if [is subset of] [the specified proper]; otherwise, <c>false</c>.</returns>
-        private bool IsSubsetOf(bool proper, IEnumerable<T> other)
-        {
-            if (other is ICollection<T>)
-            {
-                return IsSubsetOf(proper, (ICollection<T>)other);
-            }
-            return IsSubsetOf(proper, new HashSet<T>(other));
-        }
-        /// <summary>
-        /// Determines whether [is subset of] [the specified proper].
-        /// </summary>
-        /// <param name="proper">if set to <c>true</c> [proper].</param>
-        /// <param name="other">The other.</param>
-        /// <returns><c>true</c> if [is subset of] [the specified proper]; otherwise, <c>false</c>.</returns>
-        private bool IsSubsetOf(bool proper, ICollection<T> other)
-        {
-            long cLen = this.Count;
-            long oLen = other.Count;
-            if (oLen < cLen)
-            {
-                return false;
-            }
-            if (proper && oLen == cLen)
-            {
-                return false;
-            }
-            return this.All(other.Contains);
-        }
-        /// <summary>
-        /// Determines whether [is superset of] [the specified proper].
-        /// </summary>
-        /// <param name="proper">if set to <c>true</c> [proper].</param>
-        /// <param name="other">The other.</param>
-        /// <returns><c>true</c> if [is superset of] [the specified proper]; otherwise, <c>false</c>.</returns>
-        private bool IsSupersetOf(bool proper, IEnumerable<T> other)
-        {
-            if (other is ICollection<T>)
-            {
-                return IsSupersetOf(proper, (ICollection<T>)other);
-            }
-            return IsSupersetOf(proper, new HashSet<T>(other));
-        }
-        /// <summary>
-        /// Determines whether [is superset of] [the specified proper].
-        /// </summary>
-        /// <param name="proper">if set to <c>true</c> [proper].</param>
-        /// <param name="other">The other.</param>
-        /// <returns><c>true</c> if [is superset of] [the specified proper]; otherwise, <c>false</c>.</returns>
-        private bool IsSupersetOf(bool proper, ICollection<T> other)
-        {
-            long cLen = this.Count;
-            long oLen = other.Count;
-            if (cLen < oLen)
-            {
-                return false;
-            }
-            if (proper && oLen == cLen)
-            {
-                return false;
-            }
-            return other.All(this.Contains);
-        }
-        #endregion
-
     }
 }

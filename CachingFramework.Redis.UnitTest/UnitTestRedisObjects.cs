@@ -324,6 +324,12 @@ namespace CachingFramework.Redis.UnitTest
             // Test Clear
             rs.Clear();
             Assert.AreEqual(0, rs.Count);
+            // Test Remove Where
+            rs.AddRange(new []{  new User() {Id = 3},  new User() {Id = 1},  new User() {Id = 2} });
+            Assert.AreEqual(3, rs.Count);
+            rs.RemoveWhere(u => u.Id <= 2);
+            Assert.AreEqual(1, rs.Count);
+            Assert.IsTrue(rs.Contains(new User() { Id = 3 }));
         }
 
         [TestMethod]
@@ -357,63 +363,6 @@ namespace CachingFramework.Redis.UnitTest
             // Test Count
             Assert.AreEqual(3, abcSet.Count);
             Assert.AreEqual(3, cdeSet.Count);
-
-            // Test ExceptWith
-            abcSet.ExceptWith("AXYZ".ToCharArray());
-            Assert.AreEqual(2, abcSet.Count);
-            Assert.IsFalse(abcSet.Contains('A'));
-            Assert.IsFalse(abcSet.Contains('X'));
-            abcSet.Add('A');
-
-            // Test IntersectWith
-            abcSet.IntersectWith(cdeSet);
-            Assert.AreEqual(1, abcSet.Count);
-            Assert.IsTrue(abcSet.Contains('C'));
-            abcSet.AddRange("AB");
-
-            // Test IsProperSubsetOf
-            Assert.IsFalse(abcSet.IsProperSubsetOf(cdeSet));
-            Assert.IsFalse(abcSet.IsProperSubsetOf(abcSet));
-            Assert.IsTrue(abcSet.IsProperSubsetOf("ABCD"));
-
-            // Test IsProperSupersetOf
-            Assert.IsFalse(abcSet.IsProperSupersetOf(cdeSet));
-            Assert.IsFalse(abcSet.IsProperSupersetOf(abcSet));
-            Assert.IsTrue(abcSet.IsProperSupersetOf("AB"));
-            Assert.IsTrue(abcSet.IsProperSupersetOf("C"));
-
-            // Test IsSubsetOf
-            Assert.IsFalse(abcSet.IsSubsetOf(cdeSet));
-            Assert.IsTrue(abcSet.IsSubsetOf(abcSet));
-            Assert.IsTrue(abcSet.IsSubsetOf("ABCD"));
-
-            // Test IsSupersetOf
-            Assert.IsFalse(abcSet.IsSupersetOf(cdeSet));
-            Assert.IsTrue(abcSet.IsSupersetOf(abcSet));
-            Assert.IsTrue(abcSet.IsSupersetOf("AB"));
-            Assert.IsTrue(abcSet.IsSupersetOf("C"));
-
-            // Test Overlaps
-            Assert.IsTrue(abcSet.Overlaps(cdeSet));
-            Assert.IsTrue(abcSet.Overlaps(abcSet));
-            Assert.IsFalse(abcSet.Overlaps("XYZ"));
-
-            // Test SetEquals
-            Assert.IsFalse(abcSet.SetEquals(cdeSet));
-            Assert.IsTrue(abcSet.SetEquals(abcSet));
-            Assert.IsFalse(abcSet.SetEquals("ABCD"));
-
-            // Test SymmetricExceptWith 
-            abcSet.SymmetricExceptWith(cdeSet);
-            Assert.IsTrue(abcSet.OrderBy(x => x).ToArray().SequenceEqual("ABDE"));
-            abcSet.RemoveWhere(x => "DE".Contains(x));
-            abcSet.Add('C');
-            Assert.AreEqual(3, abcSet.Count);
-            Assert.IsTrue(abcSet.OrderBy(x => x).ToArray().SequenceEqual("ABC"));
-
-            // Test UnionWith
-            abcSet.UnionWith(cdeSet);
-            Assert.IsTrue(abcSet.OrderBy(x => x).ToArray().SequenceEqual("ABCDE"));
 
             abcSet.Clear();
             cdeSet.Clear();
