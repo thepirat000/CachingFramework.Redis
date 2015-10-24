@@ -6,8 +6,8 @@ The following are the .NET objects provided to handle Redis collections:
 | ------------ | ---------------- | -------------- | ------------------- |
 | ```GetRedisList()``` | Double-linked list of objects | List | ```IList<T>``` |
 | ```GetRedisDictionary()``` | Dictionary of values | Hash | ```IDictionary<TK, TV>``` |
-| ```GetRedisSet()``` | Set of unique objects | Set | ```ISet<T>``` |
-| ```GetRedisSortedSet()``` | Set of objects sorted by score | Sorted Set | ```ICollection<T>``` |
+| ```GetRedisSet()``` | Set of unique objects | Set | ```ICollection<T>``` |
+| ```GetRedisSortedSet()``` | Set of unique objects sorted by score | Sorted Set | ```ICollection<T>``` |
 | ```GetRedisBitmap()``` | Binary value | Bitmap | ```ICollection<bool>``` |
 | ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` |
 | ```GetRedisString()``` | Binary-safe string | String | ```IEnumerable<byte>``` |
@@ -68,7 +68,7 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 
 # Redis Sets
 
-To obtain a new (or existing) Redis Set implementing a .NET `ISet`, use the ```GetRedisSet()``` method:
+To obtain a new (or existing) Redis Set implementing a .NET `ICollection`, use the ```GetRedisSet()``` method:
 
 ```c#
 IRedisSet<User> set = context.Collections.GetRedisSet<User>("user:set");
