@@ -1,5 +1,5 @@
 # CachingFramework.Redis
-.NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/)
+.NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) and [Redis](http://redis.io).
 
 ##Features
  * **Tagging mechanism** to store cache items with tags allowing to retrieve or invalidate items by tag.
