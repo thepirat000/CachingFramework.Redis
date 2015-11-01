@@ -65,6 +65,7 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 |`Count`|[LLEN](http://redis.io/commands/llen)|O(1)|
 |`FirstOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
 |`LastOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
+|`Trim(long start, long stop)`|[LTRIM](http://redis.io/commands/ltrim)|O(M) : M is the # of elements to remove|
 
 # Redis Sets
 
