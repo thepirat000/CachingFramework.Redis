@@ -7,7 +7,7 @@
  * **Time-To-Live mechanism** each key can be associated to a TimeSpan defining its time-to-live.
  * **Fully compatible with Redis Cluster** all commands are cluster-safe.
  * **Compressed binary serialization** a generic serialization module (or implement your own serialization).
- * **Redis Strings, List, Sets, Sorted Sets, Hashes and Bitmaps supporhyt** as managed [collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md).
+ * **Redis Strings, List, Sets, Sorted Sets, Hashes and Bitmaps support** as managed [collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md).
  * **Lexicographically sorted sets** for fast string matching and auto-complete suggestion. 
  * **Pub/Sub support** Publish-Subscribe implementation with typed messages.
  * **Geospatial indexes** with radius queries support.
