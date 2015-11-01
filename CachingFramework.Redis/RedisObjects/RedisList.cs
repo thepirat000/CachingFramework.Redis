@@ -74,7 +74,6 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         /// <param name="start">The start.</param>
         /// <param name="stop">The stop.</param>
-        /// <returns>IList{`0}.</returns>
         public IEnumerable<T> GetRange(long start = 0, long stop = -1)
         {
             var db = GetRedisDb();
@@ -146,6 +145,17 @@ namespace CachingFramework.Redis.RedisObjects
             batch.ListSetByIndexAsync(RedisKey, index, tempKey);
             batch.ListRemoveAsync(RedisKey, tempKey, 1);
             batch.Execute();
+        }
+        /// <summary>
+        /// Trim an existing list so that it will contain only the specified range of elements specified. 
+        /// Both start and stop are zero-based indexes, where 0 is the first element of the list (the head), 1 the next element and so on.
+        /// Start and end can also be negative numbers indicating offsets from the end of the list, where -1 is the last element of the list, -2 the penultimate element and so on.
+        /// </summary>
+        /// <param name="start">The start zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
+        /// <param name="stop">The stop zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
+        public void Trim(long start, long stop = -1)
+        {
+            GetRedisDb().ListTrim(RedisKey, start, stop);
         }
         #endregion
 

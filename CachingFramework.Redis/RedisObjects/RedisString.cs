@@ -141,20 +141,30 @@ namespace CachingFramework.Redis.RedisObjects
         {
             return GetRedisDb().StringIncrement(RedisKey, increment);
         }
-
+        /// <summary>
+        /// Returns the contents of the string as an integer value.
+        /// Returns the <param name="default"></param> when the key does not exists.
+        /// Throws an exception if the string value cannot be parsed as an integer
+        /// </summary>
+        /// <param name="default">The default value to return when the key does not exists (default is 0).</param>
+        /// <returns>System.Int64.</returns>
         public long AsInteger(long @default = 0)
         {
             var value = GetRedisDb().StringGet(RedisKey);
             return value.IsNull ? @default : (long)value;
         }
-
+        /// <summary>
+        /// Returns the contents of the string as a floating point value.
+        /// Returns the <param name="default"></param> when the key does not exists.
+        /// Throws an exception if the string value cannot be parsed as a double precision floating point number.
+        /// </summary>
+        /// <param name="default">The default value to return when the key does not exists (default is 0).</param>
+        /// <returns>System.Double.</returns>
         public double AsFloat(double @default = 0)
         {
             var value = GetRedisDb().StringGet(RedisKey);
             return value.IsNull ? @default : (double)value;
         }
-
-
         #endregion
     }
 }

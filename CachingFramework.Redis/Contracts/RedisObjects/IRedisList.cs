@@ -65,5 +65,13 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// </summary>
         /// <param name="index">The index.</param>
         T this[long index] { get; set; }
+        /// <summary>
+        /// Trim an existing list so that it will contain only the specified range of elements specified. 
+        /// Both start and stop are zero-based indexes, where 0 is the first element of the list (the head), 1 the next element and so on.
+        /// Start and end can also be negative numbers indicating offsets from the end of the list, where -1 is the last element of the list, -2 the penultimate element and so on.
+        /// </summary>
+        /// <param name="start">The start zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
+        /// <param name="stop">The stop zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
+        void Trim(long start, long stop = -1);
     }
 }

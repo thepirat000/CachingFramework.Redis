@@ -57,6 +57,21 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [TestMethod]
+        public void UT_CacheList_Trim()
+        {
+            string key = "UT_CacheList_Trim";
+            _context.Cache.Remove(key);
+            var rl = _context.Collections.GetRedisList<int>(key);
+            rl.AddRange(Enumerable.Range(1, 100));
+            Assert.AreEqual(100, rl.Count);
+            rl.Trim(0, 9);
+            Assert.AreEqual(10, rl.Count);
+            Assert.AreEqual(1, rl[0]);
+            Assert.AreEqual(10, rl[-1]);
+        }
+
+
+        [TestMethod]
         public void UT_CacheListObject()
         {
             string key1 = "UT_CacheListObject1";
