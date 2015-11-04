@@ -18,6 +18,8 @@ var context = new Context();
 IRedisSortedSet<User> sortedSet = context.Collections.GetRedisSortedSet<User>("some:key");
 ```
 
+--------------
+
 # Redis Lists
 
 To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetRedisList()``` method:
@@ -67,6 +69,8 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 |`LastOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
 |`Trim(long start, long stop)`|[LTRIM](http://redis.io/commands/ltrim)|O(M) : M is the # of elements to remove|
 
+--------------
+
 # Redis Sets
 
 To obtain a new (or existing) Redis Set implementing a .NET `ICollection`, use the ```GetRedisSet()``` method:
@@ -99,6 +103,8 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 |`Contains(T item)`|[SISMEMBER](http://redis.io/commands/sismember)|O(1)|
 |`Remove(T item)`|[SREM](http://redis.io/commands/srem)|O(1)|
 |`Count`|[SCARD](http://redis.io/commands/scard)|O(1)|
+
+--------------
 
 # Redis Hashes
 
@@ -135,6 +141,8 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 |`Contains(KeyValuePair<TK, TV> item)`|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
 |`Count`|[HLEN](http://redis.io/commands/hlen)|O(1)|
 |`Clear()`|[DEL](http://redis.io/commands/del)|O(1)|
+
+--------------
 
 # Redis Sorted Sets
 
@@ -178,6 +186,8 @@ Mapping between `IRedisSortedSet` methods/properties to the Redis commands used:
 |`RankOf(T item, bool desc)`|[ZRANK](http://redis.io/commands/zrank)|O(log(N))
 |`ScoreOf(T item)`|[ZSCORE](http://redis.io/commands/zscore)|O(1)
 |`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
+
+--------------
 
 # Redis Bitmaps
 
@@ -251,6 +261,8 @@ Mapping between `IRedisBitmap` methods/properties to the Redis commands used:
 |`Contains(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)+[STRLEN](http://redis.io/commands/strlen)|O(N)|
 |`Count`|[BITCOUNT](http://redis.io/commands/bitcount)|O(N)|
 
+--------------
+
 # Redis lexicographical Sorted Set
 
 To obtain a new (or existing) Redis lexicographical sorted set implementing a .NET `ICollection<string>`, use the ```GetRedisLexicographicSet()``` method:
@@ -291,6 +303,8 @@ Mapping between `IRedisLexicographicSet` methods/properties to the Redis command
 |`Contains(string item)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N))|
 |`Remove(string item)`|[ZREM](http://redis.io/commands/zrem)|O(log(N))|
 |`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
+
+--------------
 
 # Redis String
 
