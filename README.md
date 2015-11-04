@@ -13,7 +13,8 @@
  * **Geospatial indexes** with radius queries support.
  * **HyperLogLog algorithm support** to count unique things.
  
- 
+--------------
+
 ## Usage
 
 ### [NuGet](https://www.nuget.org/packages/CachingFramework.Redis/)
@@ -39,6 +40,8 @@ var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, 10.0.0.3:7000, connectR
 ```
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
+--------------
+
 ### Adding objects to the cache
 
 #### Add a single object to the cache
@@ -61,12 +64,16 @@ Add a single object to the cache with a Time-To-Live of 1 day:
 context.Cache.SetObject(redisKey, value, TimeSpan.FromDays(1));
 ```
 
+--------------
+
 ### Getting objects
 
 #### Get a single object
 ```c#
 User user = context.Cache.GetObject<User>(redisKey);
 ```
+
+--------------
 
 ### Removing objects
 
@@ -87,6 +94,8 @@ Get all the objects related to *tag1* and/or *tag2*. Assuming all the keys relat
 IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("tag1", "tag2");
 ```
 
+--------------
+
 ### Fetching objects
 
 #### Fetch an object
@@ -95,6 +104,8 @@ Try to get an object from the cache, inserting it to the cache if it does not ex
 var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id));
 ```
 The method `GetUserFromDatabase` will only be called when the value is not present on the cache, in which case will be added to the cache before returning it.
+
+--------------
 
 ### Hashes
 Hashes are maps composed of fields associated with values, like .NET dictionaries.
@@ -125,6 +136,8 @@ Objects within a hash can be of different types.
 context.Cache.RemoveHashed(redisKey, "user:id:1");
 ```
 
+--------------
+
 ### [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
 Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
 
@@ -154,6 +167,8 @@ ICollection<bool> bitmap = context.Collections.GetRedisBitmap(redisKey);
 ```
 
 **For more details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
+
+--------------
 
 Pub/Sub API
 =====
@@ -214,6 +229,8 @@ static void Main()
     }
 }
 ```
+
+--------------
 
 Geospatial API
 =====
@@ -282,6 +299,8 @@ For example:
 ```c#
 double km = Distance("London", "Buenos Aires");
 ```
+
+--------------
 
 HyperLogLog API
 =====
