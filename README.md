@@ -34,7 +34,7 @@ var context = new Context();
 ```
 #### Custom configuration
 ```c#
-var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, 10.0.0.3:7000, connectRetry=10, syncTimeout=5000, abortConnect=false, allowAdmin=true");
+var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, syncTimeout=5000, abortConnect=false, allowAdmin=true");
 ```
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
