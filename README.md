@@ -123,7 +123,7 @@ Objects within a hash can be of different types.
 ```c#
 context.Cache.RemoveHashed(redisKey, "user:id:1");
 ```
-
+<br/>
 --------------
 
 ### [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
@@ -155,7 +155,7 @@ ICollection<bool> bitmap = context.Collections.GetRedisBitmap(redisKey);
 ```
 
 **For more details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
-
+<br/>
 --------------
 
 Pub/Sub API
@@ -217,7 +217,7 @@ static void Main()
     }
 }
 ```
-
+<br/>
 --------------
 
 Geospatial API
@@ -287,7 +287,7 @@ For example:
 ```c#
 double km = Distance("London", "Buenos Aires");
 ```
-
+<br/>
 --------------
 
 HyperLogLog API
