@@ -15,7 +15,12 @@ The following are the .NET objects provided to handle Redis collections:
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
 var context = new Context();
-IRedisSortedSet<User> sortedSet = context.Collections.GetRedisSortedSet<User>("some:key");
+var sortedSet = context.Collections.GetRedisSortedSet<User>("key");
+```
+
+All the collections exposes the properties `TimeToLive` (TimeSpan) and `Expiration` (DateTime) to get/set the expiration of the entire collection:
+```c#
+sortedSet.TimeToLive = TimeSpan.FromMinutes(60);
 ```
 
 --------------
