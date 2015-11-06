@@ -18,7 +18,7 @@ var context = new Context();
 var sortedSet = context.Collections.GetRedisSortedSet<User>("key");
 ```
 
-All the collections exposes the properties `TimeToLive` (TimeSpan) and `Expiration` (DateTime) to get/set the expiration of the entire collection:
+All the collections exposes the properties `TimeToLive` and `Expiration` (TimeSpan and DateTime) to get/set the expiration of the entire collection:
 ```c#
 sortedSet.TimeToLive = TimeSpan.FromMinutes(60);
 ```
