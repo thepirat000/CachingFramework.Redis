@@ -54,25 +54,25 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 
 |IRedisList interface|Redis command|Time complexity|
 |------|------|-------|
-|`AddRange(IEnumerable<T> collection)`|[RPUSH](http://redis.io/commands/rpush)|O(M) : M the number of elements to add|
 |`Add(T item)`|[RPUSH](http://redis.io/commands/rpush)|O(1)|
-|`Contains(T item)`|[LRANGE](http://redis.io/commands/lrange)|O(N)|
-|`GetRange(long start, long stop)`|[LRANGE](http://redis.io/commands/lrange)|O(S+M) : S is dist. from HEAD/TAIL|
+|`AddRange(IEnumerable<T> collection)`|[RPUSH](http://redis.io/commands/rpush)|O(M) : M the number of elements to add|
+|`AddFirst(T item)`|[LPUSH](http://redis.io/commands/lpush)|O(1)|
+|`AddLast(T item)`|[RPUSH](http://redis.io/commands/rpush)|O(1)|
 |`Insert(long index, T item)`|[LSET](http://redis.io/commands/lset) + [LINSERT](http://redis.io/commands/linsert)|O(N)|
+|`GetRange(long start, long stop)`|[LRANGE](http://redis.io/commands/lrange)|O(S+M) : S is dist. from HEAD/TAIL|
+|`FirstOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
+|`LastOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
+|`PopFirst()`|[LPOP](http://redis.io/commands/lpop)|O(1)|
+|`PopLast()`|[RPOP](http://redis.io/commands/rpop)|O(1)|
+|`Remove(T item)`|[LREM](http://redis.io/commands/lrem)|O(N)|
 |`RemoveAt(long index)`|[LSET](http://redis.io/commands/lset) + [LREM](http://redis.io/commands/lrem)|O(N)|
+|`Contains(T item)`|[LRANGE](http://redis.io/commands/lrange)|O(N)|
+|`Clear()`|[DEL](http://redis.io/commands/del)|O(1)|
 |`this[] get`|[LINDEX](http://redis.io/commands/lindex)|O(N)|
 |`this[] set`|[LSET](http://redis.io/commands/lset)|O(N)|
 |`IndexOf(T item)`|[LINDEX](http://redis.io/commands/lindex)|O(M) : M is the # of elements to traverse|
-|`Remove(T item)`|[LREM](http://redis.io/commands/lrem)|O(N)|
-|`Clear()`|[DEL](http://redis.io/commands/del)|O(1)|
-|`AddFirst(T item)`|[LPUSH](http://redis.io/commands/lpush)|O(1)|
-|`AddLast(T item)`|[RPUSH](http://redis.io/commands/rpush)|O(1)|
-|`PopFirst()`|[LPOP](http://redis.io/commands/lpop)|O(1)|
-|`PopLast()`|[RPOP](http://redis.io/commands/rpop)|O(1)|
-|`Count`|[LLEN](http://redis.io/commands/llen)|O(1)|
-|`FirstOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
-|`LastOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
 |`Trim(long start, long stop)`|[LTRIM](http://redis.io/commands/ltrim)|O(M) : M is the # of elements to remove|
+|`Count`|[LLEN](http://redis.io/commands/llen)|O(1)|
 
 --------------
 
@@ -102,11 +102,13 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 
 |IRedisSet interface|Redis command|Time complexity|
 |------|------|-------|
-|`AddRange(IEnumerable<T> collection)`|[SADD](http://redis.io/commands/sadd)|O(M) : M the number of elements to add|
-|`RemoveWhere(Predicate<T> match)`|[SMEMBERS](http://redis.io/commands/smembers) + [SREM](http://redis.io/commands/srem)|O(N)|
 |`Add(T item)`|[SADD](http://redis.io/commands/sadd)|O(1)|
-|`Contains(T item)`|[SISMEMBER](http://redis.io/commands/sismember)|O(1)|
+|`AddRange(IEnumerable<T> collection)`|[SADD](http://redis.io/commands/sadd)|O(M) : M the number of elements to add|
+|`GetRandomMember()`|[SRANDMEMBER](http://redis.io/commands/srandmember)|O(1)|
+|`Pop()`|[SPOP](http://redis.io/commands/spop)|O(1)|
 |`Remove(T item)`|[SREM](http://redis.io/commands/srem)|O(1)|
+|`RemoveWhere(Predicate<T> match)`|[SMEMBERS](http://redis.io/commands/smembers) + [SREM](http://redis.io/commands/srem)|O(N)|
+|`Contains(T item)`|[SISMEMBER](http://redis.io/commands/sismember)|O(1)|
 |`Count`|[SCARD](http://redis.io/commands/scard)|O(1)|
 
 --------------
@@ -137,15 +139,15 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 
 |IRedisDictionary interface|Redis command|Time complexity|
 |------|------|-------|
-|`AddRange(IEnum<KVP<TK, TV>> items)`|[HMSET](http://redis.io/commands/hmset)|O(M) where M is the number of fields being added|
 |`Add(TK key, TV value)`|[HSET](http://redis.io/commands/hset)|O(1)|
-|`ContainsKey(TK key)`|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
-|`Remove(TK key)`|[HDEL](http://redis.io/commands/hdel)|O(1)|
+|`AddRange(IEnum<KVP<TK, TV>> items)`|[HMSET](http://redis.io/commands/hmset)|O(M) where M is the number of fields being added|
 |`this[] get`|[HGET](http://redis.io/commands/hget)|O(1)|
 |`this[] set`|[HSET](http://redis.io/commands/hget)|O(1)|
-|`Contains(KeyValuePair<TK, TV> item)`|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
-|`Count`|[HLEN](http://redis.io/commands/hlen)|O(1)|
+|`Remove(TK key)`|[HDEL](http://redis.io/commands/hdel)|O(1)|
 |`Clear()`|[DEL](http://redis.io/commands/del)|O(1)|
+|`Contains(KeyValuePair<TK, TV> item)`|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
+|`ContainsKey(TK key)`|[HEXISTS](http://redis.io/commands/hexists)|O(1)|
+|`Count`|[HLEN](http://redis.io/commands/hlen)|O(1)|
 
 --------------
 
@@ -182,11 +184,11 @@ Mapping between `IRedisSortedSet` methods/properties to the Redis commands used:
 |------|------|-------|
 |`Add(T item, double score)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))
 |`AddRange(IEnu<SortedMember<T>> items)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))
-|`CountByScore(double min, double max)`|[ZCOUNT](http://redis.io/commands/zcount)|O(log(N))
 |`GetRangeByScore(double min, double max, bool desc, long skip, long)`|[ZRANGEBYSCORE](http://redis.io/commands/zrangebyscore) / [ZREVRANGEBYSCORE](http://redis.io/commands/zrevrangebyscore)|O(log(N)+M) : M the number of elements being returned|
 |`GetRangeByRank(long start, long stop, bool desc)`|[ZRANGE](http://redis.io/commands/zrange) / [ZREVRANGE](http://redis.io/commands/zrevrange)|O(log(N)+M)
 |`RemoveRangeByScore(double min, double max)`|[ZREMRANGEBYSCORE](http://redis.io/commands/zremrangebyscore)|O(log(N)+M)
 |`RemoveRangeByRank(long start, long stop)`|[ZREMRANGEBYRANK](http://redis.io/commands/zremrangebyrank)|O(log(N)+M)
+|`CountByScore(double min, double max)`|[ZCOUNT](http://redis.io/commands/zcount)|O(log(N))
 |`IncrementScore(T item, double value)`|[ZINCRBY](http://redis.io/commands/zincrby)|O(log(N))
 |`RankOf(T item, bool desc)`|[ZRANK](http://redis.io/commands/zrank)|O(log(N))
 |`ScoreOf(T item)`|[ZSCORE](http://redis.io/commands/zscore)|O(1)
@@ -305,8 +307,8 @@ Mapping between `IRedisLexicographicSet` methods/properties to the Redis command
 |`AddRange(IEnu<string> items)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
 |`AutoComplete(string partial, long take)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N)+M) : M number of elements being returned|
 |`Match(pattern)`|[ZSCAN](http://redis.io/commands/zscan)|O(1)|
-|`Contains(string item)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N))|
 |`Remove(string item)`|[ZREM](http://redis.io/commands/zrem)|O(log(N))|
+|`Contains(string item)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N))|
 |`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|
 
 --------------
@@ -377,8 +379,9 @@ Mapping between `IRedisString` methods/properties to the Redis commands used:
 |IRedisString interface|Redis command|Time complexity|
 |------|------|-------|
 |`Append(string value)`|[APPEND](http://redis.io/commands/append)|O(1)|
-|`GetRange(long start, long stop)`|[GETRANGE](http://redis.io/commands/getrange)|O(M) : M is the length of the returned string |
+|`Set(string value)`|[SET](http://redis.io/commands/set)|O(1)|
 |`SetRange(long offset, string value)`|[SETRANGE](http://redis.io/commands/setrange)|O(1)|
+|`GetRange(long start, long stop)`|[GETRANGE](http://redis.io/commands/getrange)|O(M) : M is the length of the returned string |
 |`Length`|[STRLEN](http://redis.io/commands/strlen)|O(1)|
 |`IncrementBy(long increment)`|[INCRBY](http://redis.io/commands/incrby)|O(1)|
 |`IncrementByFloat(double increment)`|[INCRBYFLOAT](http://redis.io/commands/incrbyfloat)|O(1)|
