@@ -22,5 +22,13 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// Returns the number of elements in the set.
         /// </summary>
         new long Count { get; }
+        /// <summary>
+        /// Returns and remove a random value from the set.
+        /// </summary>
+        T Pop();
+        /// <summary>
+        /// Returns a random value from the set.
+        /// </summary>
+        T GetRandomMember();
     }
 }

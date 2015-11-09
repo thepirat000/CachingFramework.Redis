@@ -42,6 +42,20 @@ namespace CachingFramework.Redis.RedisObjects
         {
             return (int)GetRedisDb().SetRemove(RedisKey, this.Where(x => match(x)).Select(x => (RedisValue)Serialize(x)).ToArray());
         }
+        /// <summary>
+        /// Returns and remove a random value from the set.
+        /// </summary>
+        public T Pop()
+        {
+            return Deserialize<T>(GetRedisDb().SetPop(RedisKey));
+        }
+        /// <summary>
+        /// Returns a random value from the set.
+        /// </summary>
+        public T GetRandomMember()
+        {
+            return Deserialize<T>(GetRedisDb().SetRandomMember(RedisKey));
+        }
         #endregion
         #region ICollection implementation
         /// <summary>

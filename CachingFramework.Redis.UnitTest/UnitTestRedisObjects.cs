@@ -345,6 +345,14 @@ namespace CachingFramework.Redis.UnitTest
             rs.RemoveWhere(u => u.Id <= 2);
             Assert.AreEqual(1, rs.Count);
             Assert.IsTrue(rs.Contains(new User() { Id = 3 }));
+            // Test GetRandomMember
+            var user = rs.GetRandomMember();
+            Assert.AreEqual(3, user.Id);
+            // Test Pop
+            user = rs.Pop();
+            Assert.AreEqual(3, user.Id);
+            user = rs.Pop();
+            Assert.IsNull(user);
         }
 
         [TestMethod]
