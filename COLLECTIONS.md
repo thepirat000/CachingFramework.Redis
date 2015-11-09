@@ -107,6 +107,7 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 |`Add(T item)`|[SADD](http://redis.io/commands/sadd)|O(1)|
 |`Contains(T item)`|[SISMEMBER](http://redis.io/commands/sismember)|O(1)|
 |`Remove(T item)`|[SREM](http://redis.io/commands/srem)|O(1)|
+|`Pop()`|[SPOP](http://redis.io/commands/spop)|O(1)|
 |`Count`|[SCARD](http://redis.io/commands/scard)|O(1)|
 
 --------------
