@@ -551,6 +551,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("11111111000000001111111110110000", sb.ToString());
             bm.SetBit(9999999, true);
             Assert.AreEqual(20, bm.Count());
+            Assert.AreEqual(false, bm.GetBit(9999998));
             Assert.AreEqual(true, bm.GetBit(9999999));    
             bm.Clear();
             Assert.AreEqual(0, bm.Count());
@@ -595,10 +596,18 @@ namespace CachingFramework.Redis.UnitTest
             bm.Remove("zero");
             Assert.IsFalse(bm.Contains("zero"));
             Assert.AreEqual(12, bm.Count);
+        }
 
+        [TestMethod]
+        public void UT_CacheLexSet_Match()
+        {
+            var key = "UT_CacheLexSet_Match";
+            _context.Cache.Remove(key);
+            var bm = _context.Collections.GetRedisLexicographicSet(key);
+            bm.AddRange(new[] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" });
             Assert.AreEqual(12, bm.Match("*").Count());
 
-            lst = bm.Match("*eve*").ToList();
+            var lst = bm.Match("*eve*").ToList();
             Assert.AreEqual(2, lst.Count);
             Assert.AreEqual("eleven", lst[0]);
             Assert.AreEqual("seven", lst[1]);
