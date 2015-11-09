@@ -39,6 +39,24 @@ namespace CachingFramework.Redis.Providers
             });
         }
         /// <summary>
+        /// Subscribes to a specified channel for a speficied type.
+        /// </summary>
+        /// <typeparam name="T">The item type</typeparam>
+        /// <param name="channel">The channel name.</param>
+        /// <param name="action">The action where the first parameter is the object message.</param>
+        public void Subscribe<T>(string channel, Action<T> action)
+        {
+            var sub = RedisConnection.GetSubscriber();
+            sub.Subscribe(channel, (ch, value) =>
+            {
+                var obj = Serializer.Deserialize<object>(value);
+                if (obj is T)
+                {
+                    action((T)obj);
+                }
+            });
+        }
+        /// <summary>
         /// Unsubscribes from the specified channel.
         /// </summary>
         /// <param name="channel">The channel name.</param>

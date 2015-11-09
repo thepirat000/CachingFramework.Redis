@@ -20,7 +20,7 @@ namespace CachingFramework.Redis.Providers
         /// Gets the redis connection.
         /// </summary>
         /// <value>The redis connection.</value>
-        protected ConnectionMultiplexer RedisConnection { get { return _context.RedisConnection; } }
+        internal protected ConnectionMultiplexer RedisConnection { get { return _context.RedisConnection; } }
         /// <summary>
         /// Gets the serializer.
         /// </summary>

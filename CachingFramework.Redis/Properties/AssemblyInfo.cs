@@ -35,4 +35,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("3.1.4.0")]
 [assembly: AssemblyFileVersion("3.1.4.0")]
 
-[assembly: InternalsVisibleTo("CachingFramework.UnitTest")]
+[assembly: InternalsVisibleTo("CachingFramework.Redis.UnitTest")]
