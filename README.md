@@ -2,10 +2,10 @@
 .NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) and [Redis](http://redis.io).
 
 ##Features
- * [**Typed cache**](#adding-objects-to-the-cache): any serializable object can be cached.
+ * [**Typed cache**](#typed-cache): any serializable object can be cached.
  * **Serialization**: a compressed binary serializer by default, or provide your own serialization. 
- * **Tagging mechanism**: store cache items related to tags allowing to retrieve or invalidate items by tag.
- * **Fetching mechanism**: shortcut cache methods for atomic add/get operations.
+ * [**Tagging mechanism**](#tagging-mechanism): store cache items related to tags allowing to retrieve or invalidate items by tag.
+ * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations.
  * **Time-To-Live mechanism**: each key can be associated to a TimeSpan defining its time-to-live.
  * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
  * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): Strings, List, Sets, Sorted Sets, Hashes and Bitmaps support as managed collections.
