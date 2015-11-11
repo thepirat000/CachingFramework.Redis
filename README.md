@@ -57,8 +57,7 @@ context.Cache.SetObject(redisKey, value, TimeSpan.FromDays(1));
 ```c#
 User user = context.Cache.GetObject<User>(redisKey);
 ```
-### Removing objects
-Remove a key
+### Remove a key
 ```c#
 context.Cache.Remove(redisKey);
 ```
