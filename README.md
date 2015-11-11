@@ -8,7 +8,7 @@
  * **Fetching mechanism**: shortcut cache methods for atomic add/get operations.
  * **Time-To-Live mechanism**: each key can be associated to a TimeSpan defining its time-to-live.
  * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
- * **Redis Strings, List, Sets, Sorted Sets, Hashes and Bitmaps support** as managed [collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md).
+ * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): Strings, List, Sets, Sorted Sets, Hashes and Bitmaps support as managed collections.
  * **Lexicographically sorted sets**: for fast string matching and auto-complete suggestion. 
  * **Pub/Sub support**: Publish-Subscribe implementation with typed messages.
  * **Geospatial indexes**: with radius queries support.
