@@ -10,9 +10,9 @@
  * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
  * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): Strings, List, Sets, Sorted Sets, Hashes and Bitmaps support as managed collections.
  * [**Lexicographically sorted sets**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set): for fast string matching and auto-complete suggestion. 
- * **Pub/Sub support**: Publish-Subscribe implementation with typed messages.
- * **Geospatial indexes**: with radius queries support.
- * **HyperLogLog support**: to count unique things.
+ * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with typed messages.
+ * [**Geospatial indexes**](#geospatial-api): with radius queries support.
+ * [**HyperLogLog support**](#hyperloglog-api): to count unique things.
  
 ## Usage
 
