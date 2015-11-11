@@ -78,7 +78,7 @@ IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("red", "green");
 ```
 
 #### Invalidate keys by tags
-Remove all the keys related to *blue* and/or *green*:
+Remove all the keys related to *blue* and/or *green* tags:
 ```c#
 context.Cache.InvalidateKeysByTag("blue", "green");
 ```
