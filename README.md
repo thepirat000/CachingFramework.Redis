@@ -84,7 +84,7 @@ _context.Cache.RemoveTagsFromKey(redisKey, new [] { "green" });
 ```
 
 #### Get objects by tag
-Get all the objects related to *red* and/or *green*. Assuming all the keys related to the tags are of type `User`:
+Get all the objects related to *red* and/or *green*. Assuming all the keys related to the tags are of the same type:
 ```c#
 IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("red", "green");
 ```
