@@ -65,10 +65,22 @@ context.Cache.Remove(redisKey);
 ## Tagging mechanism
 A tag is a string value that groups keys. A key can be related to any number of tags. 
 
-#### Add a single object with tags
+#### Add a single object related to a tag
 Add a single object to the cache and associate it with tags *red* and *blue*:
 ```c#
 context.Cache.SetObject(redisKey, value, new[] { "red", "blue" });
+```
+
+#### Relate an existing key to a tag
+Relate the key to the *green* tag:
+```c#
+_context.Cache.AddTagsToKey(redisKey, new [] { "green" });
+```
+
+#### Remove a tag from a key
+Remove the relation between the key and the tag *green*:
+```c#
+_context.Cache.RemoveTagsFromKey(redisKey, new [] { "green" });
 ```
 
 #### Get objects by tag
