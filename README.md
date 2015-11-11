@@ -2,7 +2,7 @@
 .NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) and [Redis](http://redis.io).
 
 ##Features
- * **Typed cache**: any serializable object to be cached.
+ * **Typed cache**: any serializable object can be cached.
  * **Serialization**: a compressed binary serializer by default, or provide your own serialization. 
  * **Tagging mechanism**: store cache items related to tags allowing to retrieve or invalidate items by tag.
  * **Fetching mechanism**: shortcut cache methods for atomic add/get operations.
