@@ -39,55 +39,52 @@ var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortC
 ```
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
-### Adding objects to the cache
+## Typed cache
 
-#### Add a single object to the cache
-Add a single object to the cache:
+### Add a single object to the cache:
 ```c#
 string redisKey = "user:1";
 User value = new User() { Id = 1 };  // any serializable object 
 context.Cache.SetObject(redisKey, value);
 ```
 
-#### Add a single object related to multiple tags
-Add a single object to the cache and associate it with tags *tag1* and *tag2*:
-```c#
-context.Cache.SetObject(redisKey, value, new[] { "tag1", "tag2" });
-```
-
-#### Add a single object with TTL
+### Add a single object with TTL
 Add a single object to the cache with a Time-To-Live of 1 day:
 ```c#
 context.Cache.SetObject(redisKey, value, TimeSpan.FromDays(1));
 ```
-
-### Getting objects
-
-#### Get a single object
+### Get a single object
 ```c#
 User user = context.Cache.GetObject<User>(redisKey);
 ```
-
 ### Removing objects
-
-#### Remove a key
+Remove a key
 ```c#
 context.Cache.Remove(redisKey);
 ```
 
-#### Invalidate keys by multiple tags
-Remove all the keys related to *tag1* and/or *tag2*:
+## Tagging mechanism
+A tag is a string value that groups keys. A key can be related to any number of tags. 
+
+#### Add a single object with tags
+Add a single object to the cache and associate it with tags *red* and *blue*:
 ```c#
-context.Cache.InvalidateKeysByTag("tag1", "tag2");
+context.Cache.SetObject(redisKey, value, new[] { "red", "blue" });
 ```
 
 #### Get objects by tag
-Get all the objects related to *tag1* and/or *tag2*. Assuming all the keys related to the tags are of type `User`:
+Get all the objects related to *red* and/or *green*. Assuming all the keys related to the tags are of type `User`:
 ```c#
-IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("tag1", "tag2");
+IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("red", "green");
 ```
 
-### Fetching objects
+#### Invalidate keys by tags
+Remove all the keys related to *blue* and/or *green*:
+```c#
+context.Cache.InvalidateKeysByTag("blue", "green");
+```
+
+### Fetching mechanism
 
 #### Fetch an object
 Try to get an object from the cache, inserting it to the cache if it does not exists:
