@@ -2,17 +2,17 @@
 .NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) and [Redis](http://redis.io).
 
 ##Features
- * **Typed cache** allowing any serializable object to be cached.
- * **Serialization** A Compressed binary serializer by default, or provide your own serialization. 
- * **Tagging mechanism** to store cache items related to tags allowing to retrieve or invalidate items by tag.
- * **Fetching mechanism** as shortcut cache methods for atomic add/get operations.
- * **Time-To-Live mechanism** each key can be associated to a TimeSpan defining its time-to-live.
- * **Fully compatible with Redis Cluster** all commands are cluster-safe.
+ * **Typed cache**: any serializable object to be cached.
+ * **Serialization**: a compressed binary serializer by default, or provide your own serialization. 
+ * **Tagging mechanism**: store cache items related to tags allowing to retrieve or invalidate items by tag.
+ * **Fetching mechanism**: shortcut cache methods for atomic add/get operations.
+ * **Time-To-Live mechanism**: each key can be associated to a TimeSpan defining its time-to-live.
+ * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
  * **Redis Strings, List, Sets, Sorted Sets, Hashes and Bitmaps support** as managed [collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md).
- * **Lexicographically sorted sets** for fast string matching and auto-complete suggestion. 
- * **Pub/Sub support** Publish-Subscribe implementation with typed messages.
- * **Geospatial indexes** with radius queries support.
- * **HyperLogLog support** to count unique things.
+ * **Lexicographically sorted sets**: for fast string matching and auto-complete suggestion. 
+ * **Pub/Sub support**: Publish-Subscribe implementation with typed messages.
+ * **Geospatial indexes**: with radius queries support.
+ * **HyperLogLog support**: to count unique things.
  
 ## Usage
 
