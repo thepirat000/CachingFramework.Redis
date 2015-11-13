@@ -99,10 +99,9 @@ namespace CachingFramework.Redis.RedisObjects
             get { return new Collection<TK>(GetRedisDb().HashKeys(RedisKey).Select(Deserialize<TK>).ToList()); }
         }
         /// <summary>
-        /// Gets or sets the element with the specified key.
+        /// Gets or sets the element at the specified key.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns>`1.</returns>
         public TV this[TK key]
         {
             get

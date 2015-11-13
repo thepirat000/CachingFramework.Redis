@@ -32,8 +32,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="collection">The collection.</param>
         public void AddRange(IEnumerable<T> collection)
         {
-            var db = GetRedisDb();
-            db.ListRightPush(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
+            GetRedisDb().ListRightPush(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
         }
         /// <summary>
         /// Adds a new item to the list at the start of the list.
@@ -76,8 +75,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="stop">The stop.</param>
         public IEnumerable<T> GetRange(long start = 0, long stop = -1)
         {
-            var db = GetRedisDb();
-            return db.ListRange(RedisKey, start, stop).Select(Deserialize<T>);
+            return GetRedisDb().ListRange(RedisKey, start, stop).Select(Deserialize<T>);
         }
         /// <summary>
         /// Returns the first element of the list, returns the type default if the list contains no elements.
@@ -156,6 +154,16 @@ namespace CachingFramework.Redis.RedisObjects
         public void Trim(long start, long stop = -1)
         {
             GetRedisDb().ListTrim(RedisKey, start, stop);
+        }
+        /// <summary>
+        /// Removes the specified occurrences of a specific object from the <see cref="T:System.Collections.Generic.ICollection`1"/>.
+        /// </summary>
+        /// <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
+        /// <param name="count">if count > 0: Remove a quantity of elements equal to value moving from head to tail. if count &lt; 0: Remove elements equal to value moving from tail to head. count = 0: Remove all elements equal to value.</param>
+        /// <returns>true if at least one element was successfully removed from the list.</returns>
+        public bool Remove(T item, long count)
+        {
+            return GetRedisDb().ListRemove(RedisKey, Serialize(item), count) > 0;
         }
         #endregion
 
@@ -267,13 +275,13 @@ namespace CachingFramework.Redis.RedisObjects
             get { return (int)Count; }
         }
         /// <summary>
-        /// Removes the first occurrence of a specific object from the <see cref="T:System.Collections.Generic.ICollection`1" />.
+        /// Removes the first occurrences of a specific object from the list, moving from head to tail.
         /// </summary>
-        /// <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
-        /// <returns>true if <paramref name="item" /> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false. This method also returns false if <paramref name="item" /> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
+        /// <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
+        /// <returns>true if the element was successfully removed from the list.</returns>
         public bool Remove(T item)
         {
-            return GetRedisDb().ListRemove(RedisKey, Serialize(item)) > 0;
+            return Remove(item, 1);
         }
         /// <summary>
         /// Returns an enumerator that iterates through the collection.

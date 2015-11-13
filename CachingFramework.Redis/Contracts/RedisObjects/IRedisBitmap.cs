@@ -48,7 +48,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="bit">The bit to check</param>
         /// <param name="start">The start position (in bytes)</param>
         /// <param name="stop">The end position (in bytes)</param>
-        bool Contains(bool bit, long start = 0, long stop = -1);
+        bool Contains(bool bit, long start, long stop = -1);
         /// <summary>
         /// Inverts the first occurence of the specified bit in the bitmap.
         /// </summary>

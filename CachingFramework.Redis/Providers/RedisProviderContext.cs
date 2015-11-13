@@ -1,3 +1,4 @@
+using System.IO;
 using CachingFramework.Redis.Contracts;
 using StackExchange.Redis;
 
@@ -23,9 +24,10 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         /// <param name="serializer">The serializer.</param>
-        public RedisProviderContext(string configuration, ISerializer serializer)
+        /// <param name="log">The textwriter to use for logging purposes.</param>
+        public RedisProviderContext(string configuration, ISerializer serializer, TextWriter log = null)
         {
-            RedisConnection = ConnectionMultiplexer.Connect(configuration);
+            RedisConnection = ConnectionMultiplexer.Connect(configuration, log);
             Serializer = serializer;
         }
     }

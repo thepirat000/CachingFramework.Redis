@@ -71,8 +71,9 @@ namespace CachingFramework.Redis.UnitTest
             }
             _context.PubSub.Publish(ch, new Exception("a different object type"));
             _context.PubSub.Publish(ch, users[0].Deparments[0]);
+            _context.PubSub.Publish(ch, "some string");
             Thread.Sleep(500);
-            Assert.AreEqual(users.Count + 2, objCount);
+            Assert.AreEqual(users.Count + 3, objCount);
             Assert.AreEqual(users.Count + 1, iDtoCount);
             _context.PubSub.Unsubscribe(ch);
         }

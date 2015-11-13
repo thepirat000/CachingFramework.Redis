@@ -31,16 +31,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="collection">The items to add</param>
         public void AddRange(IEnumerable<T> collection)
         {
-            var db = GetRedisDb();
-            db.SetAdd(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
-        }
-        /// <summary>
-        /// Removes all the elements that meets some criteria.
-        /// </summary>
-        /// <param name="match">The match predicate.</param>
-        public int RemoveWhere(Predicate<T> match)
-        {
-            return (int)GetRedisDb().SetRemove(RedisKey, this.Where(x => match(x)).Select(x => (RedisValue)Serialize(x)).ToArray());
+            GetRedisDb().SetAdd(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
         }
         /// <summary>
         /// Returns and remove a random value from the set.
@@ -65,8 +56,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         public bool Add(T item)
         {
-            var db = GetRedisDb();
-            return db.SetAdd(RedisKey, Serialize(item));
+            return GetRedisDb().SetAdd(RedisKey, Serialize(item));
         }
        
         /// <summary>
@@ -126,8 +116,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.</returns>
         public IEnumerator<T> GetEnumerator()
         {
-            var db = GetRedisDb();
-            foreach (var item in db.SetScan(RedisKey))
+            foreach (var item in GetRedisDb().SetScan(RedisKey))
             {
                 yield return Deserialize<T>(item);
             }

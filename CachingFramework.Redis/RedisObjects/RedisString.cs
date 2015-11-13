@@ -67,11 +67,11 @@ namespace CachingFramework.Redis.RedisObjects
             GetRedisDb().StringSet(RedisKey, value);
         }
         /// <summary>
-        /// Gets the <see cref="System.String"/> with the specified start.
+        /// Returns the substring of the string value stored at key, determined by the offsets start and stop (both are inclusive).
+        /// Negative offsets can be used in order to provide an offset starting from the end of the string. So -1 means the last character.
         /// </summary>
-        /// <param name="start">The start.</param>
-        /// <param name="stop">The stop.</param>
-        /// <returns>System.String.</returns>
+        /// <param name="start">The start zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
+        /// <param name="stop">The stop zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
         public string this[long start, long stop]
         {
             get { return GetRange(start, stop); }
@@ -89,7 +89,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// Non-existing keys are considered as empty strings, so this command will make sure it holds a string large enough to be able to set value at offset.
         /// </summary>
         /// <param name="offset">The zero-based offset in bytes.</param>
-        /// <param name="item">The string to write.</param>
+        /// <param name="value">The string to write.</param>
         /// <returns>The length of the string after it was modified by the command</returns>
         public long SetRange(long offset, string value)
         {
@@ -101,7 +101,6 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         /// <param name="start">The start zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
         /// <param name="stop">The stop zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
-        /// <returns>System.String.</returns>
         public string GetRange(long start = 0, long stop = -1)
         {
             return GetRedisDb().StringGetRange(RedisKey, start, stop);
@@ -148,7 +147,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         /// <param name="default">The default value to return when the key does not exists (default is 0).</param>
         /// <returns>System.Int64.</returns>
-        public long AsInteger(long @default = 0)
+        public long AsInteger(long @default = default(long))
         {
             var value = GetRedisDb().StringGet(RedisKey);
             return value.IsNull ? @default : (long)value;
@@ -160,7 +159,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         /// <param name="default">The default value to return when the key does not exists (default is 0).</param>
         /// <returns>System.Double.</returns>
-        public double AsFloat(double @default = 0)
+        public double AsFloat(double @default = default(double))
         {
             var value = GetRedisDb().StringGet(RedisKey);
             return value.IsNull ? @default : (double)value;

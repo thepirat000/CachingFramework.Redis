@@ -339,10 +339,10 @@ namespace CachingFramework.Redis.UnitTest
             // Test Clear
             rs.Clear();
             Assert.AreEqual(0, rs.Count);
-            // Test Remove Where
             rs.AddRange(new []{  new User() {Id = 3},  new User() {Id = 1},  new User() {Id = 2} });
             Assert.AreEqual(3, rs.Count);
-            rs.RemoveWhere(u => u.Id <= 2);
+            rs.Remove(new User() { Id = 1 });
+            rs.Remove(new User() { Id = 2 });
             Assert.AreEqual(1, rs.Count);
             Assert.IsTrue(rs.Contains(new User() { Id = 3 }));
             // Test GetRandomMember

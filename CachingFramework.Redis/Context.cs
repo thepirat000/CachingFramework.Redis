@@ -1,4 +1,5 @@
-﻿using CachingFramework.Redis.Contracts;
+﻿using System.IO;
+using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.Providers;
 using CachingFramework.Redis.Providers;
 using CachingFramework.Redis.Serializers;
@@ -34,20 +35,26 @@ namespace CachingFramework.Redis
         /// Initializes a new instance of the <see cref="Context" /> class given the cache engine type and its configuration string, and using the default BinarySerializer.
         /// </summary>
         /// <param name="configuration">The configuration string.</param>
-        public Context(string configuration) : this(configuration, new BinarySerializer()) { }
+        public Context(string configuration) : this(configuration, new BinarySerializer(), null) { }
         /// <summary>
         /// Initializes a new instance of the <see cref="Context" /> class.
         /// </summary>
         /// <param name="configuration">The configuration string.</param>
         /// <param name="serializer">The serializer.</param>
-        public Context(string configuration, ISerializer serializer)
+        public Context(string configuration, ISerializer serializer) : this(configuration, serializer, null) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Context" /> class.
+        /// </summary>
+        /// <param name="configuration">The configuration string.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="log">The textwriter to use for logging purposes.</param>
+        public Context(string configuration, ISerializer serializer, TextWriter log)
         {
-            var providerContext = new RedisProviderContext(configuration, serializer);
+            var providerContext = new RedisProviderContext(configuration, serializer, log);
             _collectionProvider = new RedisCollectionProvider(providerContext);
             _cacheProvider = new RedisCacheProvider(providerContext);
             _geoProvider = new RedisGeoProvider(providerContext);
             _pubsubProvider = new RedisPubSubProvider(providerContext);
-            
         }
         /// <summary>
         /// Gets the cache API.

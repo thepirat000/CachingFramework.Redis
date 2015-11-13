@@ -11,9 +11,10 @@ namespace CachingFramework.Redis.RedisObjects
 {
     internal class RedisBitmap : RedisBaseObject, IRedisBitmap, ICollection<bool>
     {
-        #region fields
+        #region Fields
         private const byte ByteSize = 8;
         #endregion
+
         #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisBitmap" /> class.
@@ -64,7 +65,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="bit">The bit to check</param>
         /// <param name="start">The start position (in bytes)</param>
         /// <param name="stop">The end position (in bytes)</param>
-        public bool Contains(bool bit, long start = 0, long stop = -1)
+        public bool Contains(bool bit, long start, long stop = -1)
         {
             var db = GetRedisDb();
             var pos = db.StringBitPosition(RedisKey, bit, start, stop);
@@ -120,7 +121,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="bit">The bit to check</param>
         bool ICollection<bool>.Contains(bool bit)
         {
-            return Contains(bit);
+            return Contains(bit, 0);
         }
         /// <summary>
         /// Inverts the first occurence of the specified bit in the bitmap.
@@ -157,6 +158,7 @@ namespace CachingFramework.Redis.RedisObjects
             return GetEnumerator();
         }
         #endregion
+
         #region Private methods
         /// <summary>
         /// Count the number of set bits in the bitmap.  

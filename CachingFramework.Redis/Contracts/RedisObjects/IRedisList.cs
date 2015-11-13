@@ -73,5 +73,12 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="start">The start zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
         /// <param name="stop">The stop zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
         void Trim(long start, long stop = -1);
+        /// <summary>
+        /// Removes the specified occurrences of a specific object from the <see cref="T:System.Collections.Generic.ICollection`1"/>.
+        /// </summary>
+        /// <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
+        /// <param name="count">if count > 0: Remove a quantity of elements equal to value moving from head to tail. if count &lt; 0: Remove elements equal to value moving from tail to head. count = 0: Remove all elements equal to value.</param>
+        /// <returns>true if at least one element was successfully removed from the list.</returns>
+        bool Remove(T item, long count);
     }
 }

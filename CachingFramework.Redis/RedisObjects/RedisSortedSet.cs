@@ -33,8 +33,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="member">The sorted member to add.</param>
         public void Add(SortedMember<T> member)
         {
-            var db = GetRedisDb();
-            db.SortedSetAdd(RedisKey, Serialize(member.Value), member.Score);
+            GetRedisDb().SortedSetAdd(RedisKey, Serialize(member.Value), member.Score);
         }
         /// <summary>
         /// Adds the specified member with the specified score to the sorted set stored at key. 
@@ -159,8 +158,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.</returns>
         public IEnumerator<T> GetEnumerator()
         {
-            var db = GetRedisDb();
-            foreach (var item in db.SortedSetScan(RedisKey))
+            foreach (var item in GetRedisDb().SortedSetScan(RedisKey))
             {
                 yield return Deserialize<T>(item.Element);
             }
