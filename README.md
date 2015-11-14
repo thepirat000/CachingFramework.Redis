@@ -96,6 +96,8 @@ context.Cache.InvalidateKeysByTag("blue", "green");
 ```
 
 ### Fetching mechanism
+Some shortcut methods are provided for atomic add/get operations.
+![Image of Fetching Mechanism](http://i.imgur.com/Kb9OBlK.png)
 
 #### Fetch an object
 Try to get an object from the cache, inserting it to the cache if it does not exists:
