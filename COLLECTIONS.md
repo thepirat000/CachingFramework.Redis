@@ -76,7 +76,7 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Sets ![Image of hash](http://i.imgur.com/S6FVAvD.png)
+# Redis Sets ![Image of hash](http://i.imgur.com/ts1HKLR.png)
 
 To obtain a new (or existing) Redis Set implementing a .NET `ICollection`, use the ```GetRedisSet()``` method:
 
