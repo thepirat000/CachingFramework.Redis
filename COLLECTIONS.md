@@ -25,7 +25,7 @@ sortedSet.TimeToLive = TimeSpan.FromMinutes(60);
 
 --------------
 
-# Redis Lists ![Image of hash](http://i.imgur.com/Ghgkjb2.png)
+# Redis Lists ![Image of hash](http://i.imgur.com/r5gLUVf.png)
 
 To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetRedisList()``` method:
 
