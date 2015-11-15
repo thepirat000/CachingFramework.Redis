@@ -145,32 +145,7 @@ context.Cache.RemoveHashed(redisKey, "user:id:1");
 ### [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
 Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
 
-#### Get a .NET IList stored in a Redis List
-```c#
-IList<User> users = context.Collections.GetRedisList<User>(redisKey);
-```
-
-#### Get a .NET ICollection stored in a Redis Set
-```c#
-ICollection<User> users = context.Collections.GetRedisSet<User>(redisKey);
-```
-
-#### Get a .NET ICollection stored in a Redis Sorted Set
-```c#
-ICollection<User> users = context.Collections.GetRedisSortedSet<User>(redisKey);
-```
-
-#### Get a .NET IDictionary stored in a Redis Hash
-```c#
-IDictionary<string, User> users = context.Collections.GetRedisDictionary<string, User>(redisKey);
-```
-
-#### Get a .NET ICollection<bool> stored in a Redis Bitmap
-```c#
-ICollection<bool> bitmap = context.Collections.GetRedisBitmap(redisKey);
-```
-
-**For more details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
+**For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
 
 --------------
 
