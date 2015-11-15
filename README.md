@@ -96,7 +96,7 @@ context.Cache.InvalidateKeysByTag("blue", "green");
 ```
 
 ### Fetching mechanism
-Some shortcut methods are provided for atomic add/get operations.
+Shortcut methods are provided for atomic add/get operations.
 ![Image of Fetching Mechanism](http://i.imgur.com/Kb9OBlK.png)
 
 #### Fetch an object
