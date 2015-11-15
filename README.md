@@ -112,6 +112,8 @@ The method `GetUserFromDatabase` will only be called when the value is not prese
 ### Hashes
 Hashes are maps composed of fields associated with values, like .NET dictionaries.
 
+![Image of hashes](http://i.imgur.com/B6Wz7es.png)
+
 #### Set hashed objects
 Set an object on a redis key indexed by a field key (sub-key):
 ```c#
