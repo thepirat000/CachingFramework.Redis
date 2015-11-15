@@ -143,8 +143,10 @@ context.Cache.RemoveHashed(redisKey, "user:id:1");
 --------------
 
 [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
-Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
 =====
+
+Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
+
 
 **For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
 
