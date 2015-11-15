@@ -91,9 +91,19 @@ set.Add(new User() { Id = 1 });
 set.AddRange(new [] { new User() { Id = 2 }, new User() { Id = 3 } });
 ```
 
-To check if an element exists, use the `Contains` methos:
+To check if an element exists, use the `Contains` method:
 ```c#
 bool exists = set.Contains(user);
+```
+
+To get a random element use the `GetRandomMember`method:
+```c#
+User user = set.GetRandomMember();
+```
+
+To get and remove a random element use the `Pop`method:
+```c#
+User user = set.Pop();
 ```
 
 ## IRedisSet mapping to Redis Set
