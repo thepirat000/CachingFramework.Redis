@@ -66,7 +66,7 @@ context.Cache.Remove(redisKey);
 A tag is a string value that groups keys, so they can be retrieved or invalidated at the same time. 
 A key can be related to any number of tags. 
 
-![Image of Tagging Mechanism](http://i.imgur.com/MbIjTzc.png)
+![Image of Tagging Mechanism](http://i.imgur.com/26TyMYR.png)
 
 #### Add a single object related to a tag
 Add a single object to the cache and associate it with tags *red* and *blue*:
