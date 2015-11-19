@@ -64,7 +64,7 @@ context.Cache.Remove(redisKey);
 ```
 
 ## Tagging mechanism
-A tag is a string value that groups keys, so they can be retrieved or invalidated at the same time. 
+Cluster compatible tagging mechanism where tags are used to groups keys, so they can be retrieved or invalidated at the same time. 
 A key can be related to any number of tags. 
 
 ![Image of Tagging Mechanism](http://i.imgur.com/26TyMYR.png)
