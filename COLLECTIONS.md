@@ -151,6 +151,12 @@ To check if a hash element exists, use `ContainsKey` method:
 bool exists = hash.ContainsKey(1);
 ```
 
+To access a hash element by key, use the indexed property:
+```c#
+User u = hash[1];
+```
+
+
 ## IRedisDictionary mapping to Redis Hash
 
 Mapping between `IRedisDictionary` methods/properties to the Redis commands used:
