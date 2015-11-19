@@ -40,6 +40,7 @@ var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortC
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
 ## Typed cache
+Any primitive type or serializable class can be used as a cache value.
 
 ### Add a single object to the cache:
 ```c#
