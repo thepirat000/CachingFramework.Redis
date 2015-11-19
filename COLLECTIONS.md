@@ -33,12 +33,21 @@ To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ``
 IRedisList<User> list = context.Collections.GetRedisList<User>("user:list");
 ```
 
-To add elements to the list, use `Add` / `AddRange` / `Insert` / `AddFirst` or `AddLast` methods:
+To push elements to the list use `PushFirst` / `PushLast` methods:
+```c#
+list.PushFirst(new User() { Id = 0 });
+```
 
+To pop elements from the list use `PopFirst` / `PopLast` methods:
+```c#
+var user = list.PopFirst();
+```
+
+You can also add elements to the list by using `Add` / `AddRange` / `Insert` methods:
 ```c#
 list.Add(new User() { Id = 1 });
 list.AddRange(new [] { new User() { Id = 2 }, new User() { Id = 3 } });
-list.AddFirst(new User() { Id = 0 });
+list.Insert(2, new User() { Id = 4 });
 ```
 
 To get a range of elements from the list, use the `GetRange` method.
@@ -64,7 +73,7 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 |`LastOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
 |`PopFirst()`|[LPOP](http://redis.io/commands/lpop)|O(1)|
 |`PopLast()`|[RPOP](http://redis.io/commands/rpop)|O(1)|
-|`Remove(T item)`|[LREM](http://redis.io/commands/lrem)|O(N)|
+|`Remove(T item, long count)`|[LREM](http://redis.io/commands/lrem)|O(N)|
 |`RemoveAt(long index)`|[LSET](http://redis.io/commands/lset) + [LREM](http://redis.io/commands/lrem)|O(N)|
 |`Contains(T item)`|[LRANGE](http://redis.io/commands/lrange)|O(N)|
 |`Clear()`|[DEL](http://redis.io/commands/del)|O(1)|
