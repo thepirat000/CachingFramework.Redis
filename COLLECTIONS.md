@@ -25,7 +25,7 @@ sortedSet.TimeToLive = TimeSpan.FromMinutes(60);
 
 --------------
 
-# Redis Lists
+# Redis Lists ![Image of hash](http://i.imgur.com/r5gLUVf.png)
 
 To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetRedisList()``` method:
 
@@ -76,7 +76,7 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Sets
+# Redis Sets ![Image of hash](http://i.imgur.com/ts1HKLR.png)
 
 To obtain a new (or existing) Redis Set implementing a .NET `ICollection`, use the ```GetRedisSet()``` method:
 
@@ -91,9 +91,19 @@ set.Add(new User() { Id = 1 });
 set.AddRange(new [] { new User() { Id = 2 }, new User() { Id = 3 } });
 ```
 
-To check if an element exists, use the `Contains` methos:
+To check if an element exists, use the `Contains` method:
 ```c#
 bool exists = set.Contains(user);
+```
+
+To get a random element use the `GetRandomMember`method:
+```c#
+User user = set.GetRandomMember();
+```
+
+To get and remove a random element use the `Pop`method:
+```c#
+User user = set.Pop();
 ```
 
 ## IRedisSet mapping to Redis Set
@@ -112,7 +122,7 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Hashes
+# Redis Hashes ![Image of hash](http://i.imgur.com/S6FVAvD.png)
 
 To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetRedisDictionary()``` method:
 
@@ -150,7 +160,7 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 
 --------------
 
-# Redis Sorted Sets
+# Redis Sorted Sets ![Image of sorted set](http://i.imgur.com/h31sdcF.png)
 
 To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetRedisSortedSet()``` method:
 
@@ -195,7 +205,7 @@ Mapping between `IRedisSortedSet` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Bitmaps
+# Redis Bitmaps ![Image of bitmap](http://i.imgur.com/SNN8kax.png)
 
 To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetRedisBitmap()``` method:
 
@@ -312,8 +322,7 @@ Mapping between `IRedisLexicographicSet` methods/properties to the Redis command
 
 --------------
 
-# Redis String
-
+# Redis String ![Image of string](http://i.imgur.com/6O5r4gQ.png)
 To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetRedisString()``` method:
 
 ```c#

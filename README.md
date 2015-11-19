@@ -3,9 +3,9 @@
 
 ##Features
  * [**Typed cache**](#typed-cache): any serializable object can be cached.
- * [**Tagging mechanism**](#tagging-mechanism): store cache items related to tags allowing to retrieve or invalidate items by tag.
+ * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate items by tag.
  * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations.
- * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a TimeSpan defining its time-to-live.
+ * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a value defining its time-to-live.
  * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
  * [**Lexicographically sorted sets**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set): for fast string matching and auto-complete suggestion. 
  * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with typed messages.
@@ -40,6 +40,7 @@ var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortC
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
 ## Typed cache
+Any primitive type or serializable class can be used as a cache value.
 
 ### Add a single object to the cache:
 ```c#
@@ -63,7 +64,10 @@ context.Cache.Remove(redisKey);
 ```
 
 ## Tagging mechanism
-A tag is a string value that groups keys. A key can be related to any number of tags. 
+Cluster compatible tagging mechanism where tags are used to groups keys, so they can be retrieved or invalidated at the same time. 
+A key can be related to any number of tags. 
+
+![Image of Tagging Mechanism](http://i.imgur.com/26TyMYR.png)
 
 #### Add a single object related to a tag
 Add a single object to the cache and associate it with tags *red* and *blue*:
@@ -96,6 +100,8 @@ context.Cache.InvalidateKeysByTag("blue", "green");
 ```
 
 ### Fetching mechanism
+Shortcut methods are provided for atomic add/get operations.
+![Image of Fetching Mechanism](http://i.imgur.com/Kb9OBlK.png)
 
 #### Fetch an object
 Try to get an object from the cache, inserting it to the cache if it does not exists:
@@ -106,6 +112,8 @@ The method `GetUserFromDatabase` will only be called when the value is not prese
 
 ### Hashes
 Hashes are maps composed of fields associated with values, like .NET dictionaries.
+
+![Image of hashes](http://i.imgur.com/B6Wz7es.png)
 
 #### Set hashed objects
 Set an object on a redis key indexed by a field key (sub-key):
@@ -135,35 +143,12 @@ context.Cache.RemoveHashed(redisKey, "user:id:1");
 
 --------------
 
-### [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
+[.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
+=====
+
 Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
 
-#### Get a .NET IList stored in a Redis List
-```c#
-IList<User> users = context.Collections.GetRedisList<User>(redisKey);
-```
-
-#### Get a .NET ICollection stored in a Redis Set
-```c#
-ICollection<User> users = context.Collections.GetRedisSet<User>(redisKey);
-```
-
-#### Get a .NET ICollection stored in a Redis Sorted Set
-```c#
-ICollection<User> users = context.Collections.GetRedisSortedSet<User>(redisKey);
-```
-
-#### Get a .NET IDictionary stored in a Redis Hash
-```c#
-IDictionary<string, User> users = context.Collections.GetRedisDictionary<string, User>(redisKey);
-```
-
-#### Get a .NET ICollection<bool> stored in a Redis Bitmap
-```c#
-ICollection<bool> bitmap = context.Collections.GetRedisBitmap(redisKey);
-```
-
-**For more details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
+**For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
 
 --------------
 
