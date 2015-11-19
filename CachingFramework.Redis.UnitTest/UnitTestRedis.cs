@@ -111,10 +111,26 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             string key = "UT_CacheFetch";
             int count = 0;
             _context.Cache.Remove(key);
-            _context.Cache.FetchObject(key, () => { count++; return GetUsers(); });
-            _context.Cache.FetchObject(key, () => { count++; return GetUsers(); });
+            var a = _context.Cache.FetchObject(key, () => { count++; return GetUsers(); });
+            var b = _context.Cache.FetchObject(key, () => { count++; return GetUsers(); });
             _context.Cache.FetchObject(key, () => { count++; return GetUsers(); });
             Assert.AreEqual(1, count);
+            Assert.AreEqual(a[0].Id, b[0].Id);
+        }
+
+        [TestMethod]
+        public void UT_CacheFetch_TTL()
+        {
+            // Test the Fetch method
+            string key = "UT_CacheFetch_TTL";
+            int count = 0;
+            _context.Cache.Remove(key);
+            _context.Cache.FetchObject(key, () => { count++; return GetUsers(); }, TimeSpan.FromSeconds(2));
+            _context.Cache.FetchObject(key, () => { count++; return GetUsers(); });
+            Assert.AreEqual(1, count);
+            Thread.Sleep(2200);
+            _context.Cache.FetchObject(key, () => { count++; return GetUsers(); });
+            Assert.AreEqual(2, count);
         }
 
         [TestMethod]

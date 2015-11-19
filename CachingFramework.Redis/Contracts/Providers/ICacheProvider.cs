@@ -30,10 +30,21 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The cache key.</param>
         /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        T FetchObject<T>(string key, Func<T> func, TimeSpan? expiry = null);
+        /// <summary>
+        /// Fetches data from the cache, using the given cache key.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key and associated to the given tags, and that will be returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
         /// <param name="tags">The tags to associate with the key. Only associated when there is a cache miss.</param>
         /// <param name="expiry">The expiration timespan.</param>
         /// <returns>``0.</returns>
-        T FetchObject<T>(string key, Func<T> func, string[] tags = null, TimeSpan? expiry = null);
+        T FetchObject<T>(string key, Func<T> func, string[] tags, TimeSpan? expiry = null);
         /// <summary>
         /// Set the value of a key
         /// </summary>
