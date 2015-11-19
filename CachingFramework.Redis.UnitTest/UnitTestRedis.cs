@@ -124,8 +124,6 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             string key = "UT_CacheFetchHashed";
             bool r = _context.Cache.Remove(key);
             var users = GetUsers();
-            bool enteredFirstTime = false;
-            bool enteredSecondTime = false;
             var returnedUser1 = _context.Cache.FetchHashed<User>(key, users[0].Id.ToString(), () => users[0]);
             var returnedUser2 = _context.Cache.FetchHashed<User>(key, users[0].Id.ToString(), () => null);
             Assert.AreEqual(users[0].Id, returnedUser1.Id);

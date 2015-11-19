@@ -44,18 +44,16 @@ namespace CachingFramework.Redis.Providers
         /// <param name="expiry">The expiration timespan.</param>
         public T FetchObject<T>(string key, Func<T> func, string[] tags = null, TimeSpan? expiry = null)
         {
-            T value = GetObject<T>(key);
-            if (null == value)
+            T value;
+            var cacheValue = RedisConnection.GetDatabase().StringGet(key);
+            if (cacheValue.HasValue)
+            {
+                value = Serializer.Deserialize<T>(cacheValue);
+            }
+            else
             {
                 value = func();
-                if (tags == null || tags.Length == 0)
-                {
-                    SetObject(key, value, expiry);
-                }
-                else
-                {
-                    SetObject(key, value, tags, expiry);
-                }
+                SetObject(key, value, tags, expiry);
             }
             return value;
         }
@@ -72,8 +70,13 @@ namespace CachingFramework.Redis.Providers
         /// <param name="expiry">The expiration timespan.</param>
         public T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null)
         {
-            T value = GetHashed<T>(key, field);
-            if (null == value)
+            T value;
+            var cacheValue = RedisConnection.GetDatabase().HashGet(key, field);
+            if (cacheValue.HasValue)
+            {
+                value = Serializer.Deserialize<T>(cacheValue);
+            }
+            else
             {
                 value = func();
                 SetHashed(key, field, value, expiry);
@@ -351,7 +354,7 @@ namespace CachingFramework.Redis.Providers
             db.HashSet(key, fieldValues.Select(x => new HashEntry(x.Key, Serializer.Serialize(x.Value))).ToArray());
         }
         /// <summary>
-        /// Gets a specified hased value from a key
+        /// Gets a specified hashed value from a key
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
