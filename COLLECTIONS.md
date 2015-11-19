@@ -190,6 +190,11 @@ To add elements to the sorted set, use `Add` or `AddRange` methods prividing the
 sortedSet.Add(12.34, new User() { Id = 1 });
 ```
 
+To increment/decrement a score for an item, use the `IncrementScore` method:
+```c#
+double incremented = sortedSet.IncrementScore(user, 10.00);
+```
+
 To get a range of elements by rank or by score, use the `GetRangeByScore` and `GetRangeByRank` methods.
 For example to get all the elements with the exception of the top and the bottom ranked values:
 ```c#
@@ -200,6 +205,18 @@ For example to get elements with score less than or equal to 100:
 ```c#
 var byScore = sortedSet.GetRangeByScore(double.NegativeInfinity, 100.00);
 ```
+
+You can remove a range by rank or by score.
+For example to remove the first two elements sorted by score:
+```c#
+sortedSet.RemoveRangeByRank(0, 1);
+```
+
+Remove the elements whose score is between 0 and 100:
+```c#
+sortedSet.RemoveRangeByScore(0.00, 100.00);
+```
+
 
 ## IRedisSortedSet mapping to Redis Sorted Set
 
