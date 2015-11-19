@@ -4,13 +4,13 @@ The following are the .NET objects provided to handle Redis collections:
 
 | CacheContext method | Description | Redis object | Common interface |
 | ------------ | ---------------- | -------------- | ------------------- |
-| ```GetRedisList()``` | Double-linked list of objects | List | ```IList<T>``` |
-| ```GetRedisDictionary()``` | Dictionary of values | Hash | ```IDictionary<TK, TV>``` |
-| ```GetRedisSet()``` | Set of unique objects | Set | ```ICollection<T>``` |
-| ```GetRedisSortedSet()``` | Set of unique objects sorted by score | Sorted Set | ```ICollection<T>``` |
-| ```GetRedisBitmap()``` | Binary value | Bitmap | ```ICollection<bool>``` |
-| ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` |
-| ```GetRedisString()``` | Binary-safe string | String | ```IEnumerable<byte>``` |
+| [```GetRedisList()```](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lists-) | Double-linked list of objects | List | ```IList<T>``` |
+| [```GetRedisSet()```](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-sets-) | Set of unique objects | Set | ```ICollection<T>``` |
+| [```GetRedisDictionary()```](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-hashes-) | Dictionary of values | Hash | ```IDictionary<TK, TV>``` |
+| [```GetRedisSortedSet()```](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-sorted-sets-) | Set of unique objects sorted by score | Sorted Set | ```ICollection<T>``` |
+| [```GetRedisBitmap()```](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-bitmaps-) | Binary value | Bitmap | ```ICollection<bool>``` |
+| [```GetRedisLexicographicSet()```](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set) | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` |
+| [```GetRedisString()```](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-string-) | Binary-safe string | String | ```IEnumerable<byte>``` |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
