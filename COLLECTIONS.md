@@ -423,6 +423,7 @@ Mapping between `IRedisString` methods/properties to the Redis commands used:
 |------|------|-------|
 |`Append(string value)`|[APPEND](http://redis.io/commands/append)|O(1)|
 |`Set(string value)`|[SET](http://redis.io/commands/set)|O(1)|
+|`GetSet(string value)`|[GETSET](http://redis.io/commands/getset)|O(1)|
 |`SetRange(long offset, string value)`|[SETRANGE](http://redis.io/commands/setrange)|O(1)|
 |`GetRange(long start, long stop)`|[GETRANGE](http://redis.io/commands/getrange)|O(M) : M is the length of the returned string |
 |`Length`|[STRLEN](http://redis.io/commands/strlen)|O(1)|
