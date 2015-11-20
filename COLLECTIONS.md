@@ -413,6 +413,8 @@ long GetOnlineCount()
 }
 ```
 
+There is no need to initialize the string value to "0" when using increment functions, since a zero-value is assumed when the key does not exists. 
+
 ## IRedisString mapping to Redis String
 
 Mapping between `IRedisString` methods/properties to the Redis commands used:
