@@ -67,6 +67,47 @@ namespace CachingFramework.Redis.RedisObjects
             GetRedisDb().StringSet(RedisKey, value);
         }
         /// <summary>
+        /// Overwrites the integer stored at key. 
+        /// </summary>
+        /// <param name="value">The new integer to write.</param>
+        public void Set(long value)
+        {
+            GetRedisDb().StringSet(RedisKey, value);
+            
+        }
+        /// <summary>
+        /// Overwrites the floating point number stored at key. 
+        /// </summary>
+        /// <param name="value">The new number to write.</param>
+        public void Set(double value)
+        {
+            GetRedisDb().StringSet(RedisKey, value);
+        }
+        /// <summary>
+        /// Overwrites the entire string stored at key and returns the old value stored at key. 
+        /// </summary>
+        /// <param name="value">The new string to write.</param>
+        public string GetSet(string value)
+        {
+            return GetRedisDb().StringGetSet(RedisKey, value);
+        }
+        /// <summary>
+        /// Overwrites the entire integer stored at key and returns the old value stored at key. 
+        /// </summary>
+        /// <param name="value">The new integer to write.</param>
+        public long GetSet(long value)
+        {
+            return (long)GetRedisDb().StringGetSet(RedisKey, value);
+        }
+        /// <summary>
+        /// Overwrites the entire floating point number stored at key and returns the old value stored at key. 
+        /// </summary>
+        /// <param name="value">The new integer to write.</param>
+        public double GetSet(double value)
+        {
+            return (double)GetRedisDb().StringGetSet(RedisKey, value);
+        }
+        /// <summary>
         /// Returns the substring of the string value stored at key, determined by the offsets start and stop (both are inclusive).
         /// Negative offsets can be used in order to provide an offset starting from the end of the string. So -1 means the last character.
         /// </summary>

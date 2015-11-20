@@ -19,6 +19,31 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="value">The new string to write.</param>
         void Set(string value);
         /// <summary>
+        /// Overwrites the integer stored at key. 
+        /// </summary>
+        /// <param name="value">The new integer to write.</param>
+        void Set(long value);
+        /// <summary>
+        /// Overwrites the floating point number stored at key. 
+        /// </summary>
+        /// <param name="value">The new number to write.</param>
+        void Set(double value);
+        /// <summary>
+        /// Overwrites the entire string stored at key and returns the old value stored at key. 
+        /// </summary>
+        /// <param name="value">The new string to write.</param>
+        string GetSet(string value);
+        /// <summary>
+        /// Overwrites the entire integer stored at key and returns the old value stored at key. 
+        /// </summary>
+        /// <param name="value">The new integer to write.</param>
+        long GetSet(long value);
+        /// <summary>
+        /// Overwrites the entire floating point number stored at key and returns the old value stored at key. 
+        /// </summary>
+        /// <param name="value">The new number to write.</param>
+        double GetSet(double value);
+        /// <summary>
         /// Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value. 
         /// If the offset is larger than the current length of the string at key, the string is padded with zero-bytes to make offset fit. 
         /// Non-existing keys are considered as empty strings, so this command will make sure it holds a string large enough to be able to set value at offset.

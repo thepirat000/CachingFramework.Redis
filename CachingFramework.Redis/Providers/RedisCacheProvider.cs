@@ -59,12 +59,7 @@ namespace CachingFramework.Redis.Providers
         public T FetchObject<T>(string key, Func<T> func, string[] tags, TimeSpan? expiry = null)
         {
             T value;
-            var cacheValue = RedisConnection.GetDatabase().StringGet(key);
-            if (cacheValue.HasValue)
-            {
-                value = Serializer.Deserialize<T>(cacheValue);
-            }
-            else
+            if (!TryGetObject(key, out value))
             {
                 value = func();
                 SetObject(key, value, tags, expiry);
@@ -85,12 +80,7 @@ namespace CachingFramework.Redis.Providers
         public T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null)
         {
             T value;
-            var cacheValue = RedisConnection.GetDatabase().HashGet(key, field);
-            if (cacheValue.HasValue)
-            {
-                value = Serializer.Deserialize<T>(cacheValue);
-            }
-            else
+            if (!TryGetHashed(key, field, out value))
             {
                 value = func();
                 SetHashed(key, field, value, expiry);
@@ -149,6 +139,23 @@ namespace CachingFramework.Redis.Providers
             // Add the key-value
             batch.StringSetAsync(key, serialized, ttl);
             batch.Execute();
+        }
+        /// <summary>
+        /// Atomically sets key to value and returns the old value stored at key. 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The new value value.</param>
+        /// <returns>The old value</returns>
+        public T GetSetObject<T>(string key, T value)
+        {
+            var serialized = Serializer.Serialize(value);
+            var oldValue = RedisConnection.GetDatabase().StringGetSet(key, serialized);
+            if (oldValue.HasValue)
+            {
+                return Serializer.Deserialize<T>(oldValue);
+            }
+            return default(T);
         }
         /// <summary>
         /// Relates the given tags to a key.
@@ -254,6 +261,24 @@ namespace CachingFramework.Redis.Providers
                 return Serializer.Deserialize<T>(cacheValue);
             }
             return default(T);
+        }
+        /// <summary>
+        /// Try to get the value of a key
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value"> When this method returns, contains the value associated with the specified key, if the key is found; 
+        /// otherwise, the default value for the type of the value parameter.</param>
+        /// <returns>True if the cache contains an element with the specified key; otherwise, false.</returns>
+        public bool TryGetObject<T>(string key, out T value)
+        {
+            var cacheValue = RedisConnection.GetDatabase().StringGet(key);
+            if (!cacheValue.HasValue)
+            {
+                value = default(T);
+                return false;
+            }
+            value = Serializer.Deserialize<T>(cacheValue);
+            return true;
         }
         /// <summary>
         /// Returns the entire collection of tags
@@ -375,8 +400,27 @@ namespace CachingFramework.Redis.Providers
         /// <param name="field">The field.</param>
         public T GetHashed<T>(string key, string field)
         {
-            var redisValue = RedisConnection.GetDatabase().HashGet(key, field);
-            return !redisValue.IsNull ? Serializer.Deserialize<T>(redisValue) : default(T);
+            var cacheValue = RedisConnection.GetDatabase().HashGet(key, field);
+            return cacheValue.HasValue ? Serializer.Deserialize<T>(cacheValue) : default(T);
+        }
+        /// <summary>
+        /// Try to get the value of an element in a hashed key
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The hash field.</param>
+        /// <param name="value">When this method returns, contains the value associated with the specified hash field within the key, if the key and field are found; 
+        /// otherwise, the default value for the type of the value parameter.</param>
+        /// <returns>True if the cache contains a hashed element with the specified key and field; otherwise, false.</returns>
+        public bool TryGetHashed<T>(string key, string field, out T value)
+        {
+            var cacheValue = RedisConnection.GetDatabase().HashGet(key, field);
+            if (!cacheValue.HasValue)
+            {
+                value = default(T);
+                return false;
+            }
+            value = Serializer.Deserialize<T>(cacheValue);
+            return true;
         }
         /// <summary>
         /// Removes a specified hased value from cache

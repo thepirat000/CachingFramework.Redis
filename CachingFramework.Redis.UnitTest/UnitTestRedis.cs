@@ -147,6 +147,61 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         }
 
         [TestMethod]
+        public void UT_CacheTryGetObject()
+        {
+            // Test the TryGetObject method
+            string key = "UT_CacheTryGetObject";
+            _context.Cache.Remove(key);
+            var users = GetUsers();
+            User u1;
+            _context.Cache.SetObject(key, users[0]);
+            bool b = _context.Cache.TryGetObject(key + "x7rz9a", out u1);
+            Assert.IsFalse(b);
+            Assert.IsNull(u1);
+            b = _context.Cache.TryGetObject(key, out u1);
+            Assert.IsTrue(b);
+            Assert.IsNotNull(u1);
+        }
+
+        [TestMethod]
+        public void UT_CacheTryGetHashed()
+        {
+            // Test the TryGetHashed method
+            string key = "UT_CacheTryGetHashed";
+            _context.Cache.Remove(key);
+            var users = GetUsers();
+            User u1;
+            _context.Cache.SetHashed(key, users[0].Id.ToString(), users[0]);
+            bool b = _context.Cache.TryGetHashed(key, "a", out u1);
+            Assert.IsFalse(b);
+            Assert.IsNull(u1);
+            b = _context.Cache.TryGetHashed(key, users[0].Id.ToString(), out u1);
+            Assert.IsTrue(b);
+            Assert.IsNotNull(u1);
+        }
+
+        [TestMethod]
+        public void UT_CacheGetSetObject()
+        {
+            // Test the GetSetObject method
+            string key = "UT_CacheGetSetObject";
+            _context.Cache.Remove(key);
+            var str = _context.Cache.GetSetObject<string>(key, "1");
+            Assert.IsNull(str);
+            str = _context.Cache.GetSetObject<string>(key, "2");
+            Assert.AreEqual("1", str);
+            str = _context.Cache.GetObject<string>(key);
+            Assert.AreEqual("2", str);
+            _context.Cache.Remove(key);
+            var integer = _context.Cache.GetSetObject<int>(key, 1);
+            Assert.AreEqual(0, integer);
+            integer = _context.Cache.GetSetObject<int>(key, 2);
+            Assert.AreEqual(1, integer);
+            integer = _context.Cache.GetObject<int>(key);
+            Assert.AreEqual(2, integer);
+        }
+
+        [TestMethod]
         public void UT_CacheGetHashAll()
         {
             // Test the GetHashAll method

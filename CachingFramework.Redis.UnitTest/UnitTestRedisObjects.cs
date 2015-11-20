@@ -658,6 +658,30 @@ namespace CachingFramework.Redis.UnitTest
             cs.Set("new string");
             Assert.AreEqual("new string", cs.ToString());
 
+            cs.Set(123.45);
+            Assert.AreEqual("123.45", cs.ToString());
+
+            cs.Set(12345);
+            Assert.AreEqual("12345", cs.ToString());
+        }
+
+        [TestMethod]
+        public void UT_CacheStringGetSet()
+        {
+            var key = "UT_CacheStringGetSet";
+            _context.Cache.Remove(key);
+            var cs = _context.Collections.GetRedisString(key);
+            var str = cs.GetSet("value");
+            Assert.IsNull(str);
+            str = cs.GetSet("new value");
+            Assert.AreEqual("value", str);
+            _context.Cache.Remove(key);
+            var integer = cs.GetSet(456);
+            Assert.AreEqual(0, integer);
+            Assert.AreEqual(456, cs.AsInteger());
+            var fp = cs.GetSet(789.12);
+            Assert.AreEqual(456.0, fp);
+            Assert.AreEqual(789.12, cs.AsFloat());
         }
 
         [TestMethod]
@@ -705,7 +729,7 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_CacheString_AsInteger";
             _context.Cache.Remove(key);
             var str = _context.Collections.GetRedisString(key);
-            str.Append((long.MaxValue - 1).ToString());
+            str.Set((long.MaxValue - 1).ToString());
             var value = str.IncrementBy(1);
             Assert.AreEqual(long.MaxValue, value);
         }

@@ -63,6 +63,14 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="ttl">The time to live.</param>
         void SetObject<T>(string key, T value, string[] tags, TimeSpan? ttl = null);
         /// <summary>
+        /// Atomically sets key to value and returns the old value stored at key. 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The new value value.</param>
+        /// <returns>The old value</returns>
+        T GetSetObject<T>(string key, T value);
+        /// <summary>
         /// Relates the given tags to a key.
         /// </summary>
         /// <param name="key">The key.</param>
@@ -81,6 +89,14 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="key">The key.</param>
         /// <returns>``0.</returns>
         T GetObject<T>(string key);
+        /// <summary>
+        /// Try to get the value of a key
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value"> When this method returns, contains the value associated with the specified key, if the key is found; 
+        /// otherwise, the default value for the type of the value parameter.</param>
+        /// <returns>True if the cache contains an element with the specified key; otherwise, false.</returns>
+        bool TryGetObject<T>(string key, out T value);
         /// <summary>
         /// Gets all the keys related to the given tag(s).
         /// Returns a hashset with the keys.
@@ -166,6 +182,15 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="field">The field.</param>
         /// <returns>``0.</returns>
         T GetHashed<T>(string key, string field);
+        /// <summary>
+        /// Try to get the value of a hash key
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The hash field.</param>
+        /// <param name="value"> When this method returns, contains the value associated with the specified hash field within the key, if the key and field are found; 
+        /// otherwise, the default value for the type of the value parameter.</param>
+        /// <returns>True if the cache contains a hashed element with the specified key and field; otherwise, false.</returns>
+        bool TryGetHashed<T>(string key, string field, out T value);
         /// <summary>
         /// Removes a specified hased value from cache
         /// </summary>

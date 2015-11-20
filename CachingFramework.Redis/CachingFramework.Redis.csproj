@@ -49,6 +49,7 @@
     <Compile Include="Context.cs" />
     <Compile Include="Contracts\GeoCoordinate.cs" />
     <Compile Include="Contracts\GeoMember.cs" />
+    <Compile Include="Contracts\IContext.cs" />
     <Compile Include="Contracts\ISerializer.cs" />
     <Compile Include="Contracts\Providers\ICollectionProvider.cs" />
     <Compile Include="Contracts\Providers\ICacheProvider.cs" />

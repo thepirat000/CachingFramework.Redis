@@ -3,14 +3,17 @@ using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.Providers;
 using CachingFramework.Redis.Providers;
 using CachingFramework.Redis.Serializers;
+using StackExchange.Redis;
 
 namespace CachingFramework.Redis
 {
     /// <summary>
-    /// Context class containing the public API.
+    /// Context class containing the public APIs.
     /// </summary>
-    public class Context
+    public class Context : IContext
     {
+        #region Fields
+        private readonly RedisProviderContext _internalContext;
         /// <summary>
         /// The cache provider
         /// </summary>
@@ -27,6 +30,9 @@ namespace CachingFramework.Redis
         /// The pub/sub provider
         /// </summary>
         private readonly IPubSubProvider _pubsubProvider;
+        #endregion
+
+        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="Context" /> class using Redis in localhost server default port 6379, and using the default BinarySerializer.
         /// </summary>
@@ -50,12 +56,14 @@ namespace CachingFramework.Redis
         /// <param name="log">The textwriter to use for logging purposes.</param>
         public Context(string configuration, ISerializer serializer, TextWriter log)
         {
-            var providerContext = new RedisProviderContext(configuration, serializer, log);
-            _collectionProvider = new RedisCollectionProvider(providerContext);
-            _cacheProvider = new RedisCacheProvider(providerContext);
-            _geoProvider = new RedisGeoProvider(providerContext);
-            _pubsubProvider = new RedisPubSubProvider(providerContext);
+            _internalContext = new RedisProviderContext(configuration, serializer, log);
+            _collectionProvider = new RedisCollectionProvider(_internalContext);
+            _cacheProvider = new RedisCacheProvider(_internalContext);
+            _geoProvider = new RedisGeoProvider(_internalContext);
+            _pubsubProvider = new RedisPubSubProvider(_internalContext);
         }
+        #endregion
+        #region IContext implementation
         /// <summary>
         /// Gets the cache API.
         /// </summary>
@@ -85,5 +93,17 @@ namespace CachingFramework.Redis
         {
             get { return _pubsubProvider; }
         }
+        #endregion
+        #region Public methods
+        /// <summary>
+        /// Gets the StackExchange.Redis's connection multiplexer.
+        /// Use this if you want to directly access the SE.Redis API.
+        /// </summary>
+        /// <returns>IConnectionMultiplexer.</returns>
+        public IConnectionMultiplexer GetConnectionMultiplexer()
+        {
+            return _internalContext.RedisConnection;
+        }
+        #endregion
     }
 }
