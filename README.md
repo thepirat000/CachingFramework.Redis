@@ -64,7 +64,7 @@ context.Cache.Remove(redisKey);
 ```
 
 ## Tagging mechanism
-Cluster compatible tagging mechanism where tags are used to groups keys, so they can be retrieved or invalidated at the same time. 
+Cluster compatible tagging mechanism where tags are used to group keys, so they can be retrieved or invalidated at the same time. 
 A key can be related to any number of tags. 
 
 ![Image of Tagging Mechanism](http://i.imgur.com/26TyMYR.png)
@@ -110,6 +110,12 @@ var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(i
 ```
 The method `GetUserFromDatabase` will only be called when the value is not present on the cache, in which case will be added to the cache before returning it.
 
+Fetch an object with a time-to-live:
+```c#
+var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id), TimeSpan.FromDays(1));
+```
+
+
 ### Hashes
 Hashes are maps composed of fields associated with values, like .NET dictionaries.
 
@@ -140,6 +146,12 @@ Objects within a hash can be of different types.
 ```c#
 context.Cache.RemoveHashed(redisKey, "user:id:1");
 ```
+
+#### Fetch a hashed object
+```c#
+var user = context.Cache.FetchHashed<User>(redisKey, "user:id:1", () => GetUser(1));
+```
+The method `GetUser` will only be called when the value is not present on the hash, in which case will be added to the hash before returning it.
 
 --------------
 

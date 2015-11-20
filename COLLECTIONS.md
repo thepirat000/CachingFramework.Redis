@@ -2,15 +2,15 @@
 =====
 The following are the .NET objects provided to handle Redis collections:
 
-| CacheContext method | Description | Redis object | Common interface |
+| Object type | CacheContext method | Description | Common interface |
 | ------------ | ---------------- | -------------- | ------------------- |
-| ```GetRedisList()``` | Double-linked list of objects | List | ```IList<T>``` |
-| ```GetRedisDictionary()``` | Dictionary of values | Hash | ```IDictionary<TK, TV>``` |
-| ```GetRedisSet()``` | Set of unique objects | Set | ```ICollection<T>``` |
-| ```GetRedisSortedSet()``` | Set of unique objects sorted by score | Sorted Set | ```ICollection<T>``` |
-| ```GetRedisBitmap()``` | Binary value | Bitmap | ```ICollection<bool>``` |
-| ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | Sorted Set | ```ICollection<string>``` |
-| ```GetRedisString()``` | Binary-safe string | String | ```IEnumerable<byte>``` |
+| [List](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lists-) | ```GetRedisList()``` | Double-linked list of objects | ```IList<T>``` |
+| [Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-sets-) | ```GetRedisSet()``` | Set of unique objects | ```ICollection<T>``` |
+| [Hash](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-hashes-) | ```GetRedisDictionary()``` | Dictionary of values | ```IDictionary<TK, TV>``` |
+| [Sorted Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-sorted-sets-) | ```GetRedisSortedSet()``` | Set of unique objects sorted by score | ```ICollection<T>``` |
+| [Bitmap](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-bitmaps-) | ```GetRedisBitmap()``` | Binary value | ```ICollection<bool>``` |
+| [Lex. Sorted Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set) | ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | ```ICollection<string>``` |
+| [String](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-string-) | ```GetRedisString()``` | Binary-safe string | ```IEnumerable<byte>``` |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
@@ -33,12 +33,21 @@ To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ``
 IRedisList<User> list = context.Collections.GetRedisList<User>("user:list");
 ```
 
-To add elements to the list, use `Add` / `AddRange` / `Insert` / `AddFirst` or `AddLast` methods:
+To push elements to the list use `PushFirst` / `PushLast` methods:
+```c#
+list.PushFirst(new User() { Id = 0 });
+```
 
+To pop elements from the list use `PopFirst` / `PopLast` methods:
+```c#
+var user = list.PopFirst();
+```
+
+You can also add elements to the list by using `Add` / `AddRange` / `Insert` methods:
 ```c#
 list.Add(new User() { Id = 1 });
 list.AddRange(new [] { new User() { Id = 2 }, new User() { Id = 3 } });
-list.AddFirst(new User() { Id = 0 });
+list.Insert(2, new User() { Id = 4 });
 ```
 
 To get a range of elements from the list, use the `GetRange` method.
@@ -64,7 +73,7 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 |`LastOrDefault()`|[LINDEX](http://redis.io/commands/lindex)|O(1)|
 |`PopFirst()`|[LPOP](http://redis.io/commands/lpop)|O(1)|
 |`PopLast()`|[RPOP](http://redis.io/commands/rpop)|O(1)|
-|`Remove(T item)`|[LREM](http://redis.io/commands/lrem)|O(N)|
+|`Remove(T item, long count)`|[LREM](http://redis.io/commands/lrem)|O(N)|
 |`RemoveAt(long index)`|[LSET](http://redis.io/commands/lset) + [LREM](http://redis.io/commands/lrem)|O(N)|
 |`Contains(T item)`|[LRANGE](http://redis.io/commands/lrange)|O(N)|
 |`Clear()`|[DEL](http://redis.io/commands/del)|O(1)|
@@ -130,17 +139,24 @@ To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use 
 IRedisDictionary<int, User> hash = context.Collections.GetRedisDictionary<int, User>("user:hash");
 ```
 
-To add elements to the list, use `Add` or `AddRange` methods:
+To add elements to the list, use `Add` / `AddRange`  methods or the indexed property:
 
 ```c#
 hash.Add(1, new User() { Id = 1 });
 hash.AddRange(usersQuery.ToDictionary(k => k.Id));
+hash[2] = new User() { Id = 1 };
 ```
 
 To check if a hash element exists, use `ContainsKey` method:
 ```c#
 bool exists = hash.ContainsKey(1);
 ```
+
+To access a hash element by key, use the indexed property:
+```c#
+User u = hash[1];
+```
+
 
 ## IRedisDictionary mapping to Redis Hash
 
@@ -174,6 +190,11 @@ To add elements to the sorted set, use `Add` or `AddRange` methods prividing the
 sortedSet.Add(12.34, new User() { Id = 1 });
 ```
 
+To increment/decrement a score for an item, use the `IncrementScore` method:
+```c#
+double incremented = sortedSet.IncrementScore(user, 10.00);
+```
+
 To get a range of elements by rank or by score, use the `GetRangeByScore` and `GetRangeByRank` methods.
 For example to get all the elements with the exception of the top and the bottom ranked values:
 ```c#
@@ -184,6 +205,18 @@ For example to get elements with score less than or equal to 100:
 ```c#
 var byScore = sortedSet.GetRangeByScore(double.NegativeInfinity, 100.00);
 ```
+
+You can remove a range by rank or by score.
+For example to remove the first two elements sorted by score:
+```c#
+sortedSet.RemoveRangeByRank(0, 1);
+```
+
+Remove the elements whose score is between 0 and 100:
+```c#
+sortedSet.RemoveRangeByScore(0.00, 100.00);
+```
+
 
 ## IRedisSortedSet mapping to Redis Sorted Set
 
@@ -351,7 +384,7 @@ string s = cstr[6, 8];   // will return the string "WOR".
 
 ### Redis string as a number
 
-If the contents of the redis string can be parsed as an integer/double, the value can be changed in one operation with the `IncrementBy` / `IncrementByFloat` methods.
+Overloads of the `Set` and `GetSet` methods are provided for setting the string value as an integer or a floating point number. The value can be changed in one operation with the `IncrementBy` / `IncrementByFloat` methods. Use the `AsInteger` and `AsFloat` to get the long/double value represented by the string.
 
 For example to maintain a real-time counter of the users online.
 
@@ -360,7 +393,8 @@ When a user connects, increment the redis string value:
 ```c#
 void OnConnect()
 {
-    context.Collections.GetRedisString("online:count").IncrementBy(1);
+    var rs = context.Collections.GetRedisString("online:count");
+    rs.IncrementBy(1);
 }
 ```
 
@@ -368,7 +402,8 @@ Upon disconnection decrement:
 ```c#
 void OnDisconnect()
 {
-    context.Collections.GetRedisString("online:count").IncrementBy(-1);
+    var rs = context.Collections.GetRedisString("online:count");
+    rs.IncrementBy(-1);
 }
 ```
 
@@ -376,9 +411,23 @@ To get the online counter use the `AsInteger` method:
 ```c#
 long GetOnlineCount()
 {
-    return context.Collections.GetRedisString("online:count").AsInteger();
+    var rs = context.Collections.GetRedisString("online:count");
+    return rs.AsInteger();
 }
 ```
+
+Use the `GetSet` method to atomically overwrite the value and return the old value.
+
+This can be used, for example, to atomically reset a counter:
+```c#
+long ResetCount()
+{
+    var rs = context.Collections.GetRedisString("online:count");
+    return rs.GetSet(0);  // return the last value before reset
+}
+```
+
+There is no need to initialize the string value to "0" when using increment functions, since a zero-value is assumed when the key does not exists. 
 
 ## IRedisString mapping to Redis String
 
@@ -388,6 +437,7 @@ Mapping between `IRedisString` methods/properties to the Redis commands used:
 |------|------|-------|
 |`Append(string value)`|[APPEND](http://redis.io/commands/append)|O(1)|
 |`Set(string value)`|[SET](http://redis.io/commands/set)|O(1)|
+|`GetSet(string value)`|[GETSET](http://redis.io/commands/getset)|O(1)|
 |`SetRange(long offset, string value)`|[SETRANGE](http://redis.io/commands/setrange)|O(1)|
 |`GetRange(long start, long stop)`|[GETRANGE](http://redis.io/commands/getrange)|O(M) : M is the length of the returned string |
 |`Length`|[STRLEN](http://redis.io/commands/strlen)|O(1)|
