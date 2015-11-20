@@ -384,7 +384,7 @@ string s = cstr[6, 8];   // will return the string "WOR".
 
 ### Redis string as a number
 
-If the contents of the redis string can be parsed as an integer/double, the value can be changed in one operation with the `IncrementBy` / `IncrementByFloat` methods.
+Overloads of the `Set` and `GetSet` methods are provided for setting the string value as an integer or a floating point number. The value can be changed in one operation with the `IncrementBy` / `IncrementByFloat` methods. Use the `AsInteger` and `AsFloat` to get the long/double value represented by the string.
 
 For example to maintain a real-time counter of the users online.
 
@@ -393,7 +393,8 @@ When a user connects, increment the redis string value:
 ```c#
 void OnConnect()
 {
-    context.Collections.GetRedisString("online:count").IncrementBy(1);
+    var rs = context.Collections.GetRedisString("online:count");
+    rs.IncrementBy(1);
 }
 ```
 
@@ -401,7 +402,8 @@ Upon disconnection decrement:
 ```c#
 void OnDisconnect()
 {
-    context.Collections.GetRedisString("online:count").IncrementBy(-1);
+    var rs = context.Collections.GetRedisString("online:count");
+    rs.IncrementBy(-1);
 }
 ```
 
@@ -409,7 +411,19 @@ To get the online counter use the `AsInteger` method:
 ```c#
 long GetOnlineCount()
 {
-    return context.Collections.GetRedisString("online:count").AsInteger();
+    var rs = context.Collections.GetRedisString("online:count");
+    return rs.AsInteger();
+}
+```
+
+Use the `GetSet` method to atomically overwrite the value and return the old value.
+
+This can be used, for example, to atomically reset a counter:
+```c#
+long ResetCount()
+{
+    var rs = context.Collections.GetRedisString("online:count");
+    return rs.GetSet(0);  // return the last value before reset
 }
 ```
 
