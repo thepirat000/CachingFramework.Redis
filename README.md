@@ -63,6 +63,60 @@ User user = context.Cache.GetObject<User>(redisKey);
 context.Cache.Remove(redisKey);
 ```
 
+### Fetching mechanism
+Shortcut methods are provided for atomic add/get operations.
+![Image of Fetching Mechanism](http://i.imgur.com/Kb9OBlK.png)
+
+#### Fetch an object
+Try to get an object from the cache, inserting it to the cache if it does not exists:
+```c#
+var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id));
+```
+The method `GetUserFromDatabase` will only be called when the value is not present on the cache, in which case will be added to the cache before returning it.
+
+Fetch an object with a time-to-live:
+```c#
+var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id), TimeSpan.FromDays(1));
+```
+
+
+### Hashes
+Hashes are maps composed of fields associated with values, like .NET dictionaries.
+
+![Image of hashes](http://i.imgur.com/B6Wz7es.png)
+
+#### Set hashed objects
+Set an object on a redis key indexed by a field key (sub-key):
+```c#
+void InsertUser(User user)
+{
+    var redisKey = "users:hash";
+    var fieldKey = "user:id:" + user.Id;
+    context.Cache.SetHashed(redisKey, fieldKey, user);
+}
+```
+#### Get hashed object
+Get an object by the redis key and a field key:
+```c#
+User u = context.Cache.GetHashed<User>(redisKey, "user:id:1");
+```
+#### Get all the objects in a hash 
+```c#
+IDictionary<string, User> users = context.Cache.GetHashedAll<User>(redisKey);
+```
+Objects within a hash can be of different types. 
+
+#### Remove object from hash
+```c#
+context.Cache.RemoveHashed(redisKey, "user:id:1");
+```
+
+#### Fetch a hashed object
+```c#
+var user = context.Cache.FetchHashed<User>(redisKey, "user:id:1", () => GetUser(1));
+```
+The method `GetUser` will only be called when the value is not present on the hash, in which case will be added to the hash before returning it.
+
 ## Tagging mechanism
 Cluster compatible tagging mechanism where tags are used to group keys and hash fields, so they can be retrieved or invalidated at the same time. 
 A tag can be related to any number of keys and/or hash fields.
@@ -117,59 +171,6 @@ Remove all the keys and hash fields related to *blue* and/or *green* tags:
 context.Cache.InvalidateKeysByTag("blue", "green");
 ```
 
-### Fetching mechanism
-Shortcut methods are provided for atomic add/get operations.
-![Image of Fetching Mechanism](http://i.imgur.com/Kb9OBlK.png)
-
-#### Fetch an object
-Try to get an object from the cache, inserting it to the cache if it does not exists:
-```c#
-var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id));
-```
-The method `GetUserFromDatabase` will only be called when the value is not present on the cache, in which case will be added to the cache before returning it.
-
-Fetch an object with a time-to-live:
-```c#
-var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id), TimeSpan.FromDays(1));
-```
-
-
-### Hashes
-Hashes are maps composed of fields associated with values, like .NET dictionaries.
-
-![Image of hashes](http://i.imgur.com/B6Wz7es.png)
-
-#### Set hashed objects
-Set an object on a redis key indexed by a field key (sub-key):
-```c#
-void InsertUser(User user)
-{
-    var redisKey = "users:hash";
-    var fieldKey = "user:id:" + user.Id;
-    context.Cache.SetHashed(redisKey, fieldKey, user);
-}
-```
-#### Get hashed object
-Get an object by the redis key and a field key:
-```c#
-User u = context.Cache.GetHashed<User>(redisKey, "user:id:1");
-```
-#### Get all the objects in a hash 
-```c#
-IDictionary<string, User> users = context.Cache.GetHashedAll<User>(redisKey);
-```
-Objects within a hash can be of different types. 
-
-#### Remove object from hash
-```c#
-context.Cache.RemoveHashed(redisKey, "user:id:1");
-```
-
-#### Fetch a hashed object
-```c#
-var user = context.Cache.FetchHashed<User>(redisKey, "user:id:1", () => GetUser(1));
-```
-The method `GetUser` will only be called when the value is not present on the hash, in which case will be added to the hash before returning it.
 
 --------------
 
