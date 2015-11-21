@@ -3,7 +3,7 @@
 
 ##Features
  * [**Typed cache**](#typed-cache): any serializable object can be cached.
- * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate items by tag.
+ * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys and hash fields by tag.
  * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations.
  * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a value defining its time-to-live.
  * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
