@@ -408,6 +408,58 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
         }
 
         [TestMethod]
+        public void UT_CacheSetHashed_Tags()
+        {
+            string key = "UT_CacheSetHashed_Tags";
+            var users = GetUsers();
+            _context.Cache.Remove(key);
+            _context.Cache.InvalidateKeysByTag("common", "tagA", "tagB", "whole");
+            _context.Cache.SetHashed(key, "A", users[0], new[] { "common", "tagA" });
+            _context.Cache.SetHashed(key, "B", users[0], new[] { "tagB" });
+            _context.Cache.AddTagsToHashField(key, "B", new[] {"common"});
+            _context.Cache.SetHashed(key, "C", users[1], new[] { "common", "tagC" });        
+            _context.Cache.AddTagsToKey(key, new [] { "whole" });
+            var kwhole = _context.Cache.GetKeysByTag(new [] { "whole" });
+            var kcmn = _context.Cache.GetKeysByTag(new [] { "common" });
+            var ka = _context.Cache.GetKeysByTag(new [] { "tagA" });
+            var kb = _context.Cache.GetKeysByTag(new[] { "tagB" });
+            var kc = _context.Cache.GetKeysByTag(new[] { "tagC" });
+            var kab = _context.Cache.GetKeysByTag(new[] { "tagA", "tagB" });
+            Assert.AreEqual(3, kcmn.Count);
+            _context.Cache.InvalidateKeysByTag("tagA");
+            ka = _context.Cache.GetKeysByTag(new[] { "tagA" });
+            kcmn = _context.Cache.GetKeysByTag(new[] { "common" }, true);
+            Assert.IsFalse(ka.Any());
+            Assert.AreEqual(2, kcmn.Count);
+            var objs = _context.Cache.GetObjectsByTag<User>("common").ToList();
+            Assert.AreEqual(2, objs.Count);
+            _context.Cache.RemoveTagsFromHashField(key, "B", new [] { "common" });
+            objs = _context.Cache.GetObjectsByTag<User>("common").ToList();
+            Assert.AreEqual(1, objs.Count);
+        }
+
+        [TestMethod]
+        public void UT_CacheFetchHashed_Tags()
+        {
+            string key = "UT_CacheFetchHashed_Tags";
+            var users = GetUsers();
+            _context.Cache.InvalidateKeysByTag("common", "tag0", "tag1", "miss");
+            _context.Cache.Remove(key);
+            var u1 = _context.Cache.FetchHashed(key, users[0].Id.ToString(), () => users[0], new[] { "common", "tag0"});
+            var u2 = _context.Cache.FetchHashed(key, users[1].Id.ToString(), () => users[1], new[] { "common", "tag1" });
+            var u1t = _context.Cache.GetObjectsByTag<User>("tag1").ToList();
+            var ust = _context.Cache.GetObjectsByTag<User>("common").ToList();
+            Assert.AreEqual(1, u1t.Count);
+            Assert.AreEqual(2, ust.Count);
+            Assert.AreEqual(users[1].Id, u1t[0].Id);
+            int i = 0;
+            var u = _context.Cache.FetchHashed(key, users[1].Id.ToString(), () => { i++; return new User(); }, new[] { "miss" });
+            Assert.AreEqual(0, _context.Cache.GetKeysByTag(new[] {"miss"}).Count);
+            Assert.AreEqual(0, i);
+            Assert.AreEqual(users[1].Id, u.Id);
+        }
+
+        [TestMethod]
         public void UT_CacheSetWithTags()
         {
             string key = "miset"; //UT_CacheSetWithTags

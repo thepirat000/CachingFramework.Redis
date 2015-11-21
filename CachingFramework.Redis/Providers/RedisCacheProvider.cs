@@ -28,6 +28,10 @@ namespace CachingFramework.Redis.Providers
         /// The tag format for the keys representing tags
         /// </summary>
         protected const string TagFormat = ":$_tag_$:{0}";
+        /// <summary>
+        /// Separator to use for the value when a tag is related to a hash field
+        /// </summary>
+        protected const string TagHashSeparator = ":$_->_$:";
         #endregion
 
         #region ICacheProvider Implementation
@@ -72,18 +76,32 @@ namespace CachingFramework.Redis.Providers
         /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
         /// written to the cache under the given cache key-field, and that will be returned.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="key">The cache key.</param>
         /// <param name="field">The field to obtain.</param>
         /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
         /// <param name="expiry">The expiration timespan.</param>
         public T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null)
         {
+            return FetchHashed(key, field, func, null, expiry);
+        }
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the given tags.
+        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        public T FetchHashed<T>(string key, string field, Func<T> func, string[] tags, TimeSpan? expiry = null)
+        {
             T value;
             if (!TryGetHashed(key, field, out value))
             {
                 value = func();
-                SetHashed(key, field, value, expiry);
+                SetHashed(key, field, value, tags, expiry);
             }
             return value;
         }
@@ -120,21 +138,10 @@ namespace CachingFramework.Redis.Providers
             foreach (var tagName in tags)
             {
                 var tag = FormatTag(tagName);
-                var expiration = GetExpiration(db, tag, ttl);
                 // Add the tag-key relation
                 batch.SetAddAsync(tag, key);
                 // Set the expiration
-                if (expiration != null)
-                {
-                    if (expiration == TimeSpan.MaxValue)
-                    {
-                        batch.KeyPersistAsync(tag);
-                    }
-                    else
-                    {
-                        batch.KeyExpireAsync(tag, expiration);
-                    }
-                }
+                SetMaxExpiration(batch, tag, ttl);
             }
             // Add the key-value
             batch.StringSetAsync(key, serialized, ttl);
@@ -173,23 +180,49 @@ namespace CachingFramework.Redis.Providers
             batch.Execute();
         }
         /// <summary>
-        /// Removes the relation between the given tags and a key.
+        /// Relates the given tags to a field inside a hash key.
         /// </summary>
         /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
         /// <param name="tags">The tag(s).</param>
-        public void RemoveTagsFromKey(string key, string[] tags)
+        public void AddTagsToHashField(string key, string field, string[] tags)
+        {
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            foreach (var tag in tags)
+            {
+                batch.SetAddAsync(FormatTag(tag), FormatField(key, field));
+            }
+            batch.Execute();
+        }
+        /// <summary>
+        /// Removes the relation between the given tags and a field in a hash.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="tags">The tag(s).</param>
+        public void RemoveTagsFromHashField(string key, string field, string[] tags)
         {
             var db = RedisConnection.GetDatabase();
             var batch = db.CreateBatch();
             foreach (var tagName in tags)
             {
                 var tag = FormatTag(tagName);
-                batch.SetRemoveAsync(tag, key);
+                batch.SetRemoveAsync(tag, FormatField(key, field));
             }
             batch.Execute();
         }
         /// <summary>
-        /// Removes all the keys related to the given tag(s).
+        /// Removes the relation between the given tags and a key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="tags">The tag(s).</param>
+        public void RemoveTagsFromKey(string key, string[] tags)
+        {
+        }
+
+        /// <summary>
+        /// Removes all the keys and hash fields related to the given tag(s).
         /// </summary>
         /// <param name="tags">The tags.</param>
         public void InvalidateKeysByTag(params string[] tags)
@@ -200,7 +233,17 @@ namespace CachingFramework.Redis.Providers
             // Delete the keys
             foreach (var key in keys)
             {
-                batch.KeyDeleteAsync(key);
+                if (key.Contains(TagHashSeparator))
+                {
+                    // It's a hash
+                    var items = key.Split(new[] { TagHashSeparator }, StringSplitOptions.None);
+                    batch.HashDeleteAsync(items[0], items[1]);
+                }
+                else
+                {
+                    // It's a string
+                    batch.KeyDeleteAsync(key);
+                }
             }
             // Delete the tags
             foreach (var tagName in tags)
@@ -233,17 +276,27 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <typeparam name="T">The objects types</typeparam>
         /// <param name="tags">The tags</param>
-        /// <returns>IEnumerable{``0}.</returns>
         public IEnumerable<T> GetObjectsByTag<T>(params string[] tags)
         {
+            RedisValue value;
             var db = RedisConnection.GetDatabase();
             ISet<string> keys = GetKeysByAllTagsNoCleanup(db, tags);
             foreach (var key in keys)
             {
-                var value = db.StringGet(key);
+                if (key.Contains(TagHashSeparator))
+                {
+                    // It's a hash
+                    var items = key.Split(new[] { TagHashSeparator }, StringSplitOptions.None);
+                    value = db.HashGet(items[0], items[1]);
+                }
+                else
+                {
+                    // It's a string
+                    value = db.StringGet(key);
+                }
                 if (value.HasValue)
                 {
-                    yield return Serializer.Deserialize<T>(value);    
+                    yield return Serializer.Deserialize<T>(value);
                 }
             }
         }
@@ -317,7 +370,6 @@ namespace CachingFramework.Redis.Providers
         public bool KeyExpire(string key, DateTime expiration)
         {
             return RedisConnection.GetDatabase().KeyExpire(key, expiration);
-
         }
         /// <summary>
         /// Sets the time-to-live of a key from a timespan value.
@@ -365,17 +417,39 @@ namespace CachingFramework.Redis.Providers
             var db = RedisConnection.GetDatabase();
             var batch = db.CreateBatch();
             batch.HashSetAsync(key, field, Serializer.Serialize(value));
-            var expiration = GetExpiration(db, key, ttl);
-            if (expiration != null)
+            // Set the key expiration
+            SetMaxExpiration(batch, key, ttl);
+            batch.Execute();
+        }
+        /// <summary>
+        /// Sets the specified value to a hashset using the pair hashKey+field.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field key</param>
+        /// <param name="value">The value to store</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        public void SetHashed<T>(string key, string field, T value, string[] tags, TimeSpan? ttl = null)
+        {
+            if (tags == null || tags.Length == 0)
             {
-                if (expiration == TimeSpan.MaxValue)
-                {
-                    batch.KeyPersistAsync(key);
-                }
-                else
-                {
-                    batch.KeyExpireAsync(key, expiration);
-                }
+                SetHashed(key, field, value, ttl);
+                return;
+            }
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            batch.HashSetAsync(key, field, Serializer.Serialize(value));
+            // Set the key expiration
+            SetMaxExpiration(batch, key, ttl);
+            foreach (var tagName in tags)
+            {
+                var tag = FormatTag(tagName);
+                // Add the tag-key->field relation
+                batch.SetAddAsync(tag, FormatField(key, field));
+                // Set the tag expiration
+                SetMaxExpiration(batch, tag, ttl);
             }
             batch.Execute();
         }
@@ -386,8 +460,7 @@ namespace CachingFramework.Redis.Providers
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
         /// <param name="fieldValues">The field keys and values to store</param>
-        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
-        public void SetHashed<T>(string key, IDictionary<string, T> fieldValues, TimeSpan? ttl = null)
+        public void SetHashed<T>(string key, IDictionary<string, T> fieldValues)
         {
             var db = RedisConnection.GetDatabase();
             db.HashSet(key, fieldValues.Select(x => new HashEntry(x.Key, Serializer.Serialize(x.Value))).ToArray());
@@ -480,26 +553,42 @@ namespace CachingFramework.Redis.Providers
 
         #region Private Methods
         /// <summary>
-        /// Returns the maximum TTL between the current key TTL and the given TTL
+        /// Sets the maximum TTL between the current key TTL and the given TTL
         /// </summary>
-        /// <param name="db">The database.</param>
-        /// <param name="key">The key.</param>
+        /// <param name="batch">The batch context.</param>
+        /// <param name="key">The key to compare and (eventually) set the expiration.</param>
         /// <param name="ttl">The TTL.</param>
-        private static TimeSpan? GetExpiration(IDatabase db, string key, TimeSpan? ttl)
+        private static void SetMaxExpiration(IBatch batch, string key, TimeSpan? ttl)
         {
+            TimeSpan? final;
+            IDatabase db = batch.Multiplexer.GetDatabase();
             bool preexistent = db.KeyExists(key);
             TimeSpan? curr = preexistent ? db.KeyTimeToLive(key) : null;
             if (ttl != null && curr != null)
             {
                 // We have an expiration on both keys, use the max for the key
-                return curr > ttl ? curr : ttl;
+                final = curr > ttl ? curr : ttl;
             }
-            if (preexistent && ttl == null)
+            else if (preexistent && ttl == null)
             {
                 //Key is preexistent and no expiration given
-                return TimeSpan.MaxValue;
+                final = TimeSpan.MaxValue;
             }
-            return ttl;
+            else
+            {
+                final = ttl;
+            }
+            if (final != null)
+            {
+                if (final == TimeSpan.MaxValue)
+                {
+                    batch.KeyPersistAsync(key);
+                }
+                else
+                {
+                    batch.KeyExpireAsync(key, final);
+                }
+            }
         }
         /// <summary>
         /// Get all the keys related to a tag(s), the keys returned are not tested for existence.
@@ -526,6 +615,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="tags">The tags.</param>
         private static ISet<string> GetKeysByAllTagsWithCleanup(IDatabase db, params string[] tags)
         {
+            bool exists;
             var ret = new HashSet<string>();
             var toRemove = new List<RedisValue>();
             foreach (var tagName in tags)
@@ -533,11 +623,22 @@ namespace CachingFramework.Redis.Providers
                 var tag = FormatTag(tagName);
                 if (db.KeyType(tag) == RedisType.Set)
                 {
-                    var tagKeys = db.SetMembers(tag);
+                    var tagKeys = db.SetMembers(tag).Select(rv => rv.ToString());
                     //Get the existing keys and delete the dead keys
                     foreach (var key in tagKeys)
                     {
-                        if (db.KeyExists(key.ToString()))
+                        if (key.Contains(TagHashSeparator))
+                        {
+                            // It's a hash
+                            var items = key.Split(new[] {TagHashSeparator}, StringSplitOptions.None);
+                            exists = db.HashExists(items[0], items[1]);
+                        }
+                        else
+                        {
+                            // It's a string
+                            exists = db.KeyExists(key);
+                        }
+                        if (exists)
                         {
                             ret.Add(key);
                         }
@@ -562,6 +663,16 @@ namespace CachingFramework.Redis.Providers
         private static RedisKey FormatTag(string tag)
         {
             return string.Format(TagFormat, tag);
+        }
+        /// <summary>
+        /// Return the RedisValue to use for a tag that points to a hash field
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>RedisKey.</returns>
+        private static RedisValue FormatField(string key, string field)
+        {
+            return key + TagHashSeparator + field;
         }
         /// <summary>
         /// Runs a Server command in all the master servers.

@@ -19,8 +19,19 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="field">The field to obtain.</param>
         /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
         /// <param name="expiry">The expiration timespan.</param>
-        /// <returns>``0.</returns>
         T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null);
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the given tags.
+        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        T FetchHashed<T>(string key, string field, Func<T> func, string[] tags, TimeSpan? expiry = null);
         /// <summary>
         /// Fetches data from the cache, using the given cache key.
         /// If there is data in the cache with the given key, then that data is returned.
@@ -76,6 +87,20 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="key">The key.</param>
         /// <param name="tags">The tag(s).</param>
         void AddTagsToKey(string key, string[] tags);
+        /// <summary>
+        /// Relates the given tags to a field inside a hash key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="tags">The tag(s).</param>
+        void AddTagsToHashField(string key, string field, string[] tags);
+        /// <summary>
+        /// Removes the relation between the given tags and a field in a hash.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="tags">The tag(s).</param>
+        void RemoveTagsFromHashField(string key, string field, string[] tags);
         /// <summary>
         /// Removes the relation between the given tags and a key.
         /// </summary>
@@ -158,22 +183,29 @@ namespace CachingFramework.Redis.Contracts.Providers
         bool Remove(string key);
         /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
-        /// (The latest expiration applies to the whole key)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
         /// <param name="field">The field key</param>
         /// <param name="value">The value to store</param>
-        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
         void SetHashed<T>(string key, string field, T value, TimeSpan? ttl = null);
         /// <summary>
+        /// Sets the specified value to a hashset using the pair hashKey+field and associate the field to given tags.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field key</param>
+        /// <param name="value">The value to store</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
+        void SetHashed<T>(string key, string field, T value, string[] tags, TimeSpan? ttl = null);
+        /// <summary>
         /// Sets the specified key/values pairs to a hashset.
-        /// (The latest expiration applies to the whole key)
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="fieldValues">The field keys and values to store</param>
-        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
-        void SetHashed<T>(string key, IDictionary<string, T> fieldValues, TimeSpan? ttl = null);
+        void SetHashed<T>(string key, IDictionary<string, T> fieldValues);
         /// <summary>
         /// Gets a specified hased value from a key
         /// </summary>
