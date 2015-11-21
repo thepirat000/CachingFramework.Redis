@@ -3,8 +3,8 @@
 
 ##Features
  * [**Typed cache**](#typed-cache): any serializable object can be cached.
- * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate items by tag.
  * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations.
+ * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys and hash fields by tag.
  * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a value defining its time-to-live.
  * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
  * [**Lexicographically sorted sets**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set): for fast string matching and auto-complete suggestion. 
@@ -39,7 +39,8 @@ var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortC
 ```
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
-## Typed cache
+Typed cache
+=====
 Any primitive type or serializable class can be used as a cache value.
 
 ### Add a single object to the cache:
@@ -63,43 +64,8 @@ User user = context.Cache.GetObject<User>(redisKey);
 context.Cache.Remove(redisKey);
 ```
 
-## Tagging mechanism
-Cluster compatible tagging mechanism where tags are used to group keys, so they can be retrieved or invalidated at the same time. 
-A key can be related to any number of tags. 
-
-![Image of Tagging Mechanism](http://i.imgur.com/26TyMYR.png)
-
-#### Add a single object related to a tag
-Add a single object to the cache and associate it with tags *red* and *blue*:
-```c#
-context.Cache.SetObject(redisKey, value, new[] { "red", "blue" });
-```
-
-#### Relate an existing key to a tag
-Relate the key to the *green* tag:
-```c#
-_context.Cache.AddTagsToKey(redisKey, new [] { "green" });
-```
-
-#### Remove a tag from a key
-Remove the relation between the key and the tag *green*:
-```c#
-_context.Cache.RemoveTagsFromKey(redisKey, new [] { "green" });
-```
-
-#### Get objects by tag
-Get all the objects related to *red* and/or *green*. Assuming all the keys related to the tags are of the same type:
-```c#
-IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("red", "green");
-```
-
-#### Invalidate keys by tags
-Remove all the keys related to *blue* and/or *green* tags:
-```c#
-context.Cache.InvalidateKeysByTag("blue", "green");
-```
-
-### Fetching mechanism
+Fetching mechanism
+=====
 Shortcut methods are provided for atomic add/get operations.
 ![Image of Fetching Mechanism](http://i.imgur.com/Kb9OBlK.png)
 
@@ -116,7 +82,9 @@ var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(i
 ```
 
 
-### Hashes
+Hashes
+=====
+
 Hashes are maps composed of fields associated with values, like .NET dictionaries.
 
 ![Image of hashes](http://i.imgur.com/B6Wz7es.png)
@@ -152,6 +120,63 @@ context.Cache.RemoveHashed(redisKey, "user:id:1");
 var user = context.Cache.FetchHashed<User>(redisKey, "user:id:1", () => GetUser(1));
 ```
 The method `GetUser` will only be called when the value is not present on the hash, in which case will be added to the hash before returning it.
+
+Tagging mechanism
+=====
+
+Cluster compatible tagging mechanism where tags are used to group keys and hash fields, so they can be retrieved or invalidated at the same time. 
+A tag can be related to any number of keys and/or hash fields.
+
+![Image of Tagging Mechanism](http://i.imgur.com/MXRgdhF.png)
+
+#### Add a **single object** related to a tag
+Add a single object to the cache and associate it with tags *red* and *blue*:
+```c#
+context.Cache.SetObject(redisKey, value, new[] { "red", "blue" });
+```
+
+#### Add a **hashed object** related to a tag
+Tags can be also related to a field in a hash.
+```c#
+context.Cache.SetHashed(redisKey, field, value, new[] { "red" });
+```
+
+#### Relate an existing **key** to a tag
+Relate the key to the *green* tag:
+```c#
+context.Cache.AddTagsToKey(redisKey, new [] { "green" });
+```
+
+#### Relate an existing **hash field** to a tag
+Relate the hash field to the *green* tag:
+```c#
+context.Cache.AddTagsToHashField(redisKey, field, new[] {"green"});
+```
+
+#### Remove a tag from a key
+Remove the relation between the key and the tag *green*:
+```c#
+context.Cache.RemoveTagsFromKey(redisKey, new [] { "green" });
+```
+
+#### Remove a tag from a hash field
+Remove the relation between the hash field and the tag *green*:
+```c#
+context.Cache.RemoveTagsFromHashField(redisKey, field, new [] { "green" });
+```
+
+#### Get objects by tag
+Get all the objects related to *red* and/or *green*. Assuming all the keys related to the tags are of the same type:
+```c#
+IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("red", "green");
+```
+
+#### Invalidate keys by tags
+Remove all the keys and hash fields related to *blue* and/or *green* tags:
+```c#
+context.Cache.InvalidateKeysByTag("blue", "green");
+```
+
 
 --------------
 
