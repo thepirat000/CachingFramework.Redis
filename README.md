@@ -93,11 +93,16 @@ Relate the hash field to the *green* tag:
 context.Cache.AddTagsToHashField(redisKey, field, new[] {"green"});
 ```
 
-
 #### Remove a tag from a key
 Remove the relation between the key and the tag *green*:
 ```c#
-_context.Cache.RemoveTagsFromKey(redisKey, new [] { "green" });
+context.Cache.RemoveTagsFromKey(redisKey, new [] { "green" });
+```
+
+#### Remove a tag from a hash field
+Remove the relation between the hash field and the tag *green*:
+```c#
+context.Cache.RemoveTagsFromHashField(redisKey, field, new [] { "green" });
 ```
 
 #### Get objects by tag
@@ -107,7 +112,7 @@ IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("red", "green");
 ```
 
 #### Invalidate keys by tags
-Remove all the keys related to *blue* and/or *green* tags:
+Remove all the keys and hash fields related to *blue* and/or *green* tags:
 ```c#
 context.Cache.InvalidateKeysByTag("blue", "green");
 ```
