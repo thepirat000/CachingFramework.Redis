@@ -39,7 +39,8 @@ var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortC
 ```
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
-## Typed cache
+Typed cache
+=====
 Any primitive type or serializable class can be used as a cache value.
 
 ### Add a single object to the cache:
@@ -63,7 +64,8 @@ User user = context.Cache.GetObject<User>(redisKey);
 context.Cache.Remove(redisKey);
 ```
 
-### Fetching mechanism
+Fetching mechanism
+=====
 Shortcut methods are provided for atomic add/get operations.
 ![Image of Fetching Mechanism](http://i.imgur.com/Kb9OBlK.png)
 
@@ -80,7 +82,9 @@ var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(i
 ```
 
 
-### Hashes
+Hashes
+=====
+
 Hashes are maps composed of fields associated with values, like .NET dictionaries.
 
 ![Image of hashes](http://i.imgur.com/B6Wz7es.png)
@@ -117,7 +121,9 @@ var user = context.Cache.FetchHashed<User>(redisKey, "user:id:1", () => GetUser(
 ```
 The method `GetUser` will only be called when the value is not present on the hash, in which case will be added to the hash before returning it.
 
-## Tagging mechanism
+Tagging mechanism
+=====
+
 Cluster compatible tagging mechanism where tags are used to group keys and hash fields, so they can be retrieved or invalidated at the same time. 
 A tag can be related to any number of keys and/or hash fields.
 
