@@ -67,19 +67,32 @@ context.Cache.Remove(redisKey);
 Cluster compatible tagging mechanism where tags are used to group keys and hash fields, so they can be retrieved or invalidated at the same time. 
 A tag can be related to any number of keys and/or hash fields.
 
-![Image of Tagging Mechanism](http://i.imgur.com/PLJvG6I.png)
+![Image of Tagging Mechanism](http://i.imgur.com/lX8DTFG.png)
 
-#### Add a single object related to a tag
+#### Add a **single object** related to a tag
 Add a single object to the cache and associate it with tags *red* and *blue*:
 ```c#
 context.Cache.SetObject(redisKey, value, new[] { "red", "blue" });
 ```
 
-#### Relate an existing key to a tag
+#### Add a **hashed object** related to a tag
+Tags can be also related to a field in a hash.
+```c#
+context.Cache.SetHashed(redisKey, field, value, new[] { "red" });
+```
+
+#### Relate an existing **key** to a tag
 Relate the key to the *green* tag:
 ```c#
-_context.Cache.AddTagsToKey(redisKey, new [] { "green" });
+context.Cache.AddTagsToKey(redisKey, new [] { "green" });
 ```
+
+#### Relate an existing **hash field** to a tag
+Relate the hash field to the *green* tag:
+```c#
+context.Cache.AddTagsToHashField(redisKey, field, new[] {"green"});
+```
+
 
 #### Remove a tag from a key
 Remove the relation between the key and the tag *green*:
