@@ -39,6 +39,8 @@ var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortC
 ```
 See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
+--------------
+
 Typed cache
 =====
 Any primitive type or serializable class can be used as a cache value.
@@ -64,6 +66,8 @@ User user = context.Cache.GetObject<User>(redisKey);
 context.Cache.Remove(redisKey);
 ```
 
+--------------
+
 Fetching mechanism
 =====
 Shortcut methods are provided for atomic add/get operations.
@@ -81,6 +85,7 @@ Fetch an object with a time-to-live:
 var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id), TimeSpan.FromDays(1));
 ```
 
+--------------
 
 Hashes
 =====
@@ -120,6 +125,8 @@ context.Cache.RemoveHashed(redisKey, "user:id:1");
 var user = context.Cache.FetchHashed<User>(redisKey, "user:id:1", () => GetUser(1));
 ```
 The method `GetUser` will only be called when the value is not present on the hash, in which case will be added to the hash before returning it.
+
+--------------
 
 Tagging mechanism
 =====
