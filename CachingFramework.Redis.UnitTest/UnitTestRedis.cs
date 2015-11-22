@@ -686,6 +686,21 @@ The encoding is variable-length and uses 8-bit code units. It was designed for b
             Assert.AreEqual(10, cnt);
         }
 
+        [TestMethod]
+        public void UT_Cache_Collections_Mix()
+        {
+            string key = "UT_Cache_Collections_Mix";
+            _context.Cache.Remove(key);
+            _context.Cache.InvalidateKeysByTag("user0");
+            var users = GetUsers();
+            var dict = _context.Collections.GetRedisDictionary<string, User>(key, new BinaryStringSerializer());
+            var u0id = users[0].Id.ToString();
+            dict[u0id] = users[0];
+            _context.Cache.AddTagsToHashField(key, u0id, new[] {"user0"});
+            var us = _context.Cache.GetObjectsByTag<User>("user0").ToList();
+            Assert.AreEqual(1, us.Count);
+        }
+
         private List<User> GetUsers()
         {
             var loc1 = new Location()

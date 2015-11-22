@@ -1,3 +1,4 @@
+using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.Providers;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using CachingFramework.Redis.RedisObjects;
@@ -26,9 +27,10 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public IRedisList<T> GetRedisList<T>(string key)
+        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
+        public IRedisList<T> GetRedisList<T>(string key, ISerializer serializer = null)
         {
-            return new RedisList<T>(RedisConnection, key, Serializer);
+            return new RedisList<T>(RedisConnection, key, serializer ?? Serializer);
         }
         /// <summary>
         /// Returns an IDictionary implemented using a Redis Hash
@@ -36,43 +38,48 @@ namespace CachingFramework.Redis.Providers
         /// <typeparam name="TKey">The key type</typeparam>
         /// <typeparam name="TValue">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key)
+        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
+        public IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key, ISerializer serializer = null)
         {
-            return new RedisDictionary<TKey, TValue>(RedisConnection, key, Serializer);
+            return new RedisDictionary<TKey, TValue>(RedisConnection, key, serializer ?? Serializer);
         }
         /// <summary>
         /// Returns an ISet implemented using a Redis Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public IRedisSet<T> GetRedisSet<T>(string key)
+        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
+        public IRedisSet<T> GetRedisSet<T>(string key, ISerializer serializer = null)
         {
-            return new RedisSet<T>(RedisConnection, key, Serializer);
+            return new RedisSet<T>(RedisConnection, key, serializer ?? Serializer);
         }
         /// <summary>
         /// Returns an ICollection implemented using a Redis Sorted Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public IRedisSortedSet<T> GetRedisSortedSet<T>(string key)
+        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
+        public IRedisSortedSet<T> GetRedisSortedSet<T>(string key, ISerializer serializer = null)
         {
-            return new RedisSortedSet<T>(RedisConnection, key, Serializer);
+            return new RedisSortedSet<T>(RedisConnection, key, serializer ?? Serializer);
         }
         /// <summary>
         /// Returns an ICollection implemented using a Redis string as a bitmap
         /// </summary>
         /// <param name="key">The redis key</param>
-        public IRedisBitmap GetRedisBitmap(string key)
+        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
+        public IRedisBitmap GetRedisBitmap(string key, ISerializer serializer = null)
         {
-            return new RedisBitmap(RedisConnection, key, Serializer);
+            return new RedisBitmap(RedisConnection, key, serializer ?? Serializer);
         }
         /// <summary>
         /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
         /// </summary>
         /// <param name="key">The redis key</param>
-        public IRedisLexicographicSet GetRedisLexicographicSet(string key)
+        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
+        public IRedisLexicographicSet GetRedisLexicographicSet(string key, ISerializer serializer = null)
         {
-            return new RedisLexicographicSet(RedisConnection, key, Serializer);
+            return new RedisLexicographicSet(RedisConnection, key, serializer ?? Serializer);
         }
         /// <summary>
         /// Returns an ICollection(char) implemented using a Redis string

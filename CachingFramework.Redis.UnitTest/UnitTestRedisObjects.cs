@@ -148,7 +148,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             string key = "UT_CacheListRemoveAt";
             _context.Cache.Remove(key);
-            var rl = _context.Collections.GetRedisList<string>(key);
+            var rl = _context.Collections.GetRedisList<string>(key, new BinaryStringSerializer());
             rl.RemoveAt(0);
             rl.PushLast("test 1");
             rl.PushLast("test 2");
