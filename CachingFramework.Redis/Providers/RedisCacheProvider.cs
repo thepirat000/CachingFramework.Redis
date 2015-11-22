@@ -207,8 +207,7 @@ namespace CachingFramework.Redis.Providers
             var batch = db.CreateBatch();
             foreach (var tagName in tags)
             {
-                var tag = FormatTag(tagName);
-                batch.SetRemoveAsync(tag, FormatField(key, field));
+                batch.SetRemoveAsync(FormatTag(tagName), FormatField(key, field));
             }
             batch.Execute();
         }
@@ -219,8 +218,15 @@ namespace CachingFramework.Redis.Providers
         /// <param name="tags">The tag(s).</param>
         public void RemoveTagsFromKey(string key, string[] tags)
         {
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            foreach (var tagName in tags)
+            {
+                var tag = FormatTag(tagName);
+                batch.SetRemoveAsync(tag, key);
+            }
+            batch.Execute();
         }
-
         /// <summary>
         /// Removes all the keys and hash fields related to the given tag(s).
         /// </summary>
