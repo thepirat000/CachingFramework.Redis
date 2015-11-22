@@ -139,7 +139,7 @@ To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use 
 IRedisDictionary<int, User> hash = context.Collections.GetRedisDictionary<int, User>("user:hash");
 ```
 
-To add elements to the list, use `Add` / `AddRange`  methods or the indexed property:
+To add elements to the hash, use `Add` / `AddRange`  methods or the indexed property:
 
 ```c#
 hash.Add(1, new User() { Id = 1 });
