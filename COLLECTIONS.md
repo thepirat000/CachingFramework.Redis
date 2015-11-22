@@ -184,7 +184,7 @@ To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`
 IRedisSortedSet<User> sortedSet = context.Collections.GetRedisSortedSet<User>("user:sset");
 ```
 
-To add elements to the sorted set, use `Add` or `AddRange` methods prividing the score of the items as a `double`:
+To add elements to the sorted set, use `Add` or `AddRange` methods providing the score of the items as a `double`:
 
 ```c#
 sortedSet.Add(12.34, new User() { Id = 1 });
