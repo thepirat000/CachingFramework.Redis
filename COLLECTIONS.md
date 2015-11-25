@@ -4,7 +4,7 @@ The following are the .NET objects provided to handle Redis collections:
 
 | Object type | CacheContext method | Description | Common interface |
 | ------------ | ---------------- | -------------- | ------------------- |
-| [List](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lists-) | ```GetRedisList()``` | Double-linked list of objects | ```IList<T>``` |
+| [List](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lists-) | ```GetRedisList()``` | Doubly-linked list of objects | ```IList<T>``` |
 | [Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-sets-) | ```GetRedisSet()``` | Set of unique objects | ```ICollection<T>``` |
 | [Hash](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-hashes-) | ```GetRedisDictionary()``` | Dictionary of values | ```IDictionary<TK, TV>``` |
 | [Sorted Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-sorted-sets-) | ```GetRedisSortedSet()``` | Set of unique objects sorted by score | ```ICollection<T>``` |
