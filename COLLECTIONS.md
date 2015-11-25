@@ -131,7 +131,7 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Hashes &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of hash](http://i.imgur.com/wpm9dXk.png)
+# Redis Hashes &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of hash](http://i.imgur.com/5HeN9VX.png)
 
 To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetRedisDictionary()``` method:
 
