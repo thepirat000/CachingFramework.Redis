@@ -176,7 +176,7 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 
 --------------
 
-# Redis Sorted Sets &nbsp;&nbsp; ![Image of sorted set](http://i.imgur.com/HOklZQg.png)
+# Redis Sorted Sets &nbsp;&nbsp; ![Image of sorted set](http://i.imgur.com/2NxSq56.png)
 
 To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetRedisSortedSet()``` method:
 
