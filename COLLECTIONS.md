@@ -4,13 +4,13 @@ The following are the .NET objects provided to handle Redis collections:
 
 | Object type | CacheContext method | Description | Common interface |
 | ------------ | ---------------- | -------------- | ------------------- |
-| [List](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lists--) | ```GetRedisList()``` | Doubly-linked list of objects | ```IList<T>``` |
-| [Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-sets--) | ```GetRedisSet()``` | Set of unique objects | ```ICollection<T>``` |
-| [Hash](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-hashes--) | ```GetRedisDictionary()``` | Dictionary of values | ```IDictionary<TK, TV>``` |
-| [Sorted Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-sorted-sets--) | ```GetRedisSortedSet()``` | Set of unique objects sorted by score | ```ICollection<T>``` |
-| [Bitmap](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-bitmaps--) | ```GetRedisBitmap()``` | Binary value | ```ICollection<bool>``` |
-| [Lex. Sorted Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set) | ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | ```ICollection<string>``` |
-| [String](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-string--) | ```GetRedisString()``` | Binary-safe string | ```IEnumerable<byte>``` |
+| [List](#redis-lists--) | ```GetRedisList()``` | Doubly-linked list of objects | ```IList<T>``` |
+| [Set](#redis-sets--) | ```GetRedisSet()``` | Set of unique objects | ```ICollection<T>``` |
+| [Hash](#redis-hashes--) | ```GetRedisDictionary()``` | Dictionary of values | ```IDictionary<TK, TV>``` |
+| [Sorted Set](#redis-sorted-sets--) | ```GetRedisSortedSet()``` | Set of unique objects sorted by score | ```ICollection<T>``` |
+| [Bitmap](#redis-bitmaps--) | ```GetRedisBitmap()``` | Binary value | ```ICollection<bool>``` |
+| [Lex. Sorted Set](#redis-lexicographical-sorted-set) | ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | ```ICollection<string>``` |
+| [String](#redis-string) | ```GetRedisString()``` | Binary-safe string | ```IEnumerable<byte>``` |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
