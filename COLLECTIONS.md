@@ -355,7 +355,7 @@ Mapping between `IRedisLexicographicSet` methods/properties to the Redis command
 
 --------------
 
-# Redis String &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of string](http://i.imgur.com/TDwFqSm.png)
+# Redis String
 
 To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetRedisString()``` method:
 
