@@ -238,7 +238,7 @@ Mapping between `IRedisSortedSet` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Bitmaps &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of bitmap](http://i.imgur.com/RnPhel7.png)
+# Redis Bitmaps &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of bitmap](http://i.imgur.com/2NxSq56.png)
 
 To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetRedisBitmap()``` method:
 
