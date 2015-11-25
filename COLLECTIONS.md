@@ -131,7 +131,7 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Hashes &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of hash](http://i.imgur.com/5HeN9VX.png)
+# Redis Hashes &nbsp;&nbsp;&nbsp;&nbsp; ![Image of hash](http://i.imgur.com/5HeN9VX.png)
 
 To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetRedisDictionary()``` method:
 
@@ -176,7 +176,7 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 
 --------------
 
-# Redis Sorted Sets &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of sorted set](http://i.imgur.com/HOklZQg.png)
+# Redis Sorted Sets &nbsp;&nbsp; ![Image of sorted set](http://i.imgur.com/HOklZQg.png)
 
 To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetRedisSortedSet()``` method:
 
