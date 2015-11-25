@@ -24,8 +24,9 @@ sortedSet.TimeToLive = TimeSpan.FromMinutes(60);
 ```
 
 --------------
+# Redis Lists 
+![Image of hash](http://i.imgur.com/rN5QqoS.png)
 
-# Redis Lists ![Image of hash](http://i.imgur.com/rN5QqoS.png)
 
 To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetRedisList()``` method:
 
@@ -85,7 +86,8 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Sets ![Image of sets](http://i.imgur.com/HYHjpbX.png)
+# Redis Sets 
+![Image of sets](http://i.imgur.com/HYHjpbX.png)
 
 To obtain a new (or existing) Redis Set implementing a .NET `ICollection`, use the ```GetRedisSet()``` method:
 
@@ -131,7 +133,8 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Hashes ![Image of hash](http://i.imgur.com/wpm9dXk.png)
+# Redis Hashes 
+![Image of hash](http://i.imgur.com/wpm9dXk.png)
 
 To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetRedisDictionary()``` method:
 
@@ -176,7 +179,8 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 
 --------------
 
-# Redis Sorted Sets ![Image of sorted set](http://i.imgur.com/HOklZQg.png)
+# Redis Sorted Sets 
+![Image of sorted set](http://i.imgur.com/HOklZQg.png)
 
 To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetRedisSortedSet()``` method:
 
@@ -238,7 +242,8 @@ Mapping between `IRedisSortedSet` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Bitmaps ![Image of bitmap](http://i.imgur.com/RnPhel7.png)
+# Redis Bitmaps 
+![Image of bitmap](http://i.imgur.com/RnPhel7.png)
 
 To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetRedisBitmap()``` method:
 
@@ -355,7 +360,8 @@ Mapping between `IRedisLexicographicSet` methods/properties to the Redis command
 
 --------------
 
-# Redis String ![Image of string](http://i.imgur.com/TDwFqSm.png)
+# Redis String 
+![Image of string](http://i.imgur.com/TDwFqSm.png)
 To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetRedisString()``` method:
 
 ```c#
