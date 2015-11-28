@@ -1,6 +1,6 @@
 .NET adapted Redis collections
 =====
-The following are the .NET objects provided to handle Redis collections:
+The following are the .NET objects provided to access Redis collections:
 
 | Object type | CacheContext method | Description | Common interface |
 | ------------ | ---------------- | -------------- | ------------------- |
