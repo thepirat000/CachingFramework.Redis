@@ -6,7 +6,7 @@ using CachingFramework.Redis.Contracts;
 namespace CachingFramework.Redis.Serializers
 {
     /// <summary>
-    /// Binary Serializer with GZIP compression.
+    /// All types are serialized using a Binary Serializer with GZIP compression.
     /// Objects to serialize must be marked with [Serializable] attribute.
     /// </summary>
     public class BinarySerializer : ISerializer
@@ -28,7 +28,7 @@ namespace CachingFramework.Redis.Serializers
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>System.String.</returns>
-        public byte[] Serialize<T>(T value)
+        public virtual byte[] Serialize<T>(T value)
         {
             return Serialize((object)value);
         }
@@ -38,7 +38,7 @@ namespace CachingFramework.Redis.Serializers
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>``0.</returns>
-        public T Deserialize<T>(byte[] value)
+        public virtual T Deserialize<T>(byte[] value)
         {
             return (T)Deserialize(value);
         }

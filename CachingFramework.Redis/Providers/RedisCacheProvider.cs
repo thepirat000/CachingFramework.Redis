@@ -27,11 +27,11 @@ namespace CachingFramework.Redis.Providers
         /// <summary>
         /// The tag format for the keys representing tags
         /// </summary>
-        protected const string TagFormat = ":$_tag_$:{0}";
+        private const string TagFormat = ":$_tag_$:{0}";
         /// <summary>
         /// Separator to use for the value when a tag is related to a hash field
         /// </summary>
-        protected const string TagHashSeparator = ":$_->_$:";
+        private const string TagHashSeparator = ":$_->_$:";
         #endregion
 
         #region ICacheProvider Implementation

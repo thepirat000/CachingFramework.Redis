@@ -1,111 +1,99 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace CachingFramework.Redis.UnitTest
 {
-    [TestClass]
+    [TestFixture]
     public class UnitTestPubSub
     {
-        private static Context _context;
-        private string _defaultConfig;
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext)
-        {
-            _context = Common.GetContextAndFlush();
-        }
-
-        [TestMethod]
-        public void UT_PubSub_SingleSubscribe()
+        [Test, TestCaseSource(typeof(Common), "Bin")]
+        public void UT_PubSub_SingleSubscribe(Context context)
         {
             var ch = "UT_PubSub_SingleSubscribe";
             var users = GetUsers();
             var usersList = new List<User>();
-            _context.PubSub.Subscribe<User>(ch, (c, o) => usersList.Add(o));
+            context.PubSub.Subscribe<User>(ch, (c, o) => usersList.Add(o));
             foreach (var t in users)
             {
-                _context.PubSub.Publish(ch, t);
+                context.PubSub.Publish(ch, t);
             }
             Thread.Sleep(500);
             Assert.AreEqual(users.Count, usersList.Count);
             Assert.IsTrue(users.All(u => usersList.Any(ul => ul.Id == u.Id)));
-            _context.PubSub.Unsubscribe(ch);
+            context.PubSub.Unsubscribe(ch);
         }
 
-        [TestMethod]
-        public void UT_PubSub_SingleUnsubscribe()
+        [Test, TestCaseSource(typeof(Common), "Bin")]
+        public void UT_PubSub_SingleUnsubscribe(Context context)
         {
             var ch = "UT_PubSub_SingleUnsubscribe";
             var users = GetUsers();
             var usersList = new List<User>();
-            _context.PubSub.Subscribe<User>(ch, (c, o) => usersList.Add(o));
+            context.PubSub.Subscribe<User>(ch, (c, o) => usersList.Add(o));
             foreach (var t in users)
             {
-                _context.PubSub.Publish(ch, t);
+                context.PubSub.Publish(ch, t);
             }
             Thread.Sleep(500);
             Assert.AreEqual(users.Count, usersList.Count);
-            _context.PubSub.Unsubscribe(ch);
-            _context.PubSub.Publish(ch, users[0]);
+            context.PubSub.Unsubscribe(ch);
+            context.PubSub.Publish(ch, users[0]);
             Assert.AreEqual(users.Count, usersList.Count);
         }
 
-        [TestMethod]
-        public void UT_PubSub_SubscribeMultipleTypes()
+        [Test, TestCaseSource(typeof(Common), "Bin")]
+        public void UT_PubSub_SubscribeMultipleTypes(Context context)
         {
             var ch = "UT_PubSub_SingleUnsubscribe";
             var users = GetUsers();
             int objCount = 0;
             int iDtoCount = 0;
-            _context.PubSub.Subscribe<object>(ch, (c, o) => objCount++);
-            _context.PubSub.Subscribe<IDto>(ch, (c, o) => iDtoCount++);
+            context.PubSub.Subscribe<object>(ch, (c, o) => objCount++);
+            context.PubSub.Subscribe<IDto>(ch, (c, o) => iDtoCount++);
             foreach (var t in users)
             {
-                _context.PubSub.Publish(ch, t);
+                context.PubSub.Publish(ch, t);
             }
-            _context.PubSub.Publish(ch, new Exception("a different object type"));
-            _context.PubSub.Publish(ch, users[0].Deparments[0]);
-            _context.PubSub.Publish(ch, "some string");
+            context.PubSub.Publish(ch, new Exception("a different object type"));
+            context.PubSub.Publish(ch, users[0].Deparments[0]);
+            context.PubSub.Publish(ch, "some string");
             Thread.Sleep(500);
             Assert.AreEqual(users.Count + 3, objCount);
             Assert.AreEqual(users.Count + 1, iDtoCount);
-            _context.PubSub.Unsubscribe(ch);
+            context.PubSub.Unsubscribe(ch);
         }
 
-        [TestMethod]
-        public void UT_PubSub_SubscribeWilcards()
+        [Test, TestCaseSource(typeof(Common), "Bin")]
+        public void UT_PubSub_SubscribeWilcards(Context context)
         {
             var ch = "UT_PubSub_SubscribeWilcards";
             var users = GetUsers();
             var channels = new List<string>();
             var objects = new List<User>();
-            _context.PubSub.Subscribe<User>(ch + ".*", (c, o) =>
+            context.PubSub.Subscribe<User>(ch + ".*", (c, o) =>
             {
                 channels.Add(c);
                 objects.Add(o);
             });
             int user0count = 0;
-            _context.PubSub.Subscribe<User>(ch + ".user0", (c, o) =>
+            context.PubSub.Subscribe<User>(ch + ".user0", (c, o) =>
             {
                 user0count++;
             });
-            _context.PubSub.Publish(ch + ".user0", users[0]);
-            _context.PubSub.Publish(ch + ".user1", users[1]);
+            context.PubSub.Publish(ch + ".user0", users[0]);
+            context.PubSub.Publish(ch + ".user1", users[1]);
             Thread.Sleep(500);
             Assert.AreEqual(2, channels.Count);
             Assert.AreEqual(users[0].Id, objects[0].Id);
             Assert.AreEqual(users[1].Id, objects[1].Id);
             Assert.AreEqual(1, user0count);
 
-            _context.PubSub.Unsubscribe(ch + ".*");
+            context.PubSub.Unsubscribe(ch + ".*");
             Thread.Sleep(1500);
-            _context.PubSub.Publish(ch + ".user2", users[2]);
+            context.PubSub.Publish(ch + ".user2", users[2]);
             Assert.AreEqual(2, channels.Count);
             Assert.AreEqual(1, user0count);
         }

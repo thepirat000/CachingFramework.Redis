@@ -5,27 +5,19 @@ using System.Text;
 using System.Threading;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Serializers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace CachingFramework.Redis.UnitTest
 {
-    [TestClass]
+    [TestFixture]
     public class UnitTestRedisObjects
     {
-        private static Context _context;
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext)
-        {
-            _context = Common.GetContextAndFlush();
-        }
-
-        [TestMethod]
-        public void UT_CacheList_Remove()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheList_Remove(Context context)
         {
             string key = "UT_CacheList_Remove";
-            _context.Cache.Remove(key);
-            var lst = _context.Collections.GetRedisList<string>(key);
+            context.Cache.Remove(key);
+            var lst = context.Collections.GetRedisList<string>(key);
             lst.AddRange(new [] { "test", "test", "anothertest" });
             Assert.AreEqual(3, lst.Count);
             lst.RemoveAt(0);
@@ -34,12 +26,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("anothertest", lst[1]);
         }
 
-        [TestMethod]
-        public void UT_CacheList_Insert()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheList_Insert(Context context)
         {
             string key = "UT_CacheList_Insert";
-            _context.Cache.Remove(key);
-            var rl = _context.Collections.GetRedisList<string>(key);
+            context.Cache.Remove(key);
+            var rl = context.Collections.GetRedisList<string>(key);
             rl.Insert(0, "test");
             rl.Insert(0, "test");
             rl.Insert(0, "test");
@@ -56,12 +48,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("NEW LAST", rl[rl.Count - 1]);
         }
 
-        [TestMethod]
-        public void UT_CacheList_Trim()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheList_Trim(Context context)
         {
             string key = "UT_CacheList_Trim";
-            _context.Cache.Remove(key);
-            var rl = _context.Collections.GetRedisList<int>(key);
+            context.Cache.Remove(key);
+            var rl = context.Collections.GetRedisList<int>(key);
             rl.AddRange(Enumerable.Range(1, 100));
             Assert.AreEqual(100, rl.Count);
             rl.Trim(0, 9);
@@ -71,13 +63,13 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 
-        [TestMethod]
-        public void UT_CacheListObject()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheListObject(Context context)
         {
             string key1 = "UT_CacheListObject1";
-            _context.Cache.Remove(key1);
+            context.Cache.Remove(key1);
             var users = GetUsers();
-            var rl = _context.Collections.GetRedisList<int>(key1);
+            var rl = context.Collections.GetRedisList<int>(key1);
             rl.AddRange(users.Select(u => u.Id));
             // Test GetEnumerator
             foreach (var item in rl)
@@ -119,13 +111,13 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, rl.LastOrDefault());
         }
 
-        [TestMethod]
-        public void UT_CacheListPushPop()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheListPushPop(Context context)
         {
             string key = "UT_CacheListPushPop";
-            _context.Cache.Remove(key);
+            context.Cache.Remove(key);
             var users = GetUsers();
-            var rl = _context.Collections.GetRedisList<User>(key);
+            var rl = context.Collections.GetRedisList<User>(key);
             Assert.IsNull(rl.FirstOrDefault());
             Assert.IsNull(rl.LastOrDefault());
             rl.AddRange(users);
@@ -143,12 +135,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(666, reml.Id);
         }
 
-        [TestMethod]
-        public void UT_CacheListRemoveAt()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheListRemoveAt(Context context)
         {
             string key = "UT_CacheListRemoveAt";
-            _context.Cache.Remove(key);
-            var rl = _context.Collections.GetRedisList<string>(key, new BinaryStringSerializer());
+            context.Cache.Remove(key);
+            var rl = context.Collections.GetRedisList<string>(key, new RawSerializer());
             rl.RemoveAt(0);
             rl.PushLast("test 1");
             rl.PushLast("test 2");
@@ -170,13 +162,13 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("test 4", rl.LastOrDefault());
         }
 
-        [TestMethod]
-        public void UT_CacheListObjectTTL()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheListObjectTTL(Context context)
         {
             string key1 = "UT_CacheListObject_TTL1";
-            _context.Cache.Remove(key1);
+            context.Cache.Remove(key1);
             var users = GetUsers();
-            var rl = _context.Collections.GetRedisList<User>(key1);
+            var rl = context.Collections.GetRedisList<User>(key1);
             rl.AddRange(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
             Assert.AreEqual(users.Count, rl.Count);
@@ -184,13 +176,13 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, rl.Count);
         }
 
-        [TestMethod]
-        public void UT_CacheListObject_GetRange()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheListObject_GetRange(Context context)
         {
             string key = "UT_CacheListObject_GetRange";
             int total = 100;
-            _context.Cache.Remove(key);
-            var rl = _context.Collections.GetRedisList<User>(key);
+            context.Cache.Remove(key);
+            var rl = context.Collections.GetRedisList<User>(key);
             rl.AddRange(Enumerable.Range(1, total).Select(i => new User() {Id = i}));
 
             var range = rl.GetRange().ToList();
@@ -205,13 +197,13 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(91, range[range.Count - 1].Id);
         }
 
-        [TestMethod]
-        public void UT_CacheDictionaryObject()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheDictionaryObject(Context context)
         {
             string key1 = "UT_CacheDictionaryObject1";
-            _context.Cache.Remove(key1);
+            context.Cache.Remove(key1);
             var users = GetUsers();
-            var rd = _context.Collections.GetRedisDictionary<int, User>(key1);
+            var rd = context.Collections.GetRedisDictionary<int, User>(key1);
             // Test AddMultiple
             var usersKv = users.Select(x => new KeyValuePair<int, User>(x.Id, x));
             rd.AddRange(usersKv);
@@ -260,13 +252,13 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, rd.Count);
         }
 
-        [TestMethod]
-        public void UT_CacheDictionaryObject_TTL()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheDictionaryObject_TTL(Context context)
         {
             string key1 = "UT_CacheDictionaryObjectTTL1";
-            _context.Cache.Remove(key1);
+            context.Cache.Remove(key1);
             var users = GetUsers();
-            var rl = _context.Collections.GetRedisDictionary<int, User>(key1);
+            var rl = context.Collections.GetRedisDictionary<int, User>(key1);
             rl.AddRange(users.ToDictionary(k => k.Id));
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
             Assert.AreEqual(users.Count, rl.Count);
@@ -274,47 +266,47 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, rl.Count);
         }
 
-        [TestMethod]
-        public void UT_CacheList_EXP()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheList_EXP(Context context)
         {
             string key = "UT_CacheList_EXP";
-            _context.Cache.Remove(key);
-            var set = _context.Collections.GetRedisSet<string>(key);
+            context.Cache.Remove(key);
+            var set = context.Collections.GetRedisSet<string>(key);
             set.AddRange(new [] { "test1", "test2", "test3" });
             set.Expiration = DateTime.Now.AddSeconds(2);
             var startedOn = DateTime.Now;
             Assert.AreEqual(3, set.Count);
-            while (_context.Cache.KeyExists(key) && DateTime.Now < startedOn.AddSeconds(10))
+            while (context.Cache.KeyExists(key) && DateTime.Now < startedOn.AddSeconds(10))
             {
                 Thread.Sleep(100);
             }
-            Assert.IsFalse(_context.Cache.KeyExists(key));
+            Assert.IsFalse(context.Cache.KeyExists(key));
             Assert.AreEqual(0, set.Count);
             var stoppedOn = DateTime.Now;
             var span = stoppedOn - startedOn;
             Assert.AreEqual(2, span.TotalSeconds, 1);
         }
 
-        [TestMethod]
-        public void UT_CacheList_StrObj()
+        [Test, TestCaseSource(typeof(Common), "Bin")]
+        public void UT_CacheList_StrObj(Context context)
         {
             string key = "UT_CacheList_StrObj";
-            _context.Cache.Remove(key);
-            _context.Cache.SetObject<string>(key, "test value 1");
-            var obj = _context.Cache.GetObject<object>(key);
+            context.Cache.Remove(key);
+            context.Cache.SetObject<string>(key, "test value 1");
+            var obj = context.Cache.GetObject<object>(key);
             Assert.IsTrue(obj is string);
-            _context.Cache.SetObject<string>(key, Encoding.UTF8.GetString(new byte[] { 0x1f, 0x8b }));
-            obj = _context.Cache.GetObject<object>(key);
+            context.Cache.SetObject<string>(key, Encoding.UTF8.GetString(new byte[] { 0x1f, 0x8b }));
+            obj = context.Cache.GetObject<object>(key);
             Assert.IsTrue(obj is string);
         }
 
-        [TestMethod]
-        public void UT_CacheSetObject()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheSetObject(Context context)
         {
             string key1 = "UT_CacheSetObject1";
-            _context.Cache.Remove(key1);
+            context.Cache.Remove(key1);
             var users = GetUsers();
-            var rs = _context.Collections.GetRedisSet<User>(key1);
+            var rs = context.Collections.GetRedisSet<User>(key1);
             rs.AddRange(users);
             // Test GetEnumerator
             foreach (var item in rs)
@@ -355,13 +347,13 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNull(user);
         }
 
-        [TestMethod]
-        public void UT_CacheSetObject_TTL()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheSetObject_TTL(Context context)
         {
             string key1 = "UT_CacheSetObject_TTL";
-            _context.Cache.Remove(key1);
+            context.Cache.Remove(key1);
             var users = GetUsers();
-            var rl = _context.Collections.GetRedisSet<User>(key1);
+            var rl = context.Collections.GetRedisSet<User>(key1);
             rl.AddRange(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
             Assert.AreEqual(users.Count, rl.Count);
@@ -369,18 +361,18 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, rl.Count);
         }
 
-        [TestMethod]
-        public void UT_CacheSetObject_SetModifiers()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheSetObject_SetModifiers(Context context)
         {
             string keyAbc = "UT_CacheSetObject_SetModifiers_ABC";
             string keyCde = "UT_CacheSetObject_SetModifiers_CDE";
 
-            _context.Cache.Remove(keyAbc);
-            _context.Cache.Remove(keyCde);
-            var abcSet = _context.Collections.GetRedisSet<char>(keyAbc);
+            context.Cache.Remove(keyAbc);
+            context.Cache.Remove(keyCde);
+            var abcSet = context.Collections.GetRedisSet<char>(keyAbc);
             abcSet.AddRange("ABC");
             
-            var cdeSet = _context.Collections.GetRedisSet<char>(keyCde);
+            var cdeSet = context.Collections.GetRedisSet<char>(keyCde);
             cdeSet.AddRange("CDE");
 
             // Test Count
@@ -391,12 +383,12 @@ namespace CachingFramework.Redis.UnitTest
             cdeSet.Clear();
         }
 
-        [TestMethod]
-        public void UT_CacheSortedSet_GetRange()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheSortedSet_GetRange(Context context)
         {
             var key = "UT_CacheSortedSet_GetRange";
-            _context.Cache.Remove(key);
-            var ss = _context.Collections.GetRedisSortedSet<User>(key);
+            context.Cache.Remove(key);
+            var ss = context.Collections.GetRedisSortedSet<User>(key);
             var users = GetUsers();
 
             ss.Add(double.NegativeInfinity, users[3]);
@@ -420,12 +412,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[1].Id, byScore[1].Value.Id);
         }
 
-        [TestMethod]
-        public void UT_CacheSortedSet_SE_Issue287()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheSortedSet_SE_Issue287(Context context)
         {
             var key = "UT_CacheSortedSet_SE_Issue287";
-            _context.Cache.Remove(key);
-            var ss = _context.Collections.GetRedisSortedSet<User>(key);
+            context.Cache.Remove(key);
+            var ss = context.Collections.GetRedisSortedSet<User>(key);
             var users = GetUsers();
 
             ss.Add(double.NegativeInfinity, users[3]);
@@ -439,12 +431,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(double.PositiveInfinity, byRank[1].Score);
         }
 
-        [TestMethod]
-        public void UT_CacheSortedSet_GetRangeByRankNegative()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheSortedSet_GetRangeByRankNegative(Context context)
         {
             var key = "UT_CacheSortedSet_GetRangeByRankNegative";
-            _context.Cache.Remove(key);
-            var ss = _context.Collections.GetRedisSortedSet<string>(key);
+            context.Cache.Remove(key);
+            var ss = context.Collections.GetRedisSortedSet<string>(key);
             ss.AddRange(new[] { new SortedMember<string>(33, "c"), new SortedMember<string>(0, "a"), new SortedMember<string>(22, "b") });
 
             var byRank = ss.GetRangeByRank(-2, -1).ToList();
@@ -457,12 +449,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("b", byRankRev[0].Value);
         }
 
-        [TestMethod]
-        public void UT_CacheSortedSet_etc()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheSortedSet_etc(Context context)
         {
             var key = "UT_CacheSortedSet_etc";
-            var ss = _context.Collections.GetRedisSortedSet<string>(key);
-            _context.Cache.Remove(key);
+            var ss = context.Collections.GetRedisSortedSet<string>(key);
+            context.Cache.Remove(key);
             for (int i = 0; i < 255; i++)
             {
                 ss.Add(i, "member " + i);
@@ -520,12 +512,12 @@ namespace CachingFramework.Redis.UnitTest
 
         }
 
-        [TestMethod]
-        public void UT_CacheBitmap()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheBitmap(Context context)
         {
             var key = "UT_CacheBitmap";
-            _context.Cache.Remove(key);
-            var bm = _context.Collections.GetRedisBitmap(key);
+            context.Cache.Remove(key);
+            var bm = context.Collections.GetRedisBitmap(key);
             bm.Add(true);           // 11111111 
             Assert.IsFalse(bm.Contains(false));
             bm.Add(false);          // 11111111 00000000
@@ -568,12 +560,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(true, bm.GetBit(0));
         }
 
-        [TestMethod]
-        public void UT_CacheLexSet()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheLexSet(Context context)
         {
             var key = "UT_CacheLexSet";
-            _context.Cache.Remove(key);
-            var bm = _context.Collections.GetRedisLexicographicSet(key);
+            context.Cache.Remove(key);
+            var bm = context.Collections.GetRedisLexicographicSet(key);
             bm.Add("zero");
             bm.AddRange(new [] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" });
 
@@ -606,12 +598,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(12, bm.Count);
         }
 
-        [TestMethod]
-        public void UT_CacheLexSet_Match()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheLexSet_Match(Context context)
         {
             var key = "UT_CacheLexSet_Match";
-            _context.Cache.Remove(key);
-            var bm = _context.Collections.GetRedisLexicographicSet(key);
+            context.Cache.Remove(key);
+            var bm = context.Collections.GetRedisLexicographicSet(key);
             bm.AddRange(new[] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" });
             Assert.AreEqual(12, bm.Match("*").Count());
 
@@ -621,12 +613,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("seven", lst[1]);
         }
 
-        [TestMethod]
-        public void UT_CacheString()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheString(Context context)
         {
             var key = "UT_CacheString";
-            _context.Cache.Remove(key);
-            var cs = _context.Collections.GetRedisString(key);
+            context.Cache.Remove(key);
+            var cs = context.Collections.GetRedisString(key);
 
             cs.SetRange(3, "Test");
             Assert.AreEqual(7, cs.Length);
@@ -665,17 +657,17 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("12345", cs.ToString());
         }
 
-        [TestMethod]
-        public void UT_CacheStringGetSet()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheStringGetSet(Context context)
         {
             var key = "UT_CacheStringGetSet";
-            _context.Cache.Remove(key);
-            var cs = _context.Collections.GetRedisString(key);
+            context.Cache.Remove(key);
+            var cs = context.Collections.GetRedisString(key);
             var str = cs.GetSet("value");
             Assert.IsNull(str);
             str = cs.GetSet("new value");
             Assert.AreEqual("value", str);
-            _context.Cache.Remove(key);
+            context.Cache.Remove(key);
             var integer = cs.GetSet(456);
             Assert.AreEqual(0, integer);
             Assert.AreEqual(456, cs.AsInteger());
@@ -684,12 +676,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(789.12, cs.AsFloat());
         }
 
-        [TestMethod]
-        public void UT_CacheString_Unicode()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheString_Unicode(Context context)
         {
             var key = "UT_CacheString_Unicode";
-            _context.Cache.Remove(key);
-            var cs = _context.Collections.GetRedisString(key);
+            context.Cache.Remove(key);
+            var cs = context.Collections.GetRedisString(key);
             Assert.AreEqual(0, cs.Length);
             var str = "元来は有力貴族や諸大";
             cs.SetRange(0, str);
@@ -705,13 +697,13 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(str, Encoding.UTF8.GetString(lst.ToArray()));
         }
 
-        [TestMethod]
-        public void UT_CacheString_BigString()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheString_BigString(Context context)
         {
             var key = "UT_CacheString_BigString";
             int i = 9999999;
-            _context.Cache.Remove(key);
-            var cs = _context.Collections.GetRedisString(key);
+            context.Cache.Remove(key);
+            var cs = context.Collections.GetRedisString(key);
             cs.SetRange(i, "test");
             Assert.AreEqual(i + 4, cs.Length);
             Assert.AreEqual("\0", cs[0, 0]);
@@ -723,23 +715,23 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, cs.Length);
         }
 
-        [TestMethod]
-        public void UT_CacheString_AsInteger()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheString_AsInteger(Context context)
         {
             var key = "UT_CacheString_AsInteger";
-            _context.Cache.Remove(key);
-            var str = _context.Collections.GetRedisString(key);
+            context.Cache.Remove(key);
+            var str = context.Collections.GetRedisString(key);
             str.Set((long.MaxValue - 1).ToString());
             var value = str.IncrementBy(1);
             Assert.AreEqual(long.MaxValue, value);
         }
 
-        [TestMethod]
-        public void UT_CacheString_AsFloat()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheString_AsFloat(Context context)
         {
             var key = "UT_CacheString_AsFloat";
-            _context.Cache.Remove(key);
-            var str = _context.Collections.GetRedisString(key);
+            context.Cache.Remove(key);
+            var str = context.Collections.GetRedisString(key);
             str.Append(Math.PI.ToString());
             var fract = (double) 1/3;
             var value = str.IncrementByFloat(fract);

@@ -4,24 +4,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace CachingFramework.Redis.UnitTest
 {
-    [TestClass]
+    [TestFixture]
     public class RedisStressTest
     {
-        private static Context _context;
-        private string defaultConfig;
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext)
-        {
-            _context = Common.GetContextAndFlush();
-        }
-
-        [TestMethod]
-        public void UT_RedisStress_BigAddDelete()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_RedisStress_BigAddDelete(Context context)
         {
             string key = "UT_RedisStress_BigAddDelete";
             string tag = "UT_RedisStress_BigAddDelete-tag1";
@@ -29,51 +20,50 @@ namespace CachingFramework.Redis.UnitTest
             var sw = Stopwatch.StartNew();
             for (int i = 0; i < total; i++)
             {
-                _context.Cache.SetObject(key + i, new User() { Id = i });
+                context.Cache.SetObject(key + i, new User() { Id = i });
             }
             var secsSet = sw.Elapsed.TotalSeconds;
             sw = Stopwatch.StartNew();
             for (int i = 0; i < total; i++)
             {
-                var user = _context.Cache.GetObject<User>(key + i);
+                var user = context.Cache.GetObject<User>(key + i);
                 Assert.AreEqual(user.Id, i);
             }
             var secsGet = sw.Elapsed.TotalSeconds;
             sw = Stopwatch.StartNew();
             for (int i = 0; i < total; i++)
             {
-                var removed = _context.Cache.Remove(key + i);
+                var removed = context.Cache.Remove(key + i);
                 Assert.IsTrue(removed);
             }
             var secsRem = sw.Elapsed.TotalSeconds;
         }
 
-        [TestMethod]
-        public void UT_CacheBigRemoveByTag()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheBigRemoveByTag(Context context)
         {
             string key = "UT_CacheBigRemoveByTag";
             string tag = "mytag";
             int total = 16000;
             for (int i = 0; i < total; i++)
             {
-                _context.Cache.SetObject(key + i, new User() { Id = i }, new[] { tag });
+                context.Cache.SetObject(key + i, new User() { Id = i }, new[] { tag });
             }
-            var keys = _context.Cache.GetKeysByTag(new [] {tag});
+            var keys = context.Cache.GetKeysByTag(new [] {tag});
             var sw = Stopwatch.StartNew();
-            _context.Cache.InvalidateKeysByTag(tag);
+            context.Cache.InvalidateKeysByTag(tag);
             var secs = sw.Elapsed.TotalSeconds;
-            var nokeys = _context.Cache.GetKeysByTag(new[] { tag });
+            var nokeys = context.Cache.GetKeysByTag(new[] { tag });
             Assert.AreEqual(total, keys.Count);
             Assert.AreEqual(0, nokeys.Count);
         }
 
-        [TestMethod]
-        //[Ignore]
-        public void UT_RedisBomb()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_RedisBomb(Context context)
         {
             const string test = "UT_RedisBomb";
-            Stress(100, test);
-            Stress(1000, test);
+            Stress(100, test, context);
+            Stress(1000, test, context);
             /*
             Stress(10000, test);
             Stress(100000, test);
@@ -85,25 +75,25 @@ namespace CachingFramework.Redis.UnitTest
             */
         }
 
-        private void Stress(int keyCount, string test)
+        private void Stress(int keyCount, string test, Context context)
         {
             int toCreate = 0, toConsume = 0;
-            RemoveKeys(keyCount, test);
+            RemoveKeys(keyCount, test, context);
             var sw = Stopwatch.StartNew();
             Parallel.Invoke(() =>
             {
-                toCreate = CreateKeys(keyCount, test);
+                toCreate = CreateKeys(keyCount, test, context);
             }, () =>
             {
-                toConsume = ConsumeValues(keyCount, test);
+                toConsume = ConsumeValues(keyCount, test, context);
             });
             var createAndConsumeSeconds = sw.Elapsed.TotalSeconds;
             int timeouts = toCreate + toConsume;
             sw = Stopwatch.StartNew();
-            ConsumeValues(keyCount, test);
+            ConsumeValues(keyCount, test, context);
             var consumeSeconds = sw.Elapsed.TotalSeconds;
             sw = Stopwatch.StartNew();
-            RemoveKeys(keyCount, test);
+            RemoveKeys(keyCount, test, context);
             var removeSeconds = sw.Elapsed.TotalSeconds;
 
             Debug.WriteLine(
@@ -111,38 +101,38 @@ namespace CachingFramework.Redis.UnitTest
                 keyCount, createAndConsumeSeconds, consumeSeconds, removeSeconds, timeouts);
         }
 
-        [TestMethod]
-        public void UT_RedisStress_GetKeysByTag()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_RedisStress_GetKeysByTag(Context context)
         {
             const string test = "UT_RedisStress_GetKeysByTag";
             const int keyCount = 1500;
             for (int mod = 1; mod <= 216; mod++)
             {
-                _context.Cache.InvalidateKeysByTag(GetTag(mod, test));
+                context.Cache.InvalidateKeysByTag(GetTag(mod, test));
             }
-            RemoveKeys(keyCount, test);
-            CreateKeys(keyCount, test);
-            ConsumeValues(keyCount, test);
+            RemoveKeys(keyCount, test, context);
+            CreateKeys(keyCount, test, context);
+            ConsumeValues(keyCount, test, context);
 
-            var hash = _context.Cache.GetKeysByTag(new [] {GetTag(1, test)});
+            var hash = context.Cache.GetKeysByTag(new [] {GetTag(1, test)});
             Assert.AreEqual(keyCount, hash.Count);
 
             for (int mod = 2; mod <= 216; mod++)
             {
-                hash = _context.Cache.GetKeysByTag(new [] {GetTag(mod, test)});
+                hash = context.Cache.GetKeysByTag(new [] {GetTag(mod, test)});
                 //assert all are multiple of mod
                 Assert.IsFalse(hash.Any(s => int.Parse(s.Split(':')[0]) % mod != 0));
             }
-            RemoveKeys(keyCount, test);
+            RemoveKeys(keyCount, test, context);
             for (int mod = 1; mod <= 216; mod++)
             {
-                _context.Cache.InvalidateKeysByTag(GetTag(mod, test));
+                context.Cache.InvalidateKeysByTag(GetTag(mod, test));
             }
         }
 
 
-        [TestMethod]
-        public void UT_RedisStress_GetAllTags()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_RedisStress_GetAllTags(Context context)
         {
             const string test = "UT_RedisStress_GetAllTags";
             const int keyCount = 1500;
@@ -151,84 +141,84 @@ namespace CachingFramework.Redis.UnitTest
             {
                 var tag = GetTag(mod, test);
                 realTags.Add(tag);
-                _context.Cache.InvalidateKeysByTag(tag);
+                context.Cache.InvalidateKeysByTag(tag);
             }
-            RemoveKeys(keyCount, test);
-            CreateKeys(keyCount, test);
-            var tags = _context.Cache.GetAllTags();
+            RemoveKeys(keyCount, test, context);
+            CreateKeys(keyCount, test, context);
+            var tags = context.Cache.GetAllTags();
             Debug.WriteLine("{0} {1}", tags.Count, realTags.Count);
             Assert.IsTrue(realTags.IsSubsetOf(tags));
         }
 
-        [TestMethod]
-        public void UT_CleanupTags()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CleanupTags(Context context)
         {
             // using the cleanup option
             const string key = "UT_CleanupTags";
             const string tag = "UT_CleanupTags-Tag";
-            _context.Cache.InvalidateKeysByTag(tag);
-            _context.Cache.Remove(key);
-            _context.Cache.SetObject(key, "value", new [] { tag });
-            var keys = _context.Cache.GetKeysByTag(new [] {tag}, true);
+            context.Cache.InvalidateKeysByTag(tag);
+            context.Cache.Remove(key);
+            context.Cache.SetObject(key, "value", new [] { tag });
+            var keys = context.Cache.GetKeysByTag(new [] {tag}, true);
             Assert.IsTrue(keys.Contains(key));
-            _context.Cache.Remove(key);
-            keys = _context.Cache.GetKeysByTag(new [] {tag}, true);
+            context.Cache.Remove(key);
+            keys = context.Cache.GetKeysByTag(new [] {tag}, true);
             Assert.IsFalse(keys.Contains(key));
         }
 
-        [TestMethod]
-        public void UT_RedisStress_RemoveKeysByTags()
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_RedisStress_RemoveKeysByTags(Context context)
         {
             const string test = "UT_RedisStress_RemoveKeysByTags";
             const int keyCount = 3000;
-            RemoveKeys(keyCount, test);
+            RemoveKeys(keyCount, test, context);
             for (int mod = 1; mod <= 216; mod++)
             {
-                _context.Cache.InvalidateKeysByTag(GetTag(mod, test));
+                context.Cache.InvalidateKeysByTag(GetTag(mod, test));
             }
 
-            CreateKeys(keyCount, test);
-            ConsumeValues(keyCount, test);
+            CreateKeys(keyCount, test, context);
+            ConsumeValues(keyCount, test, context);
 
-            var user = _context.Cache.GetObject<User>(GeyKey(1, test));
+            var user = context.Cache.GetObject<User>(GeyKey(1, test));
             Assert.IsNotNull(user);
 
-            var hash = _context.Cache.GetKeysByTag(new [] { GetTag(1, test) });
+            var hash = context.Cache.GetKeysByTag(new [] { GetTag(1, test) });
             var dict = new Dictionary<int, int>() { { 1, hash.Count } };
             for (int mod = 2; mod <= 36; mod++)
             {
-                hash = _context.Cache.GetKeysByTag(new [] { GetTag(mod, test) });
+                hash = context.Cache.GetKeysByTag(new [] { GetTag(mod, test) });
                 dict.Add(mod, hash.Count);
             }
-            var keys = _context.Cache.GetKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
-            _context.Cache.InvalidateKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
+            var keys = context.Cache.GetKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
+            context.Cache.InvalidateKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
 
-            keys = _context.Cache.GetKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
+            keys = context.Cache.GetKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
             Assert.AreEqual(0, keys.Count);
             
-            _context.Cache.InvalidateKeysByTag(new[] { GetTag(6, test) });
+            context.Cache.InvalidateKeysByTag(new[] { GetTag(6, test) });
 
-            _context.Cache.InvalidateKeysByTag(new[] { GetTag(5, test), GetTag(7, test) });
+            context.Cache.InvalidateKeysByTag(new[] { GetTag(5, test), GetTag(7, test) });
 
-            _context.Cache.InvalidateKeysByTag(new[] { GetTag(1, test) });
+            context.Cache.InvalidateKeysByTag(new[] { GetTag(1, test) });
 
-            keys = _context.Cache.GetKeysByTag(new[] { GetTag(1, test), GetTag(2, test) });
+            keys = context.Cache.GetKeysByTag(new[] { GetTag(1, test), GetTag(2, test) });
             Assert.AreEqual(0, keys.Count);
 
-            user = _context.Cache.GetObject<User>(GeyKey(1, test));
+            user = context.Cache.GetObject<User>(GeyKey(1, test));
             Assert.IsNull(user);
-            RemoveKeys(keyCount, test);
+            RemoveKeys(keyCount, test, context);
         }
 
 
-        private void RemoveKeys(int count, string test)
+        private void RemoveKeys(int count, string test, Context context)
         {
             Parallel.ForEach(Enumerable.Range(1, count), i =>
             {
-                _context.Cache.Remove(GeyKey(i, test));
+                context.Cache.Remove(GeyKey(i, test));
             });
         }
-        private int CreateKeys(int count, string test)
+        private int CreateKeys(int count, string test, Context context)
         {
             int timeouts = 0;
             Debug.WriteLine("CreateKeys started. {0} {1} {2}.", test, count, DateTime.Now);
@@ -237,7 +227,7 @@ namespace CachingFramework.Redis.UnitTest
             again:
                 try
                 {
-                    _context.Cache.SetObject(GeyKey(i, test), GetValue(i), GetTags(i, test), TimeSpan.FromMinutes(15));
+                    context.Cache.SetObject(GeyKey(i, test), GetValue(i), GetTags(i, test), TimeSpan.FromMinutes(15));
                 }
                 catch (TimeoutException)
                 {
@@ -269,7 +259,7 @@ namespace CachingFramework.Redis.UnitTest
             return "This Is Tag " + mod + " for test " + test;
         }
 
-        private int ConsumeValues(int count, string test)
+        private int ConsumeValues(int count, string test, Context context)
         {
             int timeouts = 0;
             Debug.WriteLine("ComsumeValues started. {0} {1} {2}.", test, count, DateTime.Now);
@@ -280,7 +270,7 @@ namespace CachingFramework.Redis.UnitTest
             again:
                 try
                 {
-                    user = _context.Cache.GetObject<User>(GeyKey(i, test));
+                    user = context.Cache.GetObject<User>(GeyKey(i, test));
                 }
                 catch (TimeoutException)
                 {
@@ -295,7 +285,7 @@ namespace CachingFramework.Redis.UnitTest
                 again2:
                     try
                     {
-                        user = _context.Cache.GetObject<User>(GeyKey(i, test));
+                        user = context.Cache.GetObject<User>(GeyKey(i, test));
                     }
                     catch (TimeoutException)
                     {
