@@ -1,16 +1,16 @@
 .NET adapted Redis collections
 =====
-The following are the .NET objects provided to handle Redis collections:
+The following are the .NET objects provided to access Redis collections:
 
 | Object type | CacheContext method | Description | Common interface |
 | ------------ | ---------------- | -------------- | ------------------- |
-| [List](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lists-) | ```GetRedisList()``` | Double-linked list of objects | ```IList<T>``` |
-| [Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-sets-) | ```GetRedisSet()``` | Set of unique objects | ```ICollection<T>``` |
-| [Hash](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-hashes-) | ```GetRedisDictionary()``` | Dictionary of values | ```IDictionary<TK, TV>``` |
-| [Sorted Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-sorted-sets-) | ```GetRedisSortedSet()``` | Set of unique objects sorted by score | ```ICollection<T>``` |
-| [Bitmap](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-bitmaps-) | ```GetRedisBitmap()``` | Binary value | ```ICollection<bool>``` |
-| [Lex. Sorted Set](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set) | ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | ```ICollection<string>``` |
-| [String](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-string-) | ```GetRedisString()``` | Binary-safe string | ```IEnumerable<byte>``` |
+| [List](#redis-lists--) | ```GetRedisList()``` | Doubly-linked list of objects | ```IList<T>``` |
+| [Set](#redis-sets--) | ```GetRedisSet()``` | Set of unique objects | ```ICollection<T>``` |
+| [Hash](#redis-hashes--) | ```GetRedisDictionary()``` | Dictionary of values | ```IDictionary<TK, TV>``` |
+| [Sorted Set](#redis-sorted-sets--) | ```GetRedisSortedSet()``` | Set of unique objects sorted by score | ```ICollection<T>``` |
+| [Bitmap](#redis-bitmaps--) | ```GetRedisBitmap()``` | Binary value | ```ICollection<bool>``` |
+| [Lex. Sorted Set](#redis-lexicographical-sorted-set) | ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | ```ICollection<string>``` |
+| [String](#redis-string) | ```GetRedisString()``` | Binary-safe string | ```IEnumerable<byte>``` |
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
@@ -24,8 +24,8 @@ sortedSet.TimeToLive = TimeSpan.FromMinutes(60);
 ```
 
 --------------
+# Redis Lists &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of hash](http://i.imgur.com/rN5QqoS.png)
 
-# Redis Lists ![Image of hash](http://i.imgur.com/r5gLUVf.png)
 
 To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetRedisList()``` method:
 
@@ -85,7 +85,7 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Sets ![Image of hash](http://i.imgur.com/ts1HKLR.png)
+# Redis Sets &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of sets](http://i.imgur.com/HYHjpbX.png)
 
 To obtain a new (or existing) Redis Set implementing a .NET `ICollection`, use the ```GetRedisSet()``` method:
 
@@ -131,7 +131,7 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Hashes ![Image of hash](http://i.imgur.com/S6FVAvD.png)
+# Redis Hashes &nbsp;&nbsp;&nbsp;&nbsp; ![Image of hash](http://i.imgur.com/5HeN9VX.png)
 
 To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetRedisDictionary()``` method:
 
@@ -176,7 +176,7 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 
 --------------
 
-# Redis Sorted Sets ![Image of sorted set](http://i.imgur.com/h31sdcF.png)
+# Redis Sorted Sets &nbsp;&nbsp; ![Image of sorted set](http://i.imgur.com/HOklZQg.png)
 
 To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetRedisSortedSet()``` method:
 
@@ -238,7 +238,7 @@ Mapping between `IRedisSortedSet` methods/properties to the Redis commands used:
 
 --------------
 
-# Redis Bitmaps ![Image of bitmap](http://i.imgur.com/SNN8kax.png)
+# Redis Bitmaps &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of bitmap](http://i.imgur.com/2NxSq56.png)
 
 To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetRedisBitmap()``` method:
 
@@ -355,7 +355,8 @@ Mapping between `IRedisLexicographicSet` methods/properties to the Redis command
 
 --------------
 
-# Redis String ![Image of string](http://i.imgur.com/6O5r4gQ.png)
+# Redis String
+
 To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetRedisString()``` method:
 
 ```c#
