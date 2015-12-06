@@ -20,13 +20,14 @@ namespace CachingFramework.Redis.UnitTest
         public static Context[] Bin { get { return new[] { _binaryContext }; } }
         public static Context[] All { get { return new[] { _binaryContext, _rawContext }; } }
 
+        public static string Config = "192.168.15.11:6379, allowAdmin=true";
+        //public static string Config = "192.168.15.15:7000, allowAdmin=true";
+        //public static string Config = "192.168.15.11:7000, allowAdmin=true";
+
         static Common()
         {
-            var config = "192.168.15.11:6379, allowAdmin=true";
-            //var config = "192.168.15.15:7000, allowAdmin=true";
-            //var config = "192.168.15.11:7000, allowAdmin=true";
-            _rawContext = new Context(config, new RawSerializer());
-            _binaryContext = new Context(config, new BinarySerializer());
+            _rawContext = new Context(Config, new RawSerializer());
+            _binaryContext = new Context(Config, new BinarySerializer());
             Thread.Sleep(1500);
             _rawContext.Cache.FlushAll();
         }

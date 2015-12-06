@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
@@ -100,6 +101,28 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(true, kpBool_);
             context.Cache.Remove(new[] { kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64, 
                 kch, kds, kdt, kby, ksby, ki16, ki32, kuip, kdbl });
+        }
+
+        [Test]
+        public void UT_Cache_RawOverrideSerializer()
+        {
+            var raw = new RawSerializer();
+            raw.SetSerializerForType(typeof (User),
+                o => Encoding.UTF8.GetBytes(((User) o).Id.ToString()),
+                b => new User() {Id = int.Parse(Encoding.UTF8.GetString(b))});
+            var ctx = new Context(Common.Config, raw);
+            var users = GetUsers();
+            string key = "UT_Cache_RawOverrideSerializer";
+            string key2 = "UT_Cache_RawOverrideSerializer2";
+            ctx.Cache.Remove(new[] {key, key2});
+            ctx.Cache.SetObject(key, users[0]);
+            ctx.Cache.SetHashed(key2, "X", users[1]);
+            var v = ctx.Cache.GetObject<User>(key);
+            var v2 = ctx.Cache.GetHashed<User>(key2, "X");
+            var v3 = ctx.Cache.GetObject<int>(key);
+            Assert.AreEqual(users[0].Id, v.Id);
+            Assert.AreEqual(users[1].Id, v2.Id);
+            Assert.AreEqual(users[0].Id, v3);
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]

@@ -86,7 +86,22 @@ namespace CachingFramework.Redis.Serializers
         }
         #endregion
 
+        #region Public methods
+        /// <summary>
+        /// Override the serialization/deserialization method for a given type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="serializeMethod">The serialize method.</param>
+        /// <param name="deserializeMethod">The deserialize method.</param>
+        public void SetSerializerForType(Type type, Func<object, byte[]> serializeMethod,
+            Func<byte[], object> deserializeMethod)
+        {
+            SerialDict[type] = serializeMethod;
+            DeserialDict[type] = deserializeMethod;
+        }
+        #endregion
         #region ISerializer implementation
+
         /// <summary>
         /// Serializes the specified value.
         /// </summary>
