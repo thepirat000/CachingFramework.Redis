@@ -49,7 +49,7 @@ namespace CachingFramework.Redis.Serializers
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>System.String.</returns>
-        private byte[] Serialize(object value)
+        protected byte[] Serialize(object value)
         {
             using (var mStream = new MemoryStream())
             {
@@ -62,7 +62,7 @@ namespace CachingFramework.Redis.Serializers
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>System.Object.</returns>
-        private object Deserialize(byte[] value)
+        protected object Deserialize(byte[] value)
         {
             using (var memoryStream = new MemoryStream(Decompress(value)))
             {

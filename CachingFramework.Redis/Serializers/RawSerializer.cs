@@ -28,22 +28,22 @@ namespace CachingFramework.Redis.Serializers
         /// <summary>
         /// Dictionary of serializer methods per type
         /// </summary>
-        private static readonly Dictionary<Type, Func<object, byte[]>> SerialDict;
+        private readonly Dictionary<Type, Func<object, byte[]>> _serialDict;
         /// <summary>
         /// Dictionary of deserializer methods per type
         /// </summary>
-        private static readonly Dictionary<Type, Func<byte[], object>> DeserialDict;
+        private readonly Dictionary<Type, Func<byte[], object>> _deserialDict;
         #endregion
         
         #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="RawSerializer"/> class.
         /// </summary>
-        static RawSerializer()
+        public RawSerializer()
         {
             Func<object, byte[]> toString = o => Encoding.UTF8.GetBytes(o.ToString());
             var ic = CultureInfo.InvariantCulture;
-            SerialDict = new Dictionary<Type, Func<object, byte[]>>
+            _serialDict = new Dictionary<Type, Func<object, byte[]>>
             {
                 {typeof (String), toString}, 
                 {typeof (Char), toString},
@@ -61,9 +61,10 @@ namespace CachingFramework.Redis.Serializers
                 {typeof (Double), o => Encoding.UTF8.GetBytes(((Double)o).ToString(FloatFormat, ic))},
                 {typeof (Single), o => Encoding.UTF8.GetBytes(((Single)o).ToString(FloatFormat, ic))},
                 {typeof (Decimal), o => Encoding.UTF8.GetBytes(((Decimal)o).ToString(FloatFormat, ic))},
-                {typeof (DateTime), o => Encoding.UTF8.GetBytes(((DateTime)o).ToString(DateFormat, ic))}
+                {typeof (DateTime), o => Encoding.UTF8.GetBytes(((DateTime)o).ToString(DateFormat, ic))},
+                {typeof (object), o => base.Serialize(o)}
             };
-            DeserialDict = new Dictionary<Type, Func<byte[], object>>
+            _deserialDict = new Dictionary<Type, Func<byte[], object>>
             {
                 {typeof (String), b => Encoding.UTF8.GetString(b)}, 
                 {typeof (Char), b => Convert.ToChar(Encoding.UTF8.GetString(b))},
@@ -81,7 +82,8 @@ namespace CachingFramework.Redis.Serializers
                 {typeof (Double), b => Double.Parse(Encoding.UTF8.GetString(b), ic)},
                 {typeof (Single), b => Single.Parse(Encoding.UTF8.GetString(b), ic)},
                 {typeof (Decimal), b => Decimal.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (DateTime), b => DateTime.ParseExact(Encoding.UTF8.GetString(b), DateFormat, ic)}
+                {typeof (DateTime), b => DateTime.ParseExact(Encoding.UTF8.GetString(b), DateFormat, ic)},
+                {typeof (object), b => base.Deserialize(b)}
             };
         }
         #endregion
@@ -96,10 +98,11 @@ namespace CachingFramework.Redis.Serializers
         public void SetSerializerForType(Type type, Func<object, byte[]> serializeMethod,
             Func<byte[], object> deserializeMethod)
         {
-            SerialDict[type] = serializeMethod;
-            DeserialDict[type] = deserializeMethod;
+            _serialDict[type] = serializeMethod;
+            _deserialDict[type] = deserializeMethod;
         }
         #endregion
+
         #region ISerializer implementation
 
         /// <summary>
@@ -108,9 +111,9 @@ namespace CachingFramework.Redis.Serializers
         public override byte[] Serialize<T>(T value)
         {
             var type = value.GetType();
-            return SerialDict.ContainsKey(type) 
-                ? SerialDict[type](value) 
-                : base.Serialize(value);
+            return _serialDict.ContainsKey(type) 
+                ? _serialDict[type](value)
+                : _serialDict[typeof(object)](value);
         }
         /// <summary>
         /// Deserializes the specified value.
@@ -118,11 +121,10 @@ namespace CachingFramework.Redis.Serializers
         public override T Deserialize<T>(byte[] value)
         {
             var type = typeof(T);
-            return DeserialDict.ContainsKey(type)
-                ? (T)DeserialDict[type](value)
-                : base.Deserialize<T>(value);
+            return (T) (_deserialDict.ContainsKey(type)
+                ? _deserialDict[type](value)
+                : _deserialDict[typeof (object)](value));
         }
-
         #endregion
     }
 }

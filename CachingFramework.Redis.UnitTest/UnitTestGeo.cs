@@ -6,14 +6,6 @@ using NUnit.Framework;
 
 namespace CachingFramework.Redis.UnitTest
 {
-    public static class TempExtensions
-    {
-        public static GeoCoordinate ToGeoCoord(this MapPoint coord)
-        {
-            return new GeoCoordinate(coord.Latitude, coord.Longitude);
-        }
-    }
-
     [TestFixture]
     public class UnitTestGeo
     {
@@ -32,6 +24,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoAdd(Context context)
         {
             var key = "UT_Geo_GeoAdd";
+            context.Cache.Remove(key);
             var users = GetUsers();
             var cnt = context.GeoSpatial.GeoAdd(key, _coordZapopan, users[0]);
             cnt += context.GeoSpatial.GeoAdd(key, _coordLondon.Latitude, _coordLondon.Longitude, users[1]);
@@ -45,6 +38,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoPos(Context context)
         {
             var key = "UT_Geo_GeoPos";
+            context.Cache.Remove(key);
             var cnt = context.GeoSpatial.GeoAdd(key, _coordZapopan, "Zapopan");
             var coordGet = context.GeoSpatial.GeoPosition(key, "Zapopan");
             var coordErr = context.GeoSpatial.GeoPosition(key, "not exists");
@@ -58,6 +52,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoPosMultiple(Context context)
         {
             var key = "UT_Geo_GeoPosMultiple";
+            context.Cache.Remove(key);
             var cnt = context.GeoSpatial.GeoAdd(key, new[] { 
                 new GeoMember<string>(_coordZapopan, "Zapopan"),
                 new GeoMember<string>(_coordLondon, "London") });
@@ -77,6 +72,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoDistance(Context context)
         {
             var key = "UT_Geo_GeoDistance";
+            context.Cache.Remove(key);
             var cnt = context.GeoSpatial.GeoAdd(key, new[] { 
                 new GeoMember<string>(_coordZapopan, "Zapopan"),
                 new GeoMember<string>(_coordLondon, "London") });
@@ -95,6 +91,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoDistanceDirect(Context context)
         {
             var key = "UT_Geo_GeoDistanceDirect";
+            context.Cache.Remove(key);
             var mdq = _locationSvc.GetLatLongFromAddress("Mar del Plata").ToGeoCoord();
             var bue = _locationSvc.GetLatLongFromAddress("Buenos Aires").ToGeoCoord();
             context.GeoSpatial.GeoAdd(key, new[] { 
@@ -108,6 +105,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoHash(Context context)
         {
             var key = "UT_Geo_GeoHash";
+            context.Cache.Remove(key);
             context.GeoSpatial.GeoAdd(key, _coordZapopan, "zapopan");
             var hash = context.GeoSpatial.GeoHash(key, "zapopan");
             var hashErr = context.GeoSpatial.GeoHash(key, "not exists");
@@ -119,6 +117,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Geo_GeoRadius(Context context)
         {
             var key = "UT_Geo_GeoRadius";
+            context.Cache.Remove(key);
             context.GeoSpatial.GeoAdd(key, _coordZapopan, "zapopan");
             context.GeoSpatial.GeoAdd(key, _coordLondon, "london");
             var coordMx = _locationSvc.GetLatLongFromAddress("Mexico DF").ToGeoCoord();
@@ -191,6 +190,14 @@ namespace CachingFramework.Redis.UnitTest
                 }
             };
             return new List<User>() { user1, user2, user3, user4 };
+        }
+    }
+
+    public static class TempExtensions
+    {
+        public static GeoCoordinate ToGeoCoord(this MapPoint coord)
+        {
+            return new GeoCoordinate(coord.Latitude, coord.Longitude);
         }
     }
 }

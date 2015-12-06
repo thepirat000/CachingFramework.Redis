@@ -111,6 +111,7 @@ namespace CachingFramework.Redis.UnitTest
                 o => Encoding.UTF8.GetBytes(((User) o).Id.ToString()),
                 b => new User() {Id = int.Parse(Encoding.UTF8.GetString(b))});
             var ctx = new Context(Common.Config, raw);
+            Thread.Sleep(1000);
             var users = GetUsers();
             string key = "UT_Cache_RawOverrideSerializer";
             string key2 = "UT_Cache_RawOverrideSerializer2";
@@ -123,6 +124,22 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[0].Id, v.Id);
             Assert.AreEqual(users[1].Id, v2.Id);
             Assert.AreEqual(users[0].Id, v3);
+        }
+
+        [Test]
+        public void UT_Cache_RawOverrideSerializer_object()
+        {
+            var raw = new RawSerializer();
+            raw.SetSerializerForType(typeof(object),
+                o => Encoding.UTF8.GetBytes(o.GetHashCode().ToString()),
+                b => int.Parse(Encoding.UTF8.GetString(b)));
+            var ctx = new Context(Common.Config, raw);
+            Thread.Sleep(1000);
+            string key = "UT_Cache_RawOverrideSerializer_object";
+            ctx.Cache.Remove(new[] { key });
+            ctx.Cache.SetObject(key, this);
+            var v = ctx.Cache.GetObject<int>(key);
+            Assert.AreEqual(this.GetHashCode(), v);
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
