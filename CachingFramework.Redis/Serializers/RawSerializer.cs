@@ -92,14 +92,13 @@ namespace CachingFramework.Redis.Serializers
         /// <summary>
         /// Override the serialization/deserialization method for a given type.
         /// </summary>
-        /// <param name="type">The type.</param>
         /// <param name="serializeMethod">The serialize method.</param>
         /// <param name="deserializeMethod">The deserialize method.</param>
-        public void SetSerializerForType(Type type, Func<object, byte[]> serializeMethod,
+        public void SetSerializerFor<T>(Func<object, byte[]> serializeMethod,
             Func<byte[], object> deserializeMethod)
         {
-            _serialDict[type] = serializeMethod;
-            _deserialDict[type] = deserializeMethod;
+            _serialDict[typeof(T)] = serializeMethod;
+            _deserialDict[typeof(T)] = deserializeMethod;
         }
         #endregion
 
