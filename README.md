@@ -401,7 +401,3 @@ Any other type is binary serialized using the .NET `BinaryFormatter` and compres
 |**Inheritance** | Full inheritance support | Limited inheritance, only for types serialized with BinaryFormatter |
 |**Data** | Data is compressed and not human readable | Simple types are stored as strings and are human readable |
 |**Configuration** | Serialization cannot be configured | Serialization can be set-up per type |
-
-
-
-##### See also [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file.
