@@ -372,19 +372,17 @@ Serialization
 =====
 
 You can provide your own serialization by implementing the `ISerializer` interface.
-
+For example, a JSON serializer using [`Newtonsoft.Json`](https://www.nuget.org/packages/newtonsoft.json/) library:
 ```c#
-public class MySerializer : ISerializer
+public class JsonSerializer : ISerializer
 {
 	public byte[] Serialize<T>(T value)
 	{
-		// Serialize the object of type T into a byte array
-		// ...
+		return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value));
 	}
 	public T Deserialize<T>(byte[] value)
 	{
-		// Deserialize the byte array into an object of type T
-		// ...
+		return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(value));
 	}
 }
 ```
@@ -402,7 +400,8 @@ Any other type is binary serialized using the .NET `BinaryFormatter` and compres
 | ----------- | ----------------------- | -------------------------- |
 |Inheritance | Full inheritance support | Limited inheritance, only for types serialized with BinaryFormatter |
 |Data | Data is compressed and not human readable | Simple types are stored as strings and are human readable |
-|Config | Serialization cannot be configured | Serialization can be set-up per type |
+|Configuration | Serialization cannot be configured | Serialization can be set-up per type |
+
 
 
 ##### See also [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file.
