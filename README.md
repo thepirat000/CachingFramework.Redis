@@ -409,3 +409,17 @@ The Context class has constructor overloads to supply the serialization mechanis
 var context = new Context("localhost:6379", new JsonSerializer());
 ```
 
+The RawSerializer allows to override the serialization/deserialization logic per type.
+
+For example, to allow the serialization of a `StringBuilder` as an UTF-8 encoded string:
+
+```c#
+var raw = new RawSerializer();
+raw.SetSerializerFor<StringBuilder>
+(
+    sb => Encoding.UTF8.GetBytes(sb.ToString()), 
+    b => new StringBuilder(Encoding.UTF8.GetString(b))
+);
+var context = new Context("localhost:6379", raw);
+
+```
