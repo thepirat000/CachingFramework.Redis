@@ -387,7 +387,7 @@ public class JsonSerializer : ISerializer
 }
 ```
 
-Two built-in serialization mechanisms are provided:
+Two implementations of ISerializer are included:
 
 - Binary Serializer:
 All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
