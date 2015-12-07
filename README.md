@@ -371,7 +371,8 @@ public long GetLoginCount(DateTime date)
 Serialization
 =====
 
-You can provide your own serialization by implementing the `ISerializer` interface.
+To provide your own serialization mechanism implement the `ISerializer` interface.
+
 For example, a JSON serializer using [`Newtonsoft.Json`](https://www.nuget.org/packages/newtonsoft.json/) library:
 ```c#
 public class JsonSerializer : ISerializer
@@ -401,3 +402,10 @@ Any other type is binary serialized using the .NET `BinaryFormatter` and compres
 |**Inheritance** | Full inheritance support | Limited inheritance, only for types serialized with BinaryFormatter |
 |**Data** | Data is compressed and not human readable | Simple types are stored as strings and are human readable |
 |**Configuration** | Serialization cannot be configured | Serialization can be set-up per type |
+
+The Context class has constructor overloads to supply the serialization mechanism, for example:
+
+```c#
+var context = new Context("localhost:6379", new JsonSerializer());
+```
+
