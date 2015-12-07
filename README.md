@@ -392,11 +392,11 @@ public class MySerializer : ISerializer
 Two built-in serialization mechanisms are provided:
 
 - Binary Serializer:
-All types are serialized using the .NET BinaryFormatter from System.Runtime.Serialization and compressed using GZIP from System.IO.Compression.
+All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
 
 - Raw Serializer:
 The simple types (https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
-Any other type is binary serialized using the .NET BinaryFormatter and compressed using GZIP.
+Any other type is binary serialized using the .NET `BinaryFormatter` and compressed using GZIP.
 
 | | Binary | Raw |
 | ----------- | ----------------------- | -------------------------- |
