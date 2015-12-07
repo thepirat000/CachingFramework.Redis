@@ -107,7 +107,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Cache_RawOverrideSerializer()
         {
             var raw = new RawSerializer();
-            raw.SetSerializerFor<User>(o => Encoding.UTF8.GetBytes(((User) o).Id.ToString()),
+            raw.SetSerializerFor<User>(u => Encoding.UTF8.GetBytes(u.Id.ToString()),
                 b => new User() {Id = int.Parse(Encoding.UTF8.GetString(b))});
             var ctx = new Context(Common.Config, raw);
             Thread.Sleep(1000);

@@ -94,11 +94,11 @@ namespace CachingFramework.Redis.Serializers
         /// </summary>
         /// <param name="serializeMethod">The serialize method.</param>
         /// <param name="deserializeMethod">The deserialize method.</param>
-        public void SetSerializerFor<T>(Func<object, byte[]> serializeMethod,
-            Func<byte[], object> deserializeMethod)
+        public void SetSerializerFor<T>(Func<T, byte[]> serializeMethod,
+            Func<byte[], T> deserializeMethod)
         {
-            _serialDict[typeof(T)] = serializeMethod;
-            _deserialDict[typeof(T)] = deserializeMethod;
+            _serialDict[typeof(T)] = o => serializeMethod((T)o);
+            _deserialDict[typeof(T)] = b => deserializeMethod(b);
         }
         #endregion
 
