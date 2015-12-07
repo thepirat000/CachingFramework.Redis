@@ -11,7 +11,7 @@
  * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with typed messages.
  * [**Geospatial indexes**](#geospatial-api): with radius queries support.
  * [**HyperLogLog support**](#hyperloglog-api): to count unique things.
- * **Serialization**: a compressed binary serializer by default, or provide your own serialization. 
+ * [**Serialization**](#serialization): a compressed binary serializer by default, or provide your own serialization. 
  * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
  
 ## Usage
@@ -366,5 +366,46 @@ public long GetLoginCount(DateTime date)
 }
 ```
 
+--------------
 
-##### See also [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file.
+Serialization
+=====
+
+To provide your own serialization mechanism implement the `ISerializer` interface.
+
+For example, a JSON serializer using [`Newtonsoft.Json`](https://www.nuget.org/packages/newtonsoft.json/) library:
+```c#
+public class JsonSerializer : ISerializer
+{
+	public byte[] Serialize<T>(T value)
+	{
+		return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value));
+	}
+	public T Deserialize<T>(byte[] value)
+	{
+		return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(value));
+	}
+}
+```
+
+Two implementations of `ISerializer` are included:
+
+- Binary Serializer (default):
+All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
+
+- Raw Serializer:
+The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
+Any other type is binary serialized using the .NET `BinaryFormatter` and compressed using GZIP.
+
+| | **BinarySerializer** | **RawSerializer** |
+| ----------- | ----------------------- | -------------------------- |
+|**Inheritance** | Full inheritance support | Limited inheritance, only for types serialized with BinaryFormatter |
+|**Data** | Data is compressed and not human readable | Simple types are stored as strings and are human readable |
+|**Configuration** | Serialization cannot be configured | Serialization can be set-up per type |
+
+The Context class has constructor overloads to supply the serialization mechanism, for example:
+
+```c#
+var context = new Context("localhost:6379", new JsonSerializer());
+```
+
