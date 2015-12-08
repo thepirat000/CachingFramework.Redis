@@ -20,7 +20,7 @@ namespace CachingFramework.Redis.Serializers
         /// <summary>
         /// The date format
         /// </summary>
-        private const string DateFormat = "yyyyMMddHHmmssfff";
+        private const string DateFormat = "yyyyMMddHHmmssfffffff";
         /// <summary>
         /// The float format
         /// </summary>

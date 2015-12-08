@@ -83,7 +83,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(ss, ss_);
             Assert.AreEqual(ls, ls_);
             Assert.AreEqual('c', kch_);
-            Assert.IsTrue((now - kdt_).TotalMilliseconds < 1);
+            Assert.IsTrue((now - kdt_).TotalMilliseconds < 0.001);
             Assert.AreEqual(decimal.MaxValue, kds_);
             Assert.AreEqual(Byte.MaxValue, kby_);
             Assert.AreEqual(SByte.MaxValue, ksby_);
