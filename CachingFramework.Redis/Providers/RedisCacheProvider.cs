@@ -350,6 +350,20 @@ namespace CachingFramework.Redis.Providers
             return new HashSet<string>(tags.Select(rv => rv.ToString().Substring(startIndex)));
         }
         /// <summary>
+        /// Return the keys that matches a specified pattern.
+        /// Will use SCAN or KEYS depending on the server capabilities.
+        /// </summary>
+        /// <param name="pattern">The glob-style pattern to match</param>
+        public ISet<string> GetKeysByPattern(string pattern)
+        {
+            var keys = new List<string>();
+            RunInAllMasters(svr => keys.AddRange(svr
+                .Keys(0, pattern)
+                .Select(x => x.ToString())
+                .Where(k => !k.StartsWith(string.Format(TagFormat, string.Empty)))));
+            return new HashSet<string>(keys);
+        }
+        /// <summary>
         /// Removes the specified key-value.
         /// </summary>
         /// <param name="key">The key.</param>

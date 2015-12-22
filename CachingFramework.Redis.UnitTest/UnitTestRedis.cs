@@ -103,6 +103,30 @@ namespace CachingFramework.Redis.UnitTest
                 kch, kds, kdt, kby, ksby, ki16, ki32, kuip, kdbl });
         }
 
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_Cache_GetAllTags(Context context)
+        {
+            string key = "UT_Cache_GetAllTags";
+            context.Cache.SetHashed(key, "1", "some value", new[] {"tag1", "tag2"});
+            var tags = context.Cache.GetAllTags();
+            Assert.IsTrue(tags.Contains("tag1"));
+            Assert.IsTrue(tags.Contains("tag2"));
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_Cache_GetKeysByPattern(Context context)
+        {
+            string key = "UT_Cache_GetKeysByPattern";
+            string key2 = "UT_Cache_GetKeys2ByPattern";
+            context.Cache.FlushAll();
+            context.Cache.SetObject(key, "some value", new[] { "tag3", "tag4" });
+            context.Cache.SetObject(key2, "some value2");
+            var keys = context.Cache.GetKeysByPattern("*");
+            Assert.AreEqual(2, keys.Count);
+            Assert.IsTrue(keys.Contains(key));
+            Assert.IsTrue(keys.Contains(key2));
+        }
+
         [Test]
         public void UT_Cache_RawOverrideSerializer()
         {
