@@ -11,6 +11,12 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis
     {
+        [Test, TestCaseSource(typeof (Common), "Raw")]
+        public void UT_CacheNull(Context context)
+        {
+            Assert.Throws<ArgumentException>(() => context.Cache.SetObject(null, "this should fail"));
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSerializer(Context context)
         {

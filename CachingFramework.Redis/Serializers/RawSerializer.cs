@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.IO.Compression;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using CachingFramework.Redis.Contracts;
 
@@ -33,6 +30,10 @@ namespace CachingFramework.Redis.Serializers
         /// Dictionary of deserializer methods per type
         /// </summary>
         private readonly Dictionary<Type, Func<byte[], object>> _deserialDict;
+        /// <summary>
+        /// The default cultureinfo to use in the ToString methods.
+        /// </summary>
+        private static readonly CultureInfo Culture = CultureInfo.InvariantCulture;
         #endregion
         
         #region Constructors
@@ -41,48 +42,46 @@ namespace CachingFramework.Redis.Serializers
         /// </summary>
         public RawSerializer()
         {
-            Func<object, byte[]> toString = o => Encoding.UTF8.GetBytes(o.ToString());
-            var ic = CultureInfo.InvariantCulture;
             _serialDict = new Dictionary<Type, Func<object, byte[]>>
             {
-                {typeof (String), toString}, 
-                {typeof (Char), toString},
-                {typeof (Boolean), o => Encoding.UTF8.GetBytes(((bool)o).ToString(ic))},
-                {typeof (Byte), toString},
-                {typeof (SByte), toString},
-                {typeof (Int16), toString},
-                {typeof (Int32), toString},
-                {typeof (Int64), toString},
-                {typeof (UInt16), toString},
-                {typeof (UInt32), toString},
-                {typeof (UInt64), toString},
-                {typeof (IntPtr), toString},
-                {typeof (UIntPtr), toString},
-                {typeof (Double), o => Encoding.UTF8.GetBytes(((Double)o).ToString(FloatFormat, ic))},
-                {typeof (Single), o => Encoding.UTF8.GetBytes(((Single)o).ToString(FloatFormat, ic))},
-                {typeof (Decimal), o => Encoding.UTF8.GetBytes(((Decimal)o).ToString(FloatFormat, ic))},
-                {typeof (DateTime), o => Encoding.UTF8.GetBytes(((DateTime)o).ToString(DateFormat, ic))},
+                {typeof (String), o => GetBytes(o.ToString())}, 
+                {typeof (Char), o => GetBytes(o.ToString())},
+                {typeof (Boolean), o => GetBytes((bool)o ? "1" : "0") },
+                {typeof (Byte), o => GetBytes(o.ToString())},
+                {typeof (SByte), o => GetBytes(o.ToString())},
+                {typeof (Int16), o => GetBytes(o.ToString())},
+                {typeof (Int32), o => GetBytes(o.ToString())},
+                {typeof (Int64), o => GetBytes(o.ToString())},
+                {typeof (UInt16), o => GetBytes(o.ToString())},
+                {typeof (UInt32), o => GetBytes(o.ToString())},
+                {typeof (UInt64), o => GetBytes(o.ToString())},
+                {typeof (IntPtr), o => GetBytes(o.ToString())},
+                {typeof (UIntPtr), o => GetBytes(o.ToString())},
+                {typeof (Double), o => GetBytes(((Double)o).ToString(FloatFormat, Culture))},
+                {typeof (Single), o => GetBytes(((Single)o).ToString(FloatFormat, Culture))},
+                {typeof (Decimal), o => GetBytes(((Decimal)o).ToString(FloatFormat, Culture))},
+                {typeof (DateTime), o => GetBytes(((DateTime)o).ToString(DateFormat, Culture))},
                 {typeof (object), o => base.Serialize(o)}
             };
             _deserialDict = new Dictionary<Type, Func<byte[], object>>
             {
-                {typeof (String), b => Encoding.UTF8.GetString(b)}, 
-                {typeof (Char), b => Convert.ToChar(Encoding.UTF8.GetString(b))},
-                {typeof (Boolean), b => bool.Parse(Encoding.UTF8.GetString(b))},
-                {typeof (Byte), b => Byte.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (SByte), b => SByte.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (Int16), b => Int16.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (Int32), b => Int32.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (Int64), b => Int64.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (UInt16), b => UInt16.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (UInt32), b => UInt32.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (UInt64), b => UInt64.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (IntPtr), b => new IntPtr(long.Parse(Encoding.UTF8.GetString(b), ic))},
-                {typeof (UIntPtr), b => new UIntPtr(ulong.Parse(Encoding.UTF8.GetString(b), ic))},
-                {typeof (Double), b => Double.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (Single), b => Single.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (Decimal), b => Decimal.Parse(Encoding.UTF8.GetString(b), ic)},
-                {typeof (DateTime), b => DateTime.ParseExact(Encoding.UTF8.GetString(b), DateFormat, ic)},
+                {typeof (String), GetString}, 
+                {typeof (Char), b => Convert.ToChar(GetString(b))},
+                {typeof (Boolean), b => GetString(b) == "1"},
+                {typeof (Byte), b => Byte.Parse(GetString(b), Culture)},
+                {typeof (SByte), b => SByte.Parse(GetString(b), Culture)},
+                {typeof (Int16), b => Int16.Parse(GetString(b), Culture)},
+                {typeof (Int32), b => Int32.Parse(GetString(b), Culture)},
+                {typeof (Int64), b => Int64.Parse(GetString(b), Culture)},
+                {typeof (UInt16), b => UInt16.Parse(GetString(b), Culture)},
+                {typeof (UInt32), b => UInt32.Parse(GetString(b), Culture)},
+                {typeof (UInt64), b => UInt64.Parse(GetString(b), Culture)},
+                {typeof (IntPtr), b => new IntPtr(long.Parse(GetString(b), Culture))},
+                {typeof (UIntPtr), b => new UIntPtr(ulong.Parse(GetString(b), Culture))},
+                {typeof (Double), b => Double.Parse(GetString(b), Culture)},
+                {typeof (Single), b => Single.Parse(GetString(b), Culture)},
+                {typeof (Decimal), b => Decimal.Parse(GetString(b), Culture)},
+                {typeof (DateTime), b => DateTime.ParseExact(GetString(b), DateFormat, Culture)},
                 {typeof (object), b => base.Deserialize(b)}
             };
         }
@@ -103,7 +102,6 @@ namespace CachingFramework.Redis.Serializers
         #endregion
 
         #region ISerializer implementation
-
         /// <summary>
         /// Serializes the specified value.
         /// </summary>
@@ -123,6 +121,23 @@ namespace CachingFramework.Redis.Serializers
             return (T) (_deserialDict.ContainsKey(type)
                 ? _deserialDict[type](value)
                 : _deserialDict[typeof (object)](value));
+        }
+        #endregion
+
+        #region Private Methods
+        /// <summary>
+        /// Get a byte array to encode the given string in UTF8
+        /// </summary>
+        private static byte[] GetBytes(string s)
+        {
+            return Encoding.UTF8.GetBytes(s);
+        }
+        /// <summary>
+        /// Get a string from the UTF8 encoded byte array
+        /// </summary>
+        private static string GetString(byte[] b)
+        {
+            return Encoding.UTF8.GetString(b);
         }
         #endregion
     }
