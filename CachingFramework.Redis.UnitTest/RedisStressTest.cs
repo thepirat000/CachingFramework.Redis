@@ -8,6 +8,7 @@ using NUnit.Framework;
 
 namespace CachingFramework.Redis.UnitTest
 {
+    //[Ignore("azure")]
     [TestFixture]
     public class RedisStressTest
     {
@@ -16,7 +17,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             string key = "UT_RedisStress_BigAddDelete";
             string tag = "UT_RedisStress_BigAddDelete-tag1";
-            int total = 32000;
+            int total = 1000;
             var sw = Stopwatch.StartNew();
             for (int i = 0; i < total; i++)
             {
@@ -39,12 +40,12 @@ namespace CachingFramework.Redis.UnitTest
             var secsRem = sw.Elapsed.TotalSeconds;
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_CacheBigRemoveByTag(Context context)
         {
             string key = "UT_CacheBigRemoveByTag";
             string tag = "mytag";
-            int total = 16000;
+            int total = 1000;
             for (int i = 0; i < total; i++)
             {
                 context.Cache.SetObject(key + i, new User() { Id = i }, new[] { tag });
@@ -130,7 +131,6 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
 
-
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_RedisStress_GetAllTags(Context context)
         {
@@ -210,6 +210,24 @@ namespace CachingFramework.Redis.UnitTest
             RemoveKeys(keyCount, test, context);
         }
 
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheString_BigString(Context context)
+        {
+            var key = "UT_CacheString_BigString";
+            int i = 9999999;
+            context.Cache.Remove(key);
+            var cs = context.Collections.GetRedisString(key);
+            cs.SetRange(i, "test");
+            Assert.AreEqual(i + 4, cs.Length);
+            Assert.AreEqual("\0", cs[0, 0]);
+            Assert.AreEqual("test", cs[i, -1]);
+            var big = cs[0, -1];
+            Assert.IsTrue(big.EndsWith("test"));
+            Assert.AreEqual(i + 4, big.Length);
+            cs.Clear();
+            Assert.AreEqual(0, cs.Length);
+        }
 
         private void RemoveKeys(int count, string test, Context context)
         {

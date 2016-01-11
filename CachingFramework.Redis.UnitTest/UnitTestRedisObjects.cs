@@ -273,7 +273,7 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var set = context.Collections.GetRedisSet<string>(key);
             set.AddRange(new [] { "test1", "test2", "test3" });
-            set.Expiration = DateTime.Now.AddSeconds(2);
+            set.Expiration = Common.ServerNow.AddSeconds(2);
             var startedOn = DateTime.Now;
             Assert.AreEqual(3, set.Count);
             while (context.Cache.KeyExists(key) && DateTime.Now < startedOn.AddSeconds(10))
@@ -695,24 +695,6 @@ namespace CachingFramework.Redis.UnitTest
                 lst.Add(b);
             }
             Assert.AreEqual(str, Encoding.UTF8.GetString(lst.ToArray()));
-        }
-
-        [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheString_BigString(Context context)
-        {
-            var key = "UT_CacheString_BigString";
-            int i = 9999999;
-            context.Cache.Remove(key);
-            var cs = context.Collections.GetRedisString(key);
-            cs.SetRange(i, "test");
-            Assert.AreEqual(i + 4, cs.Length);
-            Assert.AreEqual("\0", cs[0, 0]);
-            Assert.AreEqual("test", cs[i, -1]);
-            var big = cs[0, -1];
-            Assert.IsTrue(big.EndsWith("test"));
-            Assert.AreEqual(i + 4, big.Length);
-            cs.Clear();
-            Assert.AreEqual(0, cs.Length);
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]

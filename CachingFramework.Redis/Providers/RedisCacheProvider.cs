@@ -66,7 +66,11 @@ namespace CachingFramework.Redis.Providers
             if (!TryGetObject(key, out value))
             {
                 value = func();
-                SetObject(key, value, tags, expiry);
+                // ReSharper disable once CompareNonConstrainedGenericWithNull
+                if (value != null)
+                {
+                    SetObject(key, value, tags, expiry);
+                }
             }
             return value;
         }
@@ -101,7 +105,11 @@ namespace CachingFramework.Redis.Providers
             if (!TryGetHashed(key, field, out value))
             {
                 value = func();
-                SetHashed(key, field, value, tags, expiry);
+                // ReSharper disable once CompareNonConstrainedGenericWithNull
+                if (value != null)
+                {
+                    SetHashed(key, field, value, tags, expiry);
+                }
             }
             return value;
         }

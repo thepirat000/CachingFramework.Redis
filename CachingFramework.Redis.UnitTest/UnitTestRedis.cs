@@ -244,6 +244,26 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[0].Id, returnedUser2.Id);
         }
 
+        [Test, TestCaseSource(typeof (Common), "All")]
+        public void UT_CacheFetch_Nulls(Context context)
+        {
+            string key = "UT_CacheFetch_Nulls";
+            context.Cache.Remove(key);
+            string str = context.Cache.FetchObject<string>(key, () => null);
+            Assert.IsNull(str);
+            Assert.IsFalse(context.Cache.KeyExists(key));
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheFetchHashed_Nulls(Context context)
+        {
+            string key = "UT_CacheFetchHashed_Nulls";
+            context.Cache.Remove(key);
+            string str = context.Cache.FetchHashed<string>(key, "1", () => null);
+            Assert.IsNull(str);
+            Assert.IsFalse(context.Cache.KeyExists(key));
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheTryGetObject(Context context)
         {

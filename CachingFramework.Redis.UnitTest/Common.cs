@@ -20,8 +20,18 @@ namespace CachingFramework.Redis.UnitTest
         public static Context[] Bin { get { return new[] { _binaryContext }; } }
         public static Context[] All { get { return new[] { _binaryContext, _rawContext }; } }
 
+        public static DateTime ServerNow
+        {
+            get
+            {
+                var cnn = _rawContext.GetConnectionMultiplexer();
+                var serverNow = cnn.GetServer(cnn.GetEndPoints()[0]).Time();
+                return serverNow;
+            }
+        }
+
         public static string Config = "192.168.15.11:6379, allowAdmin=true";
-        //public static string Config = "192.168.15.15:7000, allowAdmin=true";
+        //public static string Config = "192.168.15.13:7000, allowAdmin=true";
         //public static string Config = "192.168.15.11:7000, allowAdmin=true";
 
         static Common()
