@@ -70,7 +70,7 @@ context.Cache.Remove(redisKey);
 
 Fetching mechanism
 =====
-Shortcut methods are provided for atomic add/get operations (See [Cache-Aside pattern](https://msdn.microsoft.com/en-us/library/dn589799.aspx).
+Shortcut methods are provided for atomic add/get operations (see [Cache-Aside pattern](https://msdn.microsoft.com/en-us/library/dn589799.aspx)).
 ![Image of Fetching Mechanism](http://i.imgur.com/Kb9OBlK.png)
 
 #### Fetch an object
