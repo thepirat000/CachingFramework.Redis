@@ -117,12 +117,12 @@ Objects within a hash can be of different types.
 
 #### Remove object from hash
 ```c#
-context.Cache.RemoveHashed(redisKey, "user:id:1");
+context.Cache.RemoveHashed("users:hash", "user:id:1");
 ```
 
 #### Fetch a hashed object
 ```c#
-var user = context.Cache.FetchHashed<User>(redisKey, "user:id:1", () => GetUser(1));
+var user = context.Cache.FetchHashed<User>("users:hash", "user:id:1", () => GetUser(1));
 ```
 The method `GetUser` will only be called when the value is not present on the hash, in which case will be added to the hash before returning it.
 
