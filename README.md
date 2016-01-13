@@ -107,11 +107,11 @@ void InsertUser(User user)
 #### Get hashed object
 Get an object by the redis key and a field key:
 ```c#
-User u = context.Cache.GetHashed<User>(redisKey, "user:id:1");
+User u = context.Cache.GetHashed<User>("users:hash", "user:id:1");
 ```
 #### Get all the objects in a hash 
 ```c#
-IDictionary<string, User> users = context.Cache.GetHashedAll<User>(redisKey);
+IDictionary<string, User> users = context.Cache.GetHashedAll<User>("users:hash");
 ```
 Objects within a hash can be of different types. 
 
