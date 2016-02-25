@@ -399,8 +399,8 @@ Different serialization mechanisms are provided:
 - **Binary Serializer** (default):
 All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
 
-- **Json Serializer** (default when using [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json/1.0.0) package):
-All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. This mechanism is optional and is included in a different nuget package called [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json/1.0.0).
+- **Json Serializer** (default when using [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json) package):
+All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. This mechanism is optional and is included in a different nuget package called [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json).
 
 - **Raw Serializer**:
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
