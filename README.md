@@ -388,7 +388,7 @@ public class JsonSerializer : ISerializer
 }
 ```
 
-Two implementations of `ISerializer` are included:
+Different serialization mechanisms are provided:
 
 - Binary Serializer (default):
 All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
@@ -397,11 +397,14 @@ All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.S
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
 Any other type is binary serialized using the .NET `BinaryFormatter` and compressed using GZIP.
 
-| | **BinarySerializer** | **RawSerializer** |
-| ----------- | ----------------------- | -------------------------- |
-|**Inheritance** | Full inheritance support | Limited inheritance, only for types serialized with BinaryFormatter |
-|**Data** | Data is compressed and not human readable | Simple types are stored as strings and are human readable |
-|**Configuration** | Serialization cannot be configured | Serialization can be set-up per type |
+- Json Serializer (default when using [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json/1.0.0) package):
+All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. This mechanism is optional and is included in a different nuget package called [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json/1.0.0).
+
+| | **BinarySerializer** | **RawSerializer** | **JsonSerializer** |
+| ----------- | ----------------------- | -------------------------- | ------------------ |
+|**Inheritance** | Full inheritance support | Limited inheritance, only for types serialized with BinaryFormatter | Full inheritance support |
+|**Data** | Data is compressed and not human readable | Simple types are stored as strings and are human readable | Data is stored as JSon |
+|**Configuration** | Serialization cannot be configured | Serialization can be set-up per type | Serialization can be configured with JsonSerializerSettings |
 
 The Context class has constructor overloads to supply the serialization mechanism, for example:
 
@@ -422,3 +425,14 @@ raw.SetSerializerFor<StringBuilder>
 );
 var context = new Context("localhost:6379", raw);
 ```
+
+To use the JSonSerializer, install the CachingFramework.Redis.Json package:
+```
+PM> Install-Package CachingFramework.Redis.Json
+```
+And use the provided json context:
+```c#
+var jsonContext = new CachingFramework.Redis.Json.Context("localhost:6379");
+```
+
+
