@@ -373,18 +373,18 @@ Serialization
 
 To provide your own serialization mechanism implement the `ISerializer` interface.
 
-For example, a JSON serializer using [`Newtonsoft.Json`](https://www.nuget.org/packages/newtonsoft.json/) library:
+For example, a custom serializer for simple types:
 ```c#
-public class JsonSerializer : ISerializer
+public class MySerializer : ISerializer
 {
-	public byte[] Serialize<T>(T value)
-	{
-		return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value));
-	}
-	public T Deserialize<T>(byte[] value)
-	{
-		return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(value));
-	}
+    public byte[] Serialize<T>(T value)
+    {
+        return Encoding.UTF8.GetBytes(value.ToString());
+    }
+    public T Deserialize<T>(byte[] value)
+    {
+        return (T)Convert.ChangeType(Encoding.UTF8.GetString(value), typeof(T));
+    }
 }
 ```
 
@@ -409,7 +409,7 @@ All types are serialized using the [JSON.NET](https://www.nuget.org/packages/New
 The Context class has constructor overloads to supply the serialization mechanism, for example:
 
 ```c#
-var context = new Context("localhost:6379", new JsonSerializer());
+var context = new Context("localhost:6379", new MySerializer());
 ```
 
 The RawSerializer allows to override the serialization/deserialization logic per type with method `SetSerializerFor<T>()`.
