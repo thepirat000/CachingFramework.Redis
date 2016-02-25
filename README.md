@@ -426,13 +426,13 @@ raw.SetSerializerFor<StringBuilder>
 var context = new Context("localhost:6379", raw);
 ```
 
-To use the JSonSerializer, install the CachingFramework.Redis.Json package:
+To use the JSonSerializer, install the **CachingFramework.Redis.Json** package:
 ```
 PM> Install-Package CachingFramework.Redis.Json
 ```
 And use the provided json context:
 ```c#
-var jsonContext = new CachingFramework.Redis.Json.Context("localhost:6379");
+var context = new CachingFramework.Redis.Json.Context("localhost:6379");
 ```
 
 
