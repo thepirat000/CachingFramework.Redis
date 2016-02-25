@@ -388,7 +388,7 @@ public class MySerializer : ISerializer
 }
 ```
 
-The Context class has constructor overloads to supply the serialization mechanism, for example:
+The `Context` class has constructor overloads to supply the serialization mechanism, for example:
 
 ```c#
 var context = new Context("localhost:6379", new MySerializer());
@@ -396,13 +396,13 @@ var context = new Context("localhost:6379", new MySerializer());
 
 Different serialization mechanisms are provided:
 
-- Binary Serializer (default):
+- **Binary Serializer** (default):
 All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
 
-- Json Serializer (default when using [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json/1.0.0) package):
+- **Json Serializer** (default when using [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json/1.0.0) package):
 All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. This mechanism is optional and is included in a different nuget package called [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json/1.0.0).
 
-- Raw Serializer:
+- **Raw Serializer**:
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
 Any other type is binary serialized using the .NET `BinaryFormatter` and compressed using GZIP.
 
