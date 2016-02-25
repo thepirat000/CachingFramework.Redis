@@ -388,6 +388,12 @@ public class MySerializer : ISerializer
 }
 ```
 
+The Context class has constructor overloads to supply the serialization mechanism, for example:
+
+```c#
+var context = new Context("localhost:6379", new MySerializer());
+```
+
 Different serialization mechanisms are provided:
 
 - Binary Serializer (default):
@@ -405,12 +411,6 @@ All types are serialized using the [JSON.NET](https://www.nuget.org/packages/New
 |**Inheritance** | Full inheritance support | Limited inheritance, only for types serialized with BinaryFormatter | Full inheritance support |
 |**Data** | Data is compressed and not human readable | Simple types are stored as strings and are human readable | Data is stored as JSon |
 |**Configuration** | Serialization cannot be configured | Serialization can be set-up per type | Serialization can be configured with JsonSerializerSettings |
-
-The Context class has constructor overloads to supply the serialization mechanism, for example:
-
-```c#
-var context = new Context("localhost:6379", new MySerializer());
-```
 
 The RawSerializer allows to override the serialization/deserialization logic per type with method `SetSerializerFor<T>()`.
 
