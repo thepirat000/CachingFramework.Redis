@@ -70,7 +70,7 @@ context.Cache.Remove(redisKey);
 
 Fetching mechanism
 =====
-Shortcut methods are provided for atomic add/get operations.
+Shortcut methods are provided for atomic add/get operations (see [Cache-Aside pattern](https://msdn.microsoft.com/en-us/library/dn589799.aspx)).
 ![Image of Fetching Mechanism](http://i.imgur.com/Kb9OBlK.png)
 
 #### Fetch an object
@@ -107,22 +107,22 @@ void InsertUser(User user)
 #### Get hashed object
 Get an object by the redis key and a field key:
 ```c#
-User u = context.Cache.GetHashed<User>(redisKey, "user:id:1");
+User u = context.Cache.GetHashed<User>("users:hash", "user:id:1");
 ```
 #### Get all the objects in a hash 
 ```c#
-IDictionary<string, User> users = context.Cache.GetHashedAll<User>(redisKey);
+IDictionary<string, User> users = context.Cache.GetHashedAll<User>("users:hash");
 ```
 Objects within a hash can be of different types. 
 
 #### Remove object from hash
 ```c#
-context.Cache.RemoveHashed(redisKey, "user:id:1");
+context.Cache.RemoveHashed("users:hash", "user:id:1");
 ```
 
 #### Fetch a hashed object
 ```c#
-var user = context.Cache.FetchHashed<User>(redisKey, "user:id:1", () => GetUser(1));
+var user = context.Cache.FetchHashed<User>("users:hash", "user:id:1", () => GetUser(1));
 ```
 The method `GetUser` will only be called when the value is not present on the hash, in which case will be added to the hash before returning it.
 
@@ -373,43 +373,46 @@ Serialization
 
 To provide your own serialization mechanism implement the `ISerializer` interface.
 
-For example, a JSON serializer using [`Newtonsoft.Json`](https://www.nuget.org/packages/newtonsoft.json/) library:
+For example, a custom serializer for simple types:
 ```c#
-public class JsonSerializer : ISerializer
+public class MySerializer : ISerializer
 {
-	public byte[] Serialize<T>(T value)
-	{
-		return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value));
-	}
-	public T Deserialize<T>(byte[] value)
-	{
-		return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(value));
-	}
+    public byte[] Serialize<T>(T value)
+    {
+        return Encoding.UTF8.GetBytes(value.ToString());
+    }
+    public T Deserialize<T>(byte[] value)
+    {
+        return (T)Convert.ChangeType(Encoding.UTF8.GetString(value), typeof(T));
+    }
 }
 ```
 
-Two implementations of `ISerializer` are included:
+The `Context` class has constructor overloads to supply the serialization mechanism, for example:
 
-- Binary Serializer (default):
+```c#
+var context = new Context("localhost:6379", new MySerializer());
+```
+
+Different serialization mechanisms are provided:
+
+- **Binary Serializer** (default):
 All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
 
-- Raw Serializer:
+- **Json Serializer** (default when using CachingFramework.Redis.Json package):
+All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. This mechanism is optional and is included in package [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json).
+
+- **Raw Serializer**:
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
 Any other type is binary serialized using the .NET `BinaryFormatter` and compressed using GZIP.
 
-| | **BinarySerializer** | **RawSerializer** |
-| ----------- | ----------------------- | -------------------------- |
-|**Inheritance** | Full inheritance support | Limited inheritance, only for types serialized with BinaryFormatter |
-|**Data** | Data is compressed and not human readable | Simple types are stored as strings and are human readable |
-|**Configuration** | Serialization cannot be configured | Serialization can be set-up per type |
+| | **BinarySerializer** | **JsonSerializer** | **RawSerializer** |
+| ----------- | ----------------------- | -------------------------- | ------------------ |
+|**Inheritance** | Full inheritance support | Full inheritance support | Limited inheritance, only for types serialized with BinaryFormatter | 
+|**Data** | Data is compressed and not human readable | Data is stored as JSon | Simple types are stored as strings and are human readable | 
+|**Configuration** | Serialization cannot be configured | Serialization can be configured with JsonSerializerSettings | Serialization can be set-up per type using SetSerializerFor | 
 
-The Context class has constructor overloads to supply the serialization mechanism, for example:
-
-```c#
-var context = new Context("localhost:6379", new JsonSerializer());
-```
-
-The RawSerializer allows to override the serialization/deserialization logic per type.
+The RawSerializer allows to override the serialization/deserialization logic per type with method `SetSerializerFor<T>()`.
 
 For example, to allow the serialization of a `StringBuilder` as an UTF-8 encoded string:
 
@@ -421,5 +424,15 @@ raw.SetSerializerFor<StringBuilder>
     b => new StringBuilder(Encoding.UTF8.GetString(b))
 );
 var context = new Context("localhost:6379", raw);
-
 ```
+
+To use the JSonSerializer, install the **CachingFramework.Redis.Json** package:
+```
+PM> Install-Package CachingFramework.Redis.Json
+```
+And use the provided json context:
+```c#
+var context = new CachingFramework.Redis.Json.Context("localhost:6379");
+```
+
+
