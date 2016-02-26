@@ -68,12 +68,21 @@
     <Compile Include="RedisStressTest.cs" />
     <Compile Include="Dto.cs" />
     <Compile Include="UnitTestGeo.cs" />
+    <Compile Include="UnitTestJson.cs" />
     <Compile Include="UnitTestPubSub.cs" />
     <Compile Include="UnitTestRedis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTestRedisObjects.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CachingFramework.Redis.Json\CachingFramework.Redis.Json.csproj">
+      <Project>{ed669e88-e26c-45f0-9808-67445e05b601}</Project>
+      <Name>CachingFramework.Redis.Json</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CachingFramework.Redis.MsgPack\CachingFramework.Redis.MsgPack.csproj">
+      <Project>{b4cfd07b-ec04-49eb-8352-acc76a32bf9b}</Project>
+      <Name>CachingFramework.Redis.MsgPack</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CachingFramework.Redis\CachingFramework.Redis.csproj">
       <Project>{d382bcfe-9c6e-440c-b49e-bd4eb9cfb057}</Project>
       <Name>CachingFramework.Redis</Name>

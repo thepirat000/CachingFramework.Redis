@@ -17,7 +17,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.Throws<ArgumentException>(() => context.Cache.SetObject(null, "this should fail"));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "BinAndRawAndJson")]
         public void UT_CacheSerializer(Context context)
         {
             var kss = "short:string";
@@ -337,7 +337,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, dict["2"].Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "BinAndRaw")]
         public void UT_CacheSetHashed_MultipleFieldsDistinctTypes(Context context)
         {
             string key = "UT_CacheSetHashed_MultipleFieldsDistinctTypes";
@@ -769,7 +769,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(users.All(x => response.ContainsKey(x.Id.ToString())));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "BinAndRaw")]
         public void UT_CacheSerialization(Context context)
         {
             string key = "UT_CacheSerialization";
@@ -804,7 +804,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(10, cnt);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "BinAndRaw")]
         public void UT_Cache_Collections_Mix(Context context)
         {
             string key = "UT_Cache_Collections_Mix";
