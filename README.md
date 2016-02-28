@@ -410,7 +410,7 @@ Any other type is binary serialized using the .NET `BinaryFormatter` and compres
 | ----------- | ----------------------- | -------------------------- | ------------------ |
 |**Inheritance** | Full inheritance support | Limited inheritance support | Limited inheritance, only for types serialized with BinaryFormatter | 
 |**Data** | Data is compressed and not human readable | Data is stored as JSon | Simple types are stored as strings and are human readable | 
-|**Configuration** | Serialization can be configures with attrbitues Serializable and NonSerialized | Serialization can be configured with JsonSerializerSettings | Serialization can be set-up per type using SetSerializerFor | 
+|**Configuration** | Serialization by attrbitues [Serializable] and [NonSerialized] | Serialization can be configured with JsonSerializerSettings | Serialization can be set-up per type using SetSerializerFor | 
 
 The RawSerializer allows to override the serialization/deserialization logic per type with method `SetSerializerFor<T>()`.
 
