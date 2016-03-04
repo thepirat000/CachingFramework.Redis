@@ -67,19 +67,17 @@ namespace CachingFramework.Redis.Providers
         /// Returns an ICollection implemented using a Redis string as a bitmap
         /// </summary>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
-        public IRedisBitmap GetRedisBitmap(string key, ISerializer serializer = null)
+        public IRedisBitmap GetRedisBitmap(string key)
         {
-            return new RedisBitmap(RedisConnection, key, serializer ?? Serializer);
+            return new RedisBitmap(RedisConnection, key, Serializer);
         }
         /// <summary>
         /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
         /// </summary>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
-        public IRedisLexicographicSet GetRedisLexicographicSet(string key, ISerializer serializer = null)
+        public IRedisLexicographicSet GetRedisLexicographicSet(string key)
         {
-            return new RedisLexicographicSet(RedisConnection, key, serializer ?? Serializer);
+            return new RedisLexicographicSet(RedisConnection, key, Serializer);
         }
         /// <summary>
         /// Returns an ICollection(char) implemented using a Redis string

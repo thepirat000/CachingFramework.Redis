@@ -136,7 +136,7 @@ namespace CachingFramework.Redis.Providers
         {
             var db = RedisConnection.GetDatabase();
             var result = db.ScriptEvaluate(LuaScriptResource.GeoDist, new RedisKey[] { key },
-                new RedisValue[] { Serializer.Serialize(member1), Serializer.Serialize(member2), UnitAttribute.GetEnumUnit(unit) });
+                new RedisValue[] { Serializer.Serialize(member1), Serializer.Serialize(member2), TextAttribute.GetEnumText(unit) });
             return result.IsNull ? -1 : (double)result;
         }
         /// <summary>
@@ -157,7 +157,7 @@ namespace CachingFramework.Redis.Providers
                 center.Longitude,
                 center.Latitude,
                 radius,
-                UnitAttribute.GetEnumUnit(unit),
+                TextAttribute.GetEnumText(unit),
                 "WITHDIST",
                 "WITHCOORD"
             };

@@ -48,10 +48,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Context.cs" />
+    <Compile Include="Contracts\BitField.cs" />
+    <Compile Include="Contracts\BitFieldType.cs" />
     <Compile Include="Contracts\GeoCoordinate.cs" />
     <Compile Include="Contracts\GeoMember.cs" />
     <Compile Include="Contracts\IContext.cs" />
     <Compile Include="Contracts\ISerializer.cs" />
+    <Compile Include="Contracts\OverflowType.cs" />
     <Compile Include="Contracts\Providers\ICollectionProvider.cs" />
     <Compile Include="Contracts\Providers\ICacheProvider.cs" />
     <Compile Include="Contracts\Providers\IGeoProvider.cs" />
@@ -66,7 +69,7 @@
     <Compile Include="Contracts\RedisObjects\IRedisObject.cs" />
     <Compile Include="Contracts\SortedMember.cs" />
     <Compile Include="Contracts\Unit.cs" />
-    <Compile Include="Contracts\UnitAttribute.cs" />
+    <Compile Include="Contracts\TextAttribute.cs" />
     <Compile Include="LuaScriptResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\RedisCollectionProvider.cs" />

@@ -26,5 +26,9 @@ namespace CachingFramework.Redis
         /// The geo radius
         /// </summary>
         public static string GeoRadius = "return redis.call('georadius', KEYS[1], unpack(ARGV))";
+        /// <summary>
+        /// The bitfield command
+        /// </summary>
+        public static string Bitfield = "return redis.call('bitfield', KEYS[1], unpack(ARGV))";
     }
 }

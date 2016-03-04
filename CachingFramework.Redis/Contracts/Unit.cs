@@ -7,9 +7,9 @@ namespace CachingFramework.Redis.Contracts
     /// </summary>
     public enum Unit
     {
-        [Unit("m")] Meters = 0,
-        [Unit("km")] Kilometers = 1,
-        [Unit("mi")] Miles = 2,
-        [Unit("ft")] Feet = 3
+        [Text("m")] Meters = 0,
+        [Text("km")] Kilometers = 1,
+        [Text("mi")] Miles = 2,
+        [Text("ft")] Feet = 3
     }
 }

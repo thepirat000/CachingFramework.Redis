@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading.Tasks;
 using CachingFramework.Redis.Contracts;
@@ -9,6 +11,7 @@ using StackExchange.Redis;
 
 namespace CachingFramework.Redis.RedisObjects
 {
+
     internal class RedisBitmap : RedisBaseObject, IRedisBitmap, ICollection<bool>
     {
         #region Fields
@@ -72,6 +75,87 @@ namespace CachingFramework.Redis.RedisObjects
             var maxpos = db.StringLength(RedisKey) * ByteSize;
             return pos >= 0 && maxpos > 0 && pos < maxpos;
         }
+        /// <summary>
+        /// Gets the specified integer field in the bitmap
+        /// </summary>
+        /// <param name="fieldType">Type of the field.</param>
+        /// <param name="offset">The offset (bit or ordinal).</param>
+        /// <param name="offsetIsOrdinal">if set to <c>true</c>, offset is ordinal, so offset=N means the N-th counter of the fieldType size.
+        /// If set to <c>false</c>, offset is the bit position, so offset=N means the N-th bit</param>
+        public T BitFieldGet<T>(BitFieldType fieldType, long offset, bool offsetIsOrdinal = false)
+            where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable
+        {
+            var db = GetRedisDb();
+            var args = new List<RedisValue>
+            {
+                "get",
+                fieldType.ToString(),
+                offsetIsOrdinal ? "#" + offset : offset.ToString()
+            };
+            var result = db.ScriptEvaluate(LuaScriptResource.Bitfield, new RedisKey[] { RedisKey }, args.ToArray());
+            return (T)Convert.ChangeType((decimal)result, typeof(T));
+        }
+        /// <summary>
+        /// Sets the specified integer field in the bitmap
+        /// </summary>
+        /// <param name="fieldType">Type of the field.</param>
+        /// <param name="offset">The offset (bit or ordinal).</param>
+        /// <param name="value">The value to set.</param>
+        /// <param name="offsetIsOrdinal">if set to <c>true</c>, offset is ordinal, so offset=N means the N-th counter of the fieldType size.
+        /// If set to <c>false</c>, offset is the bit position, so offset=N means the N-th bit</param>
+        /// <param name="overflowType">Overflow handling type.</param>
+        /// <returns>The previous value.</returns>
+        public T BitFieldSet<T>(BitFieldType fieldType, long offset, T value, bool offsetIsOrdinal = false, OverflowType overflowType = OverflowType.Wrap)
+            where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable
+        {
+            var db = GetRedisDb();
+            var args = new List<RedisValue>
+            {
+                "overflow",
+                TextAttribute.GetEnumText(overflowType),
+                "set",
+                fieldType.ToString(),
+                offsetIsOrdinal ? "#" + offset : offset.ToString(),
+                value.ToString("G", CultureInfo.InvariantCulture)
+            };
+            var results = (RedisResult[])db.ScriptEvaluate(LuaScriptResource.Bitfield, new RedisKey[] {RedisKey}, args.ToArray());
+            if (results[0].IsNull)
+            {
+                throw new OverflowException("The value would overflow the type " + fieldType);
+            }
+            return (T)Convert.ChangeType((decimal)results[0], typeof(T));
+        }
+        /// <summary>
+        /// Increment the specified integer counter
+        /// </summary>
+        /// <param name="fieldType">Type of the field.</param>
+        /// <param name="offset">The offset (bit or ordinal).</param>
+        /// <param name="value">The value to increment.</param>
+        /// <param name="offsetIsOrdinal">if set to <c>true</c>, offset is ordinal, so offset=N means the N-th counter of the fieldType size.
+        /// If set to <c>false</c>, offset is the bit position, so offset=N means the N-th bit</param>
+        /// <param name="overflowType">Overflow handling.</param>
+        /// <returns>The previous value.</returns>
+        public T BitFieldIncrementBy<T>(BitFieldType fieldType, long offset, T value, bool offsetIsOrdinal = false, OverflowType overflowType = OverflowType.Wrap)
+            where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable
+        {
+            var db = GetRedisDb();
+            var args = new List<RedisValue>
+            {
+                "overflow",
+                TextAttribute.GetEnumText(overflowType),
+                "incrby",
+                fieldType.ToString(),
+                offsetIsOrdinal ? "#" + offset : offset.ToString(),
+                value.ToString("G", CultureInfo.InvariantCulture)
+            };
+            var results = (RedisResult[])db.ScriptEvaluate(LuaScriptResource.Bitfield, new RedisKey[] { RedisKey }, args.ToArray());
+            if (results[0].IsNull)
+            {
+                throw new OverflowException("The value would overflow the type " + fieldType);
+            }
+            return (T)Convert.ChangeType((decimal)results[0], typeof(T));
+        }
+
         #endregion
 
         #region ICollection implementation

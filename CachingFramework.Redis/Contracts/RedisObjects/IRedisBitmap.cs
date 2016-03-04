@@ -53,5 +53,44 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// Inverts the first occurence of the specified bit in the bitmap.
         /// </summary>
         new bool Remove(bool item);
+        /// <summary>
+        /// Gets the specified integer field in the bitmap
+        /// </summary>
+        /// <param name="fieldType">Type of the field.</param>
+        /// <param name="offset">The offset (bit or ordinal).</param>
+        /// <param name="offsetIsOrdinal">if set to <c>true</c>, offset is ordinal, so offset=N means the N-th counter of the fieldType size.
+        /// If set to <c>false</c>, offset is the bit position, so offset=N means the N-th bit</param>
+        T BitFieldGet<T>(BitFieldType fieldType, long offset, bool offsetIsOrdinal = false)
+            where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable;
+
+        /// <summary>
+        /// Sets the specified integer field in the bitmap
+        /// </summary>
+        /// <param name="fieldType">Type of the field.</param>
+        /// <param name="offset">The offset (bit or ordinal).</param>
+        /// <param name="value">The value to set.</param>
+        /// <param name="offsetIsOrdinal">if set to <c>true</c>, offset is ordinal, so offset=N means the N-th counter of the fieldType size.
+        /// If set to <c>false</c>, offset is the bit position, so offset=N means the N-th bit</param>
+        /// <param name="overflowType">Overflow handling type.</param>
+        /// <returns>The previous value.</returns>
+        T BitFieldSet<T>(BitFieldType fieldType, long offset, T value, bool offsetIsOrdinal = false,
+            OverflowType overflowType = OverflowType.Wrap)
+            where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable;
+
+        /// <summary>
+        /// Increment the specified integer counter
+        /// </summary>
+        /// <param name="fieldType">Type of the field.</param>
+        /// <param name="offset">The offset (bit or ordinal).</param>
+        /// <param name="value">The value to increment.</param>
+        /// <param name="offsetIsOrdinal">if set to <c>true</c>, offset is ordinal, so offset=N means the N-th counter of the fieldType size.
+        /// If set to <c>false</c>, offset is the bit position, so offset=N means the N-th bit</param>
+        /// <param name="overflowType">Overflow handling.</param>
+        /// <returns>The previous value.</returns>
+        T BitFieldIncrementBy<T>(BitFieldType fieldType, long offset, T value, bool offsetIsOrdinal = false,
+            OverflowType overflowType = OverflowType.Wrap)
+            where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable;
+
+
     }
 }

@@ -40,14 +40,12 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// Returns an ICollection implemented using a Redis string as a bitmap
         /// </summary>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
-        IRedisBitmap GetRedisBitmap(string key, ISerializer serializer = null);
+        IRedisBitmap GetRedisBitmap(string key);
         /// <summary>
         /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
         /// </summary>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
-        IRedisLexicographicSet GetRedisLexicographicSet(string key, ISerializer serializer = null);
+        IRedisLexicographicSet GetRedisLexicographicSet(string key);
         /// <summary>
         /// Returns an ICollection(char) implemented using a Redis string
         /// </summary>
