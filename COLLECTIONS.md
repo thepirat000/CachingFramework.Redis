@@ -8,7 +8,7 @@ The following are the .NET objects provided to access Redis collections:
 | [Set](#redis-sets--) | ```GetRedisSet()``` | Set of unique objects | ```ICollection<T>``` |
 | [Hash](#redis-hashes--) | ```GetRedisDictionary()``` | Dictionary of values | ```IDictionary<TK, TV>``` |
 | [Sorted Set](#redis-sorted-sets--) | ```GetRedisSortedSet()``` | Set of unique objects sorted by score | ```ICollection<T>``` |
-| [Bitmap](#redis-bitmaps--) | ```GetRedisBitmap()``` | Binary value | ```ICollection<bool>``` |
+| [Bitmap](#redis-bitmaps--) | ```GetRedisBitmap()``` | Binary value | ```ICollection<byte>``` |
 | [Lex. Sorted Set](#redis-lexicographical-sorted-set) | ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | ```ICollection<string>``` |
 | [String](#redis-string) | ```GetRedisString()``` | Binary-safe string | ```IEnumerable<byte>``` |
 
@@ -297,6 +297,8 @@ bool HasVisited(int userId, DateTime date)
 }
 ```
 
+
+
 ## IRedisBitmap mapping to Redis bitmap
 
 Mapping between `IRedisBitmap` methods/properties to the Redis commands used:
@@ -309,10 +311,11 @@ Mapping between `IRedisBitmap` methods/properties to the Redis commands used:
 |`BitPosition(byte bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)|O(N)|
 |`Contains(byte bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)+[STRLEN](http://redis.io/commands/strlen)|O(N)|
 |`Count()`|[BITCOUNT](http://redis.io/commands/bitcount)|O(N)|
-|`BitFieldGet(FieldType type, long offset)`|BITFIELD|O(1)|
-|`BitFieldSet(FieldType type, long offset, T value)`|BITFIELD|O(1)|
-|`BitFieldIncrementBy(FieldType type, long offset, T increment)`|BITFIELD|O(1)|
+|`BitFieldGet(FieldType type, long offset, bool offsetIsOrdinal)` *|BITFIELD|O(1)|
+|`BitFieldSet(FieldType type, long offset, T value, bool offsetIsOrdinal)` *|BITFIELD|O(1)|
+|`BitFieldIncrementBy(FieldType type, long offset, T increment)` *|BITFIELD|O(1)|
 
+*: BitField operations are  not yet available in a stable version of Redis. Download [unstable](https://github.com/antirez/redis/archive/unstable.tar.gz) if you want to test these commands.
 
 --------------
 
