@@ -240,7 +240,7 @@ Mapping between `IRedisSortedSet` methods/properties to the Redis commands used:
 
 # Redis Bitmaps &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of bitmap](http://i.imgur.com/2NxSq56.png)
 
-To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetRedisBitmap()``` method:
+To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<byte>`, use the ```GetRedisBitmap()``` method:
 
 ```c#
 IRedisBitmap bitmap = context.Collections.GetRedisBitmap("users:visit");
@@ -249,19 +249,19 @@ IRedisBitmap bitmap = context.Collections.GetRedisBitmap("users:visit");
 To get or set bits, use the `GetBit` or `SetBit` methods:
 
 ```c#
-bitmap.SetBit(0, false); // Set the first bit to 0
+bitmap.SetBit(0, 1); // Set the first bit to 1
 
 bool bit = bitmap.GetBit(8); // Get the 9th bit
 ```
 
 To count bits within a range, use the `Count` method:
 ```c#
-long count = bitmap.Count(0, 1); // Count the bits in 1 within the first two bytes
+long count = bitmap.Count(0, 2); // Count the bits in 1 within the first three bytes
 ```
 
 To get the position of the first bit within a range, use the `BitPosition` method:
 ```c#
-bitmap.BitPosition(true, -1, -1); // Return the position of the first 1 in the last byte
+bitmap.BitPosition(1, -1, -1); // Return the position of the first 1 in the last byte
 ```
 
 ## Bitmap example: count unique users logged per day
@@ -273,7 +273,7 @@ void OnLogin(int userId)
 {
     var key = "visits:" + DateTime.Now.ToString("yyyy-MM-dd");
     var bitmap = _context.GetRedisBitmap(key);
-    bitmap.SetBit(userId, true);
+    bitmap.SetBit(userId, 1);
 }
 ```
 
@@ -293,7 +293,7 @@ bool HasVisited(int userId, DateTime date)
 {
     var key = "visits:" + date.ToString("yyyy-MM-dd");
     var bitmap = _context.GetRedisBitmap(key);
-    return bitmap.GetBit(userId);
+    return bitmap.GetBit(userId) == 1;
 }
 ```
 
@@ -303,12 +303,16 @@ Mapping between `IRedisBitmap` methods/properties to the Redis commands used:
 
 |IRedisBitmap interface|Redis command|Time complexity|
 |------|------|-------|
-|`Add(bool value)`|[APPEND](http://redis.io/commands/append)|O(1)|
-|`SetBit(long offset, bool bit)`|[SETBIT](http://redis.io/commands/setbit)|O(1)|
+|`Add(byte value)`|[APPEND](http://redis.io/commands/append)|O(1)|
+|`SetBit(long offset, byte bit)`|[SETBIT](http://redis.io/commands/setbit)|O(1)|
 |`GetBit(long offset)`|[GETBIT](http://redis.io/commands/getbit)|O(1)|
-|`BitPosition(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)|O(N)|
-|`Contains(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)+[STRLEN](http://redis.io/commands/strlen)|O(N)|
-|`Count`|[BITCOUNT](http://redis.io/commands/bitcount)|O(N)|
+|`BitPosition(byte bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)|O(N)|
+|`Contains(byte bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)+[STRLEN](http://redis.io/commands/strlen)|O(N)|
+|`Count()`|[BITCOUNT](http://redis.io/commands/bitcount)|O(N)|
+|`BitFieldGet(FieldType type, long offset)`|BITFIELD|O(1)|
+|`BitFieldSet(FieldType type, long offset, T value)`|BITFIELD|O(1)|
+|`BitFieldIncrementBy(FieldType type, long offset, T increment)`|BITFIELD|O(1)|
+
 
 --------------
 
