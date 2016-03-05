@@ -27,7 +27,7 @@ sortedSet.TimeToLive = TimeSpan.FromMinutes(60);
 # Redis Lists &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of hash](http://i.imgur.com/rN5QqoS.png)
 
 
-To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetRedisList()``` method:
+To obtain a new (or existing) Redis List that implements `IList`, use the ```GetRedisList()``` method:
 
 ```c#
 IRedisList<User> list = context.Collections.GetRedisList<User>("user:list");
@@ -87,7 +87,7 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 
 # Redis Sets &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of sets](http://i.imgur.com/HYHjpbX.png)
 
-To obtain a new (or existing) Redis Set implementing a .NET `ICollection`, use the ```GetRedisSet()``` method:
+To obtain a new (or existing) Redis Set that implements `ICollection`, use the ```GetRedisSet()``` method:
 
 ```c#
 IRedisSet<User> set = context.Collections.GetRedisSet<User>("user:set");
@@ -133,7 +133,7 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 
 # Redis Hashes &nbsp;&nbsp;&nbsp;&nbsp; ![Image of hash](http://i.imgur.com/5HeN9VX.png)
 
-To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetRedisDictionary()``` method:
+To obtain a new (or existing) Redis Hash that implements `IDictionary`, use the ```GetRedisDictionary()``` method:
 
 ```c#
 IRedisDictionary<int, User> hash = context.Collections.GetRedisDictionary<int, User>("user:hash");
@@ -178,7 +178,7 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 
 # Redis Sorted Sets &nbsp;&nbsp; ![Image of sorted set](http://i.imgur.com/HOklZQg.png)
 
-To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetRedisSortedSet()``` method:
+To obtain a new (or existing) Redis Sorted Set that implements `ICollection`, use the ```GetRedisSortedSet()``` method:
 
 ```c#
 IRedisSortedSet<User> sortedSet = context.Collections.GetRedisSortedSet<User>("user:sset");
@@ -240,7 +240,7 @@ Mapping between `IRedisSortedSet` methods/properties to the Redis commands used:
 
 # Redis Bitmaps &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of bitmap](http://i.imgur.com/2NxSq56.png)
 
-To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<byte>`, use the ```GetRedisBitmap()``` method:
+To obtain a new (or existing) Redis bitmap that implements `ICollection<byte>`, use the ```GetRedisBitmap()``` method:
 
 ```c#
 IRedisBitmap bitmap = context.Collections.GetRedisBitmap("users:visit");
@@ -321,7 +321,7 @@ Mapping between `IRedisBitmap` methods/properties to the Redis commands used:
 
 # Redis lexicographical Sorted Set
 
-To obtain a new (or existing) Redis lexicographical sorted set implementing a .NET `ICollection<string>`, use the ```GetRedisLexicographicSet()``` method:
+To obtain a new (or existing) Redis lexicographical sorted set that implements `ICollection<string>`, use the ```GetRedisLexicographicSet()``` method:
 
 ```c#
 IRedisLexicographicSet lex = context.Collections.GetRedisLexicographicSet("autocomplete");
@@ -364,7 +364,7 @@ Mapping between `IRedisLexicographicSet` methods/properties to the Redis command
 
 # Redis String
 
-To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetRedisString()``` method:
+To obtain a new (or existing) Redis String that implements `IEnumerable<byte>`, use the ```GetRedisString()``` method:
 
 ```c#
 IRedisString cstr = context.Collections.GetRedisString("key");
