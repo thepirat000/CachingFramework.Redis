@@ -297,6 +297,54 @@ bool HasVisited(int userId, DateTime date)
 }
 ```
 
+## Bitfields
+
+*: Bitfield operations are not yet available in a stable version of Redis. Download [unstable](https://github.com/antirez/redis/archive/unstable.tar.gz) if you want to test these commands.
+
+[Bitfields](http://www.antirez.com/news/103) are arbitrary sized integers at arbitrary offsets stored on a Redis string.
+This allows to handle groups of consecutive bits on a bitmap, instead of handling each bit separately.
+
+There are three **commands** to handle bitfields:
+- BitfieldGet(FieldType, Offset)
+- BitfieldSet(FieldType, Offset, Value)
+- BitfieldIncrementBy(FieldType, Offset, Value)
+
+The **FieldType** indicates how many bits the integer will take and if it will be interpereted as a signed or unsigned integer. 
+For example: 
+ - u2 means a 2-bit unsigned integer [0 .. 3]
+ - i9 means a 9-bit signed integer [-256 .. 255]
+ - u16 means a 16-bit unsigned integer [0 .. 65535]
+
+You also need to specify an **Offset** from which the bitmap will be read/written.
+This offset can be specified in two ways:
+- As a number of **bits** from the beggining,
+- As a number of **fields** from the beggining, in order to say: "handle the bitmap as an array of counters of the specified size, and set the N-th counter".
+
+Some examples:
+
+Set the value 255 to an unsigned 8-bit integer stored at offset 8 (from the 9th bit in the bitmap):
+```c#
+bitmap.BitfieldSet(BitfieldType.u8, 8, 0xFF);
+```
+Set the value 255 to an unsigned 8-bit integer stored at position #1 (from 9th bit in the bitmap):
+```c#
+bitmap.BitfieldSet(BitfieldType.u8, 1, 0xFF, offsetIsOrdinal: true);
+```
+
+Set the value -1 to a signed 4-bit integer stored at offset 2 (from 3rd bit in the bitmap):
+```c#
+bitmap.BitfieldSet(BitfieldType.i4, 2, -1);
+```
+            
+Get the value of a signed 4-bit integer at offset 2 (from 3rd bit in the bitmap):
+```c#
+int value = bitmap.BitfieldGet<int>(BitfieldType.i4, 2);
+```
+
+Get the value of a signed 4-bit integer at position #2 (9th bit in the bitmap):
+```c#
+int value = bitmap.BitfieldGet<int>(BitfieldType.i4, 2, offsetIsOrdinal:true);   
+```
 
 
 ## IRedisBitmap mapping to Redis bitmap
@@ -315,7 +363,7 @@ Mapping between `IRedisBitmap` methods/properties to the Redis commands used:
 |`BitFieldSet(FieldType type, long offset, T value, bool offsetIsOrdinal)` *|BITFIELD|O(1)|
 |`BitFieldIncrementBy(FieldType type, long offset, T increment)` *|BITFIELD|O(1)|
 
-*: BitField operations are  not yet available in a stable version of Redis. Download [unstable](https://github.com/antirez/redis/archive/unstable.tar.gz) if you want to test these commands.
+
 
 --------------
 
