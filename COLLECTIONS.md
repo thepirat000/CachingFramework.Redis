@@ -8,7 +8,7 @@ The following are the .NET objects provided to access Redis collections:
 | [Set](#redis-sets--) | ```GetRedisSet()``` | Set of unique objects | ```ICollection<T>``` |
 | [Hash](#redis-hashes--) | ```GetRedisDictionary()``` | Dictionary of values | ```IDictionary<TK, TV>``` |
 | [Sorted Set](#redis-sorted-sets--) | ```GetRedisSortedSet()``` | Set of unique objects sorted by score | ```ICollection<T>``` |
-| [Bitmap](#redis-bitmaps--) | ```GetRedisBitmap()``` | Binary value | ```ICollection<bool>``` |
+| [Bitmap](#redis-bitmaps--) | ```GetRedisBitmap()``` | Binary value | ```ICollection<byte>``` |
 | [Lex. Sorted Set](#redis-lexicographical-sorted-set) | ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | ```ICollection<string>``` |
 | [String](#redis-string) | ```GetRedisString()``` | Binary-safe string | ```IEnumerable<byte>``` |
 
@@ -27,7 +27,7 @@ sortedSet.TimeToLive = TimeSpan.FromMinutes(60);
 # Redis Lists &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of hash](http://i.imgur.com/rN5QqoS.png)
 
 
-To obtain a new (or existing) Redis List implementing a .NET `IList`, use the ```GetRedisList()``` method:
+To obtain a new (or existing) Redis List that implements `IList`, use the ```GetRedisList()``` method:
 
 ```c#
 IRedisList<User> list = context.Collections.GetRedisList<User>("user:list");
@@ -87,7 +87,7 @@ Mapping between `IRedisList` methods/properties to the Redis commands used:
 
 # Redis Sets &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of sets](http://i.imgur.com/HYHjpbX.png)
 
-To obtain a new (or existing) Redis Set implementing a .NET `ICollection`, use the ```GetRedisSet()``` method:
+To obtain a new (or existing) Redis Set that implements `ICollection`, use the ```GetRedisSet()``` method:
 
 ```c#
 IRedisSet<User> set = context.Collections.GetRedisSet<User>("user:set");
@@ -133,7 +133,7 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 
 # Redis Hashes &nbsp;&nbsp;&nbsp;&nbsp; ![Image of hash](http://i.imgur.com/5HeN9VX.png)
 
-To obtain a new (or existing) Redis Hash implementing a .NET `IDictionary`, use the ```GetRedisDictionary()``` method:
+To obtain a new (or existing) Redis Hash that implements `IDictionary`, use the ```GetRedisDictionary()``` method:
 
 ```c#
 IRedisDictionary<int, User> hash = context.Collections.GetRedisDictionary<int, User>("user:hash");
@@ -178,7 +178,7 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 
 # Redis Sorted Sets &nbsp;&nbsp; ![Image of sorted set](http://i.imgur.com/HOklZQg.png)
 
-To obtain a new (or existing) Redis Sorted Set implementing a .NET `ICollection`, use the ```GetRedisSortedSet()``` method:
+To obtain a new (or existing) Redis Sorted Set that implements `ICollection`, use the ```GetRedisSortedSet()``` method:
 
 ```c#
 IRedisSortedSet<User> sortedSet = context.Collections.GetRedisSortedSet<User>("user:sset");
@@ -240,7 +240,7 @@ Mapping between `IRedisSortedSet` methods/properties to the Redis commands used:
 
 # Redis Bitmaps &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Image of bitmap](http://i.imgur.com/2NxSq56.png)
 
-To obtain a new (or existing) Redis bitmap implementing a .NET `ICollection<bool>`, use the ```GetRedisBitmap()``` method:
+To obtain a new (or existing) Redis bitmap that implements `ICollection<byte>`, use the ```GetRedisBitmap()``` method:
 
 ```c#
 IRedisBitmap bitmap = context.Collections.GetRedisBitmap("users:visit");
@@ -249,19 +249,19 @@ IRedisBitmap bitmap = context.Collections.GetRedisBitmap("users:visit");
 To get or set bits, use the `GetBit` or `SetBit` methods:
 
 ```c#
-bitmap.SetBit(0, false); // Set the first bit to 0
+bitmap.SetBit(0, 1); // Set the first bit to 1
 
 bool bit = bitmap.GetBit(8); // Get the 9th bit
 ```
 
 To count bits within a range, use the `Count` method:
 ```c#
-long count = bitmap.Count(0, 1); // Count the bits in 1 within the first two bytes
+long count = bitmap.Count(0, 2); // Count the bits in 1 within the first three bytes
 ```
 
 To get the position of the first bit within a range, use the `BitPosition` method:
 ```c#
-bitmap.BitPosition(true, -1, -1); // Return the position of the first 1 in the last byte
+bitmap.BitPosition(1, -1, -1); // Return the position of the first 1 in the last byte
 ```
 
 ## Bitmap example: count unique users logged per day
@@ -273,7 +273,7 @@ void OnLogin(int userId)
 {
     var key = "visits:" + DateTime.Now.ToString("yyyy-MM-dd");
     var bitmap = _context.GetRedisBitmap(key);
-    bitmap.SetBit(userId, true);
+    bitmap.SetBit(userId, 1);
 }
 ```
 
@@ -293,9 +293,59 @@ bool HasVisited(int userId, DateTime date)
 {
     var key = "visits:" + date.ToString("yyyy-MM-dd");
     var bitmap = _context.GetRedisBitmap(key);
-    return bitmap.GetBit(userId);
+    return bitmap.GetBit(userId) == 1;
 }
 ```
+
+## Bitfields
+
+*: Bitfield operations are not yet available in a stable version of Redis. Download [unstable](https://github.com/antirez/redis/archive/unstable.tar.gz) if you want to test these commands.
+
+[Bitfields](http://www.antirez.com/news/103) are arbitrary sized integers at arbitrary offsets stored on a Redis string.
+This allows to handle groups of consecutive bits on a bitmap, instead of handling each bit separately.
+
+There are three **commands** to handle bitfields:
+- BitfieldGet(FieldType, Offset)
+- BitfieldSet(FieldType, Offset, Value)
+- BitfieldIncrementBy(FieldType, Offset, Value)
+
+The **FieldType** indicates how many bits the integer will take and if it will be interpereted as a signed or unsigned integer. 
+For example: 
+ - u2 means a 2-bit unsigned integer [0 .. 3]
+ - i9 means a 9-bit signed integer [-256 .. 255]
+ - u16 means a 16-bit unsigned integer [0 .. 65535]
+
+You also need to specify an **Offset** from which the bitmap will be read/written.
+This offset can be specified in two ways:
+- As a number of **bits** from the beggining,
+- As a number of **fields** from the beggining, in order to say: "handle the bitmap as an array of counters of the specified size, and set the N-th counter".
+
+Some examples:
+
+Set the value 255 to an unsigned 8-bit integer stored at offset 8 (from the 9th bit in the bitmap):
+```c#
+bitmap.BitfieldSet(BitfieldType.u8, 8, 0xFF);
+```
+Set the value 255 to an unsigned 8-bit integer stored at position #1 (from 9th bit in the bitmap):
+```c#
+bitmap.BitfieldSet(BitfieldType.u8, 1, 0xFF, offsetIsOrdinal: true);
+```
+
+Set the value -1 to a signed 4-bit integer stored at offset 2 (from 3rd bit in the bitmap):
+```c#
+bitmap.BitfieldSet(BitfieldType.i4, 2, -1);
+```
+            
+Get the value of a signed 4-bit integer at offset 2 (from 3rd bit in the bitmap):
+```c#
+int value = bitmap.BitfieldGet<int>(BitfieldType.i4, 2);
+```
+
+Get the value of a signed 4-bit integer at position #2 (9th bit in the bitmap):
+```c#
+int value = bitmap.BitfieldGet<int>(BitfieldType.i4, 2, offsetIsOrdinal:true);   
+```
+
 
 ## IRedisBitmap mapping to Redis bitmap
 
@@ -303,18 +353,23 @@ Mapping between `IRedisBitmap` methods/properties to the Redis commands used:
 
 |IRedisBitmap interface|Redis command|Time complexity|
 |------|------|-------|
-|`Add(bool value)`|[APPEND](http://redis.io/commands/append)|O(1)|
-|`SetBit(long offset, bool bit)`|[SETBIT](http://redis.io/commands/setbit)|O(1)|
+|`Add(byte value)`|[APPEND](http://redis.io/commands/append)|O(1)|
+|`SetBit(long offset, byte bit)`|[SETBIT](http://redis.io/commands/setbit)|O(1)|
 |`GetBit(long offset)`|[GETBIT](http://redis.io/commands/getbit)|O(1)|
-|`BitPosition(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)|O(N)|
-|`Contains(bool bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)+[STRLEN](http://redis.io/commands/strlen)|O(N)|
-|`Count`|[BITCOUNT](http://redis.io/commands/bitcount)|O(N)|
+|`BitPosition(byte bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)|O(N)|
+|`Contains(byte bit, long start, long stop)`|[BITPOS](http://redis.io/commands/bitpos)+[STRLEN](http://redis.io/commands/strlen)|O(N)|
+|`Count()`|[BITCOUNT](http://redis.io/commands/bitcount)|O(N)|
+|`BitFieldGet(FieldType type, long offset, bool offsetIsOrdinal)` *|BITFIELD|O(1)|
+|`BitFieldSet(FieldType type, long offset, T value, bool offsetIsOrdinal)` *|BITFIELD|O(1)|
+|`BitFieldIncrementBy(FieldType type, long offset, T increment)` *|BITFIELD|O(1)|
+
+
 
 --------------
 
 # Redis lexicographical Sorted Set
 
-To obtain a new (or existing) Redis lexicographical sorted set implementing a .NET `ICollection<string>`, use the ```GetRedisLexicographicSet()``` method:
+To obtain a new (or existing) Redis lexicographical sorted set that implements `ICollection<string>`, use the ```GetRedisLexicographicSet()``` method:
 
 ```c#
 IRedisLexicographicSet lex = context.Collections.GetRedisLexicographicSet("autocomplete");
@@ -357,7 +412,7 @@ Mapping between `IRedisLexicographicSet` methods/properties to the Redis command
 
 # Redis String
 
-To obtain a new (or existing) Redis String implementing a .NET `IEnumerable<byte>`, use the ```GetRedisString()``` method:
+To obtain a new (or existing) Redis String that implements `IEnumerable<byte>`, use the ```GetRedisString()``` method:
 
 ```c#
 IRedisString cstr = context.Collections.GetRedisString("key");
