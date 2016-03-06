@@ -264,7 +264,7 @@ To get the position of the first bit within a range, use the `BitPosition` metho
 bitmap.BitPosition(1, -1, -1); // Return the position of the first 1 in the last byte
 ```
 
-When enumerating the bitmap, each *System.Byte* returned correspond to a bit in the bitmap, starting from the most significant bit. For example:
+When enumerating a bitmap, each *byte* returned will have a value of 0 or 1, and will correspond to a bit in the bitmap, starting from the most significant bit. For example:
 
 ```c#
 var sb = new StringBuilder();
