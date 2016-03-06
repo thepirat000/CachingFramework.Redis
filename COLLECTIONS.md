@@ -327,8 +327,8 @@ For example:
 
 You also need to specify an **Offset** from which the bitmap will be read/written.
 This offset can be specified in two ways:
-- As a number of **bits** from the beggining,
-- As a number of **fields** from the beggining, in order to say: "handle the bitmap as an array of counters of the specified size, and set the N-th counter".
+- As a number of **bits** from the beginning,
+- As a number of **fields** from the beginning, in order to say: "handle the bitmap as an array of counters of the specified size, and set the N-th counter".
 
 Some examples:
 
