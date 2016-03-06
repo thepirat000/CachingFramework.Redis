@@ -519,26 +519,27 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_CacheBitmap";
             context.Cache.Remove(key);
             var bm = context.Collections.GetRedisBitmap(key);
-            bm.Add(true);           // 11111111 
-            Assert.IsFalse(bm.Contains(false));
-            bm.Add(false);          // 11111111 00000000
-            Assert.IsTrue(bm.Contains(false));
-            bm.Add(true);           // 11111111 00000000 11111111
-            bm.SetBit(24, true);    // 11111111 00000000 11111111 10000000
-            bm.SetBit(25, false);   // 11111111 00000000 11111111 10000000
-            bm.SetBit(26, true);    // 11111111 00000000 11111111 10100000
-            bm.SetBit(27, true);    // 11111111 00000000 11111111 10110000
-            Assert.IsFalse(bm.Contains(false, 0, 0));
-            Assert.IsFalse(bm.Contains(true, 1, 1));
-            Assert.IsTrue(bm.Contains(false, -1, -1));
-            Assert.IsTrue(bm.Contains(true, -1, -1));
-            Assert.AreEqual(0, bm.BitPosition(true));
-            Assert.AreEqual(8, bm.BitPosition(false));
-            Assert.AreEqual(24+1, bm.BitPosition(false, -1, -1));
-            Assert.AreEqual(24+0, bm.BitPosition(true, -1, -1));
-            Assert.AreEqual(false, bm.GetBit(25));
-            Assert.AreEqual(true, bm.GetBit(26));
-            Assert.AreEqual(true, bm.GetBit(27));
+            bm.Add(0xff);           // 11111111 
+            Assert.IsFalse(bm.Contains(0));
+            bm.Add(0x00);          // 11111111 00000000
+            Assert.IsTrue(bm.Contains(0));
+            bm.Add(0xff);           // 11111111 00000000 11111111
+            bm.SetBit(24, 1);    // 11111111 00000000 11111111 10000000
+            bm.SetBit(25, 0);   // 11111111 00000000 11111111 10000000
+            bm.SetBit(26, 1);    // 11111111 00000000 11111111 10100000
+            bm.SetBit(27, 1);    // 11111111 00000000 11111111 10110000
+            Assert.AreEqual(19, bm.Count());
+            Assert.IsFalse(bm.Contains(0, 0, 0));
+            Assert.IsFalse(bm.Contains(1, 1, 1));
+            Assert.IsTrue(bm.Contains(0, -1, -1));
+            Assert.IsTrue(bm.Contains(1, -1, -1));
+            Assert.AreEqual(0, bm.BitPosition(1));
+            Assert.AreEqual(8, bm.BitPosition(0));
+            Assert.AreEqual(24+1, bm.BitPosition(0, -1, -1));
+            Assert.AreEqual(24+0, bm.BitPosition(1, -1, -1));
+            Assert.AreEqual(0, bm.GetBit(25));
+            Assert.AreEqual(1, bm.GetBit(26));
+            Assert.AreEqual(1, bm.GetBit(27));
             Assert.AreEqual(3, bm.Count(-1, -1));
             Assert.AreEqual(11, bm.Count(-2, -1));
             Assert.AreEqual(11, bm.Count(2, -1));
@@ -547,18 +548,19 @@ namespace CachingFramework.Redis.UnitTest
             var sb = new StringBuilder();
             foreach (var bit in bm)
             {
-                sb.Append(bit ? '1' : '0');
+                sb.Append(bit.ToString());
             }
             Assert.AreEqual("11111111000000001111111110110000", sb.ToString());
-            bm.SetBit(9999999, true);
+            Assert.AreEqual("11111111000000001111111110110000", bm.ToString());
+            bm.SetBit(9999999, 1);
             Assert.AreEqual(20, bm.Count());
-            Assert.AreEqual(false, bm.GetBit(9999998));
-            Assert.AreEqual(true, bm.GetBit(9999999));    
+            Assert.AreEqual(0, bm.GetBit(9999998));
+            Assert.AreEqual(1, bm.GetBit(9999999));    
             bm.Clear();
             Assert.AreEqual(0, bm.Count());
-            bm.Remove(false);
+            bm.Remove(0);
             Assert.AreEqual(1, bm.Count());
-            Assert.AreEqual(true, bm.GetBit(0));
+            Assert.AreEqual(1, bm.GetBit(0));
         }
 
         [Test, TestCaseSource(typeof (Common), "Raw")]
@@ -567,18 +569,17 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_CacheBitmapBitField";
             context.Cache.Remove(key);
             var rb = context.Collections.GetRedisBitmap(key);
-            var ex = rb.BitFieldSet(BitFieldType.u4, 0, 14, false, OverflowType.Fail);
-            var n1 = rb.BitFieldGet<decimal>(BitFieldType.u4, 0);
+            var ex = rb.BitfieldSet(BitfieldType.u4, 0, 14, false, OverflowType.Fail);
+            var n1 = rb.BitfieldGet<decimal>(BitfieldType.u4, 0);
             Assert.AreEqual(0, ex);
             Assert.AreEqual(14, n1);
+            rb.BitfieldSet(BitfieldType.u16, 0, 0xb525);
+            Assert.AreEqual(0xb5, rb.BitfieldGet<int>(BitfieldType.u8, 0));
+            Assert.AreEqual(0x25, rb.BitfieldGet<uint>(BitfieldType.u8, 1, true));
 
-            rb.BitFieldSet(BitFieldType.u16, 0, 0xb525);
-            Assert.AreEqual(0xb5, rb.BitFieldGet<int>(BitFieldType.u8, 0));
-            Assert.AreEqual(0x25, rb.BitFieldGet<uint>(BitFieldType.u8, 1, true));
-
-            Assert.AreEqual(0x2, rb.BitFieldGet<byte>(BitFieldType.u3, 4));
-            Assert.AreEqual(0x12, rb.BitFieldGet<sbyte>(BitFieldType.u5, 7));
-            Assert.AreEqual(0x2, rb.BitFieldGet<long>(BitFieldType.u3, 2, true));
+            Assert.AreEqual(0x2, rb.BitfieldGet<byte>(BitfieldType.u3, 4));
+            Assert.AreEqual(0x12, rb.BitfieldGet<sbyte>(BitfieldType.u5, 7));
+            Assert.AreEqual(0x2, rb.BitfieldGet<long>(BitfieldType.u3, 2, true));
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
@@ -587,9 +588,9 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_CacheBitmapBitField_Overflow";
             context.Cache.Remove(key);
             var rb = context.Collections.GetRedisBitmap(key);
-            Assert.Throws<OverflowException>(() => rb.BitFieldSet(BitFieldType.u1, 0, -2, false, OverflowType.Fail));
-            Assert.DoesNotThrow(() => rb.BitFieldSet(BitFieldType.u1, 0, -2));
-            Assert.DoesNotThrow(() => rb.BitFieldSet(BitFieldType.u1, 0, -2, false, OverflowType.Saturation));
+            Assert.Throws<OverflowException>(() => rb.BitfieldSet(BitfieldType.u1, 0, -2, false, OverflowType.Fail));
+            Assert.DoesNotThrow(() => rb.BitfieldSet(BitfieldType.u1, 0, -2));
+            Assert.DoesNotThrow(() => rb.BitfieldSet(BitfieldType.u1, 0, -2, false, OverflowType.Saturation));
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
@@ -598,15 +599,13 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_CacheBitmapBitField_WrapSaturation";
             context.Cache.Remove(key);
             var rb = context.Collections.GetRedisBitmap(key);
-
-            rb.BitFieldSet(BitFieldType.u13, 10, 8191, true);
-            Assert.AreEqual(8191, rb.BitFieldGet<int>(BitFieldType.u13, 10, true));
-            rb.BitFieldIncrementBy(BitFieldType.u13, 10, 4, true);
-            Assert.AreEqual(3, rb.BitFieldGet<UInt16>(BitFieldType.u13, 10, true));
-
-            rb.BitFieldSet(BitFieldType.u13, 4, 8191);
-            rb.BitFieldIncrementBy(BitFieldType.u13, 4, 999, false, OverflowType.Saturation);
-            Assert.AreEqual(8191, rb.BitFieldGet<UInt32>(BitFieldType.u13, 4));
+            rb.BitfieldSet(BitfieldType.u13, 10, 8191, true);
+            Assert.AreEqual(8191, rb.BitfieldGet<int>(BitfieldType.u13, 10, true));
+            rb.BitfieldIncrementBy(BitfieldType.u13, 10, 4, true);
+            Assert.AreEqual(3, rb.BitfieldGet<UInt16>(BitfieldType.u13, 10, true));
+            rb.BitfieldSet(BitfieldType.u13, 4, 8191);
+            rb.BitfieldIncrementBy(BitfieldType.u13, 4, 999, false, OverflowType.Saturation);
+            Assert.AreEqual(8191, rb.BitfieldGet<UInt32>(BitfieldType.u13, 4));
         }
 
 

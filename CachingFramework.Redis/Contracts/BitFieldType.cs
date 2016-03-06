@@ -3,9 +3,9 @@ using System;
 namespace CachingFramework.Redis.Contracts
 {
     /// <summary>
-    /// Enum BitFieldType
+    /// Enum BitfieldType
     /// </summary>
-    public enum BitFieldType
+    public enum BitfieldType
     {
         /// <summary>Unsigned integer of 1 bit. (0 to 1).</summary>
         u1,

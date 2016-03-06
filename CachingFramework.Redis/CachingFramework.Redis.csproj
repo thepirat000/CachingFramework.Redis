@@ -48,8 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Context.cs" />
-    <Compile Include="Contracts\BitField.cs" />
-    <Compile Include="Contracts\BitFieldType.cs" />
+    <Compile Include="Contracts\BitfieldType.cs" />
     <Compile Include="Contracts\GeoCoordinate.cs" />
     <Compile Include="Contracts\GeoMember.cs" />
     <Compile Include="Contracts\IContext.cs" />
