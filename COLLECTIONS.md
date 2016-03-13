@@ -264,6 +264,16 @@ To get the position of the first bit within a range, use the `BitPosition` metho
 bitmap.BitPosition(1, -1, -1); // Return the position of the first 1 in the last byte
 ```
 
+When enumerating a bitmap, each *byte* returned will have a value of 0 or 1, and will correspond to a bit in the bitmap, starting from the most significant bit. For example:
+
+```c#
+var sb = new StringBuilder();
+foreach (var bit in bitmap)
+{
+    sb.Append(bit);
+}
+```
+
 ## Bitmap example: count unique users logged per day
 Set up a bitmap where the key is a function of the day, and each user is identified by an offset value. 
 
@@ -317,8 +327,8 @@ For example:
 
 You also need to specify an **Offset** from which the bitmap will be read/written.
 This offset can be specified in two ways:
-- As a number of **bits** from the beggining,
-- As a number of **fields** from the beggining, in order to say: "handle the bitmap as an array of counters of the specified size, and set the N-th counter".
+- As a number of **bits** from the beginning,
+- As a number of **fields** from the beginning, in order to say: "handle the bitmap as an array of counters of the specified size, and set the N-th counter".
 
 Some examples:
 
