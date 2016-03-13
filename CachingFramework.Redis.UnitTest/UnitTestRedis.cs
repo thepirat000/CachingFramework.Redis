@@ -17,6 +17,25 @@ namespace CachingFramework.Redis.UnitTest
             Assert.Throws<ArgumentException>(() => context.Cache.SetObject(null, "this should fail"));
         }
 
+        [Test, TestCaseSource(typeof (Common), "Raw")]
+        public void UT_CacheHackTag(Context context)
+        {
+            var key = "UT_CacheHackTag";
+            context.Cache.InvalidateKeysByTag("tag1");
+            context.Cache.SetObject(key, "some value", new [] {"tag1"});
+            var keys = context.Cache.GetKeysByTag(new [] { "tag1" }).ToList();
+            Assert.AreEqual(1, keys.Count);
+            Assert.AreEqual(key, keys[0]);
+            var tagset = context.Collections.GetRedisSet<string>(":$_tag_$:tag1");
+            tagset.Add("FakeKey:$_->_$:FakeValue");
+            var knc = context.Cache.GetKeysByTag(new [] { "tag1" }).ToList();
+            var k = context.Cache.GetKeysByTag(new [] { "tag1" }, true).ToList();
+            var v = context.Cache.GetObjectsByTag<string>("tag1").ToList();
+            Assert.AreEqual(2, knc.Count);
+            Assert.AreEqual(1, k.Count);
+            Assert.AreEqual(1, v.Count);
+        }
+
         [Test, TestCaseSource(typeof(Common), "BinAndRawAndJson")]
         public void UT_CacheSerializer(Context context)
         {
@@ -128,7 +147,7 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.SetObject(key, "some value", new[] { "tag3", "tag4" });
             context.Cache.SetObject(key2, "some value2");
             var keys = context.Cache.GetKeysByPattern("*");
-            Assert.AreEqual(2, keys.Count);
+            Assert.AreEqual(2, keys.Count());
             Assert.IsTrue(keys.Contains(key));
             Assert.IsTrue(keys.Contains(key2));
         }
@@ -543,12 +562,12 @@ namespace CachingFramework.Redis.UnitTest
             var kb = context.Cache.GetKeysByTag(new[] { "tagB" });
             var kc = context.Cache.GetKeysByTag(new[] { "tagC" });
             var kab = context.Cache.GetKeysByTag(new[] { "tagA", "tagB" });
-            Assert.AreEqual(3, kcmn.Count);
+            Assert.AreEqual(3, kcmn.Count());
             context.Cache.InvalidateKeysByTag("tagA");
             ka = context.Cache.GetKeysByTag(new[] { "tagA" });
             kcmn = context.Cache.GetKeysByTag(new[] { "common" }, true);
             Assert.IsFalse(ka.Any());
-            Assert.AreEqual(2, kcmn.Count);
+            Assert.AreEqual(2, kcmn.Count());
             var objs = context.Cache.GetObjectsByTag<User>("common").ToList();
             Assert.AreEqual(2, objs.Count);
             context.Cache.RemoveTagsFromHashField(key, "B", new [] { "common" });
@@ -572,7 +591,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[1].Id, u1t[0].Id);
             int i = 0;
             var u = context.Cache.FetchHashed(key, users[1].Id.ToString(), () => { i++; return new User(); }, new[] { "miss" });
-            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] {"miss"}).Count);
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] {"miss"}).Count());
             Assert.AreEqual(0, i);
             Assert.AreEqual(users[1].Id, u.Id);
         }
@@ -599,11 +618,11 @@ namespace CachingFramework.Redis.UnitTest
             string tag2 = "UT_CacheFetchWithTags-Tag2";
             context.Cache.FetchObject(key, () => "test value 1", new[] {tag1});
             context.Cache.FetchObject(key, () => "should not be updated", new[] { tag2 });
-            var keys = context.Cache.GetKeysByTag(new [] {tag1});
-            var value = context.Cache.GetObject<string>(keys.First());
+            var keys = context.Cache.GetKeysByTag(new [] {tag1}).ToList();
+            var value = context.Cache.GetObject<string>(keys.First()).ToList();
             Assert.IsTrue(keys.Contains(key));
             Assert.IsNotNull(value);
-            keys = context.Cache.GetKeysByTag(new [] {tag2});
+            keys = context.Cache.GetKeysByTag(new [] {tag2}).ToList();
             Assert.IsFalse(keys.Contains(key));
         }
 
@@ -617,8 +636,8 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.SetObject(key1, "test value 1", new[] { tag }, TimeSpan.FromSeconds(1));
             context.Cache.SetObject(key2, "test value 2", new[] { tag });
             Thread.Sleep(2000);
-            var keys = context.Cache.GetKeysByTag(new[] { tag });
-            var keysCleaned = context.Cache.GetKeysByTag(new[] { tag }, true);
+            var keys = context.Cache.GetKeysByTag(new[] { tag }).ToList();
+            var keysCleaned = context.Cache.GetKeysByTag(new[] { tag }, true).ToList();
             Assert.AreEqual(2, keys.Count);
             Assert.AreEqual(1, keysCleaned.Count);
             Assert.IsTrue(keys.Contains(key1));
@@ -640,7 +659,7 @@ namespace CachingFramework.Redis.UnitTest
 
             context.Cache.SetObject(key, users[0], new[] { "user:" + users[0].Id, "user-info" }, TimeSpan.FromSeconds(1));
             context.Cache.SetObject(key2, users[1], new[] { "user:" + users[1].Id, "user-info" }, TimeSpan.FromSeconds(5));
-            var keys = context.Cache.GetKeysByTag(new[] { "user:" + users[0].Id });
+            var keys = context.Cache.GetKeysByTag(new[] { "user:" + users[0].Id }).ToList();
             Assert.IsTrue(keys.Contains(key));
             var value = context.Cache.GetObject<User>(keys.First());
             Assert.IsNotNull(value);
@@ -686,7 +705,7 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.SetObject(key1, users[1], new[] { "user:" + users[1].Id, "user-info" });
             var keys0 = context.Cache.GetKeysByTag(new[] { "user:" + users[0].Id });
             var keys1 = context.Cache.GetKeysByTag(new[] { "user:" + users[1].Id });
-            var keys = context.Cache.GetKeysByTag(new[] { "user-info" });
+            var keys = context.Cache.GetKeysByTag(new[] { "user-info" }).ToList();
             Assert.IsTrue(keys0.Contains(key0));
             Assert.IsTrue(keys1.Contains(key1));
             Assert.IsTrue(keys.Contains(key0) && keys.Contains(key1));
@@ -709,7 +728,7 @@ namespace CachingFramework.Redis.UnitTest
             var keys = context.Cache.GetKeysByTag(new [] {tag1, tag2});
             var user = context.Cache.GetObject<User>(key1);
             Assert.IsNull(user);
-            Assert.AreEqual(0, keys.Count);
+            Assert.AreEqual(0, keys.Count());
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]

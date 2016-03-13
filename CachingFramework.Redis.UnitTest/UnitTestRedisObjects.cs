@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -274,7 +275,9 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var set = context.Collections.GetRedisSet<string>(key);
             set.AddRange(new [] { "test1", "test2", "test3" });
-            set.Expiration = Common.ServerNow.AddSeconds(2);
+            var realLocalExp = DateTime.UtcNow.AddSeconds(2);
+            set.Expiration = realLocalExp;
+            var exp = set.Expiration.Value.ToUniversalTime();
             var startedOn = DateTime.Now;
             Assert.AreEqual(3, set.Count);
             while (context.Cache.KeyExists(key) && DateTime.Now < startedOn.AddSeconds(10))
@@ -286,6 +289,7 @@ namespace CachingFramework.Redis.UnitTest
             var stoppedOn = DateTime.Now;
             var span = stoppedOn - startedOn;
             Assert.AreEqual(2, span.TotalSeconds, 1);
+            Assert.AreEqual(0, (exp - realLocalExp).TotalSeconds, 1);
         }
 
         [Test, TestCaseSource(typeof(Common), "Bin")]
@@ -548,7 +552,7 @@ namespace CachingFramework.Redis.UnitTest
             var sb = new StringBuilder();
             foreach (var bit in bm)
             {
-                sb.Append(bit.ToString());
+                sb.Append(bit);
             }
             Assert.AreEqual("11111111000000001111111110110000", sb.ToString());
             Assert.AreEqual("11111111000000001111111110110000", bm.ToString());
@@ -767,6 +771,21 @@ namespace CachingFramework.Redis.UnitTest
             var fract = (double) 1/3;
             var value = str.IncrementByFloat(fract);
             Assert.AreEqual(Math.PI + fract, value, 0.000000001);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "Raw")]
+        public void UT_CacheHash_Mix(Context context)
+        {
+            var key = "UT_CacheHash_Mix";
+            context.Cache.Remove(key);
+            var users = GetUsers();
+            var redisDict = context.Collections.GetRedisDictionary<string, User>(key);
+            redisDict.AddRange(users.ToDictionary(k => k.Id.ToString()));
+            context.Cache.AddTagsToKey(redisDict.RedisKey, new[] { "tag1" });
+            var returnedDict = context.Cache.GetHashedAll<User>(key);
+            Assert.AreEqual(returnedDict["1"].Id, redisDict["1"].Id);
+            context.Cache.InvalidateKeysByTag("tag1");
+            Assert.AreEqual(0, redisDict.Count);
         }
 
         private List<User> GetUsers()

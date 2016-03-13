@@ -292,7 +292,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="tags">The tags</param>
         public IEnumerable<T> GetObjectsByTag<T>(params string[] tags)
         {
-            RedisValue value;
+            RedisValue value = default(RedisValue);
             var db = RedisConnection.GetDatabase();
             ISet<string> keys = GetKeysByAllTagsNoCleanup(db, tags);
             foreach (var key in keys)
@@ -301,12 +301,18 @@ namespace CachingFramework.Redis.Providers
                 {
                     // It's a hash
                     var items = key.Split(new[] { TagHashSeparator }, StringSplitOptions.None);
-                    value = db.HashGet(items[0], items[1]);
+                    if (db.KeyType(items[0]) == RedisType.Hash)
+                    {
+                        value = db.HashGet(items[0], items[1]);
+                    }
                 }
                 else
                 {
                     // It's a string
-                    value = db.StringGet(key);
+                    if (db.KeyType(key) == RedisType.String)
+                    {
+                        value = db.StringGet(key);
+                    }
                 }
                 if (value.HasValue)
                 {
@@ -350,27 +356,27 @@ namespace CachingFramework.Redis.Providers
         /// <summary>
         /// Returns the entire collection of tags
         /// </summary>
-        public ISet<string> GetAllTags()
+        public IEnumerable<string> GetAllTags()
         {
-            var tags = new List<RedisKey>();
-            RunInAllMasters(svr => tags.AddRange(svr.Keys(0, string.Format(TagFormat, "*"))));
             int startIndex = string.Format(TagFormat, "").Length;
-            return new HashSet<string>(tags.Select(rv => rv.ToString().Substring(startIndex)));
+            return
+                EnumerateInAllMasters(svr => svr.Keys(0, string.Format(TagFormat, "*")))
+                    .SelectMany(run => run.Select(r => r.ToString().Substring(startIndex)));
         }
+
         /// <summary>
         /// Return the keys that matches a specified pattern.
         /// Will use SCAN or KEYS depending on the server capabilities.
         /// </summary>
         /// <param name="pattern">The glob-style pattern to match</param>
-        public ISet<string> GetKeysByPattern(string pattern)
+        public IEnumerable<string> GetKeysByPattern(string pattern)
         {
-            var keys = new List<string>();
-            RunInAllMasters(svr => keys.AddRange(svr
-                .Keys(0, pattern)
-                .Select(x => x.ToString())
-                .Where(k => !k.StartsWith(string.Format(TagFormat, string.Empty)))));
-            return new HashSet<string>(keys);
+            return
+                EnumerateInAllMasters(svr => svr.Keys(0, pattern))
+                    .SelectMany(
+                        run => run.Select(r => r.ToString()).Where(key => !key.StartsWith(string.Format(TagFormat, ""))));
         }
+
         /// <summary>
         /// Removes the specified key-value.
         /// </summary>
@@ -708,6 +714,29 @@ namespace CachingFramework.Redis.Providers
         /// <param name="action">The action.</param>
         private void RunInAllMasters(Action<IServer> action)
         {
+            var masters = GetMastersServers();
+            foreach (var server in masters)
+            {
+                action(RedisConnection.GetServer(server));
+            }
+        }
+        /// <summary>
+        /// Runs a Server command (that returns an enumeration) in all the master servers.
+        /// </summary>
+        /// <param name="action">The action.</param>
+        private IEnumerable<T> EnumerateInAllMasters<T>(Func<IServer, T> action)
+        {
+            var masters = GetMastersServers();
+            foreach (var server in masters)
+            {
+                yield return action(RedisConnection.GetServer(server));
+            }
+        }
+        /// <summary>
+        /// Gets the masters servers endpoints.
+        /// </summary>
+        private List<EndPoint> GetMastersServers()
+        {
             var masters = new List<EndPoint>();
             foreach (var ep in RedisConnection.GetEndPoints())
             {
@@ -726,10 +755,7 @@ namespace CachingFramework.Redis.Providers
                     }
                 }
             }
-            foreach (var ep in masters)
-            {
-                action(RedisConnection.GetServer(ep));
-            }
+            return masters;
         }
         /// <summary>
         /// Flushes all the databases on every master node.

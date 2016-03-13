@@ -19,9 +19,9 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         protected readonly ConnectionMultiplexer Connection;
         /// <summary>
-        /// The redis key
+        /// Gets the redis key for this object
         /// </summary>
-        protected readonly string RedisKey;
+        public string RedisKey { get; protected set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisBaseObject"/> class.
         /// </summary>

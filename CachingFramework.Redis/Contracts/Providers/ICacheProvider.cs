@@ -145,13 +145,13 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <summary>
         /// Returns the entire collection of tags
         /// </summary>
-        ISet<string> GetAllTags();
+        IEnumerable<string> GetAllTags();
         /// <summary>
         /// Return the keys that matches a specified pattern.
         /// Will use SCAN or KEYS depending on the server capabilities.
         /// </summary>
         /// <param name="pattern">The glob-style pattern to match</param>
-        ISet<string> GetKeysByPattern(string pattern);
+        IEnumerable<string> GetKeysByPattern(string pattern);
         /// <summary>
         /// Determines if a key exists.
         /// </summary>
