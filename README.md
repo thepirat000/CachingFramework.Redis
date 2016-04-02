@@ -2,15 +2,15 @@
 .NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) and [Redis](http://redis.io).
 
 ##Features
- * [**Typed cache**](#typed-cache): any serializable object can be cached.
- * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations.
+ * [**Typed cache**](#typed-cache): any serializable object can be used as a cache value.
+ * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations (cache-aside pattern).
  * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys and hash fields by tag.
  * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a value defining its time-to-live.
  * [**Lexicographically sorted sets**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set): for fast string matching and auto-complete suggestion. 
  * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with typed messages.
  * [**Geospatial indexes**](#geospatial-api): with radius queries support.
  * [**HyperLogLog support**](#hyperloglog-api): to count unique things.
- * [**Serialization**](#serialization): a compressed binary serializer by default, or provide your own serialization. 
+ * [**Configurable Serialization**](#serialization): a compressed binary serializer by default, or provide your own serialization. 
  * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
  * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
  
