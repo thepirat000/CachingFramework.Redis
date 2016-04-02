@@ -6,12 +6,12 @@
  * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations.
  * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys and hash fields by tag.
  * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a value defining its time-to-live.
- * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
  * [**Lexicographically sorted sets**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set): for fast string matching and auto-complete suggestion. 
  * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with typed messages.
  * [**Geospatial indexes**](#geospatial-api): with radius queries support.
  * [**HyperLogLog support**](#hyperloglog-api): to count unique things.
  * [**Serialization**](#serialization): a compressed binary serializer by default, or provide your own serialization. 
+ * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
  * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
  
 ## Usage
@@ -194,16 +194,6 @@ Remove all the keys and hash fields related to *blue* and/or *green* tags:
 ```c#
 context.Cache.InvalidateKeysByTag("blue", "green");
 ```
-
-
---------------
-
-[.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
-=====
-
-Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
-
-**For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
 
 --------------
 
@@ -446,4 +436,11 @@ And use the provided json context:
 var context = new CachingFramework.Redis.Json.Context("localhost:6379");
 ```
 
+--------------
 
+[.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
+=====
+
+Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
+
+**For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
