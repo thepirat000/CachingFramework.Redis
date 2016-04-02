@@ -268,7 +268,7 @@ When enumerating a bitmap, each *byte* returned will have a value of 0 or 1, and
 
 ```c#
 var sb = new StringBuilder();
-foreach (var bit in bitmap)
+foreach (byte bit in bitmap)
 {
     sb.Append(bit);
 }
