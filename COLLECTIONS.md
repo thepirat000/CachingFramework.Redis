@@ -314,7 +314,7 @@ bool HasVisited(int userId, DateTime date)
 [Bitfields](http://www.antirez.com/news/103) are arbitrary sized integers at arbitrary offsets stored on a Redis string.
 This allows to handle groups of consecutive bits on a bitmap, instead of handling each bit separately.
 
-There are three **commands** to handle bitfields:
+There are three **commands** on the Bitmap object to handle bitfields:
 - BitfieldGet(FieldType, Offset)
 - BitfieldSet(FieldType, Offset, Value)
 - BitfieldIncrementBy(FieldType, Offset, Value)
