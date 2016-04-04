@@ -53,10 +53,13 @@
     <Compile Include="Contracts\GeoMember.cs" />
     <Compile Include="Contracts\IContext.cs" />
     <Compile Include="Contracts\ISerializer.cs" />
+    <Compile Include="Contracts\KeyEvent.cs" />
+    <Compile Include="Contracts\KeyEventSubscriptionType.cs" />
     <Compile Include="Contracts\OverflowType.cs" />
     <Compile Include="Contracts\Providers\ICollectionProvider.cs" />
     <Compile Include="Contracts\Providers\ICacheProvider.cs" />
     <Compile Include="Contracts\Providers\IGeoProvider.cs" />
+    <Compile Include="Contracts\Providers\IKeyEventsProvider.cs" />
     <Compile Include="Contracts\Providers\IPubSubProvider.cs" />
     <Compile Include="Contracts\RedisObjects\IRedisBitmap.cs" />
     <Compile Include="Contracts\RedisObjects\IRedisDictionary.cs" />
@@ -67,6 +70,7 @@
     <Compile Include="Contracts\RedisObjects\IRedisString.cs" />
     <Compile Include="Contracts\RedisObjects\IRedisObject.cs" />
     <Compile Include="Contracts\SortedMember.cs" />
+    <Compile Include="Contracts\TextAttributeCache.cs" />
     <Compile Include="Contracts\Unit.cs" />
     <Compile Include="Contracts\TextAttribute.cs" />
     <Compile Include="LuaScriptResource.cs" />
@@ -74,6 +78,7 @@
     <Compile Include="Providers\RedisCollectionProvider.cs" />
     <Compile Include="Providers\RedisCacheProvider.cs" />
     <Compile Include="Providers\RedisGeoProvider.cs" />
+    <Compile Include="Providers\RedisKeyEventsProvider.cs" />
     <Compile Include="Providers\RedisProviderBase.cs" />
     <Compile Include="Providers\RedisProviderContext.cs" />
     <Compile Include="Providers\RedisPubSubProvider.cs" />
