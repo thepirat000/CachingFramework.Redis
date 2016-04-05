@@ -310,7 +310,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         private string GetTempKey()
         {
-            return string.Format("TEMP_{0}", Guid.NewGuid());
+            return $"TEMP_{Guid.NewGuid()}";
         }
         #endregion
     }

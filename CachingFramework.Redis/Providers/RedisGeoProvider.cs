@@ -121,7 +121,7 @@ namespace CachingFramework.Redis.Providers
         public GeoCoordinate GeoPosition<T>(string key, T member)
         {
             var pos = GeoPosition(key, new[] { member }).FirstOrDefault();
-            return pos != null ? pos.Position : null;
+            return pos?.Position;
         }
         /// <summary>
         /// Return the distance between two members in the geospatial index at key.
