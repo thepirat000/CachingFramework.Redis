@@ -488,6 +488,16 @@ context.KeyEvents.Subscribe(KeyEventSubscriptionType.All, (key, cmd) =>
 });
 ```
 
+Stop receiving all commands affecting the given key:
+```c#
+context.KeyEvents.Unsubscribe("user:1");
+```
+
+Stop receiving LPUSH commands affecting any key:
+```c#
+context.KeyEvents.Unsubscribe(KeyEvent.PushLeft);
+```
+
 --------------
 
 [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
