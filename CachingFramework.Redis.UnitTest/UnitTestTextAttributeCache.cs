@@ -29,9 +29,9 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("del", cache.GetEnumText(KeyEvent.Delete));
             Assert.AreEqual(KeyEvent.Delete, cache.GetEnumValue("del"));
 
-            var cache1 = TextAttributeCache<KeyEventSubscriptionType>.Instance;
-            Assert.AreEqual("__keyevent@__:*", cache1.GetEnumText(KeyEventSubscriptionType.KeyEvent));
-            Assert.AreEqual(KeyEventSubscriptionType.KeyEvent, cache1.GetEnumValue("__keyevent@__:*"));
+            var cache1 = TextAttributeCache<Unit>.Instance;
+            Assert.AreEqual("m", cache1.GetEnumText(Unit.Meters));
+            Assert.AreEqual(Unit.Meters, cache1.GetEnumValue("m"));
         }
     }
 }
