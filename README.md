@@ -447,7 +447,10 @@ Subscribe to keyspace events to receive events affecting the Redis data.
 See the Redis notification [documentation](http://redis.io/topics/notifications).
 
 **Note:**
-By default keyspace events notifications are disabled. To enable notifications use the notify-keyspace-events of redis.conf or via the CONFIG SET.
+By default keyspace events notifications are disabled. To enable notifications use the notify-keyspace-events of redis.conf or via the CONFIG SET, for example:
+```
+redis> CONFIG SET notify-keyspace-events KEA
+```
 
 To access the Keyspace Notifications API, use the `Subscribe`/`Unsubscribe` methods on the context's `KeyEvents` property.
 
