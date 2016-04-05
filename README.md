@@ -446,7 +446,7 @@ Keyspace Notifications
 Subscribe to keyspace events to receive events affecting the Redis data.
 See the Redis notification [documentation](http://redis.io/topics/notifications).
 
-Note:
+**Note:**
 By default keyspace events notifications are disabled. To enable notifications use the notify-keyspace-events of redis.conf or via the CONFIG SET.
 
 To access the Keyspace Notifications API, use the `Subscribe`/`Unsubscribe` methods on the context's `KeyEvents` property.
@@ -455,7 +455,7 @@ The subscribe method callback in an `Action<string, KeyEvent>` where the first p
 
 Some examples of what is possible to receive:
 
-All the commands affecting a given key:
+Receive all the commands affecting a given key:
 ```c#
 context.KeyEvents.Subscribe("user:1", (string key, KeyEvent cmd) =>
 {
@@ -467,7 +467,7 @@ context.KeyEvents.Subscribe("user:1", (string key, KeyEvent cmd) =>
 });
 ```
 
-All the keys receiving an LPUSH operation:
+Receive all the LPUSH affecting any key:
 ```c#
 context.KeyEvents.Subscribe(KeyEvent.PushLeft, (key, cmd) =>
 {
@@ -475,12 +475,13 @@ context.KeyEvents.Subscribe(KeyEvent.PushLeft, (key, cmd) =>
 });
 ```
 
-- All events for all the keys:
+Receive any command affecting any key:
+```c#
 context.KeyEvents.Subscribe(KeyEventSubscriptionType.All, (key, cmd) =>
 {
     Console.WriteLine("key {0} - command {1}", key, cmd);
 });
-
+```
 
 --------------
 
