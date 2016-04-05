@@ -1,6 +1,6 @@
 .NET adapted Redis collections
 =====
-The following are the .NET objects provided to access Redis collections:
+The following are the .NET objects provided to access Redis objects:
 
 | Object type | CacheContext method | Description | Common interface |
 | ------------ | ---------------- | -------------- | ------------------- |
@@ -8,7 +8,7 @@ The following are the .NET objects provided to access Redis collections:
 | [Set](#redis-sets--) | ```GetRedisSet()``` | Set of unique objects | ```ICollection<T>``` |
 | [Hash](#redis-hashes--) | ```GetRedisDictionary()``` | Dictionary of values | ```IDictionary<TK, TV>``` |
 | [Sorted Set](#redis-sorted-sets--) | ```GetRedisSortedSet()``` | Set of unique objects sorted by score | ```ICollection<T>``` |
-| [Bitmap](#redis-bitmaps--) | ```GetRedisBitmap()``` | Binary value | ```ICollection<byte>``` |
+| [Bitmap](#redis-bitmaps--) | ```GetRedisBitmap()``` | Binary value / Bit fields | ```ICollection<byte>``` |
 | [Lex. Sorted Set](#redis-lexicographical-sorted-set) | ```GetRedisLexicographicSet()``` | Set of strings lexicographically sorted | ```ICollection<string>``` |
 | [String](#redis-string) | ```GetRedisString()``` | Binary-safe string | ```IEnumerable<byte>``` |
 
@@ -268,7 +268,7 @@ When enumerating a bitmap, each *byte* returned will have a value of 0 or 1, and
 
 ```c#
 var sb = new StringBuilder();
-foreach (var bit in bitmap)
+foreach (byte bit in bitmap)
 {
     sb.Append(bit);
 }
@@ -314,7 +314,7 @@ bool HasVisited(int userId, DateTime date)
 [Bitfields](http://www.antirez.com/news/103) are arbitrary sized integers at arbitrary offsets stored on a Redis string.
 This allows to handle groups of consecutive bits on a bitmap, instead of handling each bit separately.
 
-There are three **commands** to handle bitfields:
+There are three **commands** on the Bitmap object to handle bitfields:
 - BitfieldGet(FieldType, Offset)
 - BitfieldSet(FieldType, Offset, Value)
 - BitfieldIncrementBy(FieldType, Offset, Value)

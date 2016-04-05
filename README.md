@@ -2,16 +2,16 @@
 .NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) and [Redis](http://redis.io).
 
 ##Features
- * [**Typed cache**](#typed-cache): any serializable object can be cached.
- * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations.
- * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys and hash fields by tag.
+ * [**Typed cache**](#typed-cache): any serializable object can be used as a cache value.
+ * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations (cache-aside pattern).
+ * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys (or hash fields) by tag.
  * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a value defining its time-to-live.
- * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
  * [**Lexicographically sorted sets**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set): for fast string matching and auto-complete suggestion. 
  * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with typed messages.
  * [**Geospatial indexes**](#geospatial-api): with radius queries support.
  * [**HyperLogLog support**](#hyperloglog-api): to count unique things.
- * [**Serialization**](#serialization): a compressed binary serializer by default, or provide your own serialization. 
+ * [**Configurable Serialization**](#serialization): a compressed binary serializer by default, or provide your own serialization. 
+ * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
  * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
  
 ## Usage
@@ -126,6 +126,17 @@ var user = context.Cache.FetchHashed<User>("users:hash", "user:id:1", () => GetU
 ```
 The method `GetUser` will only be called when the value is not present on the hash, in which case will be added to the hash before returning it.
 
+#### Hash as .NET Dictionary
+
+Hashes can be handled as .NET Dictionaries by using the `GetRedisDictionary` method on `Context.Collections`, for example:
+
+```c#
+var dict = context.Collections.GetRedisDictionary<string, User>("users:hash");
+dict.Add("user:id:1", user);
+```
+
+For more information about collections, please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md).
+
 --------------
 
 Tagging mechanism
@@ -183,16 +194,6 @@ Remove all the keys and hash fields related to *blue* and/or *green* tags:
 ```c#
 context.Cache.InvalidateKeysByTag("blue", "green");
 ```
-
-
---------------
-
-[.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
-=====
-
-Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
-
-**For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
 
 --------------
 
@@ -406,11 +407,11 @@ All types are serialized using the [JSON.NET](https://www.nuget.org/packages/New
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
 Any other type is binary serialized using the .NET `BinaryFormatter` and compressed using GZIP.
 
-| | **BinarySerializer** | **JsonSerializer** | **RawSerializer** |
+| | **Inheritance** | **Data** | **Configuration** |
 | ----------- | ----------------------- | -------------------------- | ------------------ |
-|**Inheritance** | Full inheritance support | Limited inheritance support | Limited inheritance, only for types serialized with BinaryFormatter | 
-|**Data** | Data is compressed and not human readable | Data is stored as JSon | Simple types are stored as strings and are human readable | 
-|**Configuration** | Serialization cannot be configured | Serialization can be configured with JsonSerializerSettings | Serialization can be set-up per type using SetSerializerFor | 
+|**BinarySerializer** | Full inheritance support | Data is compressed and not human readable | Serialization cannot be configured (except NonSerialized attribute)| 
+|**JsonSerializer** | Limited inheritance support | Data is stored as Json | Serialization can be configured with JsonSerializerSettings | 
+|**RawSerializer** | Limited inheritance, only for types serialized with BinaryFormatter | Simple types are stored as strings and are human readable | Serialization can be set-up per type using SetSerializerFor | 
 
 The RawSerializer allows to override the serialization/deserialization logic per type with method `SetSerializerFor<T>()`.
 
@@ -435,4 +436,11 @@ And use the provided json context:
 var context = new CachingFramework.Redis.Json.Context("localhost:6379");
 ```
 
+--------------
 
+[.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
+=====
+
+Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
+
+**For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
