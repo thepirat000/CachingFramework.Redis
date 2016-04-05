@@ -466,7 +466,7 @@ context.KeyEvents.Subscribe("user:1", (string key, KeyEvent cmd) =>
 {
     if (cmd == KeyEvent.Delete)
     {
-        //Key was deleted
+        //Key user:1 was deleted
     }
     Console.WriteLine("command " + cmd);
 });
