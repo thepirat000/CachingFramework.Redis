@@ -30,13 +30,15 @@ namespace CachingFramework.Redis
         /// The pub/sub provider
         /// </summary>
         private readonly IPubSubProvider _pubsubProvider;
+
+        private readonly IKeyEventsProvider _keyEventsProvider;
         #endregion
 
         #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="Context" /> class using Redis in localhost server default port 6379, and using the default BinarySerializer.
         /// </summary>
-        public Context() : this("localhost:6379") {}
+        public Context() : this("localhost:6379") { }
         /// <summary>
         /// Initializes a new instance of the <see cref="Context" /> class given the cache engine type and its configuration string, and using the default BinarySerializer.
         /// </summary>
@@ -61,6 +63,7 @@ namespace CachingFramework.Redis
             _cacheProvider = new RedisCacheProvider(_internalContext);
             _geoProvider = new RedisGeoProvider(_internalContext);
             _pubsubProvider = new RedisPubSubProvider(_internalContext);
+            _keyEventsProvider = new RedisKeyEventsProvider(_internalContext);
         }
         #endregion
         #region IContext implementation
@@ -93,6 +96,12 @@ namespace CachingFramework.Redis
         {
             get { return _pubsubProvider; }
         }
+
+        public IKeyEventsProvider KeyEvents
+        {
+            get { return _keyEventsProvider; }
+        }
+
         #endregion
         #region Public methods
         /// <summary>

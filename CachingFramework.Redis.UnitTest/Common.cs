@@ -40,7 +40,8 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
 
-        public static string Config = "192.168.15.10:6379, allowAdmin=true";
+        public static string Config = "redis.local:6379, allowAdmin=true"; //redis.local is set in hosts file
+        //public static string Config = "192.168.15.10:6379, allowAdmin=true";
         //public static string Config = "192.168.15.13:7000, allowAdmin=true";
         //public static string Config = "192.168.15.11:7000, allowAdmin=true";
 
