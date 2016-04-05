@@ -57,17 +57,17 @@ namespace CachingFramework.Redis.UnitTest
             if (key == null && !eventType.HasValue && eventSubscriptionType.HasValue)
             {
                 context.KeyEvents.Subscribe(eventSubscriptionType.Value, action);
-                unsubscribeAction = () => context.KeyEvents.UnSubscribe(eventSubscriptionType.Value);
+                unsubscribeAction = () => context.KeyEvents.Unsubscribe(eventSubscriptionType.Value);
             }
             else if (key != null)
             {
                 context.KeyEvents.Subscribe(key, action);
-                unsubscribeAction = () => context.KeyEvents.UnSubscribe(key);
+                unsubscribeAction = () => context.KeyEvents.Unsubscribe(key);
             }
             else if (eventType.HasValue)
             {
                 context.KeyEvents.Subscribe(eventType.Value, action);
-                unsubscribeAction = () => context.KeyEvents.UnSubscribe(eventType.Value);
+                unsubscribeAction = () => context.KeyEvents.Unsubscribe(eventType.Value);
             }
 
             var objectKey = key ?? Guid.NewGuid().ToString();
@@ -93,7 +93,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(handle.Wait(1000));
             Assert.IsTrue(result.IsEmpty);
 
-            context.KeyEvents.UnSubscribe(KeyEventSubscriptionType.All);
+            context.KeyEvents.Unsubscribe(KeyEventSubscriptionType.All);
         }
 
 

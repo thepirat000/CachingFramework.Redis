@@ -24,7 +24,6 @@ namespace CachingFramework.Redis.Contracts
         /// Gets the pub sub API.
         /// </summary>
         IPubSubProvider PubSub { get; }
-
         /// <summary>
         /// Gets the Key/Event space notifications API.
         /// </summary>

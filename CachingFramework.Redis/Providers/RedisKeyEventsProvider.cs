@@ -23,17 +23,17 @@ namespace CachingFramework.Redis.Providers
             SubscribeToRedis(GetEventChannelName(KeyEventSubscriptionType.KeyEvent, eventType: keyEvent), action);
         }
 
-        public void UnSubscribe(KeyEventSubscriptionType subscriptionType)
+        public void Unsubscribe(KeyEventSubscriptionType subscriptionType)
         {
             UnsubscribeFromRedis(GetEventChannelName(subscriptionType));
         }
 
-        public void UnSubscribe(string key)
+        public void Unsubscribe(string key)
         {
             UnsubscribeFromRedis(GetEventChannelName(KeyEventSubscriptionType.KeySpace, key));
         }
 
-        public void UnSubscribe(KeyEvent keyEvent)
+        public void Unsubscribe(KeyEvent keyEvent)
         {
             UnsubscribeFromRedis(GetEventChannelName(KeyEventSubscriptionType.KeyEvent, eventType: keyEvent));
         }
@@ -69,8 +69,10 @@ namespace CachingFramework.Redis.Providers
             {
                 throw new NotImplementedException(string.Format("Parsing not implemented for event channel {0}", channel));
             }
-
-            if (action != null) action(key, TextAttributeCache<KeyEvent>.Instance.GetEnumValue(eventType));
+            if (action != null)
+            {
+                action(key, TextAttributeCache<KeyEvent>.Instance.GetEnumValue(eventType));
+            }
         }
 
         private static string GetEventChannelName(KeyEventSubscriptionType subscriptionType, string key = null, KeyEvent? eventType = null)
