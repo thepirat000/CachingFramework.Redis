@@ -12,7 +12,7 @@
  * [**HyperLogLog support**](#hyperloglog-api): to count unique things.
  * [**Configurable Serialization**](#serialization): a compressed binary serializer by default, or provide your own serialization. 
  * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
- * [**Redis Keyspace Notifications**](#keyspace-notifications): Subscribe to Pub/Sub channels in order to receive events affecting the Redis data set.
+ * [**Redis Keyspace Notifications**](#keyspace-notifications-api): Subscribe to Pub/Sub channels in order to receive events affecting the Redis data set.
  * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
  
 ## Usage
@@ -440,20 +440,25 @@ var context = new CachingFramework.Redis.Json.Context("localhost:6379");
 
 --------------
 
-Keyspace Notifications
+Keyspace Notifications API
 =====
 
 Subscribe to keyspace events to receive events affecting the Redis data.
 See the Redis notification [documentation](http://redis.io/topics/notifications).
 
-**Note:**
-By default keyspace events notifications are disabled. To enable notifications use the notify-keyspace-events of redis.conf or via the CONFIG SET.
+### Server configuration
 
+By default keyspace events notifications are disabled. To enable notifications use the notify-keyspace-events of redis.conf or via the CONFIG SET, for example:
+```
+redis> CONFIG SET notify-keyspace-events KEA
+```
+
+### Usage
 To access the Keyspace Notifications API, use the `Subscribe`/`Unsubscribe` methods on the context's `KeyEvents` property.
 
 The subscribe method callback in an `Action<string, KeyEvent>` where the first parameter is the Redis key affected, and the second is the operation performed. 
 
-Some examples of what is possible to receive:
+### Examples 
 
 Receive all the commands affecting a given key:
 ```c#
@@ -461,7 +466,7 @@ context.KeyEvents.Subscribe("user:1", (string key, KeyEvent cmd) =>
 {
     if (cmd == KeyEvent.Delete)
     {
-        //Key was deleted
+        //Key "user:1" was deleted
     }
     Console.WriteLine("command " + cmd);
 });
@@ -481,6 +486,16 @@ context.KeyEvents.Subscribe(KeyEventSubscriptionType.All, (key, cmd) =>
 {
     Console.WriteLine("key {0} - command {1}", key, cmd);
 });
+```
+
+Stop receiving all commands affecting the given key:
+```c#
+context.KeyEvents.Unsubscribe("user:1");
+```
+
+Stop receiving LPUSH commands affecting any key:
+```c#
+context.KeyEvents.Unsubscribe(KeyEvent.PushLeft);
 ```
 
 --------------
