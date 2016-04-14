@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Json;
 using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
+using StackExchange.Redis;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -40,7 +42,8 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
 
-        public static string Config = "redis.local:6379, allowAdmin=true"; //redis.local is set in hosts file
+        public static int[] VersionInfo { get; set; }
+        public static string Config = "redis.local:6379, allowAdmin=true"; 
         //public static string Config = "192.168.15.10:6379, allowAdmin=true";
         //public static string Config = "192.168.15.13:7000, allowAdmin=true";
         //public static string Config = "192.168.15.11:7000, allowAdmin=true";
@@ -53,6 +56,16 @@ namespace CachingFramework.Redis.UnitTest
             _msgPackContext = new MsgPack.Context(Config);
             Thread.Sleep(1500);
             _rawContext.Cache.FlushAll();
+            // Get the redis version
+            var server = _rawContext.GetConnectionMultiplexer().GetServer(_rawContext.GetConnectionMultiplexer().GetEndPoints()[0]);
+            VersionInfo = server.Info("Server")[0].First(x => x.Key == "redis_version").Value.Split('.').Take(2).Select(x => int.Parse(x)).ToArray();
+            // Enable keyspace notifications
+            var eventsConfig = server.ConfigGet("notify-keyspace-events");
+            if (!eventsConfig[0].Value.ToUpper().Contains('K') || !eventsConfig[0].Value.ToUpper().Contains('E'))
+            {
+                server.ConfigSet("notify-keyspace-events", "KEA");
+            }
+            
         }
     }
 }
