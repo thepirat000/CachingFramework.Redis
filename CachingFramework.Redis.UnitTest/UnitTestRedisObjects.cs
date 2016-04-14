@@ -417,7 +417,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[1].Id, byScore[1].Value.Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_CacheSortedSet_SE_Issue287(Context context)
         {
             var key = "UT_CacheSortedSet_SE_Issue287";

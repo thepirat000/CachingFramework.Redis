@@ -8,11 +8,10 @@ using NUnit.Framework;
 
 namespace CachingFramework.Redis.UnitTest
 {
-    [Ignore("azure")]
     [TestFixture]
     public class RedisStressTest
     {
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_RedisStress_BigAddDelete(Context context)
         {
             string key = "UT_RedisStress_BigAddDelete";
@@ -59,7 +58,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, nokeys.Count());
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_RedisBomb(Context context)
         {
             const string test = "UT_RedisBomb";
@@ -102,7 +101,7 @@ namespace CachingFramework.Redis.UnitTest
                 keyCount, createAndConsumeSeconds, consumeSeconds, removeSeconds, timeouts);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "MsgPack")]
         public void UT_RedisStress_GetKeysByTag(Context context)
         {
             const string test = "UT_RedisStress_GetKeysByTag";
@@ -131,7 +130,7 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_RedisStress_GetAllTags(Context context)
         {
             const string test = "UT_RedisStress_GetAllTags";
@@ -150,7 +149,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(realTags.IsSubsetOf(tags));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_CleanupTags(Context context)
         {
             // using the cleanup option
@@ -166,7 +165,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(keys.Contains(key));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_RedisStress_RemoveKeysByTags(Context context)
         {
             const string test = "UT_RedisStress_RemoveKeysByTags";
@@ -211,11 +210,11 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_CacheString_BigString(Context context)
         {
             var key = "UT_CacheString_BigString";
-            int i = 9999999;
+            int i = 999999;
             context.Cache.Remove(key);
             var cs = context.Collections.GetRedisString(key);
             cs.SetRange(i, "test");

@@ -12,9 +12,14 @@ namespace CachingFramework.Redis.UnitTest
         private static GeoCoordinate _coordZapopan;
         private static GeoCoordinate _coordLondon;
         private static GoogleLocationService _locationSvc;
-        [TestFixtureSetUp]
+
+        [OneTimeSetUp]
         public static void ClassInitialize()
         {
+            if (Common.VersionInfo[0] < 3 || Common.VersionInfo[1] < 2)
+            {
+                Assert.Ignore($"Geospatial tests ignored for version {string.Join(".", Common.VersionInfo)}\n");
+            }
             _locationSvc = new GoogleLocationService();
             _coordZapopan = _locationSvc.GetLatLongFromAddress("Zapopan").ToGeoCoord();
             _coordLondon = _locationSvc.GetLatLongFromAddress("London").ToGeoCoord();
@@ -113,7 +118,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(hash.StartsWith("9ewmwenq"));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_Geo_GeoRadius(Context context)
         {
             var key = "UT_Geo_GeoRadius";

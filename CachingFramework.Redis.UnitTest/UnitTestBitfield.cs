@@ -7,6 +7,15 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestBitfield
     {
+        [OneTimeSetUp]
+        public void SetUpFixture()
+        {
+            if (Common.VersionInfo[0] < 3 || Common.VersionInfo[1] < 2)
+            {
+                Assert.Ignore($"Bitfield tests ignored for version {string.Join(".", Common.VersionInfo)}\n");
+            }
+        }
+
         [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_CacheBitmapBitField(Context context)
         {
