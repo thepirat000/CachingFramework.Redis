@@ -575,6 +575,39 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(1, objs.Count);
         }
 
+        [Test, TestCaseSource(typeof (Common), "Bin")]
+        public void UT_CacheFetch_TagsBuilder(Context context)
+        {
+            string key = "UT_CacheFetch_TagsBuilder";
+            var users = GetUsers();
+            var user = users[0];
+            context.Cache.Remove(key);
+            context.Cache.InvalidateKeysByTag("user-id-tag:" + user.Id);
+            context.Cache.FetchObject(key, () => user, u => new [] { "user-id-tag:" + u.Id });
+            context.Cache.FetchObject(key, () => (User)null, u => new[] { "wrong" });
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new [] { "wrong" }).Count);
+            var result = context.Cache.GetObjectsByTag<User>("user-id-tag:" + user.Id).First();
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new [] { "wrong" }).Count);
+            Assert.AreEqual(user.Id, result.Id);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "Bin")]
+        public void UT_CacheFetchHashed_TagsBuilder(Context context)
+        {
+            string key = "UT_CacheFetchHashed_TagsBuilder";
+            string field = "field";
+            var users = GetUsers();
+            var user = users[0];
+            context.Cache.Remove(key);
+            context.Cache.InvalidateKeysByTag("user-id-tag:" + user.Id);
+            context.Cache.FetchHashed(key, field, () => user, u => new[] { "user-id-tag:" + u.Id });
+            context.Cache.FetchHashed(key, field, () => (User)null, u => new[] { "wrong" });
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { "wrong" }).Count);
+            var result = context.Cache.GetObjectsByTag<User>(new[] { "user-id-tag:" + user.Id }).First();
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { "wrong" }).Count);
+            Assert.AreEqual(user.Id, result.Id);
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheFetchHashed_Tags(Context context)
         {

@@ -47,7 +47,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="expiry">The expiration timespan.</param>
         public T FetchObject<T>(string key, Func<T> func, TimeSpan? expiry = null)
         {
-            return FetchObject(key, func, null, expiry);
+            return FetchObject(key, func, (string[])null, expiry);
         }
         /// <summary>
         /// Fetches data from the cache, using the given cache key.
@@ -62,18 +62,35 @@ namespace CachingFramework.Redis.Providers
         /// <param name="expiry">The expiration timespan.</param>
         public T FetchObject<T>(string key, Func<T> func, string[] tags, TimeSpan? expiry = null)
         {
+            return FetchObject(key, func, _ => tags, expiry);
+        }
+
+        /// <summary>
+        /// Fetches data from the cache, using the given cache key.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key and associated to the given tags, and that will be returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tagsBuilder">The tag builder to associte tags depending on the value.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        public T FetchObject<T>(string key, Func<T> func, Func<T, string[]> tagsBuilder, TimeSpan? expiry = null)
+        {
             T value;
             if (!TryGetObject(key, out value))
             {
                 value = func();
-                // ReSharper disable once CompareNonConstrainedGenericWithNull
                 if (value != null)
                 {
+                    var tags = tagsBuilder?.Invoke(value);
                     SetObject(key, value, tags, expiry);
                 }
             }
             return value;
         }
+
         /// <summary>
         /// Fetches hashed data from the cache, using the given cache key and field.
         /// If there is data in the cache with the given key, then that data is returned.
@@ -86,7 +103,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="expiry">The expiration timespan.</param>
         public T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null)
         {
-            return FetchHashed(key, field, func, null, expiry);
+            return FetchHashed(key, field, func, (string[])null, expiry);
         }
         /// <summary>
         /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the given tags.
@@ -101,6 +118,22 @@ namespace CachingFramework.Redis.Providers
         /// <param name="expiry">The expiration timespan.</param>
         public T FetchHashed<T>(string key, string field, Func<T> func, string[] tags, TimeSpan? expiry = null)
         {
+            return FetchHashed(key, field, func, _ => tags, expiry);
+        }
+
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the tags returned by the given tag builder.
+        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tagsBuilder">The tag builder to specify tags depending on the value.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        public T FetchHashed<T>(string key, string field, Func<T> func, Func<T, string[]> tagsBuilder, TimeSpan? expiry = null)
+        {
             T value;
             if (!TryGetHashed(key, field, out value))
             {
@@ -108,11 +141,13 @@ namespace CachingFramework.Redis.Providers
                 // ReSharper disable once CompareNonConstrainedGenericWithNull
                 if (value != null)
                 {
+                    var tags = tagsBuilder?.Invoke(value);
                     SetHashed(key, field, value, tags, expiry);
                 }
             }
             return value;
         }
+
         /// <summary>
         /// Set the value of a key
         /// </summary>
@@ -583,6 +618,13 @@ namespace CachingFramework.Redis.Providers
             return RedisConnection.GetDatabase()
                     .HyperLogLogLength(key);
         }
+        /// <summary>
+        /// Flushes all the databases on every master node.
+        /// </summary>
+        public void FlushAll()
+        {
+            RunInAllMasters(svr => svr.FlushAllDatabases());
+        }
         #endregion
 
         #region Private Methods
@@ -756,13 +798,6 @@ namespace CachingFramework.Redis.Providers
                 }
             }
             return masters;
-        }
-        /// <summary>
-        /// Flushes all the databases on every master node.
-        /// </summary>
-        public void FlushAll()
-        {
-            RunInAllMasters(svr => svr.FlushAllDatabases());
         }
         #endregion
     }

@@ -33,6 +33,18 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="expiry">The expiration timespan.</param>
         T FetchHashed<T>(string key, string field, Func<T> func, string[] tags, TimeSpan? expiry = null);
         /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the tags returned by the given tag builder.
+        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tagsBuilder">The tags builder to specify tags depending on the value.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        T FetchHashed<T>(string key, string field, Func<T> func, Func<T, string[]> tagsBuilder, TimeSpan? expiry = null);
+        /// <summary>
         /// Fetches data from the cache, using the given cache key.
         /// If there is data in the cache with the given key, then that data is returned.
         /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
@@ -56,6 +68,18 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="expiry">The expiration timespan.</param>
         /// <returns>``0.</returns>
         T FetchObject<T>(string key, Func<T> func, string[] tags, TimeSpan? expiry = null);
+        /// <summary>
+        /// Fetches data from the cache, using the given cache key.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key and associated to the given tags, and that will be returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tagsBuilder">The tag builder to associte tags depending on the value.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        T FetchObject<T>(string key, Func<T> func, Func<T, string[]> tagsBuilder, TimeSpan? expiry = null);
         /// <summary>
         /// Set the value of a key
         /// </summary>
