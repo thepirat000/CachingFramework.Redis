@@ -659,6 +659,47 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(keys.Contains(key));
         }
 
+        [Test, TestCaseSource(typeof (Common), "Bin")]
+        public void UT_CacheTagRename(Context context)
+        {
+            string key = "UT_CacheTagRename";
+            context.Cache.Remove(key);
+            string tag1 = "UT_CacheTagRename-Tag1";
+            string tag2 = "UT_CacheTagRename-Tag2";
+            context.Cache.InvalidateKeysByTag(tag1, tag2);
+            var user = GetUsers()[0];
+            context.Cache.SetObject(key, user, new [] { tag1 });
+            Assert.AreEqual(1, context.Cache.GetKeysByTag(new [] { tag1 }).Count);
+            context.Cache.RenameTagForKey(key, tag1, tag2);
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
+            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag2 }).Count);
+            context.Cache.RemoveTagsFromKey(key, new [] { tag2 });
+            context.Cache.RenameTagForKey(key, tag2, tag1);
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "Bin")]
+        public void UT_CacheFieldTagRename(Context context)
+        {
+            string key = "UT_CacheFieldTagRename";
+            string field = "field";
+            context.Cache.Remove(key);
+            string tag1 = "UT_CacheFieldTagRename-Tag1";
+            string tag2 = "UT_CacheFieldTagRename-Tag2";
+            context.Cache.InvalidateKeysByTag(tag1, tag2);
+            var user = GetUsers()[0];
+            context.Cache.SetHashed(key, field, user, new[] { tag1 });
+            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
+            context.Cache.RenameTagForHashField(key, field, tag1, tag2);
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
+            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag2 }).Count);
+            context.Cache.RemoveTagsFromHashField(key, field, new[] { tag2 });
+            context.Cache.RemoveTagsFromHashField(key, field, new [] { tag2, tag1 });
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count);
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSetWithTags_PersistentOverridesExpiration(Context context)
         {

@@ -223,6 +223,27 @@ namespace CachingFramework.Redis.Providers
             batch.Execute();
         }
         /// <summary>
+        /// Renames a tag related to a key.
+        /// If the current tag is not related to the key, no operation is performed.
+        /// If the current tag is related to the key, the tag relation is removed and the new tag relation is inserted.
+        /// </summary>
+        /// <param name="key">The key related to the tag.</param>
+        /// <param name="currentTag">The current tag.</param>
+        /// <param name="newTag">The new tag.</param>
+        public void RenameTagForKey(string key, string currentTag, string newTag)
+        {
+            if (currentTag == newTag)
+            {
+                return;
+            }
+            var db = RedisConnection.GetDatabase();
+            if (db.SetRemove(FormatTag(currentTag), key))
+            {
+                db.SetAdd(FormatTag(newTag), key);
+            }
+        }
+
+        /// <summary>
         /// Relates the given tags to a field inside a hash key.
         /// </summary>
         /// <param name="key">The key.</param>
@@ -238,6 +259,29 @@ namespace CachingFramework.Redis.Providers
             }
             batch.Execute();
         }
+
+        /// <summary>
+        /// Renames a tag related to a hash field.
+        /// If the current tag is not related to the hash field, no operation is performed.
+        /// If the current tag is related to the hash field, the tag relation is removed and the new tag relation is inserted.
+        /// </summary>
+        /// <param name="key">The hash key.</param>
+        /// <param name="field">The hash field related to the tag.</param>
+        /// <param name="currentTag">The current tag.</param>
+        /// <param name="newTag">The new tag.</param>
+        public void RenameTagForHashField(string key, string field, string currentTag, string newTag)
+        {
+            if (currentTag == newTag)
+            {
+                return;
+            }
+            var db = RedisConnection.GetDatabase();
+            if (db.SetRemove(FormatTag(currentTag), FormatField(key, field)))
+            {
+                db.SetAdd(FormatTag(newTag), FormatField(key, field));
+            }
+        }
+
         /// <summary>
         /// Removes the relation between the given tags and a field in a hash.
         /// </summary>

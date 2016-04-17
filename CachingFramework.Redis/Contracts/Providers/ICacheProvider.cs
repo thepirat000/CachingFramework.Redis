@@ -112,12 +112,31 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="tags">The tag(s).</param>
         void AddTagsToKey(string key, string[] tags);
         /// <summary>
+        /// Renames a tag related to a key.
+        /// If the current tag is not related to the key, no operation is performed.
+        /// If the current tag is related to the key, the tag relation is removed and the new tag relation is inserted.
+        /// </summary>
+        /// <param name="key">The key related to the tag.</param>
+        /// <param name="currentTag">The current tag.</param>
+        /// <param name="newTag">The new tag.</param>
+        void RenameTagForKey(string key, string currentTag, string newTag);
+        /// <summary>
         /// Relates the given tags to a field inside a hash key.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="field">The field.</param>
         /// <param name="tags">The tag(s).</param>
         void AddTagsToHashField(string key, string field, string[] tags);
+        /// <summary>
+        /// Renames a tag related to a hash field.
+        /// If the current tag is not related to the hash field, no operation is performed.
+        /// If the current tag is related to the hash field, the tag relation is removed and the new tag relation is inserted.
+        /// </summary>
+        /// <param name="key">The hash key.</param>
+        /// <param name="field">The hash field related to the tag.</param>
+        /// <param name="currentTag">The current tag.</param>
+        /// <param name="newTag">The new tag.</param>
+        void RenameTagForHashField(string key, string field, string currentTag, string newTag);
         /// <summary>
         /// Removes the relation between the given tags and a field in a hash.
         /// </summary>
