@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CachingFramework.Redis.MsgPack")]
-[assembly: AssemblyDescription("Distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.")]
+[assembly: AssemblyDescription("MessagePack serializer for CachingFramework.Redis")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Federico Colombo")]
 [assembly: AssemblyProduct("CachingFramework.Redis.MsgPack")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("4.7.0.0")]
-[assembly: AssemblyFileVersion("4.7.0.0")]
+[assembly: AssemblyVersion("4.7.1.0")]
+[assembly: AssemblyFileVersion("4.7.1.0")]
