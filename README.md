@@ -420,7 +420,7 @@ All types are serialized using the [JSON.NET](https://www.nuget.org/packages/New
 
 - **Raw Serializer**:
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
-Any other type is binary serialized using the .NET `BinaryFormatter` and compressed using GZIP.
+Any other type is binary serialized using the .NET `BinaryFormatter` and compressed using GZIP. The serialization can be configured per type.
 
 | | **Inheritance** | **Data** | **Configuration** |
 | ----------- | ----------------------- | -------------------------- | ------------------ |
