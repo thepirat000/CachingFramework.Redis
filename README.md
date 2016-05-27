@@ -165,37 +165,37 @@ A tag can be related to any number of keys and/or hash fields.
 #### Add a **single object** related to a tag
 Add a single object to the cache and associate it with tags *red* and *blue*:
 ```c#
-context.Cache.SetObject(redisKey, value, new[] { "red", "blue" });
+context.Cache.SetObject("user:1", user, new[] { "red", "blue" });
 ```
 
 #### Add a **hashed object** related to a tag
 Tags can be also related to a field in a hash.
 ```c#
-context.Cache.SetHashed(redisKey, field, value, new[] { "red" });
+context.Cache.SetHashed("users:hash", "user:id:1", value, new[] { "red" });
 ```
 
 #### Relate an existing **key** to a tag
 Relate the key to the *green* tag:
 ```c#
-context.Cache.AddTagsToKey(redisKey, new [] { "green" });
+context.Cache.AddTagsToKey("user:1", new [] { "green" });
 ```
 
 #### Relate an existing **hash field** to a tag
 Relate the hash field to the *green* tag:
 ```c#
-context.Cache.AddTagsToHashField(redisKey, field, new[] {"green"});
+context.Cache.AddTagsToHashField("users:hash", "user:id:1", new[] {"green"});
 ```
 
 #### Remove a tag from a key
 Remove the relation between the key and the tag *green*:
 ```c#
-context.Cache.RemoveTagsFromKey(redisKey, new [] { "green" });
+context.Cache.RemoveTagsFromKey("user:1", new [] { "green" });
 ```
 
 #### Remove a tag from a hash field
 Remove the relation between the hash field and the tag *green*:
 ```c#
-context.Cache.RemoveTagsFromHashField(redisKey, field, new [] { "green" });
+context.Cache.RemoveTagsFromHashField("users:hash", "user:id:1", new [] { "green" });
 ```
 
 #### Get objects by tag
