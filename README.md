@@ -47,6 +47,17 @@ Typed cache
 =====
 Any primitive type or serializable class can be used as a cache value.
 
+For example:
+```c#
+[Serializable]
+class User
+{
+    public int Id { get; set; }
+    public string UserName { get; set; }
+	   ...
+}
+```
+
 ### Add a single object to the cache:
 ```c#
 string redisKey = "user:1";
