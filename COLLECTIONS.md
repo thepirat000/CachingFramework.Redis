@@ -30,7 +30,7 @@ sortedSet.TimeToLive = TimeSpan.FromMinutes(60);
 To obtain a new (or existing) Redis List that implements `IList`, use the ```GetRedisList()``` method:
 
 ```c#
-IRedisList<User> list = context.Collections.GetRedisList<User>("user:list");
+IRedisList<User> list = context.Collections.GetRedisList<User>("users:list");
 ```
 
 To push elements to the list use `PushFirst` / `PushLast` methods:
@@ -136,7 +136,7 @@ Mapping between `IRedisSet` methods/properties to the Redis commands used:
 To obtain a new (or existing) Redis Hash that implements `IDictionary`, use the ```GetRedisDictionary()``` method:
 
 ```c#
-IRedisDictionary<int, User> hash = context.Collections.GetRedisDictionary<int, User>("user:hash");
+IRedisDictionary<int, User> hash = context.Collections.GetRedisDictionary<int, User>("users:hash");
 ```
 
 To add elements to the hash, use `Add` / `AddRange`  methods or the indexed property:
