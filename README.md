@@ -47,6 +47,17 @@ Typed cache
 =====
 Any primitive type or serializable class can be used as a cache value.
 
+For example:
+```c#
+[Serializable]
+public class User
+{
+    public int Id { get; set; }
+    public string UserName { get; set; }
+	   ...
+}
+```
+
 ### Add a single object to the cache:
 ```c#
 string redisKey = "user:1";
@@ -86,6 +97,8 @@ Fetch an object with a time-to-live:
 ```c#
 var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id), TimeSpan.FromDays(1));
 ```
+
+The TTL value is set only when the value is not present on the cache. 
 
 --------------
 
@@ -152,37 +165,37 @@ A tag can be related to any number of keys and/or hash fields.
 #### Add a **single object** related to a tag
 Add a single object to the cache and associate it with tags *red* and *blue*:
 ```c#
-context.Cache.SetObject(redisKey, value, new[] { "red", "blue" });
+context.Cache.SetObject("user:1", user, new[] { "red", "blue" });
 ```
 
 #### Add a **hashed object** related to a tag
 Tags can be also related to a field in a hash.
 ```c#
-context.Cache.SetHashed(redisKey, field, value, new[] { "red" });
+context.Cache.SetHashed("users:hash", "user:id:1", value, new[] { "red" });
 ```
 
 #### Relate an existing **key** to a tag
 Relate the key to the *green* tag:
 ```c#
-context.Cache.AddTagsToKey(redisKey, new [] { "green" });
+context.Cache.AddTagsToKey("user:1", new [] { "green" });
 ```
 
 #### Relate an existing **hash field** to a tag
 Relate the hash field to the *green* tag:
 ```c#
-context.Cache.AddTagsToHashField(redisKey, field, new[] {"green"});
+context.Cache.AddTagsToHashField("users:hash", "user:id:1", new[] {"green"});
 ```
 
 #### Remove a tag from a key
 Remove the relation between the key and the tag *green*:
 ```c#
-context.Cache.RemoveTagsFromKey(redisKey, new [] { "green" });
+context.Cache.RemoveTagsFromKey("user:1", new [] { "green" });
 ```
 
 #### Remove a tag from a hash field
 Remove the relation between the hash field and the tag *green*:
 ```c#
-context.Cache.RemoveTagsFromHashField(redisKey, field, new [] { "green" });
+context.Cache.RemoveTagsFromHashField("users:hash", "user:id:1", new [] { "green" });
 ```
 
 #### Get objects by tag
@@ -429,7 +442,7 @@ raw.SetSerializerFor<StringBuilder>
 var context = new Context("localhost:6379", raw);
 ```
 
-To use the JSonSerializer, install the **CachingFramework.Redis.Json** package:
+To use the JSonSerializer, install the [**CachingFramework.Redis.Json**](https://www.nuget.org/packages/CachingFramework.Redis.Json/) package:
 ```
 PM> Install-Package CachingFramework.Redis.Json
 ```
