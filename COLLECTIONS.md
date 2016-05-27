@@ -181,7 +181,7 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 To obtain a new (or existing) Redis Sorted Set that implements `ICollection`, use the ```GetRedisSortedSet()``` method:
 
 ```c#
-IRedisSortedSet<User> sortedSet = context.Collections.GetRedisSortedSet<User>("user:sset");
+IRedisSortedSet<User> sortedSet = context.Collections.GetRedisSortedSet<User>("users:sset");
 ```
 
 To add elements to the sorted set, use `Add` or `AddRange` methods providing the score of the items as a `double`:
