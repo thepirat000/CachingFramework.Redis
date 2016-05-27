@@ -98,6 +98,8 @@ Fetch an object with a time-to-live:
 var user = context.Cache.FetchObject<User>(redisKey, () => GetUserFromDatabase(id), TimeSpan.FromDays(1));
 ```
 
+The TTL value is set only when the value is not present on the cache. 
+
 --------------
 
 Hashes
