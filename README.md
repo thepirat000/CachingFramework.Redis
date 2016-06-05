@@ -521,8 +521,8 @@ You can still use the StackExchange.Redis API by calling the _GetConnectionMulti
 For example:
 ```c#
 var context = new Context();
-var multiplexer = context.GetConnectionMultiplexer();
-multiplexer.GetDatabase().StringSet("key", "Value");
+var multiplexer = context.GetConnectionMultiplexer();	// SE.Redis Connection Multiplexer
+multiplexer.GetDatabase().StringSet("key", "Value");    // SE.Redis API
 ```
 
 --------------
