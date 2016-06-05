@@ -513,6 +513,20 @@ context.KeyEvents.Unsubscribe(KeyEvent.PushLeft);
 
 --------------
 
+StackExchange.Redis API
+=====
+
+You can still use the StackExchange.Redis API by calling the _GetConnectionMultiplexer_ method on the Context.
+
+For example:
+```c#
+var context = new Context();
+var multiplexer = context.GetConnectionMultiplexer();
+multiplexer.GetDatabase().StringSet("key", "Value");
+```
+
+--------------
+
 [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
 =====
 
