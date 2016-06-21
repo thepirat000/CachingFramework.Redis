@@ -309,8 +309,6 @@ bool HasVisited(int userId, DateTime date)
 
 ## Bitfields
 
-*: Bitfield operations are not yet available in a stable version of Redis. Download [unstable](https://github.com/antirez/redis/archive/unstable.tar.gz) if you want to test these commands.
-
 [Bitfields](http://www.antirez.com/news/103) are arbitrary sized integers at arbitrary offsets stored on a Redis string.
 This allows to handle groups of consecutive bits on a bitmap, instead of handling each bit separately.
 
