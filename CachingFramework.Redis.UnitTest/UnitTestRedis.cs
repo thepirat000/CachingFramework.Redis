@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
 
@@ -15,6 +16,37 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheNull(Context context)
         {
             Assert.Throws<ArgumentException>(() => context.Cache.SetObject(null, "this should fail"));
+        }
+
+        [Test, TestCaseSource(typeof (Common), "Raw")]
+        public void UT_CacheSet_When(Context context)
+        {
+            var key = "UT_CacheSet_When";
+            context.Cache.Remove(key);
+            context.Cache.SetObject(key, "value", null, When.Exists);
+            Assert.IsNull(context.Cache.GetObject<string>(key));
+            context.Cache.SetObject(key, "value", null, When.NotExists);
+            Assert.AreEqual("value", context.Cache.GetObject<string>(key));
+            context.Cache.SetObject(key, "new", null, When.NotExists);
+            Assert.AreEqual("value", context.Cache.GetObject<string>(key));
+            context.Cache.SetObject(key, "new", null, When.Exists);
+            Assert.AreEqual("new", context.Cache.GetObject<string>(key));
+            context.Cache.Remove(key);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "Raw")]
+        public void UT_CacheSetHashed_When(Context context)
+        {
+            var key = "UT_CacheSetHashed_When";
+            var field = "F1";
+            context.Cache.Remove(key);
+            context.Cache.SetHashed(key, field, "value", null, When.NotExists);
+            Assert.AreEqual("value", context.Cache.GetHashed<string>(key, field));
+            context.Cache.SetHashed(key, field, "new", null, When.NotExists);
+            Assert.AreEqual("value", context.Cache.GetHashed<string>(key, field));
+            context.Cache.SetHashed(key, field, "new", null, When.Always);
+            Assert.AreEqual("new", context.Cache.GetHashed<string>(key, field));
+            context.Cache.Remove(key);
         }
 
         [Test, TestCaseSource(typeof (Common), "Raw")]

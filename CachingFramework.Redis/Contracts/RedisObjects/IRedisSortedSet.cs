@@ -13,20 +13,23 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// If key does not exist, a new sorted set with the specified member as sole member is created, like if the sorted set was empty. 
         /// </summary>
         /// <param name="member">The sorted member to add.</param>
-        void Add(SortedMember<T> member);
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        void Add(SortedMember<T> member, When when = When.Always);
         /// <summary>
         /// Adds the specified member with the specified score to the sorted set stored at key. 
         /// If key does not exist, a new sorted set with the specified member as sole member is created, like if the sorted set was empty. 
         /// </summary>
         /// <param name="item">The item to add.</param>
         /// <param name="score">The item score.</param>
-        void Add(double score, T item);
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        void Add(double score, T item, When when = When.Always);
         /// <summary>
         /// Adds all the specified members with the specified scores to the sorted set stored at key. 
         /// If key does not exist, a new sorted set with the specified members as sole members is created, like if the sorted set was empty. 
         /// </summary>
         /// <param name="members">The members to add.</param>
-        void AddRange(IEnumerable<SortedMember<T>> members);
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        void AddRange(IEnumerable<SortedMember<T>> members, When when = When.Always);
         /// <summary>
         /// Returns the number of elements in the sorted set at key with a score between min and max.
         /// </summary>

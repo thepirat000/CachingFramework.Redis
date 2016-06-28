@@ -3,6 +3,7 @@ using System.Linq;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using StackExchange.Redis;
+using When = CachingFramework.Redis.Contracts.When;
 
 namespace CachingFramework.Redis.RedisObjects
 {
@@ -31,9 +32,18 @@ namespace CachingFramework.Redis.RedisObjects
         /// If key does not exist, a new sorted set with the specified member as sole member is created, like if the sorted set was empty. 
         /// </summary>
         /// <param name="member">The sorted member to add.</param>
-        public void Add(SortedMember<T> member)
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        public void Add(SortedMember<T> member, When when = When.Always)
         {
-            GetRedisDb().SortedSetAdd(RedisKey, Serialize(member.Value), member.Score);
+            var db = GetRedisDb();
+            if (when == When.Always)
+            {
+                db.SortedSetAdd(RedisKey, Serialize(member.Value), member.Score);
+            }
+            else
+            {
+                db.ScriptEvaluate(LuaScriptResource.Zadd, new RedisKey[] { RedisKey }, new RedisValue[] { when == When.Exists ? "XX" : "NX", member.Score, Serialize(member.Value) });
+            }
         }
         /// <summary>
         /// Adds the specified member with the specified score to the sorted set stored at key. 
@@ -41,19 +51,35 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         /// <param name="item">The item to add.</param>
         /// <param name="score">The item score.</param>
-        public void Add(double score, T item)
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        public void Add(double score, T item, When when = When.Always)
         {
-            Add(new SortedMember<T>(score, item));
+            Add(new SortedMember<T>(score, item), when);
         }
         /// <summary>
         /// Adds all the specified members with the specified scores to the sorted set stored at key. 
         /// If key does not exist, a new sorted set with the specified members as sole members is created, like if the sorted set was empty. 
         /// </summary>
         /// <param name="members">The members to add.</param>
-        public void AddRange(IEnumerable<SortedMember<T>> members)
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        public void AddRange(IEnumerable<SortedMember<T>> members, When when = When.Always)
         {
-            GetRedisDb().SortedSetAdd(RedisKey,
-                members.Select(x => new SortedSetEntry(Serialize(x.Value), x.Score)).ToArray());
+            var db = GetRedisDb();
+            if (when == When.Always)
+            {
+                db.SortedSetAdd(RedisKey, members.Select(x => new SortedSetEntry(Serialize(x.Value), x.Score)).ToArray());
+            }
+            else
+            {
+                var @params = new List<RedisValue>();
+                @params.Add(when == When.Exists ? "XX" : "NX");
+                foreach (var x in members)
+                {
+                    @params.Add(x.Score);
+                    @params.Add(Serialize(x.Value));
+                }
+                db.ScriptEvaluate(LuaScriptResource.Zadd, new RedisKey[] { RedisKey }, @params.ToArray());
+            }
         }
         /// <summary>
         /// Returns the number of elements in the sorted set.

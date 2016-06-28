@@ -14,6 +14,48 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedisObjects
     {
+        [Test, TestCaseSource(typeof (Common), "Raw")]
+        public void UT_CacheSortedSet_When(Context context)
+        {
+            string key = "UT_CacheSortedSet_When";
+            context.Cache.Remove(key);
+            var lst = context.Collections.GetRedisSortedSet<string>(key);
+
+            lst.Add(12.345, "item1", When.Exists);
+            var rank = lst.RankOf("item1");
+            Assert.IsNull(rank);
+
+            lst.Add(12.345, "item1", When.NotExists);
+            rank = lst.RankOf("item1");
+            Assert.AreEqual(0, rank.Value);
+
+            lst.Add(34.567, "item1", When.NotExists);
+            var score = lst.ScoreOf("item1");
+            Assert.AreEqual(12.345, score.Value, 0.0001);
+
+            lst.Add(34.567, "itemXXX", When.Exists);
+            score = lst.ScoreOf("itemXXX");
+            Assert.IsNull(score);
+
+            lst.Add(34.567, "item1", When.Exists);
+            score = lst.ScoreOf("item1");
+            Assert.AreEqual(34.567, score.Value, 0.0001);
+
+            lst.AddRange(new [] { new SortedMember<string>(56.789, "item1"), new SortedMember<string>(77.888, "itemXXX") }, When.Exists);
+            score = lst.ScoreOf("item1");
+            Assert.AreEqual(56.789, score.Value, 0.0001);
+            score = lst.ScoreOf("itemXXX");
+            Assert.IsNull(score);
+
+            lst.AddRange(new[] { new SortedMember<string>(99.999, "item1"), new SortedMember<string>(88.999, "itemXXX") }, When.NotExists);
+            score = lst.ScoreOf("item1");
+            Assert.AreEqual(56.789, score.Value, 0.0001);
+            score = lst.ScoreOf("itemXXX");
+            Assert.AreEqual(88.999, score.Value, 0.0001);
+
+            context.Cache.Remove(key);
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheList_Remove(Context context)
         {

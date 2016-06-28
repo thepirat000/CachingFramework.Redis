@@ -155,10 +155,11 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
         /// <param name="ttl">The expiration.</param>
-        public void SetObject<T>(string key, T value, TimeSpan? ttl = null)
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        public void SetObject<T>(string key, T value, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always)
         {
             var serialized = Serializer.Serialize(value);
-            RedisConnection.GetDatabase().StringSet(key, serialized, ttl);
+            RedisConnection.GetDatabase().StringSet(key, serialized, ttl, (When)when);
         }
         /// <summary>
         /// Set the value of a key, associating the key with the given tag(s).
@@ -168,11 +169,12 @@ namespace CachingFramework.Redis.Providers
         /// <param name="value">The value.</param>
         /// <param name="tags">The tags.</param>
         /// <param name="ttl">The expiry.</param>
-        public void SetObject<T>(string key, T value, string[] tags, TimeSpan? ttl = null)
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        public void SetObject<T>(string key, T value, string[] tags, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always)
         {
             if (tags == null || tags.Length == 0)
             {
-                SetObject(key, value, ttl);
+                SetObject(key, value, ttl, when);
                 return;
             }
             var serialized = Serializer.Serialize(value);
@@ -187,7 +189,7 @@ namespace CachingFramework.Redis.Providers
                 SetMaxExpiration(batch, tag, ttl);
             }
             // Add the key-value
-            batch.StringSetAsync(key, serialized, ttl);
+            batch.StringSetAsync(key, serialized, ttl, (When)when);
             batch.Execute();
         }
         /// <summary>
@@ -525,11 +527,12 @@ namespace CachingFramework.Redis.Providers
         /// <param name="field">The field key</param>
         /// <param name="value">The value to store</param>
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
-        public void SetHashed<T>(string key, string field, T value, TimeSpan? ttl = null)
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        public void SetHashed<T>(string key, string field, T value, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always)
         {
             var db = RedisConnection.GetDatabase();
             var batch = db.CreateBatch();
-            batch.HashSetAsync(key, field, Serializer.Serialize(value));
+            batch.HashSetAsync(key, field, Serializer.Serialize(value), (When)when);
             // Set the key expiration
             SetMaxExpiration(batch, key, ttl);
             batch.Execute();
@@ -544,16 +547,17 @@ namespace CachingFramework.Redis.Providers
         /// <param name="value">The value to store</param>
         /// <param name="tags">The tags to relate to this field.</param>
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
-        public void SetHashed<T>(string key, string field, T value, string[] tags, TimeSpan? ttl = null)
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        public void SetHashed<T>(string key, string field, T value, string[] tags, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always)
         {
             if (tags == null || tags.Length == 0)
             {
-                SetHashed(key, field, value, ttl);
+                SetHashed(key, field, value, ttl, when);
                 return;
             }
             var db = RedisConnection.GetDatabase();
             var batch = db.CreateBatch();
-            batch.HashSetAsync(key, field, Serializer.Serialize(value));
+            batch.HashSetAsync(key, field, Serializer.Serialize(value), (When)when);
             // Set the key expiration
             SetMaxExpiration(batch, key, ttl);
             foreach (var tagName in tags)

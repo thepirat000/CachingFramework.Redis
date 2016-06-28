@@ -86,8 +86,9 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        /// <param name="ttl">The time to live.</param>
-        void SetObject<T>(string key, T value, TimeSpan? ttl = null);
+        /// <param name="ttl">The expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        void SetObject<T>(string key, T value, TimeSpan? ttl = null, When when = When.Always);
         /// <summary>
         /// Set the value of a key, associating the key with the given tag(s).
         /// </summary>
@@ -96,7 +97,8 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="value">The value.</param>
         /// <param name="tags">The tags.</param>
         /// <param name="ttl">The time to live.</param>
-        void SetObject<T>(string key, T value, string[] tags, TimeSpan? ttl = null);
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        void SetObject<T>(string key, T value, string[] tags, TimeSpan? ttl = null, When when = When.Always);
         /// <summary>
         /// Atomically sets key to value and returns the old value stored at key. 
         /// </summary>
@@ -238,17 +240,20 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="field">The field key</param>
         /// <param name="value">The value to store</param>
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
-        void SetHashed<T>(string key, string field, T value, TimeSpan? ttl = null);
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        void SetHashed<T>(string key, string field, T value, TimeSpan? ttl = null, When when = When.Always);
         /// <summary>
-        /// Sets the specified value to a hashset using the pair hashKey+field and associate the field to given tags.
+        /// Sets the specified value to a hashset using the pair hashKey+field.
+        /// (The latest expiration applies to the whole key)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
         /// <param name="field">The field key</param>
         /// <param name="value">The value to store</param>
         /// <param name="tags">The tags to relate to this field.</param>
-        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
-        void SetHashed<T>(string key, string field, T value, string[] tags, TimeSpan? ttl = null);
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        void SetHashed<T>(string key, string field, T value, string[] tags, TimeSpan? ttl = null, When when = When.Always);
         /// <summary>
         /// Sets the specified key/values pairs to a hashset.
         /// </summary>

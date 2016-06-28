@@ -73,6 +73,7 @@
     <Compile Include="Contracts\TextAttributeCache.cs" />
     <Compile Include="Contracts\Unit.cs" />
     <Compile Include="Contracts\TextAttribute.cs" />
+    <Compile Include="Contracts\When.cs" />
     <Compile Include="LuaScriptResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\RedisCollectionProvider.cs" />
