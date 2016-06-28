@@ -276,7 +276,7 @@ static void Main()
 
 Geospatial API
 =====
-The Geospatial Redis API is not yet available in a stable version of Redis. Download [unstable](https://github.com/antirez/redis/archive/unstable.tar.gz) if you want to test these commands.
+The Geospatial Redis API consists of a set of commands that add support for storing and querying pairs of longitude/latitude coordinates into Redis keys.
 
 ### Add a Geospatial item
 Add a user to a geospatial index by its coordinates:
@@ -509,6 +509,20 @@ context.KeyEvents.Unsubscribe("user:1");
 Stop receiving LPUSH commands affecting any key:
 ```c#
 context.KeyEvents.Unsubscribe(KeyEvent.PushLeft);
+```
+
+--------------
+
+StackExchange.Redis API
+=====
+
+You can still use the StackExchange.Redis API by calling the _GetConnectionMultiplexer_ method on the Context.
+
+For example:
+```c#
+var context = new Context();
+var multiplexer = context.GetConnectionMultiplexer();	// SE.Redis Connection Multiplexer
+multiplexer.GetDatabase().StringSet("key", "Value");    // SE.Redis API
 ```
 
 --------------
