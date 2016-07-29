@@ -1,5 +1,5 @@
 # CachingFramework.Redis
-.NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/), providing configurable serialization, a cluster-compatible tagging mechanism and more.
+.NET Redis client library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) adding some interesting features like an **extensible serialization** strategy, a **tagging mechanism** to group keys and hash fields, and a **fetching mechanism** to support atomic add/get operations, all being cluster-compatible.
 
 ##Features
  * [**Typed cache**](#typed-cache): any serializable object can be used as a cache value.
