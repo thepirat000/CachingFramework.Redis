@@ -1,5 +1,5 @@
 # CachingFramework.Redis
-.NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) and [Redis](http://redis.io).
+.NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/), providing configurable serialization, a cluster-compatible tagging mechanism and more.
 
 ##Features
  * [**Typed cache**](#typed-cache): any serializable object can be used as a cache value.
