@@ -59,7 +59,7 @@ public class User
 }
 ```
 
-* Note: The *Serializable* attribute is only needed when using the default [binary serializer](https://github.com/thepirat000/CachingFramework.Redis#serialization). If you use the, for example, a [JSon Serializer](https://www.nuget.org/packages/CachingFramework.Redis.Json/), the Serializable attribute becomes unnecessary.
+* Note: The *Serializable* attribute is needed by the default serialization method [binary serializer](https://github.com/thepirat000/CachingFramework.Redis#serialization). If you use the, for example, a [JSon Serializer](https://www.nuget.org/packages/CachingFramework.Redis.Json/), the Serializable attribute becomes unnecessary.
 
 ### Add a single object to the cache:
 ```c#
