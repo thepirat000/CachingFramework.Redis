@@ -39,7 +39,8 @@ var context = new Context();
 ```c#
 var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortConnect=false, allowAdmin=true");
 ```
-See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
+
+The constructor parameter must be a valid StackExchange.Redis connection string. See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
 --------------
 
