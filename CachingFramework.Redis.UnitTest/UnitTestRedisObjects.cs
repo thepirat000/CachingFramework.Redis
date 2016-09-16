@@ -647,6 +647,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(12, bm.Count);
         }
 
+        // See this: https://github.com/StackExchange/StackExchange.Redis/issues/458
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheLexSet_Match(Context context)
         {

@@ -12,6 +12,16 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis
     {
+        [Test, TestCaseSource(typeof(Common), "Raw")]
+        public void UT_Context_Dispose(Context context)
+        {
+            var ctx = new Context(context.GetConnectionMultiplexer().Configuration, context.GetSerializer());
+            ctx.Cache.SetObject("key", "value");
+            ctx.Dispose();
+            context.Cache.Remove("key");
+            Assert.Throws<ObjectDisposedException>(() => ctx.Cache.SetObject("key", "value2"));
+        }
+
         [Test, TestCaseSource(typeof (Common), "Raw")]
         public void UT_CacheNull(Context context)
         {

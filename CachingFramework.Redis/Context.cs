@@ -4,13 +4,14 @@ using CachingFramework.Redis.Contracts.Providers;
 using CachingFramework.Redis.Providers;
 using CachingFramework.Redis.Serializers;
 using StackExchange.Redis;
+using System;
 
 namespace CachingFramework.Redis
 {
     /// <summary>
     /// Context class containing the public APIs.
     /// </summary>
-    public class Context : IContext
+    public class Context : IContext, IDisposable
     {
         #region Fields
         private readonly RedisProviderContext _internalContext;
@@ -97,12 +98,17 @@ namespace CachingFramework.Redis
             get { return _pubsubProvider; }
         }
 
+        /// <summary>
+        /// Access the key events API.
+        /// </summary>
+        /// <value>The key events.</value>
         public IKeyEventsProvider KeyEvents
         {
             get { return _keyEventsProvider; }
         }
 
         #endregion
+
         #region Public methods
         /// <summary>
         /// Gets the StackExchange.Redis's connection multiplexer.
@@ -112,6 +118,22 @@ namespace CachingFramework.Redis
         public IConnectionMultiplexer GetConnectionMultiplexer()
         {
             return _internalContext.RedisConnection;
+        }
+
+        /// <summary>
+        /// Gets the serializer for this context.
+        /// </summary>
+        public ISerializer GetSerializer()
+        {
+            return _internalContext.Serializer;
+        }
+
+        /// <summary>
+        /// Disposes this instance.
+        /// </summary>
+        public void Dispose()
+        {
+            _internalContext.RedisConnection.Dispose();
         }
         #endregion
     }
