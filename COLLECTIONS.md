@@ -411,7 +411,7 @@ Mapping between `IRedisLexicographicSet` methods/properties to the Redis command
 |`Add(string item)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
 |`AddRange(IEnu<string> items)`|[ZADD](http://redis.io/commands/zadd)|O(log(N))|
 |`AutoComplete(string partial, long take)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N)+M) : M number of elements being returned|
-|`Match(pattern)`|[ZSCAN](http://redis.io/commands/zscan)|O(1)|
+|`Match(pattern)`|[ZSCAN](http://redis.io/commands/zscan)|O(N)|
 |`Remove(string item)`|[ZREM](http://redis.io/commands/zrem)|O(log(N))|
 |`Contains(string item)`|[ZRANGEBYLEX](http://redis.io/commands/zrangebylex)|O(log(N))|
 |`Count`|[ZCARD](http://redis.io/commands/zcard)|O(1)|

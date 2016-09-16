@@ -1,5 +1,5 @@
 # CachingFramework.Redis
-.NET Redis Distributed Cache library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) and [Redis](http://redis.io).
+.NET Redis client library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) adding some interesting features like an **extensible serialization** strategy, a **tagging mechanism** to group keys and hash fields, and a **fetching mechanism** to support atomic add/get operations, all being cluster-compatible.
 
 ##Features
  * [**Typed cache**](#typed-cache): any serializable object can be used as a cache value.
@@ -39,7 +39,8 @@ var context = new Context();
 ```c#
 var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortConnect=false, allowAdmin=true");
 ```
-See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
+
+The constructor parameter must be a valid StackExchange.Redis connection string. See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
 
 --------------
 
@@ -57,6 +58,8 @@ public class User
 	   ...
 }
 ```
+
+* Note: The *Serializable* attribute is needed by the default serialization method [binary serializer](https://github.com/thepirat000/CachingFramework.Redis#serialization). If you use, for example, a [JSon Serializer](https://www.nuget.org/packages/CachingFramework.Redis.Json/) the Serializable attribute becomes unnecessary.
 
 ### Add a single object to the cache:
 ```c#
