@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CachingFramework.Redis</id>
-        <version>4.8.0</version>
+        <version>$version$</version>
         <title>CachingFramework.Redis</title>
         <authors>Federico Colombo</authors>
         <owners>Federico Colombo</owners>
@@ -10,16 +10,9 @@
         <projectUrl>https://github.com/thepirat000/CachingFramework.Redis</projectUrl>
         <iconUrl>http://i.imgur.com/FrC8SWO.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>.NET Redis client library based on StackExchange.Redis adding features like an extensible serialization strategy, a tagging mechanism to group keys and hash fields, and a fetching mechanism to support atomic operations, all being cluster-compatible.</description>
-        <summary>.NET Redis client library based on StackExchange.Redis adding features like an extensible serialization strategy, a tagging mechanism to group keys and hash fields, and a fetching mechanism to support atomic operations, all being cluster-compatible.</summary>
-        <copyright>Copyright 2015</copyright>
+        <description>Redis client library based on StackExchange.Redis with features like an extensible serialization strategy, a tagging mechanism to group keys and hash fields, and more, all being cluster-compatible.</description>
+        <summary>Cluster-compatible redis client including support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog, BitFields and more.</summary>
+        <copyright>Copyright 2016</copyright>
         <tags>Redis Cache Tag Framework StackExchange.Redis</tags>
-        <dependencies>
-            <dependency id="StackExchange.Redis" version="1.1.603" />
-        </dependencies>
     </metadata>
-    <files>
-        <file src="lib\net45\CachingFramework.Redis.dll" target="lib\net45\CachingFramework.Redis.dll" />
-        <file src="lib\net45\CachingFramework.Redis.XML" target="lib\net45\CachingFramework.Redis.XML" />
-    </files>
 </package>
