@@ -281,6 +281,8 @@ Geospatial API
 =====
 The Geospatial Redis API consists of a set of commands that add support for storing and querying pairs of longitude/latitude coordinates into Redis keys.
 
+> The Geospatial API is available from Redis version >= 3.2.0.
+
 ### Add a Geospatial item
 Add a user to a geospatial index by its coordinates:
 ```c#
