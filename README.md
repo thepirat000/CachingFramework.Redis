@@ -1,7 +1,7 @@
 # CachingFramework.Redis
 .NET Redis client library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) adding some interesting features like an **extensible serialization** strategy, a **tagging mechanism** to group keys and hash fields, and a **fetching mechanism** to support atomic add/get operations, all being cluster-compatible.
 
-##Features
+## Features
  * [**Typed cache**](#typed-cache): any serializable object can be used as a cache value.
  * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations (cache-aside pattern).
  * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys (or hash fields) by tag.
@@ -280,6 +280,8 @@ static void Main()
 Geospatial API
 =====
 The Geospatial Redis API consists of a set of commands that add support for storing and querying pairs of longitude/latitude coordinates into Redis keys.
+
+> The Geospatial API is available from Redis version >= 3.2.0.
 
 ### Add a Geospatial item
 Add a user to a geospatial index by its coordinates:
