@@ -39,8 +39,8 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="StackExchange.Redis, Version=1.1.605.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\StackExchange.Redis.1.1.605\lib\net45\StackExchange.Redis.dll</HintPath>
+    <Reference Include="StackExchange.Redis, Version=1.1.608.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StackExchange.Redis.1.1.608\lib\net45\StackExchange.Redis.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -57,6 +57,7 @@
     <Compile Include="Contracts\KeyEvent.cs" />
     <Compile Include="Contracts\KeyEventSubscriptionType.cs" />
     <Compile Include="Contracts\OverflowType.cs" />
+    <Compile Include="Contracts\Providers\ICacheProviderAsync.cs" />
     <Compile Include="Contracts\Providers\ICollectionProvider.cs" />
     <Compile Include="Contracts\Providers\ICacheProvider.cs" />
     <Compile Include="Contracts\Providers\IGeoProvider.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="RedisObjects\RedisString.cs" />
     <Compile Include="Serializers\BinarySerializer.cs" />
     <Compile Include="Serializers\RawSerializer.cs" />
+    <Compile Include="TaskExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
