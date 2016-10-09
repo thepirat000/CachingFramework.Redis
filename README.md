@@ -139,6 +139,8 @@ Objects within a hash can be of different types.
 #### Scan fields by pattern
 Incrementally iterate over the hash members by matching a glob-style pattern with the field names.
 
+For example, to iterate over the members of a hash whose field names starts with "user:".
+
 ```c#
 var scan = context.Cache.ScanHashed<User>("users:hash", "user:*");
 foreach (var item in scan)
@@ -148,7 +150,6 @@ foreach (var item in scan)
     // ...
 }
 ```
-Iterate over the members of a hash whose field names starts with "user:".
 
 #### Remove object from hash
 ```c#
