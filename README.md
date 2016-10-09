@@ -1,6 +1,7 @@
+# CachingFramework.Redis
+
 [![Gitter](https://badges.gitter.im/CachingFramework-Redis/Lobby.svg)](https://gitter.im/CachingFramework-Redis/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 
-# CachingFramework.Redis
 .NET Redis client library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) adding some interesting features like an **extensible serialization** strategy, a **tagging mechanism** to group keys and hash fields, and a **fetching mechanism** to support atomic add/get operations, all being cluster-compatible.
 
 ## Features
@@ -134,6 +135,20 @@ User u = context.Cache.GetHashed<User>("users:hash", "user:id:1");
 IDictionary<string, User> users = context.Cache.GetHashedAll<User>("users:hash");
 ```
 Objects within a hash can be of different types. 
+
+#### Scan fields by pattern
+Incrementally iterate over the hash members by matching a glob-style pattern with the field names.
+
+```c#
+var scan = context.Cache.ScanHashed<User>("users:hash", "user:*");
+foreach (var item in scan)
+{
+    string key = item.Key;
+    User value = item.Value;
+    // ...
+}
+```
+Iterate over the members of a hash whose field names starts with "user:".
 
 #### Remove object from hash
 ```c#
