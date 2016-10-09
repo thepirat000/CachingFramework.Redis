@@ -291,6 +291,14 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="key">The key.</param>
         IDictionary<string, T> GetHashedAll<T>(string key);
         /// <summary>
+        /// Matches a pattern on the field name of a hash, returning its values, assuming all the values in the hash are of the same type <typeparamref name="T" />.
+        /// The keys of the dictionary are the field names and the values are the objects
+        /// </summary>
+        /// <typeparam name="T">The field value type</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="pattern">The glob-style pattern to match.</param>
+        IEnumerable<KeyValuePair<string, T>> ScanHashed<T>(string key, string pattern);
+        /// <summary>
         /// Flushes all the databases on every master node.
         /// </summary>
         void FlushAll();

@@ -6,12 +6,47 @@ using System.Threading;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
+using NUnit.Framework.Compatibility;
 
 namespace CachingFramework.Redis.UnitTest
 {
     [TestFixture]
     public class UnitTestRedis
     {
+        [Test, TestCaseSource(typeof (Common), "All")]
+        public void UT_Cache_Hash_Scan(Context context)
+        {
+            var key = "UT_Hash_Scan";
+            int total = 10000;
+            context.Cache.Remove(key);
+            var fields = Enumerable.Range(1, total)
+                .Select(i => new KeyValuePair<string, string>(i.ToString(), Guid.NewGuid().ToString()+ Guid.NewGuid().ToString()+ Guid.NewGuid().ToString()+ Guid.NewGuid().ToString()))
+                .ToDictionary(k => k.Key, v => v.Value);
+            context.Cache.SetHashed(key, fields);
+
+            var dict = context.Collections.GetRedisDictionary<string, string>(key);
+            Assert.AreEqual(total, dict.Count);
+
+            var stp = Stopwatch.StartNew();
+            var all = context.Cache.GetHashedAll<string>(key).Take(5).ToList();
+            var allTime = stp.Elapsed.TotalMilliseconds;
+
+            stp = Stopwatch.StartNew();
+            var some = context.Cache.ScanHashed<string>(key, "*").Take(5).ToList();
+            var someTime = stp.Elapsed.TotalMilliseconds;
+
+
+            var c1 = context.Cache.ScanHashed<string>(key, "").Count();
+            var c2 = context.Cache.ScanHashed<string>(key, null).Count();
+
+
+            // Assert the HSCAN lasted at most the 0.2 times of the time of the HGETALL
+            Assert.IsTrue((someTime / (double)allTime) < 0.2);
+            Assert.AreEqual(total, c1);
+            Assert.AreEqual(total, c2);
+            context.Cache.Remove(key);
+        }
+
         [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_Context_Dispose(Context context)
         {

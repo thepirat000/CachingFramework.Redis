@@ -863,6 +863,18 @@ namespace CachingFramework.Redis.Providers
                 .ToDictionary(k => k.Name.ToString(), v => Serializer.Deserialize<T>(v.Value));
         }
         /// <summary>
+        /// Matches a pattern on the field name of a hash, returning its values, assuming all the values in the hash are of the same type <typeparamref name="T" />.
+        /// The keys of the dictionary are the field names and the values are the objects
+        /// </summary>
+        /// <typeparam name="T">The field value type</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="pattern">The glob-style pattern to match.</param>
+        public IEnumerable<KeyValuePair<string, T>> ScanHashed<T>(string key, string pattern)
+        {
+            return RedisConnection.GetDatabase().HashScan(key, pattern)
+                .Select(x => new KeyValuePair<string, T>(x.Name, Serializer.Deserialize<T>(x.Value)));
+        }
+        /// <summary>
         /// Adds all the element arguments to the HyperLogLog data structure stored at the specified key.
         /// </summary>
         /// <typeparam name="T">The items type</typeparam>
