@@ -536,19 +536,37 @@ context.KeyEvents.Unsubscribe(KeyEvent.PushLeft);
 
 --------------
 
+Why some Redis commands are not implemented?
+=====
+
+Some Redis commands were omitted by design falling into these two categories:
+
+- Commands that operates on multiple keys are not included because they are incompatible with a cluster topology.
+(i.e. MGET, SINTER, SUNION)
+
+- Commands that assumes a format on a Redis value are omitted because the library doesn't make assumptions on the serialization method.
+(except for the collections 
+[RedisBitmap](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-bitmaps--), 
+[RedisLexicographicSet](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set) 
+and [RedisString](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-string)) 
+
+You can still call these commands thru the `StackEchange.Redis` API, accesing the `ConnectionMultiplexer` by calling the `GetConnectionMultiplexer()` method on the `Context` (see next section).
+
+
+--------------
+
 StackExchange.Redis API
 =====
 
-You can still use the StackExchange.Redis API by calling the _GetConnectionMultiplexer_ method on the Context.
+To use the StackExchange.Redis API call the `GetConnectionMultiplexer()` method on the `Context`.
 
 For example:
 ```c#
 var context = new Context();
 var multiplexer = context.GetConnectionMultiplexer();	// SE.Redis Connection Multiplexer
-multiplexer.GetDatabase().StringSet("key", "Value");    // SE.Redis API
+multiplexer.GetDatabase().StringIncrement("key", 1);    // SE.Redis API
 ```
 
---------------
 
 [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
 =====
