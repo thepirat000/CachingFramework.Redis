@@ -510,7 +510,7 @@ The subscribe method callback in an `Action<string, KeyEvent>` where the first p
 
 ### Examples 
 
-Receive all the commands affecting a given key:
+Receive all the commands affecting a specific key:
 ```c#
 context.KeyEvents.Subscribe("user:1", (string key, KeyEvent cmd) =>
 {
@@ -522,7 +522,7 @@ context.KeyEvents.Subscribe("user:1", (string key, KeyEvent cmd) =>
 });
 ```
 
-Receive all the LPUSH affecting any key:
+Receive a specific command affecting any key:
 ```c#
 context.KeyEvents.Subscribe(KeyEvent.PushLeft, (key, cmd) =>
 {
