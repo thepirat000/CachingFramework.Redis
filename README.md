@@ -544,7 +544,7 @@ Some Redis commands were omitted by design falling into these two categories:
 - Commands that operates on multiple keys are not included because they are incompatible with a cluster topology.
 (i.e. MGET, SINTER, SUNION)
 
-- Commands that assumes a format on a Redis value are omitted because the library doesn't make assumptions on the serialization method. (i.e. INCRBY, APPEND.) (Except for the collections 
+- Commands that assumes a format on the Redis value were omitted because the library doesn't make assumptions on the serialization method. (i.e. INCRBY, APPEND.) (Except for the collections 
 [RedisBitmap](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-bitmaps--), 
 [RedisLexicographicSet](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set) 
 and [RedisString](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-string)) 
