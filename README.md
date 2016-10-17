@@ -10,7 +10,7 @@
  * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys (or hash fields) by tag.
  * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a value defining its time-to-live.
  * [**Lexicographically sorted sets**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set): for fast string matching and auto-complete suggestion. 
- * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with typed messages.
+ * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with strongly typed messages.
  * [**Geospatial indexes**](#geospatial-api): with radius queries support.
  * [**HyperLogLog support**](#hyperloglog-api): to count unique things.
  * [**Configurable Serialization**](#serialization): a compressed binary serializer by default, or provide your own serialization. 
@@ -250,7 +250,7 @@ Meaning the field `user:id:1`  of hash `users:hash`.
 Pub/Sub API
 =====
 
-A typed Publish/Subscribe mechanism is provided.
+A strongly typed Publish/Subscribe mechanism is provided.
 
 #### Subscribe to a channel
 Listen for messages of type `User` on the channel *users*:
