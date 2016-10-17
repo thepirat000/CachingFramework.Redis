@@ -225,6 +225,20 @@ Get all the objects related to *red* and/or *green*. Assuming all the keys relat
 IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("red", "green");
 ```
 
+#### Get keys by tag
+Get all the keys and hash fields related to the given tags:
+```c#
+ISet<string> keys = context.Cache.GetKeysByTag(new [] { "green" });
+```
+
+If the tag is related to a hash, the key obtained will be in the form: 
+
+`{key}:$_->_$:{field}`
+
+For example:
+`users:hash:$_->_$:user:id:1` 
+Meaning the hash `users:hash` field `:user:id:1` 
+
 #### Invalidate keys by tags
 Remove all the keys and hash fields related to *blue* and/or *green* tags:
 ```c#
