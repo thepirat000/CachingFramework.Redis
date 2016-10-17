@@ -243,7 +243,7 @@ If the tag is related to a _hash field_, the string returned will be in the form
 
 For example:
 `users:hash:$_->_$:user:id:1` 
-Meaning the field `:user:id:1`  of hash `users:hash`.
+Meaning the field `user:id:1`  of hash `users:hash`.
 
 --------------
 
