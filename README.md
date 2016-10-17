@@ -237,7 +237,7 @@ Get all the keys and hash fields related to the given tags:
 ISet<string> keys = context.Cache.GetKeysByTag(new [] { "green" });
 ```
 
-If the tag is related to a hash, the string returned will be in the form: 
+If the tag is related to a _hash field_, the string returned will be in the form: 
 
 `{hashKey}:$_->_$:{field}`
 
