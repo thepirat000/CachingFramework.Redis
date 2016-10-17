@@ -16,7 +16,7 @@
  * [**Configurable Serialization**](#serialization): a compressed binary serializer by default, or provide your own serialization. 
  * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
  * [**Redis Keyspace Notifications**](#keyspace-notifications-api): Subscribe to Pub/Sub channels in order to receive events affecting the Redis data set.
- * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
+ * [**Fully compatible with Redis Cluster**](#why-some-redis-commands-are-not-implemented): all commands are cluster-safe.
  
 ## Usage
 
