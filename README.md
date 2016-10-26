@@ -10,13 +10,13 @@
  * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys (or hash fields) by tag.
  * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a value defining its time-to-live.
  * [**Lexicographically sorted sets**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set): for fast string matching and auto-complete suggestion. 
- * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with typed messages.
+ * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with strongly typed messages.
  * [**Geospatial indexes**](#geospatial-api): with radius queries support.
  * [**HyperLogLog support**](#hyperloglog-api): to count unique things.
  * [**Configurable Serialization**](#serialization): a compressed binary serializer by default, or provide your own serialization. 
  * [**Redis data types as .NET collections**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md): List, Set, Sorted Set, Hash and Bitmap support as managed collections.
  * [**Redis Keyspace Notifications**](#keyspace-notifications-api): Subscribe to Pub/Sub channels in order to receive events affecting the Redis data set.
- * **Fully compatible with Redis Cluster**: all commands are cluster-safe.
+ * [**Fully compatible with Redis Cluster**](#why-some-redis-commands-are-not-implemented): all commands are cluster-safe.
  
 ## Usage
 
@@ -231,12 +231,26 @@ Remove all the keys and hash fields related to *blue* and/or *green* tags:
 context.Cache.InvalidateKeysByTag("blue", "green");
 ```
 
+#### Get keys by tag
+Get all the keys and hash fields related to the given tags:
+```c#
+ISet<string> keys = context.Cache.GetKeysByTag(new [] { "green" });
+```
+
+If the tag is related to a _hash field_, the string returned will be in the form: 
+
+`{hashKey}:$_->_$:{field}`
+
+For example:
+`users:hash:$_->_$:user:id:1` 
+Meaning the field `user:id:1`  of hash `users:hash`.
+
 --------------
 
 Pub/Sub API
 =====
 
-A typed Publish/Subscribe mechanism is provided.
+A strongly typed Publish/Subscribe mechanism is provided.
 
 #### Subscribe to a channel
 Listen for messages of type `User` on the channel *users*:
@@ -496,7 +510,7 @@ The subscribe method callback in an `Action<string, KeyEvent>` where the first p
 
 ### Examples 
 
-Receive all the commands affecting a given key:
+Receive all the commands affecting a specific key:
 ```c#
 context.KeyEvents.Subscribe("user:1", (string key, KeyEvent cmd) =>
 {
@@ -508,7 +522,7 @@ context.KeyEvents.Subscribe("user:1", (string key, KeyEvent cmd) =>
 });
 ```
 
-Receive all the LPUSH affecting any key:
+Receive a specific command affecting any key:
 ```c#
 context.KeyEvents.Subscribe(KeyEvent.PushLeft, (key, cmd) =>
 {
@@ -536,19 +550,36 @@ context.KeyEvents.Unsubscribe(KeyEvent.PushLeft);
 
 --------------
 
+Why some Redis commands are not implemented?
+=====
+
+Some Redis commands were omitted by design falling into these two categories:
+
+- Commands that operates on multiple keys are not included because they are incompatible with a cluster topology.
+(i.e. MGET, SINTER, SUNION)
+
+- Commands that assumes a format on the Redis value were omitted because the library doesn't make assumptions on the serialization method. (i.e. INCRBY, APPEND.) (Except for the collections 
+[RedisBitmap](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-bitmaps--), 
+[RedisLexicographicSet](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set) 
+and [RedisString](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-string)) 
+
+You can still call these commands thru the `StackEchange.Redis` API, accesing the `ConnectionMultiplexer` by calling the `GetConnectionMultiplexer()` method on the `Context` (see next section).
+
+
+--------------
+
 StackExchange.Redis API
 =====
 
-You can still use the StackExchange.Redis API by calling the _GetConnectionMultiplexer_ method on the Context.
+To use the StackExchange.Redis API call the `GetConnectionMultiplexer()` method on the `Context`.
 
 For example:
 ```c#
 var context = new Context();
 var multiplexer = context.GetConnectionMultiplexer();	// SE.Redis Connection Multiplexer
-multiplexer.GetDatabase().StringSet("key", "Value");    // SE.Redis API
+multiplexer.GetDatabase().StringIncrement("key", 1);    // SE.Redis API
 ```
 
---------------
 
 [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
 =====
