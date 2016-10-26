@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>CachingFramework.Redis.StrongName</id>
+        <version>$version$</version>
+        <title>CachingFramework.Redis.StrongName</title>
+        <authors>Federico Colombo</authors>
+        <owners>Federico Colombo</owners>
+        <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+        <projectUrl>https://github.com/thepirat000/CachingFramework.Redis</projectUrl>
+        <iconUrl>http://i.imgur.com/FrC8SWO.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Redis client library based on StackExchange.Redis with features like an extensible serialization strategy, a tagging mechanism to group keys and hash fields, and more, all being cluster-compatible.</description>
+        <summary>Cluster-compatible redis client including support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog, BitFields and more.</summary>
+        <copyright>Copyright 2016</copyright>
+        <tags>Redis Cache Tag Framework StackExchange.Redis StrongName</tags>
+    </metadata>
+</package>

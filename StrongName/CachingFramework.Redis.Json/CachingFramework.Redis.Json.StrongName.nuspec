@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Federico Colombo</authors>
+    <owners>Federico Colombo</owners>
+	<iconUrl>http://i.imgur.com/FrC8SWO.png</iconUrl>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/thepirat000/CachingFramework.Redis</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+	<summary>JSon serializer for CachingFramework.Redis.</summary>
+    <description>JSon serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Redis Cache Tag Framework StackExchange.Redis json</tags>
+  </metadata>
+</package>
