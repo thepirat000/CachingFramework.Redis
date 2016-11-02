@@ -269,17 +269,6 @@ context.PubSub.Publish<User>("users", new User() { Id = 1 });
 context.PubSub.Unsubscribe("users");
 ```
 
-#### Messages types
-Each subscription listen to messages of the specified type (or inherited from it):
-```c#
-context.PubSub.Subscribe<User>("entities", user => Console.WriteLine(user.Id));
-context.PubSub.Subscribe<Manager>("entities", mgr => Console.WriteLine(mgr.Id));
-```
-Subscription of type `object` will listen to all types:
-```c#
-context.PubSub.Subscribe<object>("entities", obj => Console.WriteLine(obj));
-```
-
 ### Pattern-matching subscriptions
 Redis Pub/Sub supports pattern matching in which clients may subscribe to glob-style patterns to receive all the messages sent to channel names matching a given pattern.
 
@@ -449,15 +438,15 @@ var context = new Context("localhost:6379", new MySerializer());
 
 Different serialization mechanisms are provided:
 
-- **Binary Serializer** (default):
+- **Binary Serializer** (default for NET45 and NET461):
 All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
 
-- **Json Serializer** (default when using CachingFramework.Redis.Json package):
+- **Json Serializer** (default for NET CORE):
 All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. This mechanism is optional and is included in package [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json).
 
 - **Raw Serializer**:
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
-Any other type is binary serialized using the .NET `BinaryFormatter` and compressed using GZIP.
+Any other type is serialized using the default serializer.
 
 | | **Inheritance** | **Data** | **Configuration** |
 | ----------- | ----------------------- | -------------------------- | ------------------ |
@@ -478,16 +467,6 @@ raw.SetSerializerFor<StringBuilder>
 );
 var context = new Context("localhost:6379", raw);
 ```
-
-To use the JSonSerializer, install the [**CachingFramework.Redis.Json**](https://www.nuget.org/packages/CachingFramework.Redis.Json/) package:
-```
-PM> Install-Package CachingFramework.Redis.Json
-```
-And use the provided json context:
-```c#
-var context = new CachingFramework.Redis.Json.Context("localhost:6379");
-```
-
 --------------
 
 Keyspace Notifications API
