@@ -6,7 +6,7 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>d486cb51-4a7a-4e5a-80a9-f9b28b5e3803</ProjectGuid>
+    <ProjectGuid>10bb2754-d729-4a17-8223-4accf197620d</ProjectGuid>
     <RootNamespace>CachingFramework.Redis.StrongName</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>

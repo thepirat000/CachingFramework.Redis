@@ -1,9 +1,19 @@
 {
-  "version": "6.0.0-*",
+  "version": "6.1.0-*",
   "packOptions": {
     "summary": "MessagePack serializer for CachingFramework.Redis.",
-    "tags": [ "Async", "Redis", "Cache", "Tagging", "StackExchange.Redis", "MsgPack", "MessagePack" ],
-    "owners": [ "Federico Colombo" ],
+    "tags": [
+      "Async",
+      "Redis",
+      "Cache",
+      "Tagging",
+      "StackExchange.Redis",
+      "MsgPack",
+      "MessagePack"
+    ],
+    "owners": [
+      "Federico Colombo"
+    ],
     "releaseNotes": "",
     "requireLicenseAcceptance": false,
     "projectUrl": "https://github.com/thepirat000/CachingFramework.Redis",
@@ -14,22 +24,26 @@
       "url": "https://github.com/thepirat000/CachingFramework.Redis"
     }
   },
-  "title": "CachingFramework.Redis.MsgPack",
+  "title": "CachingFramework.Redis.MsgPack.StrongName",
   "description": "MessagePack serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.",
-  "authors": [ "Federico Colombo" ],
+  "authors": [
+    "Federico Colombo"
+  ],
   "copyright": "Copyright 2016",
-  
   "dependencies": {
-	  "CachingFramework.Redis.StrongName": { "target": "project" },
+    "CachingFramework.Redis.StrongName": {
+      "target": "project"
+    },
     "NETStandard.Library": "1.6.0",
     "StackExchange.Redis.StrongName": "1.1.608",
     "MsgPack.Cli": "0.8.0"
   },
-  
   "buildOptions": {
     "xmlDoc": true,
     "keyFile": "../CachingFramework.Redis.snk",
-    "define": [ "STRONG_NAME" ],
+    "define": [
+      "STRONG_NAME"
+    ],
     "compile": {
       "include": [
         "../CachingFramework.Redis.MsgPack/**/*.cs"
@@ -43,13 +57,8 @@
     }
   },
   "frameworks": {
-    "netstandard1.5": {
-    },
-    "net45": {
-
-    },
-    "net461": {
-
-    }
+    "netstandard1.5": {},
+    "net45": {},
+    "net461": {}
   }
 }
