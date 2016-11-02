@@ -1,0 +1,54 @@
+{
+  "version": "6.0.0-*",
+  "packOptions": {
+    "summary": "Cluster-compatible redis client including support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog, BitFields and more.",
+    "tags": [ "Async", "Redis", "Cache", "Tagging", "StackExchange.Redis" ],
+    "owners": [ "Federico Colombo" ],
+    "releaseNotes": "",
+    "requireLicenseAcceptance": false,
+    "projectUrl": "https://github.com/thepirat000/CachingFramework.Redis",
+    "licenseUrl": "http://opensource.org/licenses/MIT",
+    "iconUrl": "http://i.imgur.com/FrC8SWO.png",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/thepirat000/CachingFramework.Redis"
+    }
+  },
+  "title": "CachingFramework.Redis",
+  "description": "Redis client library based on StackExchange.Redis with features like an extensible serialization strategy, a tagging mechanism to group keys and hash fields, and more, all being cluster-compatible.",
+  "authors": [ "Federico Colombo" ],
+  "copyright": "Copyright 2016",
+  
+  "dependencies": {
+    "NETStandard.Library": "1.6.0",
+    "StackExchange.Redis.StrongName": "1.1.608",
+    "Newtonsoft.Json": "9.0.1"
+  },
+  
+  "buildOptions": {
+    "xmlDoc": true,
+    "keyFile": "../CachingFramework.Redis.snk",
+    "define": [ "STRONG_NAME" ],
+    "compile": {
+      "include": [
+        "../CachingFramework.Redis/**/*.cs"
+      ],
+      "exclude": [
+        "../CachingFramework.Redis/obj/"
+      ],
+      "excludeFiles": [
+        "../CachingFramework.Redis/Properties/AssemblyInfo.cs"
+      ]
+    }
+  },
+  "frameworks": {
+    "netstandard1.5": {
+    },
+    "net45": {
+
+    },
+    "net461": {
+
+    }
+  }
+}

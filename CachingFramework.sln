@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4DAF22CE-7ABC-4ED2-B362-81F801A6C7C6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8A363F3F-B40E-4B4C-B59A-5FED789A4A24}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CachingFramework.Redis", "src\CachingFramework.Redis\CachingFramework.Redis.xproj", "{288D8D8D-4420-4E61-85BF-F3D0B8FC2075}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CachingFramework.Redis.UnitTest", "test\CachingFramework.Redis.UnitTest\CachingFramework.Redis.UnitTest.xproj", "{2239BAF8-6392-46B0-A83B-228FE787A7F0}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CachingFramework.Redis.MsgPack", "src\CachingFramework.Redis.MsgPack\CachingFramework.Redis.MsgPack.xproj", "{DE98C95D-BFB9-4F41-9903-0D6A97A6C237}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{AB351319-FB93-4270-84B6-E628A59DED9F}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CachingFramework.Redis.StrongName", "src\CachingFramework.Redis.StrongName\CachingFramework.Redis.StrongName.xproj", "{D486CB51-4A7A-4E5A-80A9-F9B28B5E3803}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CachingFramework.Redis.MsgPack.StrongName", "src\CachingFramework.Redis.MsgPack.StrongName\CachingFramework.Redis.MsgPack.StrongName.xproj", "{DE6D4B58-1C23-453F-A06D-5B10A4D0112A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{288D8D8D-4420-4E61-85BF-F3D0B8FC2075}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{288D8D8D-4420-4E61-85BF-F3D0B8FC2075}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{288D8D8D-4420-4E61-85BF-F3D0B8FC2075}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{288D8D8D-4420-4E61-85BF-F3D0B8FC2075}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2239BAF8-6392-46B0-A83B-228FE787A7F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2239BAF8-6392-46B0-A83B-228FE787A7F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2239BAF8-6392-46B0-A83B-228FE787A7F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2239BAF8-6392-46B0-A83B-228FE787A7F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE98C95D-BFB9-4F41-9903-0D6A97A6C237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE98C95D-BFB9-4F41-9903-0D6A97A6C237}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE98C95D-BFB9-4F41-9903-0D6A97A6C237}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE98C95D-BFB9-4F41-9903-0D6A97A6C237}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D486CB51-4A7A-4E5A-80A9-F9B28B5E3803}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D486CB51-4A7A-4E5A-80A9-F9B28B5E3803}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D486CB51-4A7A-4E5A-80A9-F9B28B5E3803}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D486CB51-4A7A-4E5A-80A9-F9B28B5E3803}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE6D4B58-1C23-453F-A06D-5B10A4D0112A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE6D4B58-1C23-453F-A06D-5B10A4D0112A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE6D4B58-1C23-453F-A06D-5B10A4D0112A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE6D4B58-1C23-453F-A06D-5B10A4D0112A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{288D8D8D-4420-4E61-85BF-F3D0B8FC2075} = {4DAF22CE-7ABC-4ED2-B362-81F801A6C7C6}
+		{2239BAF8-6392-46B0-A83B-228FE787A7F0} = {AB351319-FB93-4270-84B6-E628A59DED9F}
+		{DE98C95D-BFB9-4F41-9903-0D6A97A6C237} = {4DAF22CE-7ABC-4ED2-B362-81F801A6C7C6}
+		{D486CB51-4A7A-4E5A-80A9-F9B28B5E3803} = {4DAF22CE-7ABC-4ED2-B362-81F801A6C7C6}
+		{DE6D4B58-1C23-453F-A06D-5B10A4D0112A} = {4DAF22CE-7ABC-4ED2-B362-81F801A6C7C6}
+	EndGlobalSection
+EndGlobal

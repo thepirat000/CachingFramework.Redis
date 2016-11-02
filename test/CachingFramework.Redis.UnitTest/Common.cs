@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading;
-using CachingFramework.Redis.Contracts;
-using CachingFramework.Redis.Json;
 using CachingFramework.Redis.Serializers;
-using NUnit.Framework;
-using StackExchange.Redis;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -28,9 +22,8 @@ namespace CachingFramework.Redis.UnitTest
         public static Context[] MsgPack { get { return new[] { _msgPackContext }; } }
         public static Context[] Raw { get { return new[] { _rawContext }; } }
         public static Context[] Bin { get { return new[] { _binaryContext }; } }
-        public static Context[] BinAndRaw { get { return new[] { _binaryContext, _rawContext }; } }
-        public static Context[] BinAndRawAndJson { get { return new[] { _binaryContext, _rawContext, _jsonContext }; } }
-        public static Context[] All { get { return new[] { _binaryContext, _rawContext, _jsonContext, _msgPackContext }; } }
+        public static Context[] All { get; set; }
+        public static Context[] BinAndRawAndJson { get; set; }
 
         public static DateTime ServerNow
         {
@@ -50,10 +43,19 @@ namespace CachingFramework.Redis.UnitTest
 
         static Common()
         {
+            
             _rawContext = new Context(Config, new RawSerializer());
+            _jsonContext = new Context(Config, new JsonSerializer());
+            _msgPackContext = new Context(Config, new MsgPack.MsgPackSerializer());
+#if (NET45 || NET461)
             _binaryContext = new Context(Config, new BinarySerializer());
-            _jsonContext = new Json.Context(Config);
-            _msgPackContext = new MsgPack.Context(Config);
+            All = new[] { _binaryContext, _rawContext, _jsonContext, _msgPackContext };
+            BinAndRawAndJson = new[] { _binaryContext, _rawContext, _jsonContext };
+#else
+            BinAndRawAndJson = new[] { _rawContext, _jsonContext };
+            All = new[] { _rawContext, _jsonContext, _msgPackContext };
+#endif
+
             Thread.Sleep(1500);
             _rawContext.Cache.FlushAll();
             // Get the redis version
