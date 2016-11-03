@@ -551,7 +551,7 @@ You can still call these commands via `StackExchange.Redis` API, accesing the `C
 StackExchange.Redis API
 =====
 
-To use the StackExchange.Redis API call the `GetConnectionMultiplexer()` method on the `Context`.
+To use the `StackExchange.Redis` API, call the `GetConnectionMultiplexer()` method on the `Context`.
 
 For example:
 ```c#
