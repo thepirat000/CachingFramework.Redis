@@ -455,7 +455,7 @@ Any other type is serialized using the default serializer.
 |**JsonSerializer** | Limited inheritance support | Data is stored as Json | Serialization can be configured with JsonSerializerSettings | 
 |**RawSerializer** | Limited inheritance, only for types serialized with BinaryFormatter | Simple types are stored as strings and are human readable | Serialization can be set-up per type using SetSerializerFor | 
 
-The RawSerializer allows to override the serialization/deserialization logic per type with method `SetSerializerFor<T>()`.
+The RawSerializer allows to dynamically override the serialization/deserialization logic per type with the method `SetSerializerFor<T>()`.
 
 For example, to allow the serialization of a `StringBuilder` as an UTF-8 encoded string:
 
