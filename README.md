@@ -564,6 +564,16 @@ multiplexer.GetDatabase().StringIncrement("key", 1);    // SE.Redis API
 [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
 =====
 
-Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
+Access *Redis Lists* via IList<T>, *Redis Hashes* via IDictionary<K, V>, *Redis Sets*, *Lex Sets* and *Bitmaps* via ICollection<T>, and more.
+
+
+
+Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided. Access these objects by the `Collections` property on `Context`.
+
+For example:
+```c#
+IList<User> redisList = context.Collections.GetRedisList<User>("users:list");
+redisList.Add(user);
+```
 
 **For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
