@@ -443,7 +443,7 @@ Different serialization mechanisms are provided:
 All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
 
 - **Json Serializer** (default for NET CORE):
-All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. This mechanism is optional and is included in package [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json).
+All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. 
 
 - **Raw Serializer**:
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
