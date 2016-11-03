@@ -566,7 +566,7 @@ multiplexer.GetDatabase().StringIncrement("key", 1);    // SE.Redis API
 
 You can handle **Redis Lists** as `IList<T>`, **Hashes** as `IDictionary<K, V>`, **Sets**, **Lex Sets** and **Bitmaps** as `ICollection<T>`, and more.
 
-To access these objects by the `Collections` property on `Context`.
+Access these objects by the `Collections` property on `Context`.
 
 For example:
 ```c#
