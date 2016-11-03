@@ -564,7 +564,7 @@ multiplexer.GetDatabase().StringIncrement("key", 1);    // SE.Redis API
 [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
 =====
 
-Handle Redis *Lists* via IList<T>, Redis *Hashes* via IDictionary<K, V>, Redis *Sets*, *Lex Sets* and *Bitmaps* via ICollection<T>, and more.
+You can handle **Redis Lists** as `IList<T>`, **Hashes** as `IDictionary<K, V>`, **Sets**, **Lex Sets** and **Bitmaps** as `ICollection<T>`, and more.
 
 To access these objects by the `Collections` property on `Context`.
 
