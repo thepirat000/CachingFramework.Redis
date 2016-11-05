@@ -182,7 +182,7 @@ Tagging mechanism
 Cluster compatible tagging mechanism where tags are used to group keys, hash fields, set members, sorted set members and geospatial members, so they can be retrieved or invalidated at the same time. 
 A tag can be related to any number of keys, hash fields, or set members.
 
-![Image of Tagging Mechanism](http://i.imgur.com/MXRgdhF.png)
+![Image of Tagging Mechanism](http://i.imgur.com/CLGr0Pg.jpg)
 
 #### Add a **single object** related to a tag
 Add a single object to the cache and associate it with tags *red* and *blue*:
