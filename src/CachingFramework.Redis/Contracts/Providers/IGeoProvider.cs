@@ -14,7 +14,7 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="key">The redis key.</param>
         /// <param name="members">The members to add.</param>
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
-        int GeoAdd<T>(string key, GeoMember<T>[] members);
+        int GeoAdd<T>(string key, GeoMember<T>[] members, string[] tags = null);
         /// <summary>
         /// Adds the specified members to a geospatial index.
         /// </summary>
@@ -24,7 +24,7 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="longitude">The member longitude coordinate.</param>
         /// <param name="member">The member to add.</param>
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
-        int GeoAdd<T>(string key, double latitude, double longitude, T member);
+        int GeoAdd<T>(string key, double latitude, double longitude, T member, string[] tags = null);
         /// <summary>
         /// Adds the specified members to a geospatial index.
         /// </summary>
@@ -33,7 +33,7 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="coordinate">The member coordinates.</param>
         /// <param name="member">The member to add.</param>
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
-        int GeoAdd<T>(string key, GeoCoordinate coordinate, T member);
+        int GeoAdd<T>(string key, GeoCoordinate coordinate, T member, string[] tags = null);
         /// <summary>
         /// Return Geohash strings representing the position of a member in a geospatial index (where elements were added using GEOADD).
         /// </summary>

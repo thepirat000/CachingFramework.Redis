@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using StackExchange.Redis;
+using CachingFramework.Redis.Providers;
 
 namespace CachingFramework.Redis.RedisObjects
 {
@@ -16,11 +16,11 @@ namespace CachingFramework.Redis.RedisObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisBaseObject" /> class.
         /// </summary>
-        /// <param name="connection">The connection.</param>
+        /// <param name="redisContext">The redis context.</param>
         /// <param name="redisKey">The redis key.</param>
-        /// <param name="serializer">The serializer.</param>
-        internal RedisList(ConnectionMultiplexer connection, string redisKey, ISerializer serializer)
-            : base(connection, redisKey, serializer)
+        /// <param name="cacheProvider">The cache provider.</param>
+        internal RedisList(RedisProviderContext redisContext, string redisKey)
+            : base(redisContext, redisKey)
         {
         }
         #endregion

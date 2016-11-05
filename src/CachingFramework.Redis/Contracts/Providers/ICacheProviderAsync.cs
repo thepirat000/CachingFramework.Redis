@@ -128,6 +128,16 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="newTag">The new tag.</param>
         Task RenameTagForHashFieldAsync(string key, string field, string currentTag, string newTag);
         /// <summary>
+        /// Renames a tag related to a set member.
+        /// If the current tag is not related to the set member, no operation is performed.
+        /// If the current tag is related to the set member, the tag relation is removed and the new tag relation is inserted.
+        /// </summary>
+        /// <param name="key">The set key.</param>
+        /// <param name="member">The set member related to the current tag.</param>
+        /// <param name="currentTag">The current tag.</param>
+        /// <param name="newTag">The new tag.</param>
+        Task RenameTagForSetMemberAsync<T>(string key, T member, string currentTag, string newTag);
+        /// <summary>
         /// Get the value of a key
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -141,7 +151,7 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="tags">The tags.</param>
         /// <param name="cleanUp">True to return only the existing keys within the tags (slower). Default is false.</param>
         /// <returns>HashSet{System.String}.</returns>
-        Task<ISet<string>> GetKeysByTagAsync(string[] tags, bool cleanUp = false);
+        Task<IEnumerable<string>> GetKeysByTagAsync(string[] tags, bool cleanUp = false);
         /// <summary>
         /// Removes all the keys related to the given tag(s).
         /// </summary>
@@ -185,6 +195,14 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="field">The field.</param>
         /// <returns>``0.</returns>
         Task<T> GetHashedAsync<T>(string key, string field);
+        /// <summary>
+        /// Gets a specified hased value from a key
+        /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        Task<TV> GetHashedAsync<TK, TV>(string key, TK field);
         /// <summary>
         /// Removes a specified hased value from cache
         /// </summary>

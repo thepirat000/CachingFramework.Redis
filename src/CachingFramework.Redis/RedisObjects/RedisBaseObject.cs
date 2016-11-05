@@ -2,6 +2,7 @@
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using StackExchange.Redis;
+using CachingFramework.Redis.Providers;
 
 namespace CachingFramework.Redis.RedisObjects
 {
@@ -13,11 +14,15 @@ namespace CachingFramework.Redis.RedisObjects
         /// <summary>
         /// The serializer to use
         /// </summary>
-        protected readonly ISerializer Serializer;
+        protected readonly RedisProviderContext RedisContext;
+        /// <summary>
+        /// The serializer to use
+        /// </summary>
+        protected ISerializer Serializer { get { return RedisContext.Serializer; } }
         /// <summary>
         /// The connection multiplexer
         /// </summary>
-        protected readonly ConnectionMultiplexer Connection;
+        protected ConnectionMultiplexer Connection { get { return RedisContext.RedisConnection; } }
         /// <summary>
         /// Gets the redis key for this object
         /// </summary>
@@ -25,26 +30,12 @@ namespace CachingFramework.Redis.RedisObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisBaseObject"/> class.
         /// </summary>
-        /// <param name="connection">The connection.</param>
+        /// <param name="redisContext">The redis context.</param>
         /// <param name="redisKey">The redis key.</param>
-        /// <param name="serializer">The serializer.</param>
-        protected RedisBaseObject(ConnectionMultiplexer connection, string redisKey, ISerializer serializer)
+        protected RedisBaseObject(RedisProviderContext redisContext, string redisKey)
         {
             RedisKey = redisKey;
-            Serializer = serializer;
-            Connection = connection;
-        }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RedisBaseObject"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="redisKey">The redis key.</param>
-        /// <param name="serializer">The serializer.</param>
-        protected RedisBaseObject(string configuration, string redisKey, ISerializer serializer)
-        {
-            RedisKey = redisKey;
-            Serializer = serializer;
-            Connection = ConnectionMultiplexer.Connect(configuration);
+            RedisContext = redisContext;
         }
         /// <summary>
         /// Gets the redis database.

@@ -14,6 +14,158 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedisObjects
     {
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheGeo_WithTags(Context context)
+        {
+            string key = "UT_CacheGeo_WithTags";
+            context.Cache.Remove(key);
+            context.Cache.InvalidateKeysByTag("tag1", "tag2", "common");
+
+            var geo1 = context.GeoSpatial.GeoAdd(key, 12.34, 23.45, "value1", new[] { "tag1", "common" });
+            var geo2 = context.GeoSpatial.GeoAdd(key, 33.34, 11.45, "value2", new[] { "tag2", "common" });
+
+            var t1 = context.Cache.GetObjectsByTag<string>("tag1").ToList();
+            var t2 = context.Cache.GetObjectsByTag<string>("tag2").ToList();
+            var x = context.Cache.GetObjectsByTag<string>("common").ToList();
+
+            Assert.AreEqual(2, x.Count);
+            Assert.AreEqual(1, t1.Count);
+            Assert.AreEqual(1, t2.Count);
+            Assert.IsTrue(x.Contains("value1"));
+            Assert.IsTrue(x.Contains("value2"));
+            Assert.IsTrue(t1.Contains("value1"));
+            Assert.IsTrue(t2.Contains("value2"));
+
+            context.Cache.RemoveTagsFromSetMember(key, "value1", new[] { "tag1" });
+            Assert.AreEqual(0, context.Cache.GetObjectsByTag<string>("tag1").Count());
+
+            context.Cache.InvalidateKeysByTag("common");
+
+            Assert.IsNull(context.GeoSpatial.GeoPosition(key, "value1"));
+            Assert.IsNull(context.GeoSpatial.GeoPosition(key, "value2"));
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheSortedSet_WithTags(Context context)
+        {
+            string key = "UT_CacheSortedSet_WithTags";
+            context.Cache.Remove(key);
+            var set = context.Collections.GetRedisSet<string>(key);
+            context.Cache.InvalidateKeysByTag("tag1", "tag2", "common");
+
+            var sset = context.Collections.GetRedisSortedSet<string>(key);
+
+            sset.Add(.1, "value1", new[] { "tag1", "common" });
+            sset.Add(.2, "value2", new[] { "tag2" });
+
+            context.Cache.AddTagsToSetMember(key, "value2", new[] { "common" });
+
+            var t1 = context.Cache.GetObjectsByTag<string>("tag1").ToList();
+            var t2 = context.Cache.GetObjectsByTag<string>("tag2").ToList();
+            var x = context.Cache.GetObjectsByTag<string>("common").ToList();
+
+            Assert.AreEqual(2, x.Count);
+            Assert.AreEqual(1, t1.Count);
+            Assert.AreEqual(1, t2.Count);
+            Assert.IsTrue(x.Contains("value1"));
+            Assert.IsTrue(x.Contains("value2"));
+            Assert.IsTrue(t1.Contains("value1"));
+            Assert.IsTrue(t2.Contains("value2"));
+
+            context.Cache.InvalidateKeysByTag("common");
+
+            Assert.AreEqual(0, sset.Count);
+        }
+
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheSet_Mix_WithTags(Context context)
+        {
+            string key = "UT_CacheSet_Mix_WithTags_Set";
+            string sskey = "UT_CacheSet_Mix_WithTags_SortedSet";
+            string geokey = "UT_CacheSet_Mix_WithTags_Geo";
+            context.Cache.InvalidateKeysByTag("tag");
+            context.Cache.Remove(key);
+            context.Cache.Remove(sskey);
+            var set = context.Collections.GetRedisSet<string>(key);
+            var sset = context.Collections.GetRedisSortedSet<string>(sskey);
+            context.GeoSpatial.GeoAdd(geokey, 12.34, 23.45, "geo2");
+            context.Cache.AddTagsToSetMember(geokey, "geo2", new[] { "tag" });
+
+            set.Add("s1");
+            set.Add("s2", new[] { "tag" });
+            set.Add("s3");
+
+            sset.Add(0.1, "ss1");
+            sset.Add(0.2, "ss2");
+            context.Cache.AddTagsToSetMember(sskey, "ss2", new[] { "tag" });
+            sset.Add(0.3, "ss3");
+
+            var x = context.Cache.GetObjectsByTag<string>("tag").ToList();
+
+            Assert.AreEqual(3, x.Count);
+            Assert.IsTrue(x.Contains("geo2"));
+            Assert.IsTrue(x.Contains("s2"));
+            Assert.IsTrue(x.Contains("ss2"));
+
+            context.Cache.InvalidateKeysByTag("tag");
+
+            x = context.Cache.GetObjectsByTag<string>("tag").ToList();
+            var pos = context.GeoSpatial.GeoPosition(geokey, "geo2");
+
+            Assert.AreEqual(0, x.Count);
+            Assert.IsNull(pos);
+            Assert.IsFalse(sset.Contains("ss2"));
+            Assert.IsTrue(sset.Contains("ss1"));
+            Assert.IsTrue(set.Contains("s1"));
+            Assert.IsFalse(set.Contains("s2"));
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheSet_WithTags(Context context)
+        {
+            string key = "UT_CacheSet_WithTags";
+            string otherKey = "UT_CacheSet_WithTags_Other";
+            context.Cache.Remove(key);
+            context.Cache.Remove(otherKey);
+            var set = context.Collections.GetRedisSet<string>(key);
+            context.Cache.InvalidateKeysByTag("tag1", "tag2", "tag3", "tagXXX", "common");
+
+            set.Add("item1", new[] { "tag1", "common" });
+            set.Add("item2", new[] { "tag2", "common" });
+            set.Add("item222", new[] { "tag2", "common" });
+            set.Add("item3", new[] { "tagXXX" });
+            context.Cache.RenameTagForSetMember(key, "item3", "tagXXX", "tag3");
+            context.Cache.AddTagsToSetMember(key, "item3", new[] { "common" });
+            context.Cache.SetHashed(otherKey, "field", "other", new[] { "common" });
+
+            var commonValues = context.Cache.GetObjectsByTag<string>("common").ToList();
+            var xxx = context.Cache.GetObjectsByTag<string>("tagXXX").ToList();
+            var t1 = context.Cache.GetObjectsByTag<string>("tag1").ToList();
+            var t2 = context.Cache.GetObjectsByTag<string>("tag2").ToList();
+            var t3 = context.Cache.GetObjectsByTag<string>("tag3").ToList();
+
+            Assert.AreEqual(0, xxx.Count);
+            Assert.AreEqual(5, commonValues.Count);
+            Assert.AreEqual(1, t1.Count);
+            Assert.AreEqual(2, t2.Count);
+            Assert.AreEqual(1, t3.Count);
+
+            Assert.AreEqual("item1", t1[0]);
+            Assert.IsTrue(t2.Contains("item2"));
+            Assert.IsTrue(t2.Contains("item222"));
+            Assert.AreEqual("item3", t3[0]);
+
+            context.Cache.RemoveTagsFromSetMember(key, "item222", new [] { "tag2", "common" });
+            commonValues = context.Cache.GetObjectsByTag<string>("common").ToList();
+            t2 = context.Cache.GetObjectsByTag<string>("tag2").ToList();
+
+            Assert.AreEqual(4, commonValues.Count);
+            Assert.AreEqual(1, t2.Count);
+            Assert.AreEqual("item2", t2[0]);
+        }
+
+
         [Test, TestCaseSource(typeof (Common), "Raw")]
         public void UT_CacheSortedSet_When(Context context)
         {
@@ -179,12 +331,12 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(666, reml.Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_CacheListRemoveAt(Context context)
         {
             string key = "UT_CacheListRemoveAt";
             context.Cache.Remove(key);
-            var rl = context.Collections.GetRedisList<string>(key, new RawSerializer());
+            var rl = context.Collections.GetRedisList<string>(key);
             rl.RemoveAt(0);
             rl.PushLast("test 1");
             rl.PushLast("test 2");

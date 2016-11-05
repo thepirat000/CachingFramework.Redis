@@ -130,6 +130,13 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="tags">The tag(s).</param>
         void AddTagsToHashField(string key, string field, string[] tags);
         /// <summary>
+        /// Relates the given tags to a member inside a redis set, sorted set or geospatial index.
+        /// </summary>
+        /// <param name="key">The redis set, sorted set or geospatial index key.</param>
+        /// <param name="member">The set member.</param>
+        /// <param name="tags">The tag(s).</param>
+        void AddTagsToSetMember<T>(string key, T member, string[] tags);
+        /// <summary>
         /// Renames a tag related to a hash field.
         /// If the current tag is not related to the hash field, no operation is performed.
         /// If the current tag is related to the hash field, the tag relation is removed and the new tag relation is inserted.
@@ -139,6 +146,16 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="currentTag">The current tag.</param>
         /// <param name="newTag">The new tag.</param>
         void RenameTagForHashField(string key, string field, string currentTag, string newTag);
+        /// <summary>
+        /// Renames a tag related to a set member.
+        /// If the current tag is not related to the set member, no operation is performed.
+        /// If the current tag is related to the set member, the tag relation is removed and the new tag relation is inserted.
+        /// </summary>
+        /// <param name="key">The set key.</param>
+        /// <param name="member">The set member related to the current tag.</param>
+        /// <param name="currentTag">The current tag.</param>
+        /// <param name="newTag">The new tag.</param>
+        void RenameTagForSetMember<T>(string key, T member, string currentTag, string newTag);
         /// <summary>
         /// Removes the relation between the given tags and a field in a hash.
         /// </summary>
@@ -152,6 +169,13 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="key">The key.</param>
         /// <param name="tags">The tag(s).</param>
         void RemoveTagsFromKey(string key, string[] tags);
+        /// <summary>
+        /// Removes the relation between the given tags and a set member.
+        /// </summary>
+        /// <param name="key">The set key.</param>
+        /// <param name="member">The set member related to the tags.</param>
+        /// <param name="tags">The tag(s).</param>
+        void RemoveTagsFromSetMember<T>(string key, T member, string[] tags);
         /// <summary>
         /// Get the value of a key
         /// </summary>
@@ -174,7 +198,7 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="tags">The tags.</param>
         /// <param name="cleanUp">True to return only the existing keys within the tags (slower). Default is false.</param>
         /// <returns>HashSet{System.String}.</returns>
-        ISet<string> GetKeysByTag(string[] tags, bool cleanUp = false);
+        IEnumerable<string> GetKeysByTag(string[] tags, bool cleanUp = false);
         /// <summary>
         /// Returns all the objects that has the given tag(s) related.
         /// Assumes all the objects are of the same type <typeparamref name="T"/>.
@@ -244,6 +268,18 @@ namespace CachingFramework.Redis.Contracts.Providers
         void SetHashed<T>(string key, string field, T value, TimeSpan? ttl = null, When when = When.Always);
         /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
+        /// The field can be any serializable type
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field key</param>
+        /// <param name="value">The value to store</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        void SetHashed<TK, TV>(string key, TK field, TV value, TimeSpan? ttl = null, When when = When.Always);
+        /// <summary>
+        /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -254,6 +290,57 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
         /// <param name="when">Indicates when this operation should be performed.</param>
         void SetHashed<T>(string key, string field, T value, string[] tags, TimeSpan? ttl = null, When when = When.Always);
+        /// <summary>
+        /// Sets the specified value to a hashset using the pair hashKey+field.
+        /// The field can be any serializable type
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field key</param>
+        /// <param name="value">The value to store</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        void SetHashed<TK, TV>(string key, TK field, TV value, string[] tags, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always);
+        /// <summary>
+        /// Adds the given value to a redis set.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis set key.</param>
+        /// <param name="value">The member value to store</param>
+        /// <param name="tags">The tags to relate to this member.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this set). NULL to keep the current expiration.</param>
+        void AddToSet<T>(string key, T value, string[] tags = null, TimeSpan? ttl = null);
+        /// <summary>
+        /// Removes the given value from a redis set.
+        /// Returns true if the value was removed. (false if the element does not exists in the set)
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis set key.</param>
+        /// <param name="value">The member value to remove</param>
+        bool RemoveFromSet<T>(string key, T value);
+        /// <summary>
+        /// Adds the given value to a redis sorted set with the given score.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis set key.</param>
+        /// <param name="score">The member score to store</param>
+        /// <param name="value">The member value to store</param>
+        /// <param name="tags">The tags to relate to this member.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this set). NULL to keep the current expiration.</param>
+        void AddToSortedSet<T>(string key, double score, T value, string[] tags = null, TimeSpan? ttl = null);
+        /// <summary>
+        /// Removes the given value from a redis sorted set.
+        /// Returns true if the value was removed. (false if the element does not exists in the set)
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis set key.</param>
+        /// <param name="value">The member value to remove</param>
+        bool RemoveFromSortedSet<T>(string key, T value);
         /// <summary>
         /// Sets the specified key/values pairs to a hashset.
         /// </summary>
@@ -268,6 +355,14 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="field">The field.</param>
         /// <returns>``0.</returns>
         T GetHashed<T>(string key, string field);
+        /// <summary>
+        /// Gets a specified hased value from a key
+        /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        TV GetHashed<TK, TV>(string key, TK field);
         /// <summary>
         /// Try to get the value of a hash key
         /// </summary>

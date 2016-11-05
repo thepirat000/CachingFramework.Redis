@@ -3,6 +3,7 @@ using System.Linq;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using StackExchange.Redis;
+using CachingFramework.Redis.Providers;
 
 namespace CachingFramework.Redis.RedisObjects
 {
@@ -15,11 +16,11 @@ namespace CachingFramework.Redis.RedisObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisLexicographicSet" /> class.
         /// </summary>
-        /// <param name="connection">The connection.</param>
+        /// <param name="redisContext">The redis context.</param>
         /// <param name="redisKey">The redis key.</param>
-        /// <param name="serializer">The serializer (not used in this class).</param>
-        internal RedisLexicographicSet(ConnectionMultiplexer connection, string redisKey, ISerializer serializer)
-            : base(connection, redisKey, serializer)
+        /// <param name="cacheProvider">The cache provider.</param>
+        internal RedisLexicographicSet(RedisProviderContext redisContext, string redisKey)
+            : base(redisContext, redisKey)
         {
         }
         #endregion

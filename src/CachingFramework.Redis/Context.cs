@@ -64,9 +64,9 @@ namespace CachingFramework.Redis
         public Context(string configuration, ISerializer serializer, TextWriter log)
         {
             _internalContext = new RedisProviderContext(configuration, serializer, log);
-            _collectionProvider = new RedisCollectionProvider(_internalContext);
             _cacheProvider = new RedisCacheProvider(_internalContext);
-            _geoProvider = new RedisGeoProvider(_internalContext);
+            _collectionProvider = new RedisCollectionProvider(_internalContext, _cacheProvider);
+            _geoProvider = new RedisGeoProvider(_internalContext, _cacheProvider);
             _pubsubProvider = new RedisPubSubProvider(_internalContext);
             _keyEventsProvider = new RedisKeyEventsProvider(_internalContext);
         }

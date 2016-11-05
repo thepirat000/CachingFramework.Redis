@@ -24,6 +24,19 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="when">Indicates when this operation should be performed.</param>
         void Add(double score, T item, When when = When.Always);
         /// <summary>
+        /// Adds a member with score to the sorted set stored at key, related to one or more tags. 
+        /// </summary>
+        /// <param name="member">The sorted member to add.</param>
+        /// <param name="tags">Indicates when this operation should be performed.</param>
+        void Add(SortedMember<T> member, string[] tags);
+        /// <summary>
+        /// Adds a member with score to the sorted set stored at key, related to one or more tags. 
+        /// </summary>
+        /// <param name="score">The member score.</param>
+        /// <param name="item">The sorted member to add.</param>
+        /// <param name="tags">Indicates when this operation should be performed.</param>
+        void Add(double score, T item, string[] tags);
+        /// <summary>
         /// Adds all the specified members with the specified scores to the sorted set stored at key. 
         /// If key does not exist, a new sorted set with the specified members as sole members is created, like if the sorted set was empty. 
         /// </summary>

@@ -30,9 +30,13 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         private const string TagFormat = ":$_tag_$:{0}";
         /// <summary>
-        /// Separator to use for the value when a tag is related to a hash field
+        /// Separator to use for the value when a tag is related to a HASH field
         /// </summary>
         private const string TagHashSeparator = ":$_->_$:";
+        /// <summary>
+        /// Separator to use for the value when a tag is related to a SET member
+        /// </summary>
+        private const string TagSetSeparator = ":$_-S>_$:";
         #endregion
 
         #region ICacheProviderAsync Implementation
@@ -141,9 +145,22 @@ namespace CachingFramework.Redis.Providers
                 return;
             }
             var db = RedisConnection.GetDatabase();
-            if (await db.SetRemoveAsync(FormatTag(currentTag), FormatField(key, field)).ForAwait())
+            if (await db.SetRemoveAsync(FormatTag(currentTag), FormatHashField(key, field)).ForAwait())
             {
-                await db.SetAddAsync(FormatTag(newTag), FormatField(key, field)).ForAwait();
+                await db.SetAddAsync(FormatTag(newTag), FormatHashField(key, field)).ForAwait();
+            }
+        }
+
+        public async Task RenameTagForSetMemberAsync<T>(string key, T member, string currentTag, string newTag)
+        {
+            if (currentTag == newTag)
+            {
+                return;
+            }
+            var db = RedisConnection.GetDatabase();
+            if (await db.SetRemoveAsync(FormatTag(currentTag), FormatSerializedMember(key, TagSetSeparator, member)).ForAwait())
+            {
+                await db.SetAddAsync(FormatTag(newTag), FormatSerializedMember(key, TagSetSeparator, member)).ForAwait();
             }
         }
 
@@ -158,15 +175,19 @@ namespace CachingFramework.Redis.Providers
 
         }
 
-        public async Task<ISet<string>> GetKeysByTagAsync(string[] tags, bool cleanUp = false)
+        public async Task<IEnumerable<string>> GetKeysByTagAsync(string[] tags, bool cleanUp = false)
         {
             var db = RedisConnection.GetDatabase();
+            ISet<RedisValue> taggedItems;
             if (cleanUp)
             {
-                return await GetKeysByAllTagsWithCleanupAsync(db, tags).ForAwait();
+                taggedItems = await GetTaggedItemsWithCleanupAsync(db, tags).ForAwait();
             }
-            return await GetKeysByAllTagsNoCleanupAsync(db, tags).ForAwait();
-
+            else
+            {
+                taggedItems = await GetTaggedItemsNoCleanupAsync(db, tags).ForAwait();
+            }
+            return taggedItems.Select(x => x.ToString());
         }
 
         public async Task<bool> KeyExistsAsync(string key)
@@ -198,6 +219,12 @@ namespace CachingFramework.Redis.Providers
         {
             var cacheValue = await RedisConnection.GetDatabase().HashGetAsync(key, field).ForAwait();
             return cacheValue.HasValue ? Serializer.Deserialize<T>(cacheValue) : default(T);
+        }
+
+        public async Task<TV> GetHashedAsync<TK, TV>(string key, TK field)
+        {
+            var cacheValue = await RedisConnection.GetDatabase().HashGetAsync(key, Serializer.Serialize(field)).ForAwait();
+            return cacheValue.HasValue ? Serializer.Deserialize<TV>(cacheValue) : default(TV);
         }
 
         public async Task<bool> RemoveHashedAsync(string key, string field)
@@ -236,7 +263,7 @@ namespace CachingFramework.Redis.Providers
         public async Task InvalidateKeysByTagAsync(params string[] tags)
         {
             var db = RedisConnection.GetDatabase();
-            var keys = await GetKeysByAllTagsNoCleanupAsync(db, tags).ForAwait();
+            var keys = await GetTaggedItemsNoCleanupAsync(db, tags).ForAwait();
             InvalidateKeysByTagAsyncImpl(db, keys, tags);
         }
 
@@ -247,7 +274,7 @@ namespace CachingFramework.Redis.Providers
                 await SetObjectAsync(key, value, ttl, when).ForAwait();
                 return;
             }
-            SetObjectAsyncImpl(key, value, tags, ttl, when);
+            SetObjectImpl(key, value, tags, ttl, when);
         }
         #endregion 
 
@@ -366,7 +393,7 @@ namespace CachingFramework.Redis.Providers
         }
 
         /// <summary>
-        /// Set the value of a key
+        /// Set the value of a redis string key.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
@@ -394,10 +421,10 @@ namespace CachingFramework.Redis.Providers
                 SetObject(key, value, ttl, when);
                 return;
             }
-            SetObjectAsyncImpl(key, value, tags, ttl, when);
+            SetObjectImpl(key, value, tags, ttl, when);
         }
 
-        private void SetObjectAsyncImpl<T>(string key, T value, string[] tags, TimeSpan? ttl, Contracts.When when)
+        private void SetObjectImpl<T>(string key, T value, string[] tags, TimeSpan? ttl, Contracts.When when)
         {
             var serialized = Serializer.Serialize(value);
             var db = RedisConnection.GetDatabase();
@@ -480,7 +507,18 @@ namespace CachingFramework.Redis.Providers
             var batch = db.CreateBatch();
             foreach (var tag in tags)
             {
-                batch.SetAddAsync(FormatTag(tag), FormatField(key, field));
+                batch.SetAddAsync(FormatTag(tag), FormatHashField(key, field));
+            }
+            batch.Execute();
+        }
+
+        public void AddTagsToSetMember<T>(string key, T member, string[] tags)
+        {
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            foreach (var tag in tags)
+            {
+                batch.SetAddAsync(FormatTag(tag), FormatSerializedMember<T>(key, TagSetSeparator, member));
             }
             batch.Execute();
         }
@@ -501,9 +539,22 @@ namespace CachingFramework.Redis.Providers
                 return;
             }
             var db = RedisConnection.GetDatabase();
-            if (db.SetRemove(FormatTag(currentTag), FormatField(key, field)))
+            if (db.SetRemove(FormatTag(currentTag), FormatHashField(key, field)))
             {
-                db.SetAdd(FormatTag(newTag), FormatField(key, field));
+                db.SetAdd(FormatTag(newTag), FormatHashField(key, field));
+            }
+        }
+
+        public void RenameTagForSetMember<T>(string key, T member, string currentTag, string newTag)
+        {
+            if (currentTag == newTag)
+            {
+                return;
+            }
+            var db = RedisConnection.GetDatabase();
+            if (db.SetRemove(FormatTag(currentTag), FormatSerializedMember(key, TagSetSeparator, member)))
+            {
+                db.SetAdd(FormatTag(newTag), FormatSerializedMember(key, TagSetSeparator, member));
             }
         }
 
@@ -519,7 +570,7 @@ namespace CachingFramework.Redis.Providers
             var batch = db.CreateBatch();
             foreach (var tagName in tags)
             {
-                batch.SetRemoveAsync(FormatTag(tagName), FormatField(key, field));
+                batch.SetRemoveAsync(FormatTag(tagName), FormatHashField(key, field));
             }
             batch.Execute();
         }
@@ -539,6 +590,18 @@ namespace CachingFramework.Redis.Providers
             }
             batch.Execute();
         }
+
+        public void RemoveTagsFromSetMember<T>(string key, T member, string[] tags)
+        {
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            foreach (var tagName in tags)
+            {
+                batch.SetRemoveAsync(FormatTag(tagName), FormatSerializedMember(key, TagSetSeparator, member));
+            }
+            batch.Execute();
+        }
+
         /// <summary>
         /// Removes all the keys and hash fields related to the given tag(s).
         /// </summary>
@@ -546,26 +609,46 @@ namespace CachingFramework.Redis.Providers
         public void InvalidateKeysByTag(params string[] tags)
         {
             var db = RedisConnection.GetDatabase();
-            var keys = GetKeysByAllTagsNoCleanup(db, tags);
-            InvalidateKeysByTagAsyncImpl(db, keys, tags);
+            var taggedItems = GetTaggedItemsNoCleanup(db, tags);
+            InvalidateKeysByTagAsyncImpl(db, taggedItems, tags);
         }
 
-        private void InvalidateKeysByTagAsyncImpl(IDatabase db, ISet<string> keys, string[] tags)
+        private void InvalidateKeysByTagAsyncImpl(IDatabase db, ISet<RedisValue> tagMembers, string[] tags)
         {
             var batch = db.CreateBatch();
             // Delete the keys
-            foreach (var key in keys)
+            foreach (var tagMember in tagMembers)
             {
-                if (key.Contains(TagHashSeparator))
+                var tmString = tagMember.ToString();
+                if (tmString.Contains(TagHashSeparator))
                 {
-                    // It's a hash
-                    var items = key.Split(new[] { TagHashSeparator }, StringSplitOptions.None);
-                    batch.HashDeleteAsync(items[0], items[1]);
+                    // It's a hash field
+                    var items = tmString.Split(new[] { TagHashSeparator }, 2, StringSplitOptions.None);
+                    var hashKey = items[0];
+                    var hashField = GetHashFieldItem(hashKey, tagMember);
+                    batch.HashDeleteAsync(hashKey, hashField);
+                }
+                else if (tmString.Contains(TagSetSeparator))
+                {
+                    // It's a set member
+                    var items = tmString.Split(new[] { TagSetSeparator }, 2, StringSplitOptions.None);
+                    var setKey = items[0];
+                    byte[] setMember = GetMemberSetItem(setKey, tagMember);
+                    var keyType = db.KeyType(setKey);
+                    if (keyType == RedisType.SortedSet)
+                    {
+                        batch.SortedSetRemoveAsync(setKey, setMember);
+                    }
+                    else
+                    {
+                        // It's a set or geo index
+                        batch.SetRemoveAsync(setKey, setMember);
+                    }
                 }
                 else
                 {
                     // It's a string
-                    batch.KeyDeleteAsync(key);
+                    batch.KeyDeleteAsync(tmString);
                 }
             }
             // Delete the tags
@@ -585,14 +668,19 @@ namespace CachingFramework.Redis.Providers
         /// <param name="tags">The tags.</param>
         /// <param name="cleanUp">True to return only the existing keys within the tags (slower). Default is false.</param>
         /// <returns>HashSet{System.String}.</returns>
-        public ISet<string> GetKeysByTag(string[] tags, bool cleanUp = false)
+        public IEnumerable<string> GetKeysByTag(string[] tags, bool cleanUp = false)
         {
             var db = RedisConnection.GetDatabase();
+            ISet<RedisValue> taggedItems;
             if (cleanUp)
             {
-                return GetKeysByAllTagsWithCleanup(db, tags);
+                taggedItems = GetTaggedItemsWithCleanup(db, tags);
             }
-            return GetKeysByAllTagsNoCleanup(db, tags);
+            else
+            {
+                taggedItems = GetTaggedItemsNoCleanup(db, tags);
+            }
+            return taggedItems.Select(x => x.ToString());
         }
         /// <summary>
         /// Returns all the objects that has the given tag(s) related.
@@ -604,24 +692,45 @@ namespace CachingFramework.Redis.Providers
         {
             RedisValue value = default(RedisValue);
             var db = RedisConnection.GetDatabase();
-            ISet<string> keys = GetKeysByAllTagsNoCleanup(db, tags);
-            foreach (var key in keys)
+            ISet<RedisValue> tagMembers = GetTaggedItemsNoCleanup(db, tags);
+            foreach (var tagMember in tagMembers)
             {
-                if (key.Contains(TagHashSeparator))
+                var tmString = tagMember.ToString();
+                if (tmString.Contains(TagHashSeparator))
                 {
-                    // It's a hash
-                    var items = key.Split(new[] { TagHashSeparator }, StringSplitOptions.None);
-                    if (db.KeyType(items[0]) == RedisType.Hash)
+                    // It's a hash field
+                    var items = tmString.Split(new[] { TagHashSeparator }, 2, StringSplitOptions.None);
+                    var hashKey = items[0];
+                    if (db.KeyType(hashKey) == RedisType.Hash)
                     {
-                        value = db.HashGet(items[0], items[1]);
+                        var hashField = GetHashFieldItem(hashKey, tagMember);
+                        value = db.HashGet(hashKey, hashField);
+                    }
+                }
+                else if (tmString.Contains(TagSetSeparator))
+                {
+                    // It's a set member
+                    var items = tmString.Split(new[] { TagSetSeparator }, 2, StringSplitOptions.None);
+                    var setKey = items[0];
+                    var keyType = db.KeyType(setKey);
+                    if (keyType == RedisType.Set || keyType == RedisType.SortedSet)
+                    {
+                        //return the member value only if present on set
+                        byte[] setMember = GetMemberSetItem(setKey, tagMember);
+                        if ((keyType == RedisType.SortedSet && db.SortedSetRank(setKey, setMember).HasValue)
+                            || 
+                            (keyType == RedisType.Set && db.SetContains(setKey, setMember)))
+                        {
+                            value = setMember;
+                        }
                     }
                 }
                 else
                 {
                     // It's a string
-                    if (db.KeyType(key) == RedisType.String)
+                    if (db.KeyType(tmString) == RedisType.String)
                     {
-                        value = db.StringGet(key);
+                        value = db.StringGet(tmString);
                     }
                 }
                 if (value.HasValue)
@@ -766,6 +875,17 @@ namespace CachingFramework.Redis.Providers
             SetMaxExpiration(batch, key, ttl);
             batch.Execute();
         }
+
+        public void SetHashed<TK, TV>(string key, TK field, TV value, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always)
+        {
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            batch.HashSetAsync(key, Serializer.Serialize(field), Serializer.Serialize(value), (StackExchange.Redis.When)when);
+            // Set the key expiration
+            SetMaxExpiration(batch, key, ttl);
+            batch.Execute();
+        }
+
         /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)
@@ -793,12 +913,90 @@ namespace CachingFramework.Redis.Providers
             {
                 var tag = FormatTag(tagName);
                 // Add the tag-key->field relation
-                batch.SetAddAsync(tag, FormatField(key, field));
+                batch.SetAddAsync(tag, FormatHashField(key, field));
                 // Set the tag expiration
                 SetMaxExpiration(batch, tag, ttl);
             }
             batch.Execute();
         }
+
+        public void SetHashed<TK, TV>(string key, TK field, TV value, string[] tags, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                SetHashed(key, field, value, ttl, when);
+                return;
+            }
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            batch.HashSetAsync(key, Serializer.Serialize(field), Serializer.Serialize(value), (StackExchange.Redis.When)when);
+            // Set the key expiration
+            SetMaxExpiration(batch, key, ttl);
+            foreach (var tagName in tags)
+            {
+                var tag = FormatTag(tagName);
+                // Add the tag-key->field relation
+                batch.SetAddAsync(tag, FormatSerializedMember(key, TagHashSeparator, field));
+                // Set the tag expiration
+                SetMaxExpiration(batch, tag, ttl);
+            }
+            batch.Execute();
+        }
+
+        public void AddToSet<T>(string key, T value, string[] tags = null, TimeSpan? ttl = null)
+        {
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            batch.SetAddAsync(key, Serializer.Serialize(value));
+            // Set the key expiration
+            SetMaxExpiration(batch, key, ttl);
+            if (tags != null)
+            {
+                foreach (var tagName in tags)
+                {
+                    var tag = FormatTag(tagName);
+                    // Add the tag-key->field relation
+                    batch.SetAddAsync(tag, FormatSerializedMember(key, TagSetSeparator, value));
+                    // Set the tag expiration
+                    SetMaxExpiration(batch, tag, ttl);
+                }
+            }
+            batch.Execute();
+        }
+
+        public bool RemoveFromSet<T>(string key, T value)
+        {
+            var db = RedisConnection.GetDatabase();
+            return db.SetRemove(key, Serializer.Serialize(value));
+        }
+
+        public void AddToSortedSet<T>(string key, double score, T value, string[] tags = null, TimeSpan? ttl = null)
+        {
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            batch.SortedSetAddAsync(key, Serializer.Serialize(value), score);
+            // Set the key expiration
+            SetMaxExpiration(batch, key, ttl);
+            if (tags != null)
+            {
+                foreach (var tagName in tags)
+                {
+                    var tag = FormatTag(tagName);
+                    // Add the tag-key->field relation
+                    batch.SetAddAsync(tag, FormatSerializedMember(key, TagSetSeparator, value));
+                    // Set the tag expiration
+                    SetMaxExpiration(batch, tag, ttl);
+                }
+            }
+            batch.Execute();
+        }
+
+        public bool RemoveFromSortedSet<T>(string key, T value)
+        {
+            var db = RedisConnection.GetDatabase();
+            return db.SortedSetRemove(key, Serializer.Serialize(value));
+        }
+
         /// <summary>
         /// Sets the specified key/values pairs to a hashset.
         /// (The latest expiration applies to the whole key)
@@ -821,6 +1019,18 @@ namespace CachingFramework.Redis.Providers
         {
             var cacheValue = RedisConnection.GetDatabase().HashGet(key, field);
             return cacheValue.HasValue ? Serializer.Deserialize<T>(cacheValue) : default(T);
+        }
+        /// <summary>
+        /// Gets a specified hased value from a key
+        /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        public TV GetHashed<TK, TV>(string key, TK field)
+        {
+            var cacheValue = RedisConnection.GetDatabase().HashGet(key, Serializer.Serialize(field));
+            return cacheValue.HasValue ? Serializer.Deserialize<TV>(cacheValue) : default(TV);
         }
         /// <summary>
         /// Try to get the value of an element in a hashed key
@@ -960,23 +1170,23 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <param name="db">The database.</param>
         /// <param name="tags">The tags.</param>
-        private static ISet<string> GetKeysByAllTagsNoCleanup(IDatabase db, params string[] tags)
+        private static ISet<RedisValue> GetTaggedItemsNoCleanup(IDatabase db, params string[] tags)
         {
-            var keys = new List<string>();
+            var keys = new List<RedisValue>();
             foreach (var tagName in tags)
             {
                 var tag = FormatTag(tagName);
                 if (db.KeyType(tag) == RedisType.Set)
                 {
-                    keys.AddRange(db.SetMembers(tag).Select(rv => rv.ToString()));
+                    keys.AddRange(db.SetMembers(tag));
                 }
             }
-            return new HashSet<string>(keys);
+            return new HashSet<RedisValue>(keys);
         }
 
-        private async static Task<ISet<string>> GetKeysByAllTagsNoCleanupAsync(IDatabase db, params string[] tags)
+        private async static Task<ISet<RedisValue>> GetTaggedItemsNoCleanupAsync(IDatabase db, params string[] tags)
         {
-            var keys = new List<string>();
+            var keys = new List<RedisValue>();
             foreach (var tagName in tags)
             {
                 var tag = FormatTag(tagName);
@@ -984,10 +1194,10 @@ namespace CachingFramework.Redis.Providers
                 if (keyType == RedisType.Set)
                 {
                     var setMembers = await db.SetMembersAsync(tag).ForAwait();
-                    keys.AddRange(setMembers.Select(rv => rv.ToString()));
+                    keys.AddRange(setMembers);
                 }
             }
-            return new HashSet<string>(keys);
+            return new HashSet<RedisValue>(keys);
         }
 
         /// <summary>
@@ -995,38 +1205,57 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <param name="db">The database.</param>
         /// <param name="tags">The tags.</param>
-        private static ISet<string> GetKeysByAllTagsWithCleanup(IDatabase db, params string[] tags)
+        private static ISet<RedisValue> GetTaggedItemsWithCleanup(IDatabase db, params string[] tags)
         {
             bool exists;
-            var ret = new HashSet<string>();
+            var ret = new HashSet<RedisValue>();
             var toRemove = new List<RedisValue>();
             foreach (var tagName in tags)
             {
                 var tag = FormatTag(tagName);
                 if (db.KeyType(tag) == RedisType.Set)
                 {
-                    var tagKeys = db.SetMembers(tag).Select(rv => rv.ToString());
+                    var tagMembers = db.SetMembers(tag);
                     //Get the existing keys and delete the dead keys
-                    foreach (var key in tagKeys)
+                    foreach (var tagMember in tagMembers)
                     {
-                        if (key.Contains(TagHashSeparator))
+                        var tmString = tagMember.ToString();
+                        if (tmString.Contains(TagHashSeparator))
                         {
-                            // It's a hash
-                            var items = key.Split(new[] {TagHashSeparator}, StringSplitOptions.None);
-                            exists = db.HashExists(items[0], items[1]);
+                            // It's a hash field
+                            var items = tmString.Split(new[] { TagHashSeparator }, 2, StringSplitOptions.None);
+                            var hashKey = items[0];
+                            var hashField = GetHashFieldItem(hashKey, tagMember);
+                            exists = db.HashExists(hashKey, hashField);
+                        }
+                        else if (tmString.Contains(TagSetSeparator))
+                        {
+                            // It's a set/sorted set member
+                            var items = tmString.Split(new[] { TagSetSeparator }, 2, StringSplitOptions.None);
+                            var setKey = items[0];
+                            var keyType = db.KeyType(setKey);
+                            byte[] setMember = GetMemberSetItem(setKey, tagMember);
+                            if (keyType == RedisType.SortedSet)
+                            {
+                                exists = db.SortedSetRank(setKey, setMember).HasValue;
+                            }
+                            else
+                            {
+                                exists = db.SetContains(setKey, setMember);
+                            }
                         }
                         else
                         {
                             // It's a string
-                            exists = db.KeyExists(key);
+                            exists = db.KeyExists(tmString);
                         }
                         if (exists)
                         {
-                            ret.Add(key);
+                            ret.Add(tagMember);
                         }
                         else
                         {
-                            toRemove.Add(key);
+                            toRemove.Add(tagMember);
                         }
                     }
                     if (toRemove.Count > 0)
@@ -1038,39 +1267,57 @@ namespace CachingFramework.Redis.Providers
             return ret;
         }
 
-        private async static Task<ISet<string>> GetKeysByAllTagsWithCleanupAsync(IDatabase db, params string[] tags)
+        private async static Task<ISet<RedisValue>> GetTaggedItemsWithCleanupAsync(IDatabase db, params string[] tags)
         {
             bool exists;
-            var ret = new HashSet<string>();
+            var ret = new HashSet<RedisValue>();
             var toRemove = new List<RedisValue>();
             foreach (var tagName in tags)
             {
                 var tag = FormatTag(tagName);
                 if (db.KeyType(tag) == RedisType.Set)
                 {
-                    var setMembers = await db.SetMembersAsync(tag).ForAwait();
-                    var tagKeys = setMembers.Select(rv => rv.ToString());
+                    var tagMembers = await db.SetMembersAsync(tag).ForAwait();
                     //Get the existing keys and delete the dead keys
-                    foreach (var key in tagKeys)
+                    foreach (var tagMember in tagMembers)
                     {
-                        if (key.Contains(TagHashSeparator))
+                        var tmString = tagMember.ToString();
+                        if (tmString.Contains(TagHashSeparator))
                         {
                             // It's a hash
-                            var items = key.Split(new[] { TagHashSeparator }, StringSplitOptions.None);
-                            exists = await db.HashExistsAsync(items[0], items[1]).ForAwait();
+                            var items = tmString.Split(new[] { TagHashSeparator }, StringSplitOptions.None);
+                            var hashKey = items[0];
+                            var hashField = GetHashFieldItem(hashKey, tagMember);
+                            exists = await db.HashExistsAsync(hashKey, hashField).ForAwait();
+                        }
+                        else if (tmString.Contains(TagSetSeparator))
+                        {
+                            // It's a set member
+                            var items = tmString.Split(new[] { TagSetSeparator }, 2, StringSplitOptions.None);
+                            var setKey = items[0];
+                            var keyType = await db.KeyTypeAsync(setKey).ForAwait();
+                            byte[] setMember = GetMemberSetItem(setKey, tagMember);
+                            if (keyType == RedisType.SortedSet)
+                            {
+                                exists = (await db.SortedSetRankAsync(setKey, setMember).ForAwait()).HasValue;
+                            }
+                            else
+                            {
+                                exists = await db.SetContainsAsync(setKey, setMember).ForAwait();
+                            }
                         }
                         else
                         {
                             // It's a string
-                            exists = await db.KeyExistsAsync(key).ForAwait();
+                            exists = await db.KeyExistsAsync(tmString).ForAwait();
                         }
                         if (exists)
                         {
-                            ret.Add(key);
+                            ret.Add(tagMember);
                         }
                         else
                         {
-                            toRemove.Add(key);
+                            toRemove.Add(tagMember);
                         }
                     }
                     if (toRemove.Count > 0)
@@ -1080,6 +1327,30 @@ namespace CachingFramework.Redis.Providers
                 }
             }
             return ret;
+        }
+
+        /// <summary>
+        /// Gets the set member value part of a tag member.
+        /// </summary>
+        private static byte[] GetMemberSetItem(string setKey, RedisValue tagMember)
+        {
+            var arrTagMember = (byte[])tagMember;
+            var prefixLen = System.Text.Encoding.UTF8.GetBytes(setKey + TagSetSeparator).Length;
+            byte[] setMember = new byte[arrTagMember.Length - prefixLen];
+            Array.Copy(arrTagMember, prefixLen, setMember, 0, setMember.Length);
+            return setMember;
+        }
+
+        /// <summary>
+        /// Gets the hash field part of a tag member.
+        /// </summary>
+        private static byte[] GetHashFieldItem(string hashKey, RedisValue tagMember)
+        {
+            var arrTagMember = (byte[])tagMember;
+            var prefixLen = System.Text.Encoding.UTF8.GetBytes(hashKey + TagHashSeparator).Length;
+            byte[] hashField = new byte[arrTagMember.Length - prefixLen];
+            Array.Copy(arrTagMember, prefixLen, hashField, 0, hashField.Length);
+            return hashField;
         }
 
         /// <summary>
@@ -1097,10 +1368,28 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The key.</param>
         /// <param name="field">The field.</param>
         /// <returns>RedisKey.</returns>
-        private static RedisValue FormatField(string key, string field)
+        private static RedisValue FormatHashField(string key, string field)
         {
+            // set_key:$_->_$:hash_field
             return key + TagHashSeparator + field;
         }
+        /// <summary>
+        /// Return the RedisValue to use for a tag that points to a serialized member (hash field/member set)
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="separator">The tag separator to use.</param>
+        /// <param name="member">The member (hash field/member set).</param>
+        private RedisValue FormatSerializedMember<T>(string key, string separator, T member)
+        {
+            // set_key:$_-S>_$:serialized_member
+            byte[] prefix = System.Text.Encoding.UTF8.GetBytes(key + separator);
+            byte[] memberSerialized = Serializer.Serialize(member);
+            byte[] result = new byte[prefix.Length + memberSerialized.Length];
+            Array.Copy(prefix, 0, result, 0, prefix.Length);
+            Array.Copy(memberSerialized, 0, result, prefix.Length, memberSerialized.Length);
+            return result;
+        }
+
         /// <summary>
         /// Runs a Server command in all the master servers.
         /// </summary>
@@ -1150,7 +1439,6 @@ namespace CachingFramework.Redis.Providers
             }
             return masters;
         }
-
         #endregion
     }
 }

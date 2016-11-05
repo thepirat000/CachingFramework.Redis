@@ -25,5 +25,11 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// Returns a random value from the set.
         /// </summary>
         T GetRandomMember();
+        /// <summary>
+        /// Adds an item related to one or more tags.
+        /// </summary>
+        /// <param name="item">The item.</param>
+        /// <param name="tags">The tags.</param>
+        void Add(T item, string[] tags);
     }
 }

@@ -8,6 +8,13 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
     public interface IRedisDictionary<TK, TV> : IDictionary<TK, TV>, IRedisObject
     {
         /// <summary>
+        /// Adds a single element to the dictionary related to the given tag(s).
+        /// </summary>
+        /// <param name="key">The redis key.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="tags">The tags to relate.</param>
+        void Add(TK key, TV value, string[] tags);
+        /// <summary>
         /// Adds multiple elements to the dictionary.
         /// </summary>
         /// <param name="collection">The collection.</param>

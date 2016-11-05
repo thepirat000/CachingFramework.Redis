@@ -8,6 +8,7 @@ using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using StackExchange.Redis;
 using Bit = System.Byte;
+using CachingFramework.Redis.Providers;
 
 namespace CachingFramework.Redis.RedisObjects
 {
@@ -21,11 +22,10 @@ namespace CachingFramework.Redis.RedisObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisBitmap" /> class.
         /// </summary>
-        /// <param name="connection">The connection.</param>
+        /// <param name="redisContext">The redis context.</param>
         /// <param name="redisKey">The redis key.</param>
-        /// <param name="serializer">The serializer.</param>
-        internal RedisBitmap(ConnectionMultiplexer connection, string redisKey, ISerializer serializer)
-            : base(connection, redisKey, serializer)
+        internal RedisBitmap(RedisProviderContext redisContext, string redisKey)
+            : base(redisContext, redisKey)
         {
         }
         #endregion

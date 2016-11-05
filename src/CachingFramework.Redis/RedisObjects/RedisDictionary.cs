@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using StackExchange.Redis;
+using CachingFramework.Redis.Contracts.Providers;
+using CachingFramework.Redis.Providers;
 
 namespace CachingFramework.Redis.RedisObjects
 {
@@ -12,16 +14,20 @@ namespace CachingFramework.Redis.RedisObjects
     /// </summary>
     internal class RedisDictionary<TK, TV> : RedisBaseObject, IRedisDictionary<TK, TV>, IDictionary<TK, TV>
     {
+        #region Fields
+        private readonly ICacheProvider _cacheProvider;
+        #endregion
         #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisBaseObject" /> class.
         /// </summary>
-        /// <param name="connection">The connection.</param>
+        /// <param name="redisContext">The redis context.</param>
         /// <param name="redisKey">The redis key.</param>
-        /// <param name="serializer">The serializer.</param>
-        internal RedisDictionary(ConnectionMultiplexer connection, string redisKey, ISerializer serializer)
-            : base(connection, redisKey, serializer)
+        /// <param name="cacheProvider">The cache provider.</param>
+        internal RedisDictionary(RedisProviderContext redisContext, string redisKey, ICacheProvider cacheProvider)
+            : base(redisContext, redisKey)
         {
+            _cacheProvider = cacheProvider;
         }
         #endregion
         #region IRedisDictionary implementation
@@ -33,6 +39,16 @@ namespace CachingFramework.Redis.RedisObjects
         {
             GetRedisDb()
                 .HashSet(RedisKey, items.Select(i => new HashEntry(Serialize(i.Key), Serialize(i.Value))).ToArray());
+        }
+
+        public void Add(TK key, TV value, string[] tags)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                Add(key, value);
+                return;
+            }
+            _cacheProvider.SetHashed<TK, TV>(RedisKey, key, value, tags);
         }
         #endregion
         #region IDictionary implementation

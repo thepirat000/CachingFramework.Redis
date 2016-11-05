@@ -12,14 +12,19 @@ namespace CachingFramework.Redis.Providers
     /// </summary>
     internal class RedisGeoProvider : RedisProviderBase, IGeoProvider
     {
+        #region Fields
+        private readonly ICacheProvider _cacheProvider;
+        #endregion
         #region Constructor
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisGeoProvider"/> class.
         /// </summary>
         /// <param name="context">The context.</param>
-        public RedisGeoProvider(RedisProviderContext context)
+        /// <param name="cacheProvider">The cache provider.</param>
+        public RedisGeoProvider(RedisProviderContext context, ICacheProvider cacheProvider)
             : base(context)
         {
+            _cacheProvider = cacheProvider;
         }
         #endregion
 
@@ -30,8 +35,9 @@ namespace CachingFramework.Redis.Providers
         /// <typeparam name="T">The member type</typeparam>
         /// <param name="key">The redis key.</param>
         /// <param name="members">The members to add.</param>
+        /// <param name="tags">The tags to relate to the members.</param>
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
-        public int GeoAdd<T>(string key, GeoMember<T>[] members)
+        public int GeoAdd<T>(string key, GeoMember<T>[] members, string[] tags = null)
         {
             var db = RedisConnection.GetDatabase();
             var values = new List<RedisValue>();
@@ -44,7 +50,16 @@ namespace CachingFramework.Redis.Providers
                     Serializer.Serialize(member.Value) 
                 });
             }
-            return (int)db.ScriptEvaluate(LuaScriptResource.GeoAdd, new RedisKey[] { key }, values.ToArray());
+            int result = (int)db.ScriptEvaluate(LuaScriptResource.GeoAdd, new RedisKey[] { key }, values.ToArray());
+            // Relate the tags (if any)
+            if (tags != null && tags.Length > 0)
+            {
+                foreach (var member in members)
+                {
+                    _cacheProvider.AddTagsToSetMember(key, member.Value, tags);
+                }
+            }
+            return result;
         }
         /// <summary>
         /// Adds the specified members to a geospatial index.
@@ -54,10 +69,11 @@ namespace CachingFramework.Redis.Providers
         /// <param name="latitude">The member latitude coordinate.</param>
         /// <param name="longitude">The member longitude coordinate.</param>
         /// <param name="member">The member to add.</param>
+        /// <param name="tags">The tags to relate to the members.</param>
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
-        public int GeoAdd<T>(string key, double latitude, double longitude, T member)
+        public int GeoAdd<T>(string key, double latitude, double longitude, T member, string[] tags = null)
         {
-            return GeoAdd(key, new GeoCoordinate(latitude, longitude), member);
+            return GeoAdd(key, new GeoCoordinate(latitude, longitude), member, tags);
         }
         /// <summary>
         /// Adds the specified members to a geospatial index.
@@ -66,11 +82,13 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The redis key.</param>
         /// <param name="coordinate">The member coordinates.</param>
         /// <param name="member">The member to add.</param>
+        /// <param name="tags">The tags to relate to the members.</param>
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
-        public int GeoAdd<T>(string key, GeoCoordinate coordinate, T member)
+        public int GeoAdd<T>(string key, GeoCoordinate coordinate, T member, string[] tags = null)
         {
-            return GeoAdd(key, new[] { new GeoMember<T>(coordinate, member) });
+            return GeoAdd(key, new[] { new GeoMember<T>(coordinate, member) }, tags);
         }
+
         /// <summary>
         /// Return Geohash strings representing the position of a member in a geospatial index (where elements were added using GEOADD).
         /// </summary>

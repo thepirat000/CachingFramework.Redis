@@ -12,7 +12,7 @@ namespace CachingFramework.Redis.Providers
         /// <summary>
         /// The redis provider context
         /// </summary>
-        private readonly RedisProviderContext _context;
+        internal protected readonly RedisProviderContext _context;
         #endregion  
 
         #region Properties

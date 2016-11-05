@@ -4,6 +4,8 @@ using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using StackExchange.Redis;
 using When = CachingFramework.Redis.Contracts.When;
+using CachingFramework.Redis.Providers;
+using CachingFramework.Redis.Contracts.Providers;
 
 namespace CachingFramework.Redis.RedisObjects
 {
@@ -13,16 +15,20 @@ namespace CachingFramework.Redis.RedisObjects
     /// <typeparam name="T"></typeparam>
     internal class RedisSortedSet<T> : RedisBaseObject, IRedisSortedSet<T>, ICollection<T>
     {
+        #region Fields
+        private readonly ICacheProvider _cacheProvider;
+        #endregion
         #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisBaseObject" /> class.
         /// </summary>
-        /// <param name="connection">The connection.</param>
+        /// <param name="redisContext">The redis context.</param>
         /// <param name="redisKey">The redis key.</param>
-        /// <param name="serializer">The serializer.</param>
-        internal RedisSortedSet(ConnectionMultiplexer connection, string redisKey, ISerializer serializer)
-            : base(connection, redisKey, serializer)
+        /// <param name="cacheProvider">The cache provider.</param>
+        internal RedisSortedSet(RedisProviderContext redisContext, string redisKey, ICacheProvider cacheProvider)
+            : base(redisContext, redisKey)
         {
+            _cacheProvider = cacheProvider;
         }
         #endregion
 
@@ -56,6 +62,22 @@ namespace CachingFramework.Redis.RedisObjects
         {
             Add(new SortedMember<T>(score, item), when);
         }
+
+        public void Add(SortedMember<T> member, string[] tags)
+        {
+            Add(member.Score, member.Value, tags);
+        }
+
+        public void Add(double score, T item, string[] tags)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                Add(score, item);
+                return;
+            }
+            _cacheProvider.AddToSortedSet(RedisKey, score, item, tags);
+        }
+
         /// <summary>
         /// Adds all the specified members with the specified scores to the sorted set stored at key. 
         /// If key does not exist, a new sorted set with the specified members as sole members is created, like if the sorted set was empty. 

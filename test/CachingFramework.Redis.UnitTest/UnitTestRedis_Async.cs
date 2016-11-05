@@ -13,6 +13,35 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis_Async
     {
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_Cache_SetHashed_TK_TV_WithTags_Async(Context context)
+        {
+            var key = "UT_Cache_SetHashed_TK_TV_WithTags_Async";
+            context.Cache.Remove(key);
+            var users = await GetUsersAsync().ForAwait();
+
+            context.Cache.SetHashed<User, User>(key, users[0], users[1], new[] { "tag 0->1", "common" });
+            context.Cache.SetHashed<User, User>(key, users[1], users[0], new[] { "tag 1->0", "common" });
+            context.Cache.SetHashed<User>(key, "string field", users[0], new[] { "tag S->0", "common" });
+
+            var u1 = await context.Cache.GetHashedAsync<User, User>(key, users[0]);
+            var u0 = await context.Cache.GetHashedAsync<User, User>(key, users[1]);
+
+            var all = context.Cache.GetObjectsByTag<User>("common").ToList();
+            var t01 = context.Cache.GetObjectsByTag<User>("tag 0->1").ToList();
+            var t10 = context.Cache.GetObjectsByTag<User>("tag 1->0").ToList();
+            var tS0 = context.Cache.GetObjectsByTag<User>("tag S->0").ToList();
+
+            Assert.AreEqual(users[0].Id, u0.Id);
+            Assert.AreEqual(users[1].Id, u1.Id);
+
+            Assert.AreEqual(3, all.Count);
+            Assert.AreEqual(users[1].Id, t01[0].Id);
+            Assert.AreEqual(users[0].Id, t10[0].Id);
+            Assert.AreEqual(users[0].Id, tS0[0].Id);
+
+        }
+
         [Test, TestCaseSource(typeof(Common), "Raw")]
         public async Task UT_Context_Dispose_Async(Context context)
         {
@@ -725,9 +754,9 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync("user-id-tag:" + user.Id);
             await context.Cache.FetchObjectAsync(key, async () => await Task.FromResult(user), u => new[] { "user-id-tag:" + u.Id });
             await context.Cache.FetchObjectAsync(key, async () => await Task.FromResult((User)null), u => new[] { "wrong" });
-            Assert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count);
+            Assert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count());
             var result = context.Cache.GetObjectsByTag<User>("user-id-tag:" + user.Id).First();
-            Assert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count);
+            Assert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count());
             Assert.AreEqual(user.Id, result.Id);
         }
 
@@ -742,9 +771,9 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync("user-id-tag:" + user.Id);
             await context.Cache.FetchHashedAsync(key, field, async () => await Task.FromResult(user), u => new[] { "user-id-tag:" + u.Id });
             await context.Cache.FetchHashedAsync(key, field, async () => await Task.FromResult((User)null), u => new[] { "wrong" });
-            Assert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count);
+            Assert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count());
             var result = context.Cache.GetObjectsByTag<User>(new[] { "user-id-tag:" + user.Id }).First();
-            Assert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count);
+            Assert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count());
             Assert.AreEqual(user.Id, result.Id);
         }
 
@@ -758,14 +787,14 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
             var user = (await GetUsersAsync())[0];
             await context.Cache.SetObjectAsync(key, user, new[] { tag1 });
-            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
+            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
             await context.Cache.RenameTagForKeyAsync(key, tag1, tag2);
-            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
-            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag2 }).Count);
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
+            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
             context.Cache.RemoveTagsFromKey(key, new[] { tag2 });
             await context.Cache.RenameTagForKeyAsync(key, tag2, tag1);
-            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
-            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count);
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
         }
 
         [Test, TestCaseSource(typeof(Common), "Bin")]
@@ -779,14 +808,14 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
             var user = (await GetUsersAsync())[0];
             context.Cache.SetHashed(key, field, user, new[] { tag1 });
-            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
+            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
             await context.Cache.RenameTagForHashFieldAsync(key, field, tag1, tag2);
-            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
-            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag2 }).Count);
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
+            Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
             context.Cache.RemoveTagsFromHashField(key, field, new[] { tag2 });
             context.Cache.RemoveTagsFromHashField(key, field, new[] { tag2, tag1 });
-            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count);
-            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count);
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
         }
 #endif
 

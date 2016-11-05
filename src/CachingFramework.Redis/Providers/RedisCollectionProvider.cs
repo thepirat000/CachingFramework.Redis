@@ -10,14 +10,19 @@ namespace CachingFramework.Redis.Providers
     /// </summary>
     internal class RedisCollectionProvider : RedisProviderBase, ICollectionProvider
     {
+        #region Fields
+        private readonly ICacheProvider _cacheProvider;
+        #endregion
         #region Constructor
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisCollectionProvider"/> class.
         /// </summary>
         /// <param name="context">The context.</param>
-        public RedisCollectionProvider(RedisProviderContext context)
+        /// <param name="cacheProvider">The cache provider instance.</param>
+        public RedisCollectionProvider(RedisProviderContext context, ICacheProvider cacheProvider)
             : base(context)
         {
+            _cacheProvider = cacheProvider;
         }
         #endregion
 
@@ -27,10 +32,9 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
-        public IRedisList<T> GetRedisList<T>(string key, ISerializer serializer = null)
+        public IRedisList<T> GetRedisList<T>(string key)
         {
-            return new RedisList<T>(RedisConnection, key, serializer ?? Serializer);
+            return new RedisList<T>(_context, key);
         }
         /// <summary>
         /// Returns an IDictionary implemented using a Redis Hash
@@ -38,30 +42,27 @@ namespace CachingFramework.Redis.Providers
         /// <typeparam name="TKey">The key type</typeparam>
         /// <typeparam name="TValue">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
-        public IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key, ISerializer serializer = null)
+        public IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key)
         {
-            return new RedisDictionary<TKey, TValue>(RedisConnection, key, serializer ?? Serializer);
+            return new RedisDictionary<TKey, TValue>(_context, key, _cacheProvider);
         }
         /// <summary>
         /// Returns an ISet implemented using a Redis Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
-        public IRedisSet<T> GetRedisSet<T>(string key, ISerializer serializer = null)
+        public IRedisSet<T> GetRedisSet<T>(string key)
         {
-            return new RedisSet<T>(RedisConnection, key, serializer ?? Serializer);
+            return new RedisSet<T>(_context, key, _cacheProvider);
         }
         /// <summary>
         /// Returns an ICollection implemented using a Redis Sorted Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
-        public IRedisSortedSet<T> GetRedisSortedSet<T>(string key, ISerializer serializer = null)
+        public IRedisSortedSet<T> GetRedisSortedSet<T>(string key)
         {
-            return new RedisSortedSet<T>(RedisConnection, key, serializer ?? Serializer);
+            return new RedisSortedSet<T>(_context, key, _cacheProvider);
         }
         /// <summary>
         /// Returns an ICollection implemented using a Redis string as a bitmap
@@ -69,7 +70,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The redis key</param>
         public IRedisBitmap GetRedisBitmap(string key)
         {
-            return new RedisBitmap(RedisConnection, key, Serializer);
+            return new RedisBitmap(_context, key);
         }
         /// <summary>
         /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
@@ -77,7 +78,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The redis key</param>
         public IRedisLexicographicSet GetRedisLexicographicSet(string key)
         {
-            return new RedisLexicographicSet(RedisConnection, key, Serializer);
+            return new RedisLexicographicSet(_context, key);
         }
         /// <summary>
         /// Returns an ICollection(char) implemented using a Redis string
@@ -85,7 +86,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The redis key</param>
         public IRedisString GetRedisString(string key)
         {
-            return new RedisString(RedisConnection, key, Serializer);
+            return new RedisString(_context, key);
         }
         #endregion
     }
