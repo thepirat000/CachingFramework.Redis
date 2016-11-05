@@ -18,6 +18,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             var key = "UT_Cache_SetHashed_TK_TV_WithTags_Async";
             context.Cache.Remove(key);
+            context.Cache.InvalidateKeysByTag("tag 0->1", "tag 1->0", "tag S->0", "common");
             var users = await GetUsersAsync().ForAwait();
 
             context.Cache.SetHashed<User, User>(key, users[0], users[1], new[] { "tag 0->1", "common" });
@@ -851,5 +852,8 @@ namespace CachingFramework.Redis.UnitTest
             };
             return await Task.FromResult<List<User>>(new List<User>() { user1, user2 });
         }
+
+
     }
+
 }

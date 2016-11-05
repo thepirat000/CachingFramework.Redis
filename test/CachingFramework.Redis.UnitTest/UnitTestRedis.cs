@@ -35,6 +35,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             var key = "UT_Cache_SetHashed_TK_TV_WithTags";
             context.Cache.Remove(key);
+            context.Cache.InvalidateKeysByTag("tag 0->1", "tag 1->0", "tag S->0", "common");
             var users = GetUsers();
             var dict = context.Collections.GetRedisDictionary<User, User>(key);
 
