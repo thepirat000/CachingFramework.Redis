@@ -348,6 +348,13 @@ string redisKey = "users:geo";
 context.GeoSpatial.GeoAdd<User>(redisKey, new GeoCoordinate(20.637, -103.402), user);
 ```
 
+### Add a Geospatial item related to a tag
+Add a user to a geospatial index and relate it to a tag:
+```c#
+string redisKey = "users:geo";
+context.GeoSpatial.GeoAdd<User>(redisKey, new GeoCoordinate(20.637, -103.402), user, new[] { "tag" });
+```
+
 ### Get the coordinates for an item
 ```c#
 GeoCoordinate coord = context.GeoSpatial.GeoPosition(redisKey, user);
