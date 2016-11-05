@@ -100,6 +100,11 @@ set.Add(new User() { Id = 1 });
 set.AddRange(new [] { new User() { Id = 2 }, new User() { Id = 3 } });
 ```
 
+An overload of the `Add` method is provided to allow add members related to tags. For example:
+```c#
+set.Add(new User() { Id = 1 }, new [] { "tag" });
+```
+
 To check if an element exists, use the `Contains` method:
 ```c#
 bool exists = set.Contains(user);
@@ -147,6 +152,11 @@ hash.AddRange(usersQuery.ToDictionary(k => k.Id));
 hash[2] = new User() { Id = 1 };
 ```
 
+An overload of the `Add` method is provided to allow add hash fields related to tags. For example:
+```c#
+hash.Add(1, new User() { Id = 1 }, new [] { "tag" });
+```
+
 To check if a hash element exists, use `ContainsKey` method:
 ```c#
 bool exists = hash.ContainsKey(1);
@@ -188,6 +198,11 @@ To add elements to the sorted set, use `Add` or `AddRange` methods providing the
 
 ```c#
 sortedSet.Add(12.34, new User() { Id = 1 });
+```
+
+An overload of the `Add` method is provided to allow add members related to tags. For example:
+```c#
+sortedSet.Add(12.34, new User() { Id = 1 }, new [] { "tag" });
 ```
 
 To increment/decrement a score for an item, use the `IncrementScore` method:

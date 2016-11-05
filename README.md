@@ -2,13 +2,13 @@
 
 [![Gitter](https://badges.gitter.im/CachingFramework-Redis/Lobby.svg)](https://gitter.im/CachingFramework-Redis/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 
-.NET Redis client library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) adding some interesting features like an **extensible serialization** strategy, a **tagging mechanism** to group keys and hash fields, and a **fetching mechanism** to support atomic add/get operations, all being cluster-compatible.
+.NET Redis client library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) adding some interesting features like an **extensible serialization** strategy, a **tagging mechanism** to group keys, hash fields and set members, and a **fetching mechanism** to support atomic add/get operations, all being cluster-compatible.
 
 ## Features
  * .NET Framework and .NET Core support (Net Standard 1.5)
  * [**Typed cache**](#typed-cache): any serializable object can be used as a cache value.
  * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations (cache-aside pattern).
- * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys (or hash fields) by tag.
+ * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys or members by tag.
  * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a value defining its time-to-live.
  * [**Lexicographically sorted sets**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set): for fast string matching and auto-complete suggestion. 
  * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with strongly typed messages.
@@ -179,10 +179,10 @@ For more information about collections, please see [COLLECTIONS.md](https://gith
 Tagging mechanism
 =====
 
-Cluster compatible tagging mechanism where tags are used to group keys and hash fields, so they can be retrieved or invalidated at the same time. 
-A tag can be related to any number of keys and/or hash fields.
+Cluster compatible tagging mechanism where tags are used to group keys, hash fields, set members, sorted set members and geospatial members, so they can be retrieved or invalidated at the same time. 
+A tag can be related to any number of keys, hash fields, or set members.
 
-![Image of Tagging Mechanism](http://i.imgur.com/MXRgdhF.png)
+![Image of Tagging Mechanism](http://i.imgur.com/CLGr0Pg.jpg)
 
 #### Add a **single object** related to a tag
 Add a single object to the cache and associate it with tags *red* and *blue*:
@@ -191,9 +191,21 @@ context.Cache.SetObject("user:1", user, new[] { "red", "blue" });
 ```
 
 #### Add a **hashed object** related to a tag
-Tags can be also related to a field in a hash.
+Tags can point to a field in a hash.
 ```c#
 context.Cache.SetHashed("users:hash", "user:id:1", value, new[] { "red" });
+```
+
+#### Add a member to a **redis set** related to a tag:
+Add a single member to a redis set and associate the member to the tag *red*:
+```c#
+context.Cache.AddToSet("users:set", value, new[] { "red" });
+```
+
+#### Add a member to a **redis sorted set** related to a tag:
+Add a single member to a redis sorted set and associate the member to the tag *blue*:
+```c#
+context.Cache.AddToSortedSet("users:sortedset", 100.00, value, new[] { "blue" });
 ```
 
 #### Relate an existing **key** to a tag
@@ -208,6 +220,13 @@ Relate the hash field to the *green* tag:
 context.Cache.AddTagsToHashField("users:hash", "user:id:1", new[] {"green"});
 ```
 
+#### Relate an existing **member of a redis set** to a tag
+Relate a set member to the *blue* tag:
+```c#
+context.Cache.AddTagsToSetMember("users:set", "user:id:1", new[] { "blue" });
+```
+The same method can be used to relate tags to Sorted Set members and GeoSpatial index members.
+
 #### Remove a tag from a key
 Remove the relation between the key and the tag *green*:
 ```c#
@@ -220,20 +239,29 @@ Remove the relation between the hash field and the tag *green*:
 context.Cache.RemoveTagsFromHashField("users:hash", "user:id:1", new [] { "green" });
 ```
 
+#### Remove a tag from a redis set
+Remove the relation between a set member and the tag *green*:
+```c#
+context.Cache.RemoveTagsFromSetMember("users:set", "user:id:1", new[] { "green" });
+```
+The same method can be used to remove tags from Sorted Set members and GeoSpatial index members.
+
 #### Get objects by tag
 Get all the objects related to *red* and/or *green*. Assuming all the keys related to the tags are of the same type:
 ```c#
 IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("red", "green");
 ```
 
+
+
 #### Invalidate keys by tags
-Remove all the keys and hash fields related to *blue* and/or *green* tags:
+Remove all the keys, hash fields, set members and sorted set members related to *blue* and/or *green* tags:
 ```c#
 context.Cache.InvalidateKeysByTag("blue", "green");
 ```
 
 #### Get keys by tag
-Get all the keys and hash fields related to the given tags:
+Get all the keys, hash fields and set members related to the given tags:
 ```c#
 ISet<string> keys = context.Cache.GetKeysByTag(new [] { "green" });
 ```
@@ -242,9 +270,17 @@ If the tag is related to a _hash field_, the string returned will be in the form
 
 `{hashKey}:$_->_$:{field}`
 
+If the tag is related to a _set_, _sorted set_ or _geospatial index_ the string returned will be in the form: 
+
+`{setKey}:$_-S>_$:{member}`
+
 For example:
+
 `users:hash:$_->_$:user:id:1` 
-Meaning the field `user:id:1`  of hash `users:hash`.
+means the field `user:id:1` of hash `users:hash`.
+
+`users:set:$_-S>_$:user:id:2` 
+means the member `user:id:2` of set `users:set`.
 
 --------------
 
@@ -310,6 +346,13 @@ Add a user to a geospatial index by its coordinates:
 ```c#
 string redisKey = "users:geo";
 context.GeoSpatial.GeoAdd<User>(redisKey, new GeoCoordinate(20.637, -103.402), user);
+```
+
+### Add a Geospatial item related to a tag
+Add a user to a geospatial index and relate it to a tag:
+```c#
+string redisKey = "users:geo";
+context.GeoSpatial.GeoAdd<User>(redisKey, new GeoCoordinate(20.637, -103.402), user, new[] { "tag" });
 ```
 
 ### Get the coordinates for an item
@@ -443,7 +486,7 @@ Different serialization mechanisms are provided:
 All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
 
 - **Json Serializer** (default for NET CORE):
-All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. This mechanism is optional and is included in package [CachingFramework.Redis.Json](https://www.nuget.org/packages/CachingFramework.Redis.Json).
+All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. 
 
 - **Raw Serializer**:
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
@@ -455,7 +498,7 @@ Any other type is serialized using the default serializer.
 |**JsonSerializer** | Limited inheritance support | Data is stored as Json | Serialization can be configured with JsonSerializerSettings | 
 |**RawSerializer** | Limited inheritance, only for types serialized with BinaryFormatter | Simple types are stored as strings and are human readable | Serialization can be set-up per type using SetSerializerFor | 
 
-The RawSerializer allows to override the serialization/deserialization logic per type with method `SetSerializerFor<T>()`.
+The `RawSerializer` allows to dynamically override the serialization/deserialization logic per type with the method `SetSerializerFor<T>()`.
 
 For example, to allow the serialization of a `StringBuilder` as an UTF-8 encoded string:
 
@@ -543,7 +586,7 @@ Some Redis commands were omitted by design falling into these two categories:
 [RedisLexicographicSet](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set) 
 and [RedisString](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-string)) 
 
-You can still call these commands thru the `StackEchange.Redis` API, accesing the `ConnectionMultiplexer` by calling the `GetConnectionMultiplexer()` method on the `Context` (see next section).
+You can still call these commands via `StackExchange.Redis` API, accesing the `ConnectionMultiplexer` by calling the `GetConnectionMultiplexer()` method on the `Context` (see next section).
 
 
 --------------
@@ -551,7 +594,7 @@ You can still call these commands thru the `StackEchange.Redis` API, accesing th
 StackExchange.Redis API
 =====
 
-To use the StackExchange.Redis API call the `GetConnectionMultiplexer()` method on the `Context`.
+To use the `StackExchange.Redis` API, call the `GetConnectionMultiplexer()` method on the `Context`.
 
 For example:
 ```c#
@@ -564,6 +607,14 @@ multiplexer.GetDatabase().StringIncrement("key", 1);    // SE.Redis API
 [.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
 =====
 
-Implementations of .NET IList, ISet and IDictionary that internally uses Redis as storage are provided.
+You can handle **Redis Lists** as `IList<T>`, **Hashes** as `IDictionary<K, V>`, **Sets**, **Lex Sets** and **Bitmaps** as `ICollection<T>`, and more.
+
+Access these objects by the `Collections` property on `Context`.
+
+For example:
+```c#
+IList<User> redisList = context.Collections.GetRedisList<User>("users:list");
+redisList.Add(user);
+```
 
 **For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
