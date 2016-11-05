@@ -275,11 +275,12 @@ If the tag is related to a _set_, _sorted set_ or _geospatial index_ the string 
 `{setKey}:$_-S>_$:{member}`
 
 For example:
+
 `users:hash:$_->_$:user:id:1` 
-Meaning the field `user:id:1` of hash `users:hash`.
+means the field `user:id:1` of hash `users:hash`.
 
 `users:set:$_-S>_$:user:id:2` 
-Meaning the field `user:id:2` of set `users:set`.
+means the member `user:id:2` of set `users:set`.
 
 --------------
 
