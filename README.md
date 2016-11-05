@@ -8,7 +8,7 @@
  * .NET Framework and .NET Core support (Net Standard 1.5)
  * [**Typed cache**](#typed-cache): any serializable object can be used as a cache value.
  * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations (cache-aside pattern).
- * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys (or hash fields) by tag.
+ * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys or members by tag.
  * [**Time-To-Live mechanism**](#add-a-single-object-with-ttl): each key can be associated to a value defining its time-to-live.
  * [**Lexicographically sorted sets**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set): for fast string matching and auto-complete suggestion. 
  * [**Pub/Sub support**](#pubsub-api): Publish-Subscribe implementation with strongly typed messages.
@@ -179,8 +179,8 @@ For more information about collections, please see [COLLECTIONS.md](https://gith
 Tagging mechanism
 =====
 
-Cluster compatible tagging mechanism where tags are used to group keys and hash fields, so they can be retrieved or invalidated at the same time. 
-A tag can be related to any number of keys and/or hash fields.
+Cluster compatible tagging mechanism where tags are used to group keys, hash fields, set members, sorted set members and geospatial members, so they can be retrieved or invalidated at the same time. 
+A tag can be related to any number of keys, hash fields, or set members.
 
 ![Image of Tagging Mechanism](http://i.imgur.com/MXRgdhF.png)
 
@@ -191,9 +191,21 @@ context.Cache.SetObject("user:1", user, new[] { "red", "blue" });
 ```
 
 #### Add a **hashed object** related to a tag
-Tags can be also related to a field in a hash.
+Tags can point to a field in a hash.
 ```c#
 context.Cache.SetHashed("users:hash", "user:id:1", value, new[] { "red" });
+```
+
+#### Add a member to a **redis set** related to a tag:
+Add a single member to a redis set and associate the member to the tag *red*:
+```c#
+context.Cache.AddToSet("users:set", value, new[] { "red" });
+```
+
+#### Add a member to a **redis sorted set** related to a tag:
+Add a single member to a redis sorted set and associate the member to the tag *blue*:
+```c#
+context.Cache.AddToSortedSet("users:sortedset", 100.00, value, new[] { "blue" });
 ```
 
 #### Relate an existing **key** to a tag
@@ -208,6 +220,13 @@ Relate the hash field to the *green* tag:
 context.Cache.AddTagsToHashField("users:hash", "user:id:1", new[] {"green"});
 ```
 
+#### Relate an existing **member of a redis set** to a tag
+Relate a set member to the *blue* tag:
+```c#
+context.Cache.AddTagsToSetMember("users:set", "user:id:1", new[] { "blue" });
+```
+The same method can be used to relate tags to Sorted Set members and GeoSpatial index members.
+
 #### Remove a tag from a key
 Remove the relation between the key and the tag *green*:
 ```c#
@@ -220,20 +239,29 @@ Remove the relation between the hash field and the tag *green*:
 context.Cache.RemoveTagsFromHashField("users:hash", "user:id:1", new [] { "green" });
 ```
 
+#### Remove a tag from a redis set
+Remove the relation between a set member and the tag *green*:
+```c#
+context.Cache.RemoveTagsFromSetMember("users:set", "user:id:1", new[] { "green" });
+```
+The same method can be used to remove tags from Sorted Set members and GeoSpatial index members.
+
 #### Get objects by tag
 Get all the objects related to *red* and/or *green*. Assuming all the keys related to the tags are of the same type:
 ```c#
 IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("red", "green");
 ```
 
+
+
 #### Invalidate keys by tags
-Remove all the keys and hash fields related to *blue* and/or *green* tags:
+Remove all the keys, hash fields, set members and sorted set members related to *blue* and/or *green* tags:
 ```c#
 context.Cache.InvalidateKeysByTag("blue", "green");
 ```
 
 #### Get keys by tag
-Get all the keys and hash fields related to the given tags:
+Get all the keys, hash fields and set members related to the given tags:
 ```c#
 ISet<string> keys = context.Cache.GetKeysByTag(new [] { "green" });
 ```
@@ -242,9 +270,16 @@ If the tag is related to a _hash field_, the string returned will be in the form
 
 `{hashKey}:$_->_$:{field}`
 
+If the tag is related to a _set_, _sorted set_ or _geospatial index_ the string returned will be in the form: 
+
+`{setKey}:$_-S>_$:{member}`
+
 For example:
 `users:hash:$_->_$:user:id:1` 
-Meaning the field `user:id:1`  of hash `users:hash`.
+Meaning the field `user:id:1` of hash `users:hash`.
+
+`users:set:$_-S>_$:user:id:2` 
+Meaning the field `user:id:2` of set `users:set`.
 
 --------------
 
