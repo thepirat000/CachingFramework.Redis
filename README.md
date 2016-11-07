@@ -613,8 +613,8 @@ Access these objects by the `Collections` property on `Context`.
 
 For example:
 ```c#
-IList<User> redisList = context.Collections.GetRedisList<User>("users:list");
-redisList.Add(user);
+var hash = context.Collections.GetRedisDictionary<int, User>("users:hash");
+hash.Add(1, new User() { Id = 1 }, new [] { "tag" });
 ```
 
 **For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
