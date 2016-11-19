@@ -1,5 +1,5 @@
 {
-  "version": "6.2.0-*",
+  "version": "7.0.0-*",
   "packOptions": {
     "summary": "MessagePack serializer for CachingFramework.Redis.",
     "tags": [
@@ -34,12 +34,15 @@
     "CachingFramework.Redis": {
       "target": "project"
     },
-    "NETStandard.Library": "1.6.0",
     "StackExchange.Redis": "1.1.608",
     "MsgPack.Cli": "0.8.0"
   },
   "frameworks": {
-    "netstandard1.5": {},
+    "netstandard1.5": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      }
+    },
     "net45": {},
     "net461": {}
   },
