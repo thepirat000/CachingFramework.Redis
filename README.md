@@ -63,7 +63,7 @@ public class User
 }
 ```
 
-* Note: The *Serializable* attribute is needed by the default serialization method [binary serializer](https://github.com/thepirat000/CachingFramework.Redis#serialization). If you use, for example, a [JSon Serializer](https://www.nuget.org/packages/CachingFramework.Redis.Json/) the Serializable attribute becomes unnecessary.
+* Note: The *Serializable* attribute is needed by the default serialization method binary serializer. If you use, for example, the JSon Serializer, the Serializable attribute becomes unnecessary. See [Serialization]((https://github.com/thepirat000/CachingFramework.Redis#serialization)) section for more information.
 
 ### Add a single object to the cache:
 ```c#
@@ -613,8 +613,8 @@ Access these objects by the `Collections` property on `Context`.
 
 For example:
 ```c#
-IList<User> redisList = context.Collections.GetRedisList<User>("users:list");
-redisList.Add(user);
+var hash = context.Collections.GetRedisDictionary<int, User>("users:hash");
+hash.Add(1, new User() { Id = 1 }, new [] { "tag" });
 ```
 
 **For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
