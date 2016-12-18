@@ -319,7 +319,7 @@ This will listen to any channel whose name starts with "*users.*".
 context.PubSub.Unsubscribe("users.*");
 ```
 
-#### Naïve 4-lines chat application
+#### Example - Naïve 4-lines chat application
 ```c#
 static void Main()
 {
@@ -386,7 +386,7 @@ foreach (var r in results)
 }
 ```
 
-### Get the distance between two cities
+### Example - Get the distance between two cities
 
 Get the distance (in kilometers) between two addresses by using [GoogleMaps.LocationServices](https://github.com/sethwebster/GoogleMaps.LocationServices):
 ```c#
@@ -429,7 +429,7 @@ To get the cardinality (the count of unique elements) use the `HyperLogLogCount`
 long count = context.Cache.HyperLogLogCount("key");
 ```
 
-### Count unique logins per day
+### Example - Count unique logins per day
 Considering a unique login as the Username + IP address combination.
 
 Each time a user login, add the element to the HLL with the `HyperLogLogAdd` method:
