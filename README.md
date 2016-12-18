@@ -491,11 +491,11 @@ All types are serialized using the [JSON.NET](https://www.nuget.org/packages/New
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
 Any other type is serialized using the default serializer. Allows overriding the serialization method per type.
 
-| | **Inheritance** | **Data** | **Configuration** |
+| | **Data** | **Configuration** |
 | ----------- | ----------------------- | -------------------------- | ------------------ |
-|**BinarySerializer** | Full inheritance support | Data is compressed and not human readable | Serialization cannot be configured (except NonSerialized attribute)| 
-|**JsonSerializer** | Limited inheritance support | Data is stored as Json | Serialization can be configured with JsonSerializerSettings | 
-|**RawSerializer** | Limited inheritance, only for types serialized with BinaryFormatter | Simple types are stored as strings and are human readable | Serialization can be set-up per type using SetSerializerFor | 
+|**BinarySerializer** | Data is compressed and not human readable | Serialization cannot be configured (except NonSerialized attribute)| 
+|**JsonSerializer** | Data is stored as Json | Serialization can be configured with JsonSerializerSettings | 
+|**RawSerializer** | Simple types are stored as strings and are human readable | Serialization can be set-up per type using SetSerializerFor | 
 
 The `RawSerializer` allows to dynamically override the serialization/deserialization logic per type with the method `SetSerializerFor<T>()`.
 
