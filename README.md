@@ -44,7 +44,7 @@ var context = new Context();
 var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortConnect=false, allowAdmin=true");
 ```
 
-The constructor parameter must be a valid StackExchange.Redis connection string. See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
+The constructor parameter must be a valid StackExchange.Redis connection string. Check [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for more information about StackExchange.Redis configuration options.
 
 --------------
 
@@ -58,12 +58,11 @@ For example:
 public class User
 {
     public int Id { get; set; }
-    public string UserName { get; set; }
-	   ...
+    public string UserName { get; set; } ...
 }
 ```
 
-* Note: The *Serializable* attribute is needed by the default serialization method binary serializer. If you use, for example, the JSon Serializer, the Serializable attribute becomes unnecessary. See [Serialization]((https://github.com/thepirat000/CachingFramework.Redis#serialization)) section for more information.
+> Note: The *Serializable* attribute is needed by the default serialization method *binary serializer*. If you use, for example, the JSon Serializer, the Serializable attribute becomes unnecessary. See [Serialization]((https://github.com/thepirat000/CachingFramework.Redis#serialization)) section for more information.
 
 ### Add a single object to the cache:
 ```c#
