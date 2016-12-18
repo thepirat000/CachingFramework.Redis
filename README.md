@@ -489,7 +489,7 @@ All types are serialized using the [JSON.NET](https://www.nuget.org/packages/New
 
 - **Raw Serializer**:
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
-Any other type is serialized using the default serializer. This serializer allows the override of the serialization method per type.
+Any other type is serialized using the default serializer. Allows overriding the serialization method per type.
 
 | | **Inheritance** | **Data** | **Configuration** |
 | ----------- | ----------------------- | -------------------------- | ------------------ |
