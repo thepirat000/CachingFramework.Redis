@@ -494,8 +494,8 @@ Any other type is serialized using the default serializer. Allows overriding the
 | | **Data** | **Configuration** |
 | ----------- | ----------------------- | -------------------------- | ------------------ |
 |**BinarySerializer** | Data is compressed and not human readable | Serialization cannot be configured (except `NonSerialized` attribute)| 
-|**JsonSerializer** | Data is stored as Json | Serialization can be configured with JsonSerializerSettings | 
-|**RawSerializer** | Simple types are stored as strings and are human readable | Serialization can be set-up per type using SetSerializerFor | 
+|**JsonSerializer** | Data is stored as Json | Serialization can be configured with `JsonSerializerSettings` | 
+|**RawSerializer** | Simple types are stored as strings and are human readable | Serialization can be set-up per type using `SetSerializerFor()` | 
 
 The `RawSerializer` allows to dynamically override the serialization/deserialization logic per type with the method `SetSerializerFor<T>()`.
 
