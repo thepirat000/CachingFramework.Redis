@@ -22,12 +22,14 @@
 ## Usage
 
 ### [NuGet](https://www.nuget.org/packages/CachingFramework.Redis/)
+
+To install the package run the following command on the Package Manager Console:
+
 ```
 PM> Install-Package CachingFramework.Redis
 ```
 
-
-Or the [Strong-Named](https://www.nuget.org/packages/CachingFramework.Redis.StrongName/) version:
+Or for the [Strong-Named](https://www.nuget.org/packages/CachingFramework.Redis.StrongName/) version:
 ```
 PM> Install-Package CachingFramework.Redis.StrongName
 ```
