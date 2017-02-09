@@ -142,7 +142,7 @@ User u = context.Cache.GetHashed<User>("users:hash", "user:id:1");
 ```c#
 IDictionary<string, User> users = context.Cache.GetHashedAll<User>("users:hash");
 ```
-Objects within a hash can be of different types. 
+> Objects within a hash can be of different types. 
 
 #### Scan fields by pattern
 Incrementally iterate over the hash members by matching a glob-style pattern with the field names.
