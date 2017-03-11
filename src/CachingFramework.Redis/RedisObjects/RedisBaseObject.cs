@@ -3,6 +3,7 @@ using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using StackExchange.Redis;
 using CachingFramework.Redis.Providers;
+using System.Threading.Tasks;
 
 namespace CachingFramework.Redis.RedisObjects
 {
@@ -96,6 +97,13 @@ namespace CachingFramework.Redis.RedisObjects
         public void Clear()
         {
             GetRedisDb().KeyDelete(RedisKey);
+        }
+        /// <summary>
+        /// Removes all items from the collection
+        /// </summary>
+        public async Task ClearAsync()
+        {
+            await GetRedisDb().KeyDeleteAsync(RedisKey);
         }
     }
 }

@@ -8,6 +8,7 @@ using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.RedisObjects;
 using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -258,7 +259,6 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(10, rl[-1]);
         }
 
-
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheListObject(Context context)
         {
@@ -392,6 +392,198 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(11, range[0].Id);
             Assert.AreEqual(91, range[range.Count - 1].Id);
         }
+
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheList_Remove_Async(Context context)
+        {
+            string key = "UT_CacheList_Remove_Async";
+            await context.Cache.RemoveAsync(key);
+            var lst = context.Collections.GetRedisList<string>(key);
+            await lst.AddRangeAsync(new[] { "test", "test", "anothertest" });
+            Assert.AreEqual(3, lst.Count);
+            await lst.RemoveAtAsync(0);
+            Assert.AreEqual(2, lst.Count);
+            Assert.AreEqual("test", lst[0]);
+            Assert.AreEqual("anothertest", lst[1]);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheList_Insert_Async(Context context)
+        {
+            string key = "UT_CacheList_Insert_Async";
+            await context.Cache.RemoveAsync(key);
+            var rl = context.Collections.GetRedisList<string>(key);
+            await rl.InsertAsync(0, "test");
+            await rl.InsertAsync(0, "test");
+            await rl.InsertAsync(0, "test");
+            Assert.AreEqual(3, rl.Count);
+            await rl.InsertAsync(2, "test2");
+            Assert.AreEqual(4, rl.Count);
+            Assert.AreEqual("test", rl[0]);
+            Assert.AreEqual("test2", rl[2]);
+            await rl.InsertAsync(rl.Count, "LAST");
+            Assert.AreEqual(5, rl.Count);
+            Assert.AreEqual("LAST", rl[rl.Count - 1]);
+            rl[rl.Count - 1] = "NEW LAST";
+            Assert.AreEqual(5, rl.Count);
+            Assert.AreEqual("NEW LAST", rl[rl.Count - 1]);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheList_Trim_Async(Context context)
+        {
+            string key = "UT_CacheList_Trim_Async";
+            await context.Cache.RemoveAsync(key);
+            var rl = context.Collections.GetRedisList<int>(key);
+            await rl.AddRangeAsync(Enumerable.Range(1, 100));
+            Assert.AreEqual(100, rl.Count);
+            await rl.TrimAsync(0, 9);
+            Assert.AreEqual(10, rl.Count);
+            Assert.AreEqual(1, rl[0]);
+            Assert.AreEqual(10, rl[-1]);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheListObject_Async(Context context)
+        {
+            string key1 = "UT_CacheListObject_Async";
+            await context.Cache.RemoveAsync(key1);
+            var users = GetUsers();
+            var rl = context.Collections.GetRedisList<int>(key1);
+            await rl.AddRangeAsync(users.Select(u => u.Id));
+            // Test GetEnumerator
+            foreach (var item in rl)
+            {
+                Assert.IsTrue(users.Any(u => u.Id == item));
+            }
+            // Test Count
+            Assert.AreEqual(users.Count, rl.Count);
+            // Test First and Last
+            var first = rl.First();
+            Assert.AreEqual(users.First().Id, first);
+            var firstod = rl.FirstOrDefault();
+            Assert.AreEqual(users.First().Id, firstod);
+            Assert.AreEqual(users.Last().Id, rl.Last());
+            Assert.AreEqual(users.Last().Id, rl.LastOrDefault());
+            // Test Contains
+            Assert.IsTrue(rl.Contains(users[2].Id));
+            // Test Insert
+            await rl.InsertAsync(0, 0);
+            Assert.AreEqual(0, rl[0]);
+            // Test RemoveAt
+            await rl.RemoveAtAsync(0);
+            Assert.AreEqual(1, rl[0]);
+            // Test Add
+            await rl.AddAsync(5);
+            Assert.AreEqual(5, rl.Last());
+            // Test IndexOf
+            var i = await rl.IndexOfAsync(users[2].Id);
+            Assert.AreEqual(2, i);
+            // Test Remove
+            await rl.RemoveAsync(users[2].Id, 1);
+            var b = await rl.ContainsAsync(users[2].Id);
+            Assert.IsFalse(b);
+            // Test CopyTo
+            int[] array = new int[50];
+            rl.CopyTo(array, 10);
+            Assert.AreEqual(1, array[10]);
+            // Test Clear
+            await rl.ClearAsync();
+            Assert.AreEqual(0, rl.Count);
+            Assert.AreEqual(0, rl.LastOrDefault());
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheListPushPop_Async(Context context)
+        {
+            string key = "UT_CacheListPushPop_Async";
+            await context.Cache.RemoveAsync(key);
+            var users = GetUsers();
+            var rl = context.Collections.GetRedisList<User>(key);
+            Assert.IsNull(rl.FirstOrDefault());
+            Assert.IsNull(rl.LastOrDefault());
+            await rl.AddRangeAsync(users);
+            await rl.PushFirstAsync(new User() { Id = 0 });
+            await rl.PushLastAsync(new User() { Id = 666 });
+            Assert.AreEqual(0, rl[0].Id);
+            Assert.AreEqual(0, rl.FirstOrDefault().Id);
+            Assert.AreEqual(666, rl.LastOrDefault().Id);
+            Assert.AreEqual(users.Count + 2, rl.Count);
+            var remf = await rl.PopFirstAsync();
+            Assert.AreEqual(users.Count + 1, rl.Count);
+            Assert.AreEqual(0, remf.Id);
+            var reml = await rl.PopLastAsync();
+            Assert.AreEqual(users.Count, rl.Count);
+            Assert.AreEqual(666, reml.Id);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "Raw")]
+        public async Task UT_CacheListRemoveAt_Async(Context context)
+        {
+            string key = "UT_CacheListRemoveAt_Async";
+            await context.Cache.RemoveAsync(key);
+            var rl = context.Collections.GetRedisList<string>(key);
+            await rl.RemoveAtAsync(0);
+            await rl.PushLastAsync("test 1");
+            await rl.PushLastAsync("test 2");
+            await rl.PushLastAsync("test 3");
+            await rl.PushLastAsync("test 4");
+            await rl.PushLastAsync("test 5");
+
+            await rl.RemoveAtAsync(0);
+            Assert.AreEqual(4, rl.Count);
+            Assert.AreEqual("test 2", rl[0]);
+
+            await rl.RemoveAtAsync(rl.Count - 1);
+            Assert.AreEqual(3, rl.Count);
+            Assert.AreEqual("test 4", rl.LastOrDefault());
+
+            await rl.RemoveAtAsync(1);
+            Assert.AreEqual(2, rl.Count);
+            Assert.AreEqual("test 2", rl.FirstOrDefault());
+            Assert.AreEqual("test 4", rl.LastOrDefault());
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheListObjectTTL_Async(Context context)
+        {
+            string key1 = "UT_CacheListObjectTTL_Async";
+            await context.Cache.RemoveAsync(key1);
+            var users = GetUsers();
+            var rl = context.Collections.GetRedisList<User>(key1);
+            await rl.AddRangeAsync(users);
+            rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
+            Assert.AreEqual(users.Count, rl.Count);
+            Thread.Sleep(2000);
+            Assert.AreEqual(0, rl.Count);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheListObject_GetRange_Async(Context context)
+        {
+            string key = "UT_CacheListObject_GetRange_Async";
+            int total = 100;
+            await context.Cache.RemoveAsync(key);
+            var rl = context.Collections.GetRedisList<User>(key);
+            await rl.AddRangeAsync(Enumerable.Range(1, total).Select(i => new User() { Id = i }));
+
+            var r = await rl.GetRangeAsync();
+            var range = r.ToList();
+            Assert.AreEqual(total, rl.Count);
+
+            r = await rl.GetRangeAsync(3, 10);
+            range = r.ToList();
+
+            Assert.AreEqual(8, range.Count);
+            Assert.AreEqual(4, range[0].Id);
+
+            r = await rl.GetRangeAsync(10, -10);
+            range = r.ToList();
+            Assert.AreEqual(11, range[0].Id);
+            Assert.AreEqual(91, range[range.Count - 1].Id);
+        }
+
 
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheDictionaryObject(Context context)
@@ -987,6 +1179,16 @@ namespace CachingFramework.Redis.UnitTest
             };
             return new List<User>() { user1, user2, user3, user4 };
         }
+
+
+
+
+
+
+
+
+
+
 
     }
 }
