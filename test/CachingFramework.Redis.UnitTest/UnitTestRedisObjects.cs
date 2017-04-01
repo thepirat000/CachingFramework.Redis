@@ -166,7 +166,6 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("item2", t2[0]);
         }
 
-
         [Test, TestCaseSource(typeof (Common), "Raw")]
         public void UT_CacheSortedSet_When(Context context)
         {
@@ -670,18 +669,18 @@ namespace CachingFramework.Redis.UnitTest
                 Assert.IsTrue(users.Any(u => u.Id == item.Key));
             }
             // Test Count
-            Assert.AreEqual(users.Count, rd.GetCountAsync().Result);
+            Assert.AreEqual(users.Count, await rd.GetCountAsync());
             // Test ContainsKey
-            Assert.IsTrue(rd.ContainsKeyAsync(users[1].Id).Result);
+            Assert.IsTrue(await rd.ContainsKeyAsync(users[1].Id));
             // Test Contains
-            Assert.IsTrue(rd.ContainsAsync(new KeyValuePair<int, User>(users.Last().Id, users.Last())).Result);
+            Assert.IsTrue(await rd.ContainsAsync(new KeyValuePair<int, User>(users.Last().Id, users.Last())));
             // Test Add
             await rd.AddAsync(0, new User() { Id = 0 });
-            Assert.AreEqual(users.Count + 1, rd.GetCountAsync().Result);
+            Assert.AreEqual(users.Count + 1, await rd.GetCountAsync());
             Assert.AreEqual(0, rd[0].Id);
             // Test Remove
             await rd.RemoveAsync(0);
-            Assert.IsFalse(rd.ContainsKeyAsync(0).Result);
+            Assert.IsFalse(await rd.ContainsKeyAsync(0));
             // Test Keys
             foreach (var k in rd.Keys)
             {
@@ -706,7 +705,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users.Count, array.Count(x => x.Value != null));
             // Test Clear
             await rd.ClearAsync();
-            Assert.AreEqual(0, rd.GetCountAsync().Result);
+            Assert.AreEqual(0, await rd.GetCountAsync());
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
@@ -718,9 +717,25 @@ namespace CachingFramework.Redis.UnitTest
             var rl = context.Collections.GetRedisDictionary<int, User>(key1);
             await rl.AddRangeAsync(users.ToDictionary(k => k.Id));
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
-            Assert.AreEqual(users.Count, rl.GetCountAsync().Result);
+            Assert.AreEqual(users.Count, await rl.GetCountAsync());
             Thread.Sleep(2000);
-            Assert.AreEqual(0, rl.GetCountAsync().Result);
+            Assert.AreEqual(0, await rl.GetCountAsync());
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryObject_AddAsyncWithTags(Context context)
+        {
+            string key1 = "UT_CacheDictionaryObject_AddAsyncWithTags";
+            string tag1 = "UT_CacheDictionaryObject_AddAsyncWithTags_TAG1";
+            context.Cache.Remove(key1);
+            context.Cache.InvalidateKeysByTag(tag1);
+            var users = GetUsers();
+            var rl = context.Collections.GetRedisDictionary<int, User>(key1);
+            await rl.AddAsync(1, users[0], new[] { tag1 });
+            var keys = context.Cache.GetKeysByTag(new[] { tag1 }, true).ToList();
+            Assert.AreEqual(1, keys.Count);
+            var val = Encoding.UTF8.GetString(context.GetSerializer().Serialize(1));
+            Assert.AreEqual("UT_CacheDictionaryObject_AddAsyncWithTags:$_->_$:" + val, keys[0]);
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
@@ -1249,14 +1264,87 @@ namespace CachingFramework.Redis.UnitTest
             return new List<User>() { user1, user2, user3, user4 };
         }
 
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheSetObjectAsync(Context context)
+        {
+            string key1 = "UT_CacheSetObjectAsync";
+            await context.Cache.RemoveAsync(key1);
+            var users = GetUsers();
+            var rs = context.Collections.GetRedisSet<User>(key1);
+            await rs.AddRangeAsync(users);
+            // Test GetEnumerator
+            foreach (var item in rs)
+            {
+                Assert.IsTrue(users.Any(u => u.Id == item.Id));
+            }
+            // Test Count
+            Assert.AreEqual(users.Count, (await rs.GetCountAsync()));
+            // Test Contains
+            Assert.IsTrue(await (rs.ContainsAsync(users[2])));
+            // Test Add
+            var newUser = new User() { Id = 5 };
+            await rs.AddAsync(newUser);
+            Assert.IsTrue(await (rs.ContainsAsync(newUser)));
+            // Test Remove
+            await rs.RemoveAsync(users[2]);
+            Assert.IsFalse(await (rs.ContainsAsync(users[2])));
+            // Test CopyTo
+            User[] array = new User[50];
+            rs.CopyTo(array, 10);
+            Assert.AreEqual(users.Count, array.Count(x => x != null));
+            // Test Clear
+            await rs.ClearAsync();
+            Assert.AreEqual(0, await rs.GetCountAsync());
+            await rs.AddRangeAsync(new[] { new User() { Id = 3 }, new User() { Id = 1 }, new User() { Id = 2 } });
+            Assert.AreEqual(3, await rs.GetCountAsync());
+            await rs.RemoveAsync(new User() { Id = 1 });
+            await rs.RemoveAsync(new User() { Id = 2 });
+            Assert.AreEqual(1, await rs.GetCountAsync());
+            Assert.IsTrue(await rs.ContainsAsync(new User() { Id = 3 }));
+            // Test GetRandomMember
+            var user = await rs.GetRandomMemberAsync();
+            Assert.AreEqual(3, user.Id);
+            // Test Pop
+            user = await rs.PopAsync();
+            Assert.AreEqual(3, user.Id);
+            user = await rs.PopAsync();
+            Assert.IsNull(user);
+        }
 
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheSetObject_TTLAsync(Context context)
+        {
+            string key1 = "UT_CacheSetObject_TTLAsync";
+            context.Cache.Remove(key1);
+            var users = GetUsers();
+            var rl = context.Collections.GetRedisSet<User>(key1);
+            await rl.AddRangeAsync(users);
+            rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
+            Assert.AreEqual(users.Count, await rl.GetCountAsync());
+            Thread.Sleep(2000);
+            Assert.AreEqual(0, await rl.GetCountAsync());
+        }
 
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheSetObject_SetModifiersAsync(Context context)
+        {
+            string keyAbc = "UT_CacheSetObject_SetModifiersAsync_ABC";
+            string keyCde = "UT_CacheSetObject_SetModifiersAsync_CDE";
 
+            context.Cache.Remove(keyAbc);
+            context.Cache.Remove(keyCde);
+            var abcSet = context.Collections.GetRedisSet<char>(keyAbc);
+            await abcSet.AddRangeAsync("ABC");
 
+            var cdeSet = context.Collections.GetRedisSet<char>(keyCde);
+            await cdeSet.AddRangeAsync("CDE");
 
-
-
-
+            // Test Count
+            Assert.AreEqual(3, await abcSet.GetCountAsync());
+            Assert.AreEqual(3, await cdeSet.GetCountAsync());
+            abcSet.Clear();
+            cdeSet.Clear();
+        }
 
 
     }
