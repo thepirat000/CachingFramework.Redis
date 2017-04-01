@@ -22,8 +22,16 @@
 ## Usage
 
 ### [NuGet](https://www.nuget.org/packages/CachingFramework.Redis/)
+
+To install the package run the following command on the Package Manager Console:
+
 ```
 PM> Install-Package CachingFramework.Redis
+```
+
+Or for the [Strong-Named](https://www.nuget.org/packages/CachingFramework.Redis.StrongName/) version:
+```
+PM> Install-Package CachingFramework.Redis.StrongName
 ```
 
 ### Context
@@ -44,7 +52,7 @@ var context = new Context();
 var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortConnect=false, allowAdmin=true");
 ```
 
-The constructor parameter must be a valid StackExchange.Redis connection string. See [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for StackExchange.Redis configuration options.
+The constructor parameter must be a valid StackExchange.Redis connection string. Check [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for more information about StackExchange.Redis configuration options.
 
 --------------
 
@@ -58,12 +66,11 @@ For example:
 public class User
 {
     public int Id { get; set; }
-    public string UserName { get; set; }
-	   ...
+    public string UserName { get; set; } ...
 }
 ```
 
-* Note: The *Serializable* attribute is needed by the default serialization method binary serializer. If you use, for example, the JSon Serializer, the Serializable attribute becomes unnecessary. See [Serialization]((https://github.com/thepirat000/CachingFramework.Redis#serialization)) section for more information.
+> Note: The *Serializable* attribute is needed by the default serialization method *binary serializer*. If you use, for example, the *json serializer*, this attribute becomes unnecessary. See [Serialization](#serialization) section for more information.
 
 ### Add a single object to the cache:
 ```c#
@@ -135,7 +142,7 @@ User u = context.Cache.GetHashed<User>("users:hash", "user:id:1");
 ```c#
 IDictionary<string, User> users = context.Cache.GetHashedAll<User>("users:hash");
 ```
-Objects within a hash can be of different types. 
+> Objects within a hash can be of different types. 
 
 #### Scan fields by pattern
 Incrementally iterate over the hash members by matching a glob-style pattern with the field names.
@@ -320,7 +327,7 @@ This will listen to any channel whose name starts with "*users.*".
 context.PubSub.Unsubscribe("users.*");
 ```
 
-#### Naïve 4-lines chat application
+#### Example - Naïve 4-lines chat application
 ```c#
 static void Main()
 {
@@ -387,7 +394,7 @@ foreach (var r in results)
 }
 ```
 
-### Get the distance between two cities
+### Example - Get the distance between two cities
 
 Get the distance (in kilometers) between two addresses by using [GoogleMaps.LocationServices](https://github.com/sethwebster/GoogleMaps.LocationServices):
 ```c#
@@ -430,7 +437,7 @@ To get the cardinality (the count of unique elements) use the `HyperLogLogCount`
 long count = context.Cache.HyperLogLogCount("key");
 ```
 
-### Count unique logins per day
+### Example - Count unique logins per day
 Considering a unique login as the Username + IP address combination.
 
 Each time a user login, add the element to the HLL with the `HyperLogLogAdd` method:
@@ -490,13 +497,13 @@ All types are serialized using the [JSON.NET](https://www.nuget.org/packages/New
 
 - **Raw Serializer**:
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
-Any other type is serialized using the default serializer.
+Any other type is serialized using the default serializer. Allows overriding the serialization method per type.
 
-| | **Inheritance** | **Data** | **Configuration** |
+| | **Data** | **Configuration** |
 | ----------- | ----------------------- | -------------------------- | ------------------ |
-|**BinarySerializer** | Full inheritance support | Data is compressed and not human readable | Serialization cannot be configured (except NonSerialized attribute)| 
-|**JsonSerializer** | Limited inheritance support | Data is stored as Json | Serialization can be configured with JsonSerializerSettings | 
-|**RawSerializer** | Limited inheritance, only for types serialized with BinaryFormatter | Simple types are stored as strings and are human readable | Serialization can be set-up per type using SetSerializerFor | 
+|**BinarySerializer** | Data is compressed and not human readable | Serialization cannot be configured (except `NonSerialized` attribute)| 
+|**JsonSerializer** | Data is stored as Json | Serialization can be configured with `JsonSerializerSettings` | 
+|**RawSerializer** | Simple types are stored as strings and are human readable | Serialization can be set-up per type using `SetSerializerFor()` | 
 
 The `RawSerializer` allows to dynamically override the serialization/deserialization logic per type with the method `SetSerializerFor<T>()`.
 
