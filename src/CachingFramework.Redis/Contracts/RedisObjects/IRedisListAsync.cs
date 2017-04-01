@@ -83,5 +83,9 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.IList`1" />.</param>
         /// <returns>The index of <paramref name="item" /> if found in the list; otherwise, -1.</returns>
         Task<int> IndexOfAsync(T item);
+        /// <summary>
+        /// Removes all items from the collection
+        /// </summary>
+        Task ClearAsync();
     }
 }

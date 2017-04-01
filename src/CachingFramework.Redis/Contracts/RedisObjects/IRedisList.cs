@@ -81,9 +81,5 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="count">if count > 0: Remove a quantity of elements equal to value moving from head to tail. if count &lt; 0: Remove elements equal to value moving from tail to head. count = 0: Remove all elements equal to value.</param>
         /// <returns>true if at least one element was successfully removed from the list.</returns>
         bool Remove(T item, long count);
-        /// <summary>
-        /// Removes all items from the collection
-        /// </summary>
-        Task ClearAsync();
     }
 }

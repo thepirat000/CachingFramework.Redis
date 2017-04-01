@@ -6,6 +6,7 @@ using CachingFramework.Redis.Contracts.RedisObjects;
 using StackExchange.Redis;
 using CachingFramework.Redis.Contracts.Providers;
 using CachingFramework.Redis.Providers;
+using System.Threading.Tasks;
 
 namespace CachingFramework.Redis.RedisObjects
 {
@@ -51,6 +52,83 @@ namespace CachingFramework.Redis.RedisObjects
             _cacheProvider.SetHashed<TK, TV>(RedisKey, key, value, tags);
         }
         #endregion
+
+        #region IRedisDictionaryAsync implementation
+
+
+        /// <summary>
+        /// Adds a single element to the dictionary related to the given tag(s).
+        /// </summary>
+        /// <param name="key">The redis key.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="tags">The tags to relate.</param>
+        public async Task AddAsync(TK key, TV value, string[] tags)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                await AddAsync(key, value);
+                return;
+            }
+            await Task.Run(() => _cacheProvider.SetHashed<TK, TV>(RedisKey, key, value, tags));
+        }
+
+        /// <summary>
+        /// Adds multiple elements to the dictionary.
+        /// </summary>
+        /// <param name="items">The collection.</param>
+        public async Task AddRangeAsync(IEnumerable<KeyValuePair<TK, TV>> items)
+        {
+            await GetRedisDb()
+                .HashSetAsync(RedisKey, items.Select(i => new HashEntry(Serialize(i.Key), Serialize(i.Value))).ToArray());
+        }
+
+        /// <summary>
+        /// Returns the number of elements in the hash.
+        /// </summary>
+        public async Task<long> GetCountAsync()
+        {
+            return await GetRedisDb().HashLengthAsync(RedisKey);
+        }
+
+        /// <summary>
+        /// Adds a single element to the dictionary.
+        /// </summary>
+        /// <param name="key">The redis key.</param>
+        /// <param name="value">The value.</param>
+        public async Task AddAsync(TK key, TV value)
+        {
+            await GetRedisDb().HashSetAsync(RedisKey, Serialize(key), Serialize(value));
+        }
+
+        /// <summary>
+        /// Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the specified key.
+        /// </summary>
+        /// <param name="key">The key to locate in the <see cref="T:System.Collections.Generic.IDictionary`2" />.</param>
+        /// <returns>true if the <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the key; otherwise, false.</returns>
+        public async Task<bool> ContainsKeyAsync(TK key)
+        {
+            return await GetRedisDb().HashExistsAsync(RedisKey, Serialize(key));
+        }
+        /// <summary>
+        /// Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.
+        /// </summary>
+        /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
+        /// <returns>true if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false.</returns>
+        public async Task<bool> ContainsAsync(KeyValuePair<TK, TV> item)
+        {
+            return await GetRedisDb().HashExistsAsync(RedisKey, Serialize(item.Key));
+        }
+        /// <summary>
+        /// Removes the element with the specified key from the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+        /// </summary>
+        /// <param name="key">The key of the element to remove.</param>
+        /// <returns>true if the element is successfully removed; otherwise, false.  This method also returns false if <paramref name="key" /> was not found in the original <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
+        public async Task<bool> RemoveAsync(TK key)
+        {
+            return await GetRedisDb().HashDeleteAsync(RedisKey, Serialize(key));
+        }
+        #endregion
+
         #region IDictionary implementation
         /// <summary>
         /// Adds an element with the provided key and value to the <see cref="T:System.Collections.Generic.IDictionary`2" />.
