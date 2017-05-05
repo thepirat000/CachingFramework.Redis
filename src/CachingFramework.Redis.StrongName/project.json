@@ -1,5 +1,5 @@
 {
-  "version": "7.1.0-*",
+  "version": "7.1.1-*",
   "packOptions": {
     "summary": "Cluster-compatible redis client including support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog, BitFields and more.",
     "tags": [
@@ -29,7 +29,7 @@
   ],
   "copyright": "Copyright 2016",
   "dependencies": {
-    "StackExchange.Redis.StrongName": "1.1.608",
+    "StackExchange.Redis.StrongName": "1.2.1",
     "Newtonsoft.Json": "9.0.1"
   },
   "buildOptions": {
