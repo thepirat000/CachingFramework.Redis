@@ -1261,6 +1261,7 @@ namespace CachingFramework.Redis.Providers
                     if (toRemove.Count > 0)
                     {
                         db.SetRemove(tag, toRemove.ToArray());
+                        toRemove.Clear();
                     }
                 }
             }
@@ -1323,6 +1324,7 @@ namespace CachingFramework.Redis.Providers
                     if (toRemove.Count > 0)
                     {
                         await db.SetRemoveAsync(tag, toRemove.ToArray()).ForAwait();
+                        toRemove.Clear();
                     }
                 }
             }
