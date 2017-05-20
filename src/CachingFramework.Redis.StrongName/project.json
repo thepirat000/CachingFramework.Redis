@@ -1,5 +1,5 @@
 {
-  "version": "7.1.1-*",
+  "version": "7.1.2-*",
   "packOptions": {
     "summary": "Cluster-compatible redis client including support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog, BitFields and more.",
     "tags": [
