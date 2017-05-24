@@ -876,6 +876,15 @@ namespace CachingFramework.Redis.Providers
             batch.Execute();
         }
 
+        /// <summary>
+        /// Sets the specified value to a hashset using the pair hashKey+field.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field key</param>
+        /// <param name="value">The value to store</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
         public void SetHashed<TK, TV>(string key, TK field, TV value, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always)
         {
             var db = RedisConnection.GetDatabase();
@@ -920,6 +929,16 @@ namespace CachingFramework.Redis.Providers
             batch.Execute();
         }
 
+        /// <summary>
+        /// Sets the specified value to a hashset using the pair hashKey+field.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field key</param>
+        /// <param name="value">The value to store</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
         public void SetHashed<TK, TV>(string key, TK field, TV value, string[] tags, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always)
         {
             if (tags == null || tags.Length == 0)
@@ -996,7 +1015,6 @@ namespace CachingFramework.Redis.Providers
             var db = RedisConnection.GetDatabase();
             return db.SortedSetRemove(key, Serializer.Serialize(value));
         }
-
         /// <summary>
         /// Sets the specified key/values pairs to a hashset.
         /// (The latest expiration applies to the whole key)
@@ -1008,6 +1026,18 @@ namespace CachingFramework.Redis.Providers
         {
             var db = RedisConnection.GetDatabase();
             db.HashSet(key, fieldValues.Select(x => new HashEntry(x.Key, Serializer.Serialize(x.Value))).ToArray());
+        }
+        /// <summary>
+        /// Sets the specified key/values pairs to a hashset.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fieldValues">The field keys and values to store</param>
+        public async Task SetHashedAsync<T>(string key, IDictionary<string, T> fieldValues)
+        {
+            var db = RedisConnection.GetDatabase();
+            await db.HashSetAsync(key, fieldValues.Select(x => new HashEntry(x.Key, Serializer.Serialize(x.Value))).ToArray());
         }
         /// <summary>
         /// Gets a specified hashed value from a key

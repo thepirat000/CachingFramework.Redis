@@ -241,5 +241,13 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// </summary>
         /// <param name="key">The redis key.</param>
         Task<long> HyperLogLogCountAsync(string key);
+        /// <summary>
+        /// Sets the specified key/values pairs to a hashset.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fieldValues">The field keys and values to store</param>
+        Task SetHashedAsync<T>(string key, IDictionary<string, T> fieldValues);
     }
 }
