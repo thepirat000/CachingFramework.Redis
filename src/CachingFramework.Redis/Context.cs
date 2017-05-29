@@ -40,14 +40,28 @@ namespace CachingFramework.Redis
         /// Initializes a new instance of the <see cref="Context" /> class using Redis in localhost server default port 6379, and using the default Serializer.
         /// </summary>
         public Context() : this("localhost:6379") { }
+#if (NET45 || NET461)
         /// <summary>
         /// Initializes a new instance of the <see cref="Context" /> class given the cache engine type and its configuration string, and using the default Serializer.
         /// </summary>
         /// <param name="configuration">The configuration string.</param>
-#if (NET45 || NET461)
         public Context(string configuration) : this(configuration, new BinarySerializer(), null) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Context" /> class given the cache engine type and its configuration string, and using the default Serializer.
+        /// </summary>
+        /// <param name="configuration">The configuration object.</param>
+        public Context(ConfigurationOptions configuration) : this(configuration, new BinarySerializer(), null) { }
 #else
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Context" /> class given the cache engine type and its configuration string, and using the default Serializer.
+        /// </summary>
+        /// <param name="configuration">The configuration string.</param>
         public Context(string configuration) : this(configuration, new JsonSerializer(), null) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Context" /> class given the cache engine type and its configuration string, and using the default Serializer.
+        /// </summary>
+        /// <param name="configuration">The configuration object.</param>
+        public Context(ConfigurationOptions configuration) : this(configuration, new JsonSerializer(), null) { }
 #endif
         /// <summary>
         /// Initializes a new instance of the <see cref="Context" /> class.
@@ -55,6 +69,12 @@ namespace CachingFramework.Redis
         /// <param name="configuration">The configuration string.</param>
         /// <param name="serializer">The serializer.</param>
         public Context(string configuration, ISerializer serializer) : this(configuration, serializer, null) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Context" /> class.
+        /// </summary>
+        /// <param name="configuration">The configuration object.</param>
+        /// <param name="serializer">The serializer.</param>
+        public Context(ConfigurationOptions configuration, ISerializer serializer) : this(configuration, serializer, null) { }
         /// <summary>
         /// Initializes a new instance of the <see cref="Context" /> class.
         /// </summary>

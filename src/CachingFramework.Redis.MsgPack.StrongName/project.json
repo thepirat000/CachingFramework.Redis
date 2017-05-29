@@ -1,5 +1,5 @@
 {
-  "version": "7.1.4-*",
+  "version": "7.1.5-*",
   "packOptions": {
     "summary": "MessagePack serializer for CachingFramework.Redis.",
     "tags": [
