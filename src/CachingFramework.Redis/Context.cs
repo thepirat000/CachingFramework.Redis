@@ -70,8 +70,23 @@ namespace CachingFramework.Redis
             _pubsubProvider = new RedisPubSubProvider(_internalContext);
             _keyEventsProvider = new RedisKeyEventsProvider(_internalContext);
         }
-#endregion
-#region IContext implementation
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Context" /> class.
+        /// </summary>
+        /// <param name="configuration">The configuration object.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="log">The textwriter to use for logging purposes.</param>
+        public Context(ConfigurationOptions configuration, ISerializer serializer, TextWriter log)
+        {
+            _internalContext = new RedisProviderContext(configuration, serializer, log);
+            _cacheProvider = new RedisCacheProvider(_internalContext);
+            _collectionProvider = new RedisCollectionProvider(_internalContext, _cacheProvider);
+            _geoProvider = new RedisGeoProvider(_internalContext, _cacheProvider);
+            _pubsubProvider = new RedisPubSubProvider(_internalContext);
+            _keyEventsProvider = new RedisKeyEventsProvider(_internalContext);
+        }
+        #endregion
+        #region IContext implementation
         /// <summary>
         /// Gets the cache API.
         /// </summary>

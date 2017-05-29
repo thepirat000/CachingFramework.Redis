@@ -30,5 +30,16 @@ namespace CachingFramework.Redis.Providers
             RedisConnection = ConnectionMultiplexer.Connect(configuration, log);
             Serializer = serializer;
         }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisProviderContext"/> class.
+        /// </summary>
+        /// <param name="configuration">The configuration object.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="log">The textwriter to use for logging purposes.</param>
+        public RedisProviderContext(ConfigurationOptions configuration, ISerializer serializer, TextWriter log = null)
+        {
+            RedisConnection = ConnectionMultiplexer.Connect(configuration, log);
+            Serializer = serializer;
+        }
     }
 }
