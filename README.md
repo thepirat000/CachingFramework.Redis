@@ -499,8 +499,8 @@ All types are serialized using the [JSON.NET](https://www.nuget.org/packages/New
 The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
 Any other type is serialized using the default serializer. Allows overriding the serialization method per type.
 
-| | **Data** | **Configuration** |
-| ----------- | ----------------------- | -------------------------- | ------------------ |
+| **Serializer** | **Data** | **Configuration** |
+| ----------- | ----------------------- | -------------------------- |
 |**BinarySerializer** | Data is compressed and not human readable | Serialization cannot be configured (except `NonSerialized` attribute)| 
 |**JsonSerializer** | Data is stored as Json | Serialization can be configured with `JsonSerializerSettings` | 
 |**RawSerializer** | Simple types are stored as strings and are human readable | Serialization can be set-up per type using `SetSerializerFor()` | 
