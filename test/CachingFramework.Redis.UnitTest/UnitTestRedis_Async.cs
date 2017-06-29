@@ -463,6 +463,20 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNull(user);
         }
 
+        [Test, TestCaseSource(typeof(Common), "Json")]
+        public async Task UT_CacheSetHashed_KeyTimeToLive_Async(Context context)
+        {
+            // Test the expiration of the Fetch method (last no-expiration applies)
+            var users = await GetUsersAsync();
+            string key = "UT_CacheSetHashed_KeyTimeToLive_Async";
+            context.Cache.Remove(key);
+            var ms = 10000;
+            context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(ms));
+            var ttl = await context.Cache.KeyTimeToLiveAsync(key);
+
+            Assert.IsTrue(ttl.Value.Seconds >= 8);
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSetHashed_Tags_Async(Context context)
         {
@@ -553,7 +567,7 @@ namespace CachingFramework.Redis.UnitTest
             string tag = "UT_CacheSetWithTags_Special-Tag1";
             await context.Cache.InvalidateKeysByTagAsync(tag);
             await context.Cache.SetObjectAsync(key1, "test value 1", new[] { tag }, TimeSpan.FromSeconds(1));
-            await context.Cache.SetObjectAsync(key2, "test value 2", new[] { tag });
+            await context.Cache.SetObjectAsync(key2, "test value 2", new[] { tag }, TimeSpan.MaxValue);
             Thread.Sleep(1500);
             var keys = (await context.Cache.GetKeysByTagAsync(new[] { tag })).ToList();
             var keysCleaned = (await context.Cache.GetKeysByTagAsync(new[] { tag }, true)).ToList();

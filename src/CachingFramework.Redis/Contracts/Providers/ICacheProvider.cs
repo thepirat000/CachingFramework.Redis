@@ -238,8 +238,14 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// </summary>
         /// <param name="key">The key to expire</param>
         /// <param name="ttl">The TTL timespan</param>
-        /// <returns>True is the key expiration was updated</returns>
+        /// <returns>True if the key expiration was updated</returns>
         bool KeyTimeToLive(string key, TimeSpan ttl);
+        /// <summary>
+        /// Gets the time-to-live of a key.
+        /// Returns NULL when key does not exist or does not have a timeout.
+        /// </summary>
+        /// <param name="key">The redis key to get its time-to-live</param>
+        TimeSpan? KeyTimeToLive(string key);
         /// <summary>
         /// Removes the expiration of the given key.
         /// </summary>

@@ -621,13 +621,27 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var ms = 1000;
             context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(ms));
-            context.Cache.SetHashed(key, "2", users[1]);
+            context.Cache.SetHashed(key, "2", users[1], TimeSpan.MaxValue);
             Thread.Sleep(ms + 200);
 
             var user1 = context.Cache.GetHashed<User>(key, "1");
             var user2 = context.Cache.GetHashed<User>(key, "2");
             Assert.IsNotNull(user1);
             Assert.IsNotNull(user2);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "Json")]
+        public void UT_CacheSetHashed_KeyTimeToLive(Context context)
+        {
+            // Test the expiration of the Fetch method (last no-expiration applies)
+            var users = GetUsers();
+            string key = "UT_CacheSetHashed_KeyTimeToLive";
+            context.Cache.Remove(key);
+            var ms = 10000;
+            context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(ms));
+            var ttl = context.Cache.KeyTimeToLive(key);
+
+            Assert.IsTrue(ttl.Value.Seconds >= 8);
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
@@ -720,7 +734,7 @@ namespace CachingFramework.Redis.UnitTest
             string tag = "UT_CacheSetWithTags_Special-Tag1";
             context.Cache.InvalidateKeysByTag(tag);
             context.Cache.SetObject(key1, "test value 1", new[] { tag }, TimeSpan.FromSeconds(1));
-            context.Cache.SetObject(key2, "test value 2", new[] { tag });
+            context.Cache.SetObject(key2, "test value 2", new[] { tag }, TimeSpan.MaxValue);
             Thread.Sleep(2000);
             var keys = context.Cache.GetKeysByTag(new[] { tag }).ToList();
             var keysCleaned = context.Cache.GetKeysByTag(new[] { tag }, true).ToList();

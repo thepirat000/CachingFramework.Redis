@@ -205,6 +205,11 @@ namespace CachingFramework.Redis.Providers
             return await RedisConnection.GetDatabase().KeyExpireAsync(key, ttl).ForAwait();
         }
 
+        public async Task<TimeSpan?> KeyTimeToLiveAsync(string key)
+        {
+            return await RedisConnection.GetDatabase().KeyTimeToLiveAsync(key).ForAwait();
+        }
+
         public async Task<bool> KeyPersistAsync(string key)
         {
             return await RedisConnection.GetDatabase().KeyPersistAsync(key).ForAwait();
@@ -835,6 +840,15 @@ namespace CachingFramework.Redis.Providers
             return RedisConnection.GetDatabase().KeyExpire(key, ttl);
         }
         /// <summary>
+        /// Gets the time-to-live of a key.
+        /// Returns NULL when key does not exist or does not have a timeout.
+        /// </summary>
+        /// <param name="key">The redis key to get its time-to-live</param>
+        public TimeSpan? KeyTimeToLive(string key)
+        {
+            return RedisConnection.GetDatabase().KeyTimeToLive(key);
+        }
+        /// <summary>
         /// Removes the expiration of the given key.
         /// </summary>
         /// <param name="key">The key to persist</param>
@@ -1165,34 +1179,30 @@ namespace CachingFramework.Redis.Providers
         /// <param name="ttl">The TTL.</param>
         private static void SetMaxExpiration(IBatch batch, string key, TimeSpan? ttl)
         {
+            if (ttl == null)
+            {
+                return;
+            }
             TimeSpan? final;
             IDatabase db = batch.Multiplexer.GetDatabase();
             bool preexistent = db.KeyExists(key);
             TimeSpan? curr = preexistent ? db.KeyTimeToLive(key) : null;
-            if (ttl != null && curr != null)
+            if (curr != null)
             {
                 // We have an expiration on both keys, use the max for the key
                 final = curr > ttl ? curr : ttl;
-            }
-            else if (preexistent && ttl == null)
-            {
-                //Key is preexistent and no expiration given
-                final = TimeSpan.MaxValue;
             }
             else
             {
                 final = ttl;
             }
-            if (final != null)
+            if (final == TimeSpan.MaxValue)
             {
-                if (final == TimeSpan.MaxValue)
-                {
-                    batch.KeyPersistAsync(key);
-                }
-                else
-                {
-                    batch.KeyExpireAsync(key, final);
-                }
+                batch.KeyPersistAsync(key);
+            }
+            else
+            {
+                batch.KeyExpireAsync(key, final);
             }
         }
         /// <summary>
