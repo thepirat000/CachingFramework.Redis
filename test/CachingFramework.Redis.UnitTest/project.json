@@ -26,5 +26,8 @@
         "GoogleMaps.LocationServices": "0.9.8.6"
       }
     }
+  },
+  "runtimes": {
+    "win7-x64": {}
   }
 }

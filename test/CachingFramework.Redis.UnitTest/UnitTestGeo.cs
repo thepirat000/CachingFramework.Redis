@@ -1,8 +1,10 @@
-﻿#if (NET45 || NET461)
+﻿
 using System.Collections.Generic;
 using System.Linq;
 using CachingFramework.Redis.Contracts;
+#if (NET45 || NET461)
 using GoogleMaps.LocationServices;
+#endif
 using NUnit.Framework;
 
 namespace CachingFramework.Redis.UnitTest
@@ -12,7 +14,9 @@ namespace CachingFramework.Redis.UnitTest
     {
         private static GeoCoordinate _coordZapopan;
         private static GeoCoordinate _coordLondon;
+#if (NET45 || NET461)
         private static GoogleLocationService _locationSvc;
+#endif
 
         [OneTimeSetUp]
         public static void ClassInitialize()
@@ -21,9 +25,14 @@ namespace CachingFramework.Redis.UnitTest
             {
                 Assert.Ignore($"Geospatial tests ignored for version {string.Join(".", Common.VersionInfo)}\n");
             }
+#if (NET45 || NET461)
             _locationSvc = new GoogleLocationService();
             _coordZapopan = _locationSvc.GetLatLongFromAddress("Zapopan").ToGeoCoord();
             _coordLondon = _locationSvc.GetLatLongFromAddress("London").ToGeoCoord();
+#else
+            _coordZapopan = new GeoCoordinate(20.6719563, -103.416501);
+            _coordLondon = new GeoCoordinate(51.5073509, -0.1277583);
+#endif
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
@@ -93,6 +102,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(9100, kmlz, 100);
         }
 
+#if (NET45 || NET461)
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Geo_GeoDistanceDirect(Context context)
         {
@@ -106,7 +116,7 @@ namespace CachingFramework.Redis.UnitTest
             var km = context.GeoSpatial.GeoDistance(key, "mdq", "bue", Unit.Kilometers);
             Assert.AreEqual(385, km, 15);
         }
-
+#endif
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Geo_GeoHash(Context context)
         {
@@ -119,6 +129,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(hash.StartsWith("9ewmwenq"));
         }
 
+#if (NET45 || NET461)
         [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_Geo_GeoRadius(Context context)
         {
@@ -148,6 +159,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("mexico", results500[1].Value);
             Assert.AreEqual("zapopan", results500[2].Value);
         }
+#endif
 
         private List<User> GetUsers()
         {
@@ -198,7 +210,7 @@ namespace CachingFramework.Redis.UnitTest
             return new List<User>() { user1, user2, user3, user4 };
         }
     }
-
+#if (NET45 || NET461)
     public static class TempExtensions
     {
         public static GeoCoordinate ToGeoCoord(this MapPoint coord)
@@ -206,5 +218,5 @@ namespace CachingFramework.Redis.UnitTest
             return new GeoCoordinate(coord.Latitude, coord.Longitude);
         }
     }
-}
 #endif
+}

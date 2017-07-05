@@ -4,6 +4,7 @@ using System.Linq;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.Providers;
 using StackExchange.Redis;
+using System.Threading.Tasks;
 
 namespace CachingFramework.Redis.Providers
 {
@@ -29,6 +30,7 @@ namespace CachingFramework.Redis.Providers
         #endregion
 
         #region IGeoProvider implementation
+
         /// <summary>
         /// Adds the specified geospatial members (latitude, longitude, object) to the specified key.
         /// </summary>
@@ -40,17 +42,13 @@ namespace CachingFramework.Redis.Providers
         public int GeoAdd<T>(string key, GeoMember<T>[] members, string[] tags = null)
         {
             var db = RedisConnection.GetDatabase();
-            var values = new List<RedisValue>();
-            foreach(var member in members)
+            var values = new GeoEntry[members.Length];
+            for(int i = 0; i < values.Length; i++)
             {
-                values.AddRange(new RedisValue[] 
-                { 
-                    member.Position.Longitude, 
-                    member.Position.Latitude, 
-                    Serializer.Serialize(member.Value) 
-                });
+                var member = members[i];
+                values[i] = new GeoEntry(member.Position.Longitude, member.Position.Latitude, Serializer.Serialize(member.Value));
             }
-            int result = (int)db.ScriptEvaluate(LuaScriptResource.GeoAdd, new RedisKey[] { key }, values.ToArray());
+            int result = (int)db.GeoAdd(key, values);
             // Relate the tags (if any)
             if (tags != null && tags.Length > 0)
             {
@@ -99,8 +97,7 @@ namespace CachingFramework.Redis.Providers
         public string GeoHash<T>(string key, T member)
         {
             var db = RedisConnection.GetDatabase();
-            var results = (RedisResult[])db.ScriptEvaluate(LuaScriptResource.GeoHash, new RedisKey[] { key }, new RedisValue[] { Serializer.Serialize(member) });
-            return results[0].ToString();
+            return db.GeoHash(key, Serializer.Serialize(member));
         }
         /// <summary>
         /// Return the positions (longitude,latitude) of all the specified members of the geospatial index at key.
@@ -113,22 +110,24 @@ namespace CachingFramework.Redis.Providers
         {
             var db = RedisConnection.GetDatabase();
             var redisMembers = members.Select(m => (RedisValue)Serializer.Serialize<T>(m)).ToArray();
-            var results = ((RedisResult[])db.ScriptEvaluate(LuaScriptResource.GeoPos, new RedisKey[] { key }, redisMembers))
-                .Select(r => (RedisValue[])r)
-                .ToArray();
-            for (int i = 0; i < results.Length; i++)
+            var results = db.GeoPosition(key, redisMembers);
+            if (results != null)
             {
-                var values = results[i];
-                if (values[0].IsNull)
+                for(int i = 0; i < results.Length; i++)
                 {
-                    yield return null;
-                }
-                else
-                {
-                    yield return new GeoMember<T>((double)values[1], (double)values[0], members[i]);
+                    var result = results[i];
+                    if (!result.HasValue)
+                    {
+                        yield return null;
+                    }
+                    else
+                    {
+                        yield return new GeoMember<T>(result.Value.Latitude, result.Value.Longitude, members[i]);
+                    }
                 }
             }
         }
+
         /// <summary>
         /// Return the position (longitude,latitude) of the specified member of the geospatial index at key.
         /// </summary>
@@ -153,9 +152,8 @@ namespace CachingFramework.Redis.Providers
         public double GeoDistance<T>(string key, T member1, T member2, Unit unit)
         {
             var db = RedisConnection.GetDatabase();
-            var result = db.ScriptEvaluate(LuaScriptResource.GeoDist, new RedisKey[] { key },
-                new RedisValue[] { Serializer.Serialize(member1), Serializer.Serialize(member2), TextAttribute.GetEnumText(unit) });
-            return result.IsNull ? -1 : (double)result;
+            var dist = db.GeoDistance(key, Serializer.Serialize(member1), Serializer.Serialize(member2), (GeoUnit)unit);
+            return dist.HasValue ? dist.Value : -1;
         }
         /// <summary>
         /// Return the members of a geospatial index, which are within the borders of the area specified with the center location and the maximum distance from the center (the radius).
@@ -170,29 +168,24 @@ namespace CachingFramework.Redis.Providers
         public IEnumerable<GeoMember<T>> GeoRadius<T>(string key, GeoCoordinate center, double radius, Unit unit, int count = 0)
         {
             var db = RedisConnection.GetDatabase();
-            var redisValues = new List<RedisValue>()
+            var results = db.GeoRadius(key, center.Longitude, center.Latitude, radius, (GeoUnit)unit, count, Order.Ascending);
+            foreach(var result in results)
             {
-                center.Longitude,
-                center.Latitude,
-                radius,
-                TextAttribute.GetEnumText(unit),
-                "WITHDIST",
-                "WITHCOORD"
-            };
-            if (count > 0)
-            {
-                redisValues.Add("COUNT");
-                redisValues.Add(count);
-            }
-            redisValues.Add("ASC");
-            var results = ((RedisResult[])db.ScriptEvaluate(LuaScriptResource.GeoRadius, new RedisKey[] { key }, redisValues.ToArray()))
-                .Select(r => (RedisResult[])r);
-            foreach (var values in results)
-            {
-                var distance = (double)values[1];
-                var coords = (RedisValue[])values[2];
-                var member = Serializer.Deserialize<T>((Byte[])values[0]);
-                yield return new GeoMember<T>((double)coords[1], (double)coords[0], member, distance);
+                if (result.Position.HasValue)
+                {
+                    yield return new GeoMember<T>
+                    (
+                        result.Position.Value.Latitude,
+                        result.Position.Value.Longitude,
+                        Serializer.Deserialize<T>((Byte[])result.Member),
+                        result.Distance.HasValue ? result.Distance.Value : -1
+                    ); 
+                }
+                else
+                {
+                    yield return null;
+                }
+                
             }
         }
         /// <summary>
