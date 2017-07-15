@@ -173,7 +173,7 @@ var user = context.Cache.FetchHashed<User>("users:hash", "user:id:1", () => GetU
 ```
 The method `GetUser` will only be called when the value is not present on the hash, in which case will be added to the hash before returning it.
 
-#### Hash as .NET Dictionary
+#### Hash as a .NET Dictionary
 
 Hashes can be handled as .NET Dictionaries by using the `GetRedisDictionary` method on `Context.Collections`, for example:
 
