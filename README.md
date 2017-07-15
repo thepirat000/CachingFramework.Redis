@@ -45,11 +45,11 @@ The `Context` class provides all the functionality divided into five categories,
 #### Default configuration
 Connect to Redis on localhost port 6379:
 ```c#
-var context = new Context();
+private static Context context = new Context();
 ```
 #### Custom configuration
 ```c#
-var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortConnect=false, allowAdmin=true");
+context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortConnect=false, allowAdmin=true");
 ```
 
 The constructor parameter must be a valid StackExchange.Redis connection string. Check [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for more information about StackExchange.Redis configuration options.
