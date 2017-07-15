@@ -56,7 +56,7 @@ The constructor parameter must be a valid StackExchange.Redis connection string.
 
 ### IMPORTANT NOTE:
 
-The `Context` class should be shared and reused between callers. You should not create a `Context` per operation. Please check StackExchange.Redis [documentation](https://stackexchange.github.io/StackExchange.Redis/Basics#basic-usage) for more information. 
+## The `Context` class should be shared and reused between callers. You should not create a `Context` per operation. Please check StackExchange.Redis [documentation](https://stackexchange.github.io/StackExchange.Redis/Basics#basic-usage) for more information. 
 
 --------------
 
