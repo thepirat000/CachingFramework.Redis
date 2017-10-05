@@ -1,11 +1,12 @@
-﻿using CachingFramework.Redis.Contracts.Providers;
+﻿using System;
+using CachingFramework.Redis.Contracts.Providers;
 
 namespace CachingFramework.Redis.Contracts
 {
     /// <summary>
     /// Interface for Context class containing the public APIs.
     /// </summary>
-    public interface IContext
+    public interface IContext : IDisposable
     {
         /// <summary>
         /// Gets the cache API.
