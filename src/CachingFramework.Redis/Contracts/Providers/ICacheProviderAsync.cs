@@ -10,6 +10,75 @@ namespace CachingFramework.Redis.Contracts.Providers
     public interface ICacheProviderAsync
     {
         /// <summary>
+        /// Relates the given tags to a key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="tags">The tag(s).</param>
+        Task AddTagsToKeyAsync(string key, string[] tags);
+        /// <summary>
+        /// Relates the given tags to a field inside a hash key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="tags">The tag(s).</param>
+        Task AddTagsToHashFieldAsync(string key, string field, string[] tags);
+        /// <summary>
+        /// Removes the relation between the given tags and a field in a hash.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="tags">The tag(s).</param>
+        Task RemoveTagsFromHashFieldAsync(string key, string field, string[] tags);
+        /// <summary>
+        /// Removes the relation between the given tags and a key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="tags">The tag(s).</param>
+        Task RemoveTagsFromKeyAsync(string key, string[] tags);
+        /// <summary>
+        /// Removes the relation between the given tags and a set member.
+        /// </summary>
+        /// <param name="key">The set key.</param>
+        /// <param name="member">The set member related to the tags.</param>
+        /// <param name="tags">The tag(s).</param>
+        Task RemoveTagsFromSetMemberAsync<T>(string key, T member, string[] tags);
+        /// <summary>
+        /// Relates the given tags to a member inside a redis set, sorted set or geospatial index.
+        /// </summary>
+        /// <param name="key">The redis set, sorted set or geospatial index key.</param>
+        /// <param name="member">The set member.</param>
+        /// <param name="tags">The tag(s).</param>
+        Task AddTagsToSetMemberAsync<T>(string key, T member, string[] tags);
+        /// <summary>
+        /// Adds the given value to a redis set.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis set key.</param>
+        /// <param name="value">The member value to store</param>
+        /// <param name="tags">The tags to relate to this member.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this set). NULL to keep the current expiration.</param>
+        Task AddToSetAsync<T>(string key, T value, string[] tags = null, TimeSpan? ttl = null);
+        /// <summary>
+        /// Adds the given value to a redis sorted set with the given score.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis set key.</param>
+        /// <param name="score">The member score to store</param>
+        /// <param name="value">The member value to store</param>
+        /// <param name="tags">The tags to relate to this member.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this set). NULL to keep the current expiration.</param>
+        Task AddToSortedSetAsync<T>(string key, double score, T value, string[] tags = null, TimeSpan? ttl = null);
+        /// <summary>
+        /// Removes the given value from a redis sorted set.
+        /// Returns true if the value was removed. (false if the element does not exists in the set)
+        /// </summary>
+        /// <typeparam name="T">The member type</typeparam>
+        /// <param name="key">The redis set key.</param>
+        /// <param name="value">The member value to remove</param>
+        Task<bool> RemoveFromSortedSetAsync<T>(string key, T value);
+        /// <summary>
         /// Fetches hashed data from the cache, using the given cache key and field.
         /// If there is data in the cache with the given key, then that data is returned.
         /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
@@ -194,6 +263,11 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="key">The key.</param>
         Task<bool> RemoveAsync(string key);
         /// <summary>
+        /// Removes the specified keys.
+        /// </summary>
+        /// <param name="keys">The keys to remove.</param>
+        Task RemoveAsync(string[] keys);
+        /// <summary>
         /// Gets a specified hased value from a key
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -255,5 +329,50 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="key">The key.</param>
         /// <param name="fieldValues">The field keys and values to store</param>
         Task SetHashedAsync<T>(string key, IDictionary<string, T> fieldValues);
+        /// <summary>
+        /// Sets the specified value to a hashset using the pair hashKey+field.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field key</param>
+        /// <param name="value">The value to store</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        Task SetHashedAsync<T>(string key, string field, T value, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always);
+        /// <summary>
+        /// Sets the specified value to a hashset using the pair hashKey+field.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field key</param>
+        /// <param name="value">The value to store</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        Task SetHashedAsync<TK, TV>(string key, TK field, TV value, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always);
+        /// <summary>
+        /// Sets the specified value to a hashset using the pair hashKey+field.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field key</param>
+        /// <param name="value">The value to store</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        Task SetHashedAsync<T>(string key, string field, T value, string[] tags, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always);
+        /// <summary>
+        /// Sets the specified value to a hashset using the pair hashKey+field.
+        /// (The latest expiration applies to the whole key)
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field key</param>
+        /// <param name="value">The value to store</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        Task SetHashedAsync<TK, TV>(string key, TK field, TV value, string[] tags, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always);
     }
 }

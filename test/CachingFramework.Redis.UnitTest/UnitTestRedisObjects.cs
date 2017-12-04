@@ -9,6 +9,7 @@ using CachingFramework.Redis.RedisObjects;
 using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
 using System.Threading.Tasks;
+using CachingFramework.Redis.Contracts.RedisObjects;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -59,7 +60,7 @@ namespace CachingFramework.Redis.UnitTest
             sset.Add(.1, "value1", new[] { "tag1", "common" });
             sset.Add(.2, "value2", new[] { "tag2" });
 
-            context.Cache.AddTagsToSetMember(key, "value2", new[] { "common" });
+            context.Cache.AddTagsToSetMemberAsync(key, "value2", new[] { "common" }).Wait();
 
             var t1 = context.Cache.GetObjectsByTag<string>("tag1").ToList();
             var t2 = context.Cache.GetObjectsByTag<string>("tag2").ToList();

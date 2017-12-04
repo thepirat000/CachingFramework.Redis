@@ -13,6 +13,17 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis_Async
     {
+        [Test, TestCaseSource(typeof(Common), "Json")]
+        public async Task UT_Cache_AddToSetAsync(Context context)
+        {
+            var key = "UT_Cache_AddToSetAsync";
+            context.Cache.Remove(key);
+            await context.Cache.AddToSetAsync(key, "test");
+            var set = context.Collections.GetRedisSet<string>(key);
+            Assert.AreEqual(1, set.Count);
+            Assert.AreEqual("test", (await set.GetRandomMemberAsync()));
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_Cache_SetHashed_TK_TV_WithTags_Async(Context context)
         {
@@ -21,9 +32,9 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.InvalidateKeysByTag("tag 0->1", "tag 1->0", "tag S->0", "common");
             var users = await GetUsersAsync().ForAwait();
 
-            context.Cache.SetHashed<User, User>(key, users[0], users[1], new[] { "tag 0->1", "common" });
-            context.Cache.SetHashed<User, User>(key, users[1], users[0], new[] { "tag 1->0", "common" });
-            context.Cache.SetHashed<User>(key, "string field", users[0], new[] { "tag S->0", "common" });
+            await context.Cache.SetHashedAsync<User, User>(key, users[0], users[1], new[] { "tag 0->1", "common" });
+            await context.Cache.SetHashedAsync<User, User>(key, users[1], users[0], new[] { "tag 1->0", "common" });
+            await context.Cache.SetHashedAsync<User>(key, "string field", users[0], new[] { "tag S->0", "common" });
 
             var u1 = await context.Cache.GetHashedAsync<User, User>(key, users[0]);
             var u0 = await context.Cache.GetHashedAsync<User, User>(key, users[1]);
@@ -81,12 +92,12 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_CacheSetHashed_When_Async";
             var field = "F1";
             await context.Cache.RemoveAsync(key);
-            context.Cache.SetHashed(key, field, "value", null, When.NotExists);
-            Assert.AreEqual("value", context.Cache.GetHashed<string>(key, field));
-            context.Cache.SetHashed(key, field, "new", null, When.NotExists);
-            Assert.AreEqual("value", context.Cache.GetHashed<string>(key, field));
-            context.Cache.SetHashed(key, field, "new", null, When.Always);
-            Assert.AreEqual("new", context.Cache.GetHashed<string>(key, field));
+            await context.Cache.SetHashedAsync(key, field, "value", null, When.NotExists);
+            Assert.AreEqual("value", await context.Cache.GetHashedAsync<string>(key, field));
+            await context.Cache.SetHashedAsync(key, field, "new", null, When.NotExists);
+            Assert.AreEqual("value", await context.Cache.GetHashedAsync<string>(key, field));
+            await context.Cache.SetHashedAsync(key, field, "new", null, When.Always);
+            Assert.AreEqual("new", await context.Cache.GetHashedAsync<string>(key, field));
             await context.Cache.RemoveAsync(key);
         }
 
@@ -217,7 +228,7 @@ namespace CachingFramework.Redis.UnitTest
             string key2 = "UT_Cache_RawOverrideSerializer_Async2";
             ctx.Cache.Remove(new[] {key, key2});
             await ctx.Cache.SetObjectAsync(key, users[0]);
-            ctx.Cache.SetHashed(key2, "X", users[1]);
+            await ctx.Cache.SetHashedAsync(key2, "X", users[1]);
             var v = await ctx.Cache.GetObjectAsync<User>(key);
             var v2 = await ctx.Cache.GetHashedAsync<User>(key2, "X");
             var v3 = await ctx.Cache.GetObjectAsync<int>(key);
@@ -351,7 +362,7 @@ namespace CachingFramework.Redis.UnitTest
             foreach (var u in users)
             {
                 User user = u;
-                context.Cache.SetHashed(key, user.Id.ToString(), user);
+                await context.Cache.SetHashedAsync(key, user.Id.ToString(), user);
             }
             var dict = await context.Cache.GetHashedAllAsync<User>(key);
             Assert.AreEqual(users.Count, dict.Count);
@@ -406,7 +417,7 @@ namespace CachingFramework.Redis.UnitTest
             foreach (var u in users)
             {
                 User user = u;
-                context.Cache.SetHashed(key, user.Id.ToString(), user);
+                await context.Cache.SetHashedAsync(key, user.Id.ToString(), user);
             }
             r = await context.Cache.RemoveHashedAsync(key, "1");
             Assert.IsTrue(r);
@@ -431,7 +442,7 @@ namespace CachingFramework.Redis.UnitTest
             foreach (var u in users)
             {
                 User user = u;
-                context.Cache.SetHashed(key, user.Id.ToString(), user);
+                await context.Cache.SetHashedAsync(key, user.Id.ToString(), user);
             }
             r = await context.Cache.RemoveAsync(key);
             Assert.IsTrue(r);
@@ -471,7 +482,7 @@ namespace CachingFramework.Redis.UnitTest
             string key = "UT_CacheSetHashed_KeyTimeToLive_Async";
             context.Cache.Remove(key);
             var ms = 10000;
-            context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(ms));
+            await context.Cache.SetHashedAsync(key, "1", users[0], TimeSpan.FromMilliseconds(ms));
             var ttl = await context.Cache.KeyTimeToLiveAsync(key);
 
             Assert.IsTrue(ttl.Value.Seconds >= 8);
@@ -484,11 +495,11 @@ namespace CachingFramework.Redis.UnitTest
             var users = await GetUsersAsync();
             context.Cache.Remove(key);
             await context.Cache.InvalidateKeysByTagAsync("common1", "tagA1", "tagB1", "whole1");
-            context.Cache.SetHashed(key, "A", users[0], new[] { "common1", "tagA1" });
-            context.Cache.SetHashed(key, "B", users[0], new[] { "tagB1" });
-            context.Cache.AddTagsToHashField(key, "B", new[] {"common1"});
-            context.Cache.SetHashed(key, "C", users[1], new[] { "common1", "tagC" });        
-            context.Cache.AddTagsToKey(key, new [] { "whole1" });
+            await context.Cache.SetHashedAsync(key, "A", users[0], new[] { "common1", "tagA1" });
+            await context.Cache.SetHashedAsync(key, "B", users[0], new[] { "tagB1" });
+            await context.Cache.AddTagsToHashFieldAsync(key, "B", new[] {"common1"});
+            await context.Cache.SetHashedAsync(key, "C", users[1], new[] { "common1", "tagC" });        
+            await context.Cache.AddTagsToKeyAsync(key, new [] { "whole1" });
             var kwhole = await context.Cache.GetKeysByTagAsync(new [] { "whole1" });
             var kcmn = await context.Cache.GetKeysByTagAsync(new [] { "common1" });
             var ka = await context.Cache.GetKeysByTagAsync(new [] { "tagA1" });
@@ -503,7 +514,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, kcmn.Count());
             var objs = context.Cache.GetObjectsByTag<User>("common1").ToList();
             Assert.AreEqual(2, objs.Count);
-            context.Cache.RemoveTagsFromHashField(key, "B", new [] { "common1" });
+            await context.Cache.RemoveTagsFromHashFieldAsync(key, "B", new [] { "common1" });
             objs = context.Cache.GetObjectsByTag<User>("common1").ToList();
             Assert.AreEqual(1, objs.Count);
         }
@@ -671,7 +682,7 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var users = await GetUsersAsync();
             IDictionary<string, User> allUsers = users.ToDictionary(k => k.Id.ToString());
-            context.Cache.SetHashed(key, allUsers);
+            await context.Cache.SetHashedAsync(key, allUsers);
             var response = await context.Cache.GetHashedAllAsync<User>(key);
             Assert.AreEqual(users.Count, response.Count);
             Assert.IsTrue(users.All(x => response.ContainsKey(x.Id.ToString())));
@@ -701,9 +712,9 @@ namespace CachingFramework.Redis.UnitTest
                 { "a", new User { Id = 222 }},
                 { "2", new Department { Id = 3 }}
             };
-            context.Cache.SetHashed(key, "a", dict["a"]);
-            context.Cache.SetHashed(key, "2", dict["2"]);
-            context.Cache.SetHashed(key, "D", new Location() { Id = 444 });
+            await context.Cache.SetHashedAsync(key, "a", dict["a"]);
+            await context.Cache.SetHashedAsync(key, "2", dict["2"]);
+            await context.Cache.SetHashedAsync(key, "D", new Location() { Id = 444 });
 
             var user = await context.Cache.GetHashedAsync<User>(key, "a");
             var dept = await context.Cache.GetHashedAsync<Department>(key, "2");
@@ -796,7 +807,7 @@ namespace CachingFramework.Redis.UnitTest
         public async Task UT_CacheTagRename_Async(Context context)
         {
             string key = "UT_CacheTagRename_Async";
-            context.Cache.Remove(key);
+            await context.Cache.RemoveAsync(key);
             string tag1 = "UT_CacheTagRename_Async-Tag1";
             string tag2 = "UT_CacheTagRename_Async-Tag2";
             await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
@@ -806,7 +817,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.RenameTagForKeyAsync(key, tag1, tag2);
             Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
             Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
-            context.Cache.RemoveTagsFromKey(key, new[] { tag2 });
+            await context.Cache.RemoveTagsFromKeyAsync(key, new[] { tag2 });
             await context.Cache.RenameTagForKeyAsync(key, tag2, tag1);
             Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
             Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
@@ -822,13 +833,13 @@ namespace CachingFramework.Redis.UnitTest
             string tag2 = "UT_CacheFieldTagRename_Async-Tag2";
             await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
             var user = (await GetUsersAsync())[0];
-            context.Cache.SetHashed(key, field, user, new[] { tag1 });
+            await context.Cache.SetHashedAsync(key, field, user, new[] { tag1 });
             Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
             await context.Cache.RenameTagForHashFieldAsync(key, field, tag1, tag2);
             Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
             Assert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
-            context.Cache.RemoveTagsFromHashField(key, field, new[] { tag2 });
-            context.Cache.RemoveTagsFromHashField(key, field, new[] { tag2, tag1 });
+            await context.Cache.RemoveTagsFromHashFieldAsync(key, field, new[] { tag2 });
+            await context.Cache.RemoveTagsFromHashFieldAsync(key, field, new[] { tag2, tag1 });
             Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
             Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
         }
