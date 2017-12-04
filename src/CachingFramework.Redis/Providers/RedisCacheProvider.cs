@@ -67,7 +67,7 @@ namespace CachingFramework.Redis.Providers
                     if (value != null)
                     {
                         var tags = tagsBuilder?.Invoke(value);
-                        SetHashed(key, field, value, tags, expiry); // this is async
+                        await SetHashedAsync(key, field, value, tags, expiry).ForAwait(); 
                     }
                 }
             }
