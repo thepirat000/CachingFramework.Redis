@@ -616,7 +616,7 @@ multiplexer.GetDatabase().StringIncrement("key", 1);    // SE.Redis API
 ```
 
 
-[.NET Collections](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md)
+.NET Collections
 =====
 
 You can handle **Redis Lists** as `IList<T>`, **Hashes** as `IDictionary<K, V>`, **Sets**, **Lex Sets** and **Bitmaps** as `ICollection<T>`, and more.
@@ -629,7 +629,7 @@ var hash = context.Collections.GetRedisDictionary<int, User>("users:hash");
 hash.Add(1, new User() { Id = 1 }, new [] { "tag" });
 ```
 
-**For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
+### **For details please see [COLLECTIONS.md](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md) documentation file**
 
 # Contribute
 
