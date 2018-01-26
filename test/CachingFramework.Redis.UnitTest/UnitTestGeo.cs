@@ -27,12 +27,9 @@ namespace CachingFramework.Redis.UnitTest
             }
 #if (NET45 || NET461)
             _locationSvc = new GoogleLocationService();
-            _coordZapopan = _locationSvc.GetLatLongFromAddress("Zapopan").ToGeoCoord();
-            _coordLondon = _locationSvc.GetLatLongFromAddress("London").ToGeoCoord();
-#else
+#endif
             _coordZapopan = new GeoCoordinate(20.6719563, -103.416501);
             _coordLondon = new GeoCoordinate(51.5073509, -0.1277583);
-#endif
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
@@ -215,7 +212,7 @@ namespace CachingFramework.Redis.UnitTest
     {
         public static GeoCoordinate ToGeoCoord(this MapPoint coord)
         {
-            return new GeoCoordinate(coord.Latitude, coord.Longitude);
+            return new GeoCoordinate(coord.Latitude / 10000000, coord.Longitude / 10000000);
         }
     }
 #endif

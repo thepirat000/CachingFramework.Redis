@@ -18,6 +18,7 @@ namespace CachingFramework.Redis.UnitTest
 
 
         // TestCases
+        public static Context[] JsonAndRaw { get { return new[] { _jsonContext, _rawContext }; } }
         public static Context[] Json { get { return new[] { _jsonContext }; } }
         public static Context[] MsgPack { get { return new[] { _msgPackContext }; } }
         public static Context[] Raw { get { return new[] { _rawContext }; } }

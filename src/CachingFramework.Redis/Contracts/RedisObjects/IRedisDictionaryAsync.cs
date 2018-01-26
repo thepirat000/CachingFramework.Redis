@@ -54,5 +54,31 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// Removes all items from the collection
         /// </summary>
         Task ClearAsync();
+        /// <summary>
+        /// Increments the number stored at the hash field key. 
+        /// If the key does not exist, it is set to 0 before performing the operation. 
+        /// An exception is thrown if the key content can not be represented as integer.
+        /// </summary>
+        /// <param name="key">The hash field key to increment</param>
+        /// <param name="increment">The increment value</param>
+        /// <returns>The value represented in the string after the increment.</returns>
+        /// <remarks>You should use this method only when the serialization of the values can be represented as raw integers. i.e. This method will not work with BinarySerialization</remarks>
+        Task<long> IncrementByAsync(TK key, long increment);
+        /// <summary>
+        /// Increment the floating point number stored at the hash field key. 
+        /// If the key does not exist, it is set to 0 before performing the operation. 
+        /// An exception is thrown if the key content is not parsable as a double precision floating point number.
+        /// </summary>
+        /// <param name="key">The hash field key to increment</param>
+        /// <param name="increment">The increment value</param>
+        /// <returns>The value represented in the string after the increment.</returns>
+        /// <remarks>You should use this method only when the serialization of the values can be represented as raw integers. i.e. This method will not work with BinarySerialization</remarks>
+        Task<double> IncrementByFloatAsync(TK key, double increment);
+        /// <summary>
+        /// Gets the value associated with the specified key.
+        /// </summary>
+        /// <param name="key">The key whose value to get.</param>
+        /// <returns>The value stored at key</returns>
+        Task<TV> GetValueAsync(TK key);
     }
 }

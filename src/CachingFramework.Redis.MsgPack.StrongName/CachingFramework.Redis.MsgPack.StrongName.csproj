@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MessagePack serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.</Description>
+    <Copyright>Copyright 2016</Copyright>
+    <AssemblyTitle>CachingFramework.Redis.MsgPack.StrongName</AssemblyTitle>
+    <VersionPrefix>7.5.0</VersionPrefix>
+    <Authors>Federico Colombo</Authors>
+    <TargetFrameworks>netstandard1.5;net45;net461</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);STRONG_NAME</DefineConstants>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>CachingFramework.Redis.MsgPack.StrongName</AssemblyName>
+    <AssemblyOriginatorKeyFile>../CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PackageId>CachingFramework.Redis.MsgPack.StrongName</PackageId>
+    <PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis;MsgPack;MessagePack</PackageTags>
+    <PackageIconUrl>http://i.imgur.com/FrC8SWO.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/thepirat000/CachingFramework.Redis</PackageProjectUrl>
+    <PackageLicenseUrl>http://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/thepirat000/CachingFramework.Redis</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="..\CachingFramework.Redis.MsgPack\obj\**\*;..\CachingFramework.Redis.MsgPack\Properties\AssemblyInfo.cs" />
+    <Compile Include="..\CachingFramework.Redis.MsgPack\**\*.cs" Exclude="..\CachingFramework.Redis.MsgPack\obj\**\*;bin\**;obj\**;**\*.xproj;packages\**;..\CachingFramework.Redis.MsgPack\Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CachingFramework.Redis.StrongName\CachingFramework.Redis.StrongName.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis.StrongName" Version="1.2.1" />
+    <PackageReference Include="MsgPack.Cli" Version="0.8.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>

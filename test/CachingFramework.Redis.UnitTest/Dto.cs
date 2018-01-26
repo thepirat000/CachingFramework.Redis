@@ -7,13 +7,17 @@ namespace CachingFramework.Redis.UnitTest
     public interface IDto
     {
     }
+#if NET461 
     [Serializable]
+#endif
     public class User : IDto
     {
         public int Id { get; set; }
         public List<Department> Deparments { get; set; }
     }
+#if NET461 
     [Serializable]
+#endif
     public class Department : IDto
     {
         public int Id { get; set; }
@@ -21,18 +25,24 @@ namespace CachingFramework.Redis.UnitTest
         public int Size { get; set; }
         public decimal Distance { get; set; }
     }
+#if NET461 
     [Serializable]
+#endif
     public class Location : IDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
     }
+#if NET461 
     [Serializable]
+#endif
     public class Jpeg
     {
         public byte[] Data { get; set; }
     }
+#if NET461 
     [Serializable]
+#endif
     public class DistributorInfo
     {
         public DistributorInfo Parent { get; set; }
@@ -42,7 +52,9 @@ namespace CachingFramework.Redis.UnitTest
         public string LastName { get; set; }
         public string CompleteName { get { return LastName + ";" + FirstName; } }
     }
+#if NET461 
     [Serializable]
+#endif
     public class DistributorCompReview
     {
         public string DistributorId { get; set; }

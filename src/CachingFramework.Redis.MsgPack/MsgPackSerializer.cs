@@ -17,6 +17,10 @@ namespace CachingFramework.Redis.MsgPack
         /// <returns>System.Byte[].</returns>
         public byte[] Serialize<T>(T value)
         {
+            if (value == null)
+            {
+                return null;
+            }
             var serializer = SerializationContext.Default.GetSerializer(value.GetType());
             using (var stream = new MemoryStream())
             {
@@ -33,6 +37,10 @@ namespace CachingFramework.Redis.MsgPack
         /// <returns>T.</returns>
         public T Deserialize<T>(byte[] value)
         {
+            if (value == null)
+            {
+                return default(T);
+            }
             using (var stream = new MemoryStream(value))
             {
                 var deserialized = SerializationContext.Default.GetSerializer(typeof(T)).Unpack(stream);

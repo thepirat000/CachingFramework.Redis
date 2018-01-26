@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -654,6 +655,87 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, rl.Count);
         }
 
+        [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
+        public void UT_CacheDictionaryIncrement(Context context)
+        {
+            string key = "UT_CacheDictionaryIncrement";
+            context.Cache.Remove(key);
+            var rl = context.Collections.GetRedisDictionary<string, int>(key);
+            var r1 = rl.IncrementBy("h1", 1);
+            var r2 = rl.IncrementBy("h2", -2);
+            var r3 = rl.IncrementBy("h1", -2);
+
+            var v1 = rl["h1"]; 
+            var v2 = rl.GetValue("h2");
+
+            Assert.AreEqual(1, r1);
+            Assert.AreEqual(-2, r2);
+            Assert.AreEqual(-1, r3);
+            Assert.AreEqual(-1, v1);
+            Assert.AreEqual(-2, v2);
+        }
+
+
+        [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
+        public void UT_CacheDictionaryIncrementFloat(Context context)
+        {
+            string key = "UT_CacheDictionaryIncrementFloat";
+            context.Cache.Remove(key);
+            var rl = context.Collections.GetRedisDictionary<string, double>(key);
+            var r1 = rl.IncrementByFloat("h1", (double)1.23);
+            var r2 = rl.IncrementByFloat("h2", (double)-2.23);
+            var r3 = rl.IncrementByFloat("h1", (double)-2.01);
+                                   
+            var v1 = rl["h1"];
+            var v2 = rl.GetValue("h2");
+
+            Assert.AreEqual(1.23, r1, 0.0001);
+            Assert.AreEqual(-2.23, r2, 0.0001);
+            Assert.AreEqual(1.23-2.01, r3, 0.0001);
+            Assert.AreEqual(1.23-2.01, v1, 0.0001);
+            Assert.AreEqual(-2.23, v2, 0.0001);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
+        public async Task UT_CacheDictionaryIncrementAsync(Context context)
+        {
+            string key = "UT_CacheDictionaryIncrementAsync";
+            await context.Cache.RemoveAsync(key);
+            var rl = context.Collections.GetRedisDictionary<string, int>(key);
+            var r1 = await rl.IncrementByAsync("h1", 1);
+            var r2 = await rl.IncrementByAsync("h2", -2);
+            var r3 = await rl.IncrementByAsync("h1", -2);
+
+            var v1 = rl["h1"];
+            var v2 = await rl.GetValueAsync("h2");
+
+            Assert.AreEqual(1, r1);
+            Assert.AreEqual(-2, r2);
+            Assert.AreEqual(-1, r3);
+            Assert.AreEqual(-1, v1);
+            Assert.AreEqual(-2, v2);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
+        public async Task UT_CacheDictionaryIncrementFloatAsync(Context context)
+        {
+            string key = "UT_CacheDictionaryIncrementFloatAsync";
+            context.Cache.Remove(key);
+            var rl = context.Collections.GetRedisDictionary<string, double>(key);
+            var r1 = await rl.IncrementByFloatAsync("h1", (double)1.23);
+            var r2 = await rl.IncrementByFloatAsync("h2", (double)-2.23);
+            var r3 = await rl.IncrementByFloatAsync("h1", (double)-2.01);
+
+            var v1 = rl["h1"];
+            var v2 = await rl.GetValueAsync("h2");
+
+            Assert.AreEqual(1.23, r1, 0.0001);
+            Assert.AreEqual(-2.23, r2, 0.0001);
+            Assert.AreEqual(1.23 - 2.01, r3, 0.0001);
+            Assert.AreEqual(1.23 - 2.01, v1, 0.0001);
+            Assert.AreEqual(-2.23, v2, 0.0001);
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObjectAsync(Context context)
         {
@@ -1139,6 +1221,50 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheStringAsync(Context context)
+        {
+            var key = "UT_CacheStringAsync";
+            await context.Cache.RemoveAsync(key);
+            var cs = context.Collections.GetRedisString(key);
+
+            await cs.SetRangeAsync(3, "Test");
+            Assert.AreEqual(7, cs.Length);
+            Assert.AreEqual("\0", await cs.GetRangeAsync(0, 0));
+            Assert.AreEqual("\0", cs[0, 0]);
+            Assert.AreEqual("T", cs[3, 3]);
+            Assert.AreEqual("t", cs[6, 6]);
+            Assert.AreEqual("Test", cs[3, -1]);
+            Assert.AreEqual("\0\0\0Test", cs[0, -1]);
+            Assert.AreEqual("\0\0\0Test", cs[0, 999]);
+
+            var len = await cs.SetRangeAsync(0, "123");
+            Assert.AreEqual(7, len);
+            Assert.AreEqual(7, cs.Length);
+            Assert.AreEqual("123Test", await cs.GetRangeAsync());
+
+            await cs.SetRangeAsync(0, "abc");
+
+            var lst = new List<byte>();
+            foreach (byte b in cs)
+            {
+                lst.Add(b);
+            }
+            Assert.AreEqual("abcTest", Encoding.UTF8.GetString(lst.ToArray()));
+
+            Assert.AreEqual(10, await cs.AppendAsync("def"));
+            Assert.AreEqual("abcTestdef", await cs.ToStringAsync());
+
+            await cs.SetAsync("new string");
+            Assert.AreEqual("new string", await cs.ToStringAsync());
+
+            await cs.SetAsync(123.45);
+            Assert.AreEqual("123.45", await cs.ToStringAsync());
+
+            await cs.SetAsync(12345);
+            Assert.AreEqual("12345", await cs.ToStringAsync());
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheStringGetSet(Context context)
         {
             var key = "UT_CacheStringGetSet";
@@ -1155,6 +1281,25 @@ namespace CachingFramework.Redis.UnitTest
             var fp = cs.GetSet(789.12);
             Assert.AreEqual(456.0, fp);
             Assert.AreEqual(789.12, cs.AsFloat());
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheStringGetSetAsync(Context context)
+        {
+            var key = "UT_CacheStringGetSetAsync";
+            await context.Cache.RemoveAsync(key);
+            var cs = context.Collections.GetRedisString(key);
+            var str = await cs.GetSetAsync("value");
+            Assert.IsNull(str);
+            str = await cs.GetSetAsync("new value");
+            Assert.AreEqual("value", str);
+            await context.Cache.RemoveAsync(key);
+            var integer = await cs.GetSetAsync(456);
+            Assert.AreEqual(0, integer);
+            Assert.AreEqual(456, await cs.AsIntegerAsync());
+            var fp = cs.GetSet(789.12);
+            Assert.AreEqual(456.0, fp);
+            Assert.AreEqual(789.12, await cs.AsFloatAsync());
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
@@ -1179,6 +1324,27 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheString_UnicodeAsync(Context context)
+        {
+            var key = "UT_CacheString_UnicodeAsync";
+            await context.Cache.RemoveAsync(key);
+            var cs = context.Collections.GetRedisString(key);
+            Assert.AreEqual(0, cs.Length);
+            var str = "元来は有力貴族や諸大";
+            await cs.SetRangeAsync(0, str);
+            Assert.AreEqual(10 * 3, cs.Length);
+            var g = await cs.GetRangeAsync(0, 2);
+            Assert.AreEqual("元", cs[0, 2]);
+            Assert.AreEqual("大", cs[-3, -1]);
+            var lst = new List<byte>();
+            foreach (byte b in cs)
+            {
+                lst.Add(b);
+            }
+            Assert.AreEqual(str, Encoding.UTF8.GetString(lst.ToArray()));
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheString_AsInteger(Context context)
         {
             var key = "UT_CacheString_AsInteger";
@@ -1190,14 +1356,37 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheString_AsIntegerAsync(Context context)
+        {
+            var key = "UT_CacheString_AsIntegerAsync";
+            await context.Cache.RemoveAsync(key);
+            var str = context.Collections.GetRedisString(key);
+            await str.SetAsync((long.MaxValue - 1).ToString());
+            var value = await str.IncrementByAsync(1);
+            Assert.AreEqual(long.MaxValue, value);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheString_AsFloat(Context context)
         {
             var key = "UT_CacheString_AsFloat";
             context.Cache.Remove(key);
             var str = context.Collections.GetRedisString(key);
-            str.Append(Math.PI.ToString());
+            str.Append(Math.PI.ToString(CultureInfo.InvariantCulture));
             var fract = (double) 1/3;
             var value = str.IncrementByFloat(fract);
+            Assert.AreEqual(Math.PI + fract, value, 0.000000001);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheString_AsFloatAsync(Context context)
+        {
+            var key = "UT_CacheString_AsFloatAsync";
+            await context.Cache.RemoveAsync(key);
+            var str = context.Collections.GetRedisString(key);
+            await str.AppendAsync(Math.PI.ToString(CultureInfo.InvariantCulture));
+            var fract = (double)1 / 3;
+            var value = await str.IncrementByFloatAsync(fract);
             Assert.AreEqual(Math.PI + fract, value, 0.000000001);
         }
 

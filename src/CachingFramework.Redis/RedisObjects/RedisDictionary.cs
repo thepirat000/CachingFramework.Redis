@@ -127,6 +127,20 @@ namespace CachingFramework.Redis.RedisObjects
         {
             return await GetRedisDb().HashDeleteAsync(RedisKey, Serialize(key));
         }
+
+        /// <inheritdoc />
+        public TV GetValue(TK key)
+        {
+            var redisValue = GetRedisDb().HashGet(RedisKey, Serialize(key));
+            return Deserialize<TV>(redisValue);
+        }
+        /// <inheritdoc />
+        public async Task<TV> GetValueAsync(TK key)
+        {
+            var redisValue = await GetRedisDb().HashGetAsync(RedisKey, Serialize(key));
+            return Deserialize<TV>(redisValue);
+        }
+
         #endregion
 
         #region IDictionary implementation
@@ -278,6 +292,31 @@ namespace CachingFramework.Redis.RedisObjects
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        /// <inheritdoc />
+        public long IncrementBy(TK key, long increment)
+        {
+            var db = GetRedisDb();
+            return db.HashIncrement(RedisKey, Serialize(key), increment);
+        }
+        /// <inheritdoc />
+        public async Task<long> IncrementByAsync(TK key, long increment)
+        {
+            var db = GetRedisDb();
+            return await db.HashIncrementAsync(RedisKey, Serialize(key), increment);
+        }
+        /// <inheritdoc />
+        public double IncrementByFloat(TK key, double increment)
+        {
+            var db = GetRedisDb();
+            return db.HashIncrement(RedisKey, Serialize(key), increment);
+        }
+        /// <inheritdoc />
+        public async Task<double> IncrementByFloatAsync(TK key, double increment)
+        {
+            var db = GetRedisDb();
+            return await db.HashIncrementAsync(RedisKey, Serialize(key), increment);
         }
         #endregion
     }
