@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp1.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp1.0;net461;netcoreapp2.0</TargetFrameworks>
     <AssemblyName>CachingFramework.Redis.UnitTest</AssemblyName>
     <PackageId>CachingFramework.Redis.UnitTest</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
