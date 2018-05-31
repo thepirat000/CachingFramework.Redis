@@ -13,12 +13,24 @@ namespace CachingFramework.Redis.Providers
         /// The redis connection
         /// </summary>
         /// <value>The redis connection.</value>
-        public ConnectionMultiplexer RedisConnection { get; set; }
+        public IConnectionMultiplexer RedisConnection { get; set; }
         /// <summary>
         /// The serializer
         /// </summary>
         /// <value>The serializer.</value>
         public ISerializer Serializer { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisProviderContext"/> class.
+        /// </summary>
+        /// <param name="connection">The connection multiplexer to use.</param>
+        /// <param name="serializer">The serializer.</param>
+        public RedisProviderContext(IConnectionMultiplexer connection, ISerializer serializer)
+        {
+            RedisConnection = connection;
+            Serializer = serializer;
+        }
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisProviderContext"/> class.
         /// </summary>

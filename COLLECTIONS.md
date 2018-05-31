@@ -14,7 +14,7 @@ The following are the .NET objects provided to access Redis objects:
 
 For example, to create/get a Redis Sorted Set of type `User`, you should do:
 ```c#
-var context = new Context();
+var context = new RedisContext();
 var sortedSet = context.Collections.GetRedisSortedSet<User>("key");
 ```
 

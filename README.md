@@ -37,7 +37,7 @@ PM> Install-Package CachingFramework.Redis.StrongName
 ```
 
 ### Context
-The `Context` class provides all the functionality divided into five categories, each of which is exposed as a property with the following names:
+The `RedisContext` class provides all the functionality divided into five categories, each of which is exposed as a property with the following names:
 - Cache
 - Collections
 - GeoSpatial
@@ -47,17 +47,33 @@ The `Context` class provides all the functionality divided into five categories,
 #### Default configuration
 Connect to Redis on localhost port 6379:
 ```c#
-var context = new Context();
+var context = new RedisContext();
 ```
 #### Custom configuration
 ```c#
-var context = new Context("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortConnect=false, allowAdmin=true");
+var context = new RedisContext("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortConnect=false, allowAdmin=true");
 ```
 
 The constructor parameter must be a valid StackExchange.Redis connection string. Check [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for more information about StackExchange.Redis configuration options.
 
+#### Custom multiplexer
+
+You can inject your own [multiplexer](https://github.com/StackExchange/StackExchange.Redis/blob/master/StackExchange.Redis/StackExchange/Redis/Interfaces/IConnectionMultiplexer.cs) 
+by using the appropiate constructor overload:
+
+```c#
+public class PooledConnectionMultiplexer : IConnectionMultiplexer
+{
+    // ...
+}
+
+var myMultiplexer = new PooledConnectionMultiplexer(Common.Config);
+var context = new RedisContext(myMultiplexer);
+```
+
+
 ### IMPORTANT NOTE:
-#### The `Context` object should be shared and reused between callers. You should not create a `Context` per operation. Please check StackExchange.Redis [documentation](https://stackexchange.github.io/StackExchange.Redis/Basics#basic-usage) for more information. 
+##### The `RedisContext` object should be shared and reused between callers. It is not recommended to create a `RedisContext` per operation. Please check StackExchange.Redis [documentation](https://stackexchange.github.io/StackExchange.Redis/Basics#basic-usage) for more information. 
 
 --------------
 
@@ -177,7 +193,7 @@ The method `GetUser` will only be called when the value is not present on the ha
 
 #### Hash as a .NET Dictionary
 
-Hashes can be handled as .NET Dictionaries by using the `GetRedisDictionary` method on `Context.Collections`, for example:
+Hashes can be handled as .NET Dictionaries by using the `GetRedisDictionary` method on `RedisContext.Collections`, for example:
 
 ```c#
 var dict = context.Collections.GetRedisDictionary<string, User>("users:hash");
@@ -336,7 +352,7 @@ context.PubSub.Unsubscribe("users.*");
 ```c#
 static void Main()
 {
-    var context = new Context("10.0.0.1:7000");
+    var context = new RedisContext("10.0.0.1:7000");
     context.PubSub.Subscribe<string>("chat", m => Console.WriteLine(m));
     while (true)
     {
@@ -403,7 +419,7 @@ foreach (var r in results)
 
 Get the distance (in kilometers) between two addresses by using [GoogleMaps.LocationServices](https://github.com/sethwebster/GoogleMaps.LocationServices):
 ```c#
-private Context _context = new Context();
+private Context _context = new RedisContext();
 private GoogleLocationService _location = new GoogleLocationService();
         
 public double Distance(string address1, string address2)
@@ -486,10 +502,10 @@ public class MySerializer : ISerializer
 }
 ```
 
-The `Context` class has constructor overloads to supply the serialization mechanism, for example:
+The `RedisContext` class has constructor overloads to supply the serialization mechanism, for example:
 
 ```c#
-var context = new Context("localhost:6379", new MySerializer());
+var context = new RedisContext("localhost:6379", new MySerializer());
 ```
 
 Different serialization mechanisms are provided:
@@ -521,7 +537,7 @@ raw.SetSerializerFor<StringBuilder>
     sb => Encoding.UTF8.GetBytes(sb.ToString()), 
     b => new StringBuilder(Encoding.UTF8.GetString(b))
 );
-var context = new Context("localhost:6379", raw);
+var context = new RedisContext("localhost:6379", raw);
 ```
 --------------
 
@@ -598,7 +614,7 @@ Some Redis commands were omitted by design falling into these two categories:
 [RedisLexicographicSet](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-lexicographical-sorted-set) 
 and [RedisString](https://github.com/thepirat000/CachingFramework.Redis/blob/master/COLLECTIONS.md#redis-string)) 
 
-You can still call these commands via `StackExchange.Redis` API, accesing the `ConnectionMultiplexer` by calling the `GetConnectionMultiplexer()` method on the `Context` (see next section).
+You can still call these commands via `StackExchange.Redis` API, accesing the `ConnectionMultiplexer` by calling the `GetConnectionMultiplexer()` method on the `RedisContext` (see next section).
 
 
 --------------
@@ -606,11 +622,11 @@ You can still call these commands via `StackExchange.Redis` API, accesing the `C
 StackExchange.Redis API
 =====
 
-To use the `StackExchange.Redis` API, call the `GetConnectionMultiplexer()` method on the `Context`.
+To use the `StackExchange.Redis` API, call the `GetConnectionMultiplexer()` method on the `RedisContext`.
 
 For example:
 ```c#
-var context = new Context();
+var context = new RedisContext();
 var multiplexer = context.GetConnectionMultiplexer();	// SE.Redis Connection Multiplexer
 multiplexer.GetDatabase().StringIncrement("key", 1);    // SE.Redis API
 ```
@@ -621,7 +637,7 @@ multiplexer.GetDatabase().StringIncrement("key", 1);    // SE.Redis API
 
 You can handle **Redis Lists** as `IList<T>`, **Hashes** as `IDictionary<K, V>`, **Sets**, **Lex Sets** and **Bitmaps** as `ICollection<T>`, and more.
 
-Access these objects by the `Collections` property on `Context`.
+Access these objects by the `Collections` property on `RedisContext`.
 
 For example:
 ```c#

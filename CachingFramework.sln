@@ -6,6 +6,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4DAF22CE-7ABC-4ED2-B362-81F801A6C7C6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8A363F3F-B40E-4B4C-B59A-5FED789A4A24}"
+	ProjectSection(SolutionItems) = preProject
+		COLLECTIONS.md = COLLECTIONS.md
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{AB351319-FB93-4270-84B6-E628A59DED9F}"
 EndProject

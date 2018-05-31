@@ -23,7 +23,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <summary>
         /// The connection multiplexer
         /// </summary>
-        protected ConnectionMultiplexer Connection { get { return RedisContext.RedisConnection; } }
+        protected IConnectionMultiplexer Connection { get { return RedisContext.RedisConnection; } }
         /// <summary>
         /// Gets the redis key for this object
         /// </summary>
