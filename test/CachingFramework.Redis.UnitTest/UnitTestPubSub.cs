@@ -10,7 +10,7 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestPubSub
     {
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_PubSub_SingleSubscribe(Context context)
+        public void UT_PubSub_SingleSubscribe(RedisContext context)
         {
             var ch = "UT_PubSub_SingleSubscribe";
             var users = GetUsers();
@@ -27,7 +27,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_PubSub_SingleUnsubscribe(Context context)
+        public void UT_PubSub_SingleUnsubscribe(RedisContext context)
         {
             var ch = "UT_PubSub_SingleUnsubscribe";
             var users = GetUsers();
@@ -46,7 +46,7 @@ namespace CachingFramework.Redis.UnitTest
 
 #if (NET45 || NET461)
         [Test, TestCaseSource(typeof(Common), "Bin")]
-        public void UT_PubSub_SubscribeMultipleTypes(Context context)
+        public void UT_PubSub_SubscribeMultipleTypes(RedisContext context)
         {
             var ch = "UT_PubSub_SingleUnsubscribe";
             var users = GetUsers();
@@ -69,7 +69,7 @@ namespace CachingFramework.Redis.UnitTest
 #endif
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_PubSub_SubscribeWilcards(Context context)
+        public void UT_PubSub_SubscribeWilcards(RedisContext context)
         {
             var ch = "UT_PubSub_SubscribeWilcards";
             var users = GetUsers();

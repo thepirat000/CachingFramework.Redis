@@ -8,23 +8,23 @@ namespace CachingFramework.Redis.UnitTest
     public static class Common
     {
         // A context using a raw serializer
-        private static Context _rawContext;
+        private static RedisContext _rawContext;
         // A context using a binary serializer
-        private static Context _binaryContext;
+        private static RedisContext _binaryContext;
         // A context using json
-        private static Context _jsonContext;
+        private static RedisContext _jsonContext;
         // A context using msgpack
-        private static Context _msgPackContext;
+        private static RedisContext _msgPackContext;
 
 
         // TestCases
-        public static Context[] JsonAndRaw { get { return new[] { _jsonContext, _rawContext }; } }
-        public static Context[] Json { get { return new[] { _jsonContext }; } }
-        public static Context[] MsgPack { get { return new[] { _msgPackContext }; } }
-        public static Context[] Raw { get { return new[] { _rawContext }; } }
-        public static Context[] Bin { get { return new[] { _binaryContext }; } }
-        public static Context[] All { get; set; }
-        public static Context[] BinAndRawAndJson { get; set; }
+        public static RedisContext[] JsonAndRaw { get { return new[] { _jsonContext, _rawContext }; } }
+        public static RedisContext[] Json { get { return new[] { _jsonContext }; } }
+        public static RedisContext[] MsgPack { get { return new[] { _msgPackContext }; } }
+        public static RedisContext[] Raw { get { return new[] { _rawContext }; } }
+        public static RedisContext[] Bin { get { return new[] { _binaryContext }; } }
+        public static RedisContext[] All { get; set; }
+        public static RedisContext[] BinAndRawAndJson { get; set; }
 
         public static DateTime ServerNow
         {
@@ -42,11 +42,11 @@ namespace CachingFramework.Redis.UnitTest
         static Common()
         {
             
-            _rawContext = new Context(Config, new RawSerializer());
-            _jsonContext = new Context(Config, new JsonSerializer());
-            _msgPackContext = new Context(Config, new MsgPack.MsgPackSerializer());
+            _rawContext = new RedisContext(Config, new RawSerializer());
+            _jsonContext = new RedisContext(Config, new JsonSerializer());
+            _msgPackContext = new RedisContext(Config, new MsgPack.MsgPackSerializer());
 #if (NET45 || NET461)
-            _binaryContext = new Context(Config, new BinarySerializer());
+            _binaryContext = new RedisContext(Config, new BinarySerializer());
             All = new[] { _binaryContext, _rawContext, _jsonContext, _msgPackContext };
             BinAndRawAndJson = new[] { _binaryContext, _rawContext, _jsonContext };
 #else

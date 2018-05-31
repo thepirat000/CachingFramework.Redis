@@ -18,14 +18,14 @@ namespace CachingFramework.Redis.UnitTest
         public void Test_CustomMultiplexer()
         {
             var myMultiplexer = new PooledConnectionMultiplexer(Common.Config);
-            using (var ctx = new Context(myMultiplexer))
+            using (var ctx = new RedisContext(myMultiplexer))
             {
                 ctx.Cache.SetObject("Test_CustomMultiplexer_obj", "Test_CustomMultiplexer_value");
                 var list = ctx.Collections.GetRedisDictionary<string, string>("Test_CustomMultiplexer_hash");
                 list.Add("test", "value");
             }
 
-            using (var ctx = new Context(myMultiplexer))
+            using (var ctx = new RedisContext(myMultiplexer))
             {
                 Assert.AreEqual("Test_CustomMultiplexer_value", ctx.Cache.GetObject<string>("Test_CustomMultiplexer_obj"));
                 var dict = ctx.Collections.GetRedisDictionary<string, string>("Test_CustomMultiplexer_hash");

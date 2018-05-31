@@ -18,7 +18,7 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestRedisObjects
     {
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheGeo_WithTags(Context context)
+        public void UT_CacheGeo_WithTags(RedisContext context)
         {
             string key = "UT_CacheGeo_WithTags";
             context.Cache.Remove(key);
@@ -49,7 +49,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheSortedSet_WithTags(Context context)
+        public void UT_CacheSortedSet_WithTags(RedisContext context)
         {
             string key = "UT_CacheSortedSet_WithTags";
             context.Cache.Remove(key);
@@ -82,7 +82,7 @@ namespace CachingFramework.Redis.UnitTest
 
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheSet_Mix_WithTags(Context context)
+        public void UT_CacheSet_Mix_WithTags(RedisContext context)
         {
             string key = "UT_CacheSet_Mix_WithTags_Set";
             string sskey = "UT_CacheSet_Mix_WithTags_SortedSet";
@@ -125,7 +125,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheSet_WithTags(Context context)
+        public void UT_CacheSet_WithTags(RedisContext context)
         {
             string key = "UT_CacheSet_WithTags";
             string otherKey = "UT_CacheSet_WithTags_Other";
@@ -169,7 +169,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof (Common), "Raw")]
-        public void UT_CacheSortedSet_When(Context context)
+        public void UT_CacheSortedSet_When(RedisContext context)
         {
             string key = "UT_CacheSortedSet_When";
             context.Cache.Remove(key);
@@ -211,7 +211,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheList_Remove(Context context)
+        public void UT_CacheList_Remove(RedisContext context)
         {
             string key = "UT_CacheList_Remove";
             context.Cache.Remove(key);
@@ -225,7 +225,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheList_Insert(Context context)
+        public void UT_CacheList_Insert(RedisContext context)
         {
             string key = "UT_CacheList_Insert";
             context.Cache.Remove(key);
@@ -247,7 +247,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheList_Trim(Context context)
+        public void UT_CacheList_Trim(RedisContext context)
         {
             string key = "UT_CacheList_Trim";
             context.Cache.Remove(key);
@@ -261,7 +261,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheListObject(Context context)
+        public void UT_CacheListObject(RedisContext context)
         {
             string key1 = "UT_CacheListObject1";
             context.Cache.Remove(key1);
@@ -309,7 +309,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheListPushPop(Context context)
+        public void UT_CacheListPushPop(RedisContext context)
         {
             string key = "UT_CacheListPushPop";
             context.Cache.Remove(key);
@@ -333,7 +333,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
-        public void UT_CacheListRemoveAt(Context context)
+        public void UT_CacheListRemoveAt(RedisContext context)
         {
             string key = "UT_CacheListRemoveAt";
             context.Cache.Remove(key);
@@ -360,7 +360,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheListObjectTTL(Context context)
+        public void UT_CacheListObjectTTL(RedisContext context)
         {
             string key1 = "UT_CacheListObject_TTL1";
             context.Cache.Remove(key1);
@@ -374,7 +374,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheListObject_GetRange(Context context)
+        public void UT_CacheListObject_GetRange(RedisContext context)
         {
             string key = "UT_CacheListObject_GetRange";
             int total = 100;
@@ -396,7 +396,7 @@ namespace CachingFramework.Redis.UnitTest
 
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheList_Remove_Async(Context context)
+        public async Task UT_CacheList_Remove_Async(RedisContext context)
         {
             string key = "UT_CacheList_Remove_Async";
             await context.Cache.RemoveAsync(key);
@@ -410,7 +410,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheList_Insert_Async(Context context)
+        public async Task UT_CacheList_Insert_Async(RedisContext context)
         {
             string key = "UT_CacheList_Insert_Async";
             await context.Cache.RemoveAsync(key);
@@ -432,7 +432,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheList_Trim_Async(Context context)
+        public async Task UT_CacheList_Trim_Async(RedisContext context)
         {
             string key = "UT_CacheList_Trim_Async";
             await context.Cache.RemoveAsync(key);
@@ -446,7 +446,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheListObject_Async(Context context)
+        public async Task UT_CacheListObject_Async(RedisContext context)
         {
             string key1 = "UT_CacheListObject_Async";
             await context.Cache.RemoveAsync(key1);
@@ -496,7 +496,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheListPushPop_Async(Context context)
+        public async Task UT_CacheListPushPop_Async(RedisContext context)
         {
             string key = "UT_CacheListPushPop_Async";
             await context.Cache.RemoveAsync(key);
@@ -520,7 +520,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
-        public async Task UT_CacheListRemoveAt_Async(Context context)
+        public async Task UT_CacheListRemoveAt_Async(RedisContext context)
         {
             string key = "UT_CacheListRemoveAt_Async";
             await context.Cache.RemoveAsync(key);
@@ -547,7 +547,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheListObjectTTL_Async(Context context)
+        public async Task UT_CacheListObjectTTL_Async(RedisContext context)
         {
             string key1 = "UT_CacheListObjectTTL_Async";
             await context.Cache.RemoveAsync(key1);
@@ -561,7 +561,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheListObject_GetRange_Async(Context context)
+        public async Task UT_CacheListObject_GetRange_Async(RedisContext context)
         {
             string key = "UT_CacheListObject_GetRange_Async";
             int total = 100;
@@ -587,7 +587,7 @@ namespace CachingFramework.Redis.UnitTest
 
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheDictionaryObject(Context context)
+        public void UT_CacheDictionaryObject(RedisContext context)
         {
             string key1 = "UT_CacheDictionaryObject1";
             context.Cache.Remove(key1);
@@ -642,7 +642,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheDictionaryObject_TTL(Context context)
+        public void UT_CacheDictionaryObject_TTL(RedisContext context)
         {
             string key1 = "UT_CacheDictionaryObjectTTL1";
             context.Cache.Remove(key1);
@@ -656,7 +656,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
-        public void UT_CacheDictionaryIncrement(Context context)
+        public void UT_CacheDictionaryIncrement(RedisContext context)
         {
             string key = "UT_CacheDictionaryIncrement";
             context.Cache.Remove(key);
@@ -677,7 +677,7 @@ namespace CachingFramework.Redis.UnitTest
 
 
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
-        public void UT_CacheDictionaryIncrementFloat(Context context)
+        public void UT_CacheDictionaryIncrementFloat(RedisContext context)
         {
             string key = "UT_CacheDictionaryIncrementFloat";
             context.Cache.Remove(key);
@@ -697,7 +697,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
-        public async Task UT_CacheDictionaryIncrementAsync(Context context)
+        public async Task UT_CacheDictionaryIncrementAsync(RedisContext context)
         {
             string key = "UT_CacheDictionaryIncrementAsync";
             await context.Cache.RemoveAsync(key);
@@ -717,7 +717,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
-        public async Task UT_CacheDictionaryIncrementFloatAsync(Context context)
+        public async Task UT_CacheDictionaryIncrementFloatAsync(RedisContext context)
         {
             string key = "UT_CacheDictionaryIncrementFloatAsync";
             context.Cache.Remove(key);
@@ -737,7 +737,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheDictionaryObjectAsync(Context context)
+        public async Task UT_CacheDictionaryObjectAsync(RedisContext context)
         {
             string key1 = "UT_CacheDictionaryObjectAsync";
             context.Cache.Remove(key1);
@@ -792,7 +792,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheDictionaryObject_TTLAsync(Context context)
+        public async Task UT_CacheDictionaryObject_TTLAsync(RedisContext context)
         {
             string key1 = "UT_CacheDictionaryObject_TTLAsync";
             context.Cache.Remove(key1);
@@ -806,7 +806,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheDictionaryObject_AddAsyncWithTags(Context context)
+        public async Task UT_CacheDictionaryObject_AddAsyncWithTags(RedisContext context)
         {
             string key1 = "UT_CacheDictionaryObject_AddAsyncWithTags";
             string tag1 = "UT_CacheDictionaryObject_AddAsyncWithTags_TAG1";
@@ -822,7 +822,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheList_EXP(Context context)
+        public void UT_CacheList_EXP(RedisContext context)
         {
             string key = "UT_CacheList_EXP";
             context.Cache.Remove(key);
@@ -847,7 +847,7 @@ namespace CachingFramework.Redis.UnitTest
 
 #if (NET45 || NET461)
         [Test, TestCaseSource(typeof(Common), "Bin")]
-        public void UT_CacheList_StrObj(Context context)
+        public void UT_CacheList_StrObj(RedisContext context)
         {
             string key = "UT_CacheList_StrObj";
             context.Cache.Remove(key);
@@ -861,7 +861,7 @@ namespace CachingFramework.Redis.UnitTest
 #endif
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheSetObject(Context context)
+        public void UT_CacheSetObject(RedisContext context)
         {
             string key1 = "UT_CacheSetObject1";
             context.Cache.Remove(key1);
@@ -908,7 +908,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheSetObject_TTL(Context context)
+        public void UT_CacheSetObject_TTL(RedisContext context)
         {
             string key1 = "UT_CacheSetObject_TTL";
             context.Cache.Remove(key1);
@@ -922,7 +922,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheSetObject_SetModifiers(Context context)
+        public void UT_CacheSetObject_SetModifiers(RedisContext context)
         {
             string keyAbc = "UT_CacheSetObject_SetModifiers_ABC";
             string keyCde = "UT_CacheSetObject_SetModifiers_CDE";
@@ -944,7 +944,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheSortedSet_GetRange(Context context)
+        public void UT_CacheSortedSet_GetRange(RedisContext context)
         {
             var key = "UT_CacheSortedSet_GetRange";
             context.Cache.Remove(key);
@@ -973,7 +973,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Json")]
-        public void UT_CacheSortedSet_SE_Issue287(Context context)
+        public void UT_CacheSortedSet_SE_Issue287(RedisContext context)
         {
             var key = "UT_CacheSortedSet_SE_Issue287";
             context.Cache.Remove(key);
@@ -992,7 +992,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheSortedSet_GetRangeByRankNegative(Context context)
+        public void UT_CacheSortedSet_GetRangeByRankNegative(RedisContext context)
         {
             var key = "UT_CacheSortedSet_GetRangeByRankNegative";
             context.Cache.Remove(key);
@@ -1010,7 +1010,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheSortedSet_etc(Context context)
+        public void UT_CacheSortedSet_etc(RedisContext context)
         {
             var key = "UT_CacheSortedSet_etc";
             var ss = context.Collections.GetRedisSortedSet<string>(key);
@@ -1073,7 +1073,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
-        public void UT_CacheBitmap(Context context)
+        public void UT_CacheBitmap(RedisContext context)
         {
             var key = "UT_CacheBitmap";
             context.Cache.Remove(key);
@@ -1123,7 +1123,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheLexSet(Context context)
+        public void UT_CacheLexSet(RedisContext context)
         {
             var key = "UT_CacheLexSet";
             context.Cache.Remove(key);
@@ -1162,7 +1162,7 @@ namespace CachingFramework.Redis.UnitTest
 
         // See this: https://github.com/StackExchange/StackExchange.Redis/issues/458
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheLexSet_Match(Context context)
+        public void UT_CacheLexSet_Match(RedisContext context)
         {
             var key = "UT_CacheLexSet_Match";
             context.Cache.Remove(key);
@@ -1177,7 +1177,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheString(Context context)
+        public void UT_CacheString(RedisContext context)
         {
             var key = "UT_CacheString";
             context.Cache.Remove(key);
@@ -1221,7 +1221,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheStringAsync(Context context)
+        public async Task UT_CacheStringAsync(RedisContext context)
         {
             var key = "UT_CacheStringAsync";
             await context.Cache.RemoveAsync(key);
@@ -1265,7 +1265,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheStringGetSet(Context context)
+        public void UT_CacheStringGetSet(RedisContext context)
         {
             var key = "UT_CacheStringGetSet";
             context.Cache.Remove(key);
@@ -1284,7 +1284,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheStringGetSetAsync(Context context)
+        public async Task UT_CacheStringGetSetAsync(RedisContext context)
         {
             var key = "UT_CacheStringGetSetAsync";
             await context.Cache.RemoveAsync(key);
@@ -1303,7 +1303,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheString_Unicode(Context context)
+        public void UT_CacheString_Unicode(RedisContext context)
         {
             var key = "UT_CacheString_Unicode";
             context.Cache.Remove(key);
@@ -1324,7 +1324,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheString_UnicodeAsync(Context context)
+        public async Task UT_CacheString_UnicodeAsync(RedisContext context)
         {
             var key = "UT_CacheString_UnicodeAsync";
             await context.Cache.RemoveAsync(key);
@@ -1345,7 +1345,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheString_AsInteger(Context context)
+        public void UT_CacheString_AsInteger(RedisContext context)
         {
             var key = "UT_CacheString_AsInteger";
             context.Cache.Remove(key);
@@ -1356,7 +1356,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheString_AsIntegerAsync(Context context)
+        public async Task UT_CacheString_AsIntegerAsync(RedisContext context)
         {
             var key = "UT_CacheString_AsIntegerAsync";
             await context.Cache.RemoveAsync(key);
@@ -1367,7 +1367,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_CacheString_AsFloat(Context context)
+        public void UT_CacheString_AsFloat(RedisContext context)
         {
             var key = "UT_CacheString_AsFloat";
             context.Cache.Remove(key);
@@ -1379,7 +1379,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheString_AsFloatAsync(Context context)
+        public async Task UT_CacheString_AsFloatAsync(RedisContext context)
         {
             var key = "UT_CacheString_AsFloatAsync";
             await context.Cache.RemoveAsync(key);
@@ -1391,7 +1391,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
-        public void UT_CacheHash_Mix(Context context)
+        public void UT_CacheHash_Mix(RedisContext context)
         {
             var key = "UT_CacheHash_Mix";
             context.Cache.Remove(key);
@@ -1455,7 +1455,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheSetObjectAsync(Context context)
+        public async Task UT_CacheSetObjectAsync(RedisContext context)
         {
             string key1 = "UT_CacheSetObjectAsync";
             await context.Cache.RemoveAsync(key1);
@@ -1502,7 +1502,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheSetObject_TTLAsync(Context context)
+        public async Task UT_CacheSetObject_TTLAsync(RedisContext context)
         {
             string key1 = "UT_CacheSetObject_TTLAsync";
             context.Cache.Remove(key1);
@@ -1516,7 +1516,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheSetObject_SetModifiersAsync(Context context)
+        public async Task UT_CacheSetObject_SetModifiersAsync(RedisContext context)
         {
             string keyAbc = "UT_CacheSetObject_SetModifiersAsync_ABC";
             string keyCde = "UT_CacheSetObject_SetModifiersAsync_CDE";

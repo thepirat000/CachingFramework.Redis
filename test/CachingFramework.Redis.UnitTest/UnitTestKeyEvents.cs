@@ -13,36 +13,36 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestKeyEvents
     {
         [Test, TestCaseSource(typeof(Common), "Json")]
-        public void UT_SubscribeToAllEvents(Context context)
+        public void UT_SubscribeToAllEvents(RedisContext context)
         {
             UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Set, KeyEvent.Delete, KeyEvent.Delete }, KeyEventSubscriptionType.All);
         }
 
         [Test, TestCaseSource(typeof(Common), "Json")]
-        public void UT_SubscribeToSpaceEvents(Context context)
+        public void UT_SubscribeToSpaceEvents(RedisContext context)
         {
             UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Delete }, KeyEventSubscriptionType.KeySpace);
         }
 
         [Test, TestCaseSource(typeof(Common), "Json")]
-        public void UT_SubscribeToKeyEvents(Context context)
+        public void UT_SubscribeToKeyEvents(RedisContext context)
         {
             UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Delete }, KeyEventSubscriptionType.KeyEvent);
         }
 
         [Test, TestCaseSource(typeof(Common), "Json")]
-        public void UT_SubscribeToSpecificEvent(Context context)
+        public void UT_SubscribeToSpecificEvent(RedisContext context)
         {
             UT_SubscribeToEvents(context, new[] { KeyEvent.Delete }, eventType: KeyEvent.Delete);
         }
 
         [Test, TestCaseSource(typeof(Common), "Json")]
-        public void UT_SubscribeToSpecificKey(Context context)
+        public void UT_SubscribeToSpecificKey(RedisContext context)
         {
             UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Delete }, key: "myKey");
         }
 
-        private void UT_SubscribeToEvents(Context context, IList<KeyEvent> expectedEvents, KeyEventSubscriptionType? eventSubscriptionType = null, string key = null, KeyEvent? eventType = null)
+        private void UT_SubscribeToEvents(RedisContext context, IList<KeyEvent> expectedEvents, KeyEventSubscriptionType? eventSubscriptionType = null, string key = null, KeyEvent? eventType = null)
         {
             ConcurrentQueue<KeyValuePair<string, KeyEvent>> result = new ConcurrentQueue<KeyValuePair<string, KeyEvent>>();
             CountdownEvent handle = new CountdownEvent(expectedEvents.Count);

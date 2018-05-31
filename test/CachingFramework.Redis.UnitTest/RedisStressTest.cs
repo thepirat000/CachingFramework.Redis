@@ -13,7 +13,7 @@ namespace CachingFramework.Redis.UnitTest
     public class RedisStressTest
     {
         [Test, TestCaseSource(typeof(Common), "Raw")]
-        public void UT_RedisStress_BigAddDelete(Context context)
+        public void UT_RedisStress_BigAddDelete(RedisContext context)
         {
             string key = "UT_RedisStress_BigAddDelete";
             string tag = "UT_RedisStress_BigAddDelete-tag1";
@@ -41,7 +41,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Bin")]
-        public void UT_CacheBigRemoveByTag(Context context)
+        public void UT_CacheBigRemoveByTag(RedisContext context)
         {
             string key = "UT_CacheBigRemoveByTag";
             string tag = "mytag";
@@ -60,7 +60,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Bin")]
-        public void UT_RedisBomb(Context context)
+        public void UT_RedisBomb(RedisContext context)
         {
             const string test = "UT_RedisBomb";
             Stress(100, test, context);
@@ -77,7 +77,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Bin")]
-        public void UT_RedisStress_GetAllTags(Context context)
+        public void UT_RedisStress_GetAllTags(RedisContext context)
         {
             const string test = "UT_RedisStress_GetAllTags";
             const int keyCount = 1500;
@@ -95,7 +95,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(realTags.IsSubsetOf(tags));
         }
 
-        private void Stress(int keyCount, string test, Context context)
+        private void Stress(int keyCount, string test, RedisContext context)
         {
             int toCreate = 0, toConsume = 0;
             RemoveKeys(keyCount, test, context);
@@ -122,7 +122,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "MsgPack")]
-        public void UT_RedisStress_GetKeysByTag(Context context)
+        public void UT_RedisStress_GetKeysByTag(RedisContext context)
         {
             const string test = "UT_RedisStress_GetKeysByTag";
             const int keyCount = 1500;
@@ -151,7 +151,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Json")]
-        public void UT_CleanupTags(Context context)
+        public void UT_CleanupTags(RedisContext context)
         {
             // using the cleanup option
             const string key = "UT_CleanupTags";
@@ -167,7 +167,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
-        public void UT_RedisStress_RemoveKeysByTags(Context context)
+        public void UT_RedisStress_RemoveKeysByTags(RedisContext context)
         {
             const string test = "UT_RedisStress_RemoveKeysByTags";
             const int keyCount = 3000;
@@ -212,7 +212,7 @@ namespace CachingFramework.Redis.UnitTest
 
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
-        public void UT_CacheString_BigString(Context context)
+        public void UT_CacheString_BigString(RedisContext context)
         {
             var key = "UT_CacheString_BigString";
             int i = 999999;
@@ -229,14 +229,14 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, cs.Length);
         }
 
-        private void RemoveKeys(int count, string test, Context context)
+        private void RemoveKeys(int count, string test, RedisContext context)
         {
             foreach(int i in Enumerable.Range(1, count))
             {
                 context.Cache.Remove(GeyKey(i, test));
             };
         }
-        private int CreateKeys(int count, string test, Context context)
+        private int CreateKeys(int count, string test, RedisContext context)
         {
             int timeouts = 0;
             Debug.WriteLine("CreateKeys started. {0} {1} {2}.", test, count, DateTime.Now);
@@ -277,7 +277,7 @@ namespace CachingFramework.Redis.UnitTest
             return "This Is Tag " + mod + " for test " + test;
         }
 
-        private int ConsumeValues(int count, string test, Context context)
+        private int ConsumeValues(int count, string test, RedisContext context)
         {
             int timeouts = 0;
             Debug.WriteLine("ComsumeValues started. {0} {1} {2}.", test, count, DateTime.Now);

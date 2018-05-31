@@ -33,7 +33,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_Geo_GeoAdd(Context context)
+        public void UT_Geo_GeoAdd(RedisContext context)
         {
             var key = "UT_Geo_GeoAdd";
             context.Cache.Remove(key);
@@ -47,7 +47,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_Geo_GeoPos(Context context)
+        public void UT_Geo_GeoPos(RedisContext context)
         {
             var key = "UT_Geo_GeoPos";
             context.Cache.Remove(key);
@@ -61,7 +61,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_Geo_GeoPosMultiple(Context context)
+        public void UT_Geo_GeoPosMultiple(RedisContext context)
         {
             var key = "UT_Geo_GeoPosMultiple";
             context.Cache.Remove(key);
@@ -81,7 +81,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_Geo_GeoDistance(Context context)
+        public void UT_Geo_GeoDistance(RedisContext context)
         {
             var key = "UT_Geo_GeoDistance";
             context.Cache.Remove(key);
@@ -101,7 +101,7 @@ namespace CachingFramework.Redis.UnitTest
 
 #if (NET45 || NET461)
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_Geo_GeoDistanceDirect(Context context)
+        public void UT_Geo_GeoDistanceDirect(RedisContext context)
         {
             var key = "UT_Geo_GeoDistanceDirect";
             context.Cache.Remove(key);
@@ -115,7 +115,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 #endif
         [Test, TestCaseSource(typeof(Common), "All")]
-        public void UT_Geo_GeoHash(Context context)
+        public void UT_Geo_GeoHash(RedisContext context)
         {
             var key = "UT_Geo_GeoHash";
             context.Cache.Remove(key);
@@ -128,7 +128,7 @@ namespace CachingFramework.Redis.UnitTest
 
 #if (NET45 || NET461)
         [Test, TestCaseSource(typeof(Common), "Json")]
-        public void UT_Geo_GeoRadius(Context context)
+        public void UT_Geo_GeoRadius(RedisContext context)
         {
             var key = "UT_Geo_GeoRadius";
             context.Cache.Remove(key);

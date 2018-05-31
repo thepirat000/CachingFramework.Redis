@@ -17,7 +17,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
-        public void UT_CacheBitmapBitField(Context context)
+        public void UT_CacheBitmapBitField(RedisContext context)
         {
             var key = "UT_CacheBitmapBitField";
             context.Cache.Remove(key);
@@ -36,7 +36,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
-        public void UT_CacheBitmapBitField_Overflow(Context context)
+        public void UT_CacheBitmapBitField_Overflow(RedisContext context)
         {
             var key = "UT_CacheBitmapBitField_Overflow";
             context.Cache.Remove(key);
@@ -47,7 +47,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
-        public void UT_CacheBitmapBitField_WrapSaturation(Context context)
+        public void UT_CacheBitmapBitField_WrapSaturation(RedisContext context)
         {
             var key = "UT_CacheBitmapBitField_WrapSaturation";
             context.Cache.Remove(key);

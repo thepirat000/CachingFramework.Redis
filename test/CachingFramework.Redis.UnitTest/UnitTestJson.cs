@@ -17,7 +17,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test]
         public void UT_JsonGet()
         {
-            var ctx = new Context(Common.Config, new JsonSerializer());
+            var ctx = new RedisContext(Common.Config, new JsonSerializer());
             string key = "UT_JsonGet";
             ctx.Cache.Remove(key);
             ArgumentOutOfRangeException realEx;
