@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace CachingFramework.Redis.Contracts.RedisObjects
 {
+    /// <summary>
+    /// Redis set operations
+    /// </summary>
     public interface IRedisSetAsync<T>
     {
         /// <summary>

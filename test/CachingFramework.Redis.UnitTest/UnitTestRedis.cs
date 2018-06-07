@@ -14,6 +14,124 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestRedis
     {
         [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_Cache_MembersByTag(RedisContext context)
+        {
+            var key = "UT_Cache_MembersByTag";
+            var keyHash = "UT_Cache_MembersByTag_HASH";
+            var keySet = "UT_Cache_MembersByTag_SET";
+            var keySortedset = "UT_Cache_MembersByTag_SSET";
+            var tag1 = "UT_Cache_MembersByTag_TAG1";
+            var tag2 = "UT_Cache_MembersByTag_TAG2";
+            context.Cache.Remove(new[] { key, keyHash, keySet, keySortedset });
+            context.Cache.InvalidateKeysByTag(tag1, tag2);
+
+            context.Cache.SetObject(key, "test", new[] { tag1 });
+            // duplicated call with same tag and key
+            context.Cache.SetObject(key, "test2", new[] { tag1 });
+
+            var hash = context.Collections.GetRedisDictionary<string, string>(keyHash);
+            hash.Add("hx", "one", new[] { tag1 });
+            hash.Add("hy", "two", new[] { tag1, tag2 });
+            hash.Add("hz", "three", new[] { tag2 });
+
+            var set = context.Collections.GetRedisSet<string>(keySet);
+            set.Add("sx", new[] { tag1 });
+            set.Add("sy", new[] { tag1, tag2 });
+            set.Add("sz", new[] { tag2 });
+
+            var sortedSet = context.Collections.GetRedisSortedSet<string>(keySortedset);
+            sortedSet.Add(1, "ssx", new[] { tag1 });
+            sortedSet.Add(2, "ssy", new[] { tag1, tag2 });
+            sortedSet.Add(3, "ssz", new[] { tag2 });
+
+            var t1Members = context.Cache.GetMembersByTag(tag1).ToList();
+            var t2Members = context.Cache.GetMembersByTag(tag2).ToList();
+            var noMembers = context.Cache.GetMembersByTag("does not exists").ToList();
+
+            Assert.AreEqual(0, noMembers.Count);
+            Assert.AreEqual(7, t1Members.Count);
+            Assert.AreEqual(6, t2Members.Count);
+
+            Assert.IsTrue(t1Members.Any(x => x.MemberType == TagMemberType.StringKey && x.Key == key && x.MemberValue == null));
+            Assert.IsTrue(t1Members.Any(x => x.MemberType == TagMemberType.HashField && x.Key == keyHash && x.GetMemberAs<string>() == "hx" ));
+            Assert.IsTrue(t1Members.Any(x => x.MemberType == TagMemberType.HashField && x.Key == keyHash && x.GetMemberAs<string>() == "hy"));
+
+            Assert.IsTrue(t1Members.Any(x => x.MemberType == TagMemberType.SetMember && x.Key == keySet && x.GetMemberAs<string>() == "sx"));
+            Assert.IsTrue(t1Members.Any(x => x.MemberType == TagMemberType.SetMember && x.Key == keySet && x.GetMemberAs<string>() == "sy"));
+
+            Assert.IsTrue(t1Members.Any(x => x.MemberType == TagMemberType.SortedSetMember && x.Key == keySortedset && x.GetMemberAs<string>() == "ssx"));
+            Assert.IsTrue(t1Members.Any(x => x.MemberType == TagMemberType.SortedSetMember && x.Key == keySortedset && x.GetMemberAs<string>() == "ssy"));
+
+            Assert.IsTrue(t2Members.Any(x => x.MemberType == TagMemberType.HashField && x.Key == keyHash && x.GetMemberAs<string>() == "hy"));
+            Assert.IsTrue(t2Members.Any(x => x.MemberType == TagMemberType.HashField && x.Key == keyHash && x.GetMemberAs<string>() == "hz"));
+
+            Assert.IsTrue(t2Members.Any(x => x.MemberType == TagMemberType.SetMember && x.Key == keySet && x.GetMemberAs<string>() == "sy"));
+            Assert.IsTrue(t2Members.Any(x => x.MemberType == TagMemberType.SetMember && x.Key == keySet && x.GetMemberAs<string>() == "sz"));
+
+            Assert.IsTrue(t2Members.Any(x => x.MemberType == TagMemberType.SortedSetMember && x.Key == keySortedset && x.GetMemberAs<string>() == "ssy"));
+            Assert.IsTrue(t2Members.Any(x => x.MemberType == TagMemberType.SortedSetMember && x.Key == keySortedset && x.GetMemberAs<string>() == "ssz"));
+
+            context.Cache.InvalidateKeysByTag(tag1, tag2);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_Cache_IsOnTagMethods(RedisContext context)
+        {
+            var key = "UT_Cache_IsOnTagMethods";
+            var keyHash = "UT_Cache_IsOnTagMethods_HASH";
+            var keySet = "UT_Cache_IsOnTagMethods_SET";
+            var keySortedset = "UT_Cache_IsOnTagMethods_SSET";
+            var tag1 = "UT_Cache_IsOnTagMethods_TAG1";
+            var tag2 = "UT_Cache_IsOnTagMethods_TAG2";
+            context.Cache.Remove(new [] { key, keyHash, keySet, keySortedset });
+            context.Cache.InvalidateKeysByTag(tag1, tag2);
+
+            context.Cache.SetObject(key, "test", new [] { tag1 });
+
+            var hash = context.Collections.GetRedisDictionary<string, string>(keyHash);
+            hash.Add("hx", "one", new[] {tag1});
+            hash.Add("hy", "two", new[] {tag1, tag2});
+            hash.Add("hz", "three", new[] { tag2 });
+
+            var set = context.Collections.GetRedisSet<string>(keySet);
+            set.Add("sx", new[] {tag1});
+            set.Add("sy", new[] {tag1, tag2});
+            set.Add("sz", new[] {tag2 });
+
+            var sortedSet = context.Collections.GetRedisSortedSet<string>(keySortedset);
+            sortedSet.Add(1, "ssx", new[] {tag1});
+            sortedSet.Add(2, "ssy", new[] {tag1, tag2});
+            sortedSet.Add(3, "ssz", new[] {tag2});
+
+            Assert.AreEqual(true, context.Cache.IsStringKeyInTag(key, tag1));
+            Assert.AreEqual(false, context.Cache.IsStringKeyInTag(key, tag2));
+            Assert.AreEqual(true, context.Cache.IsStringKeyInTag(key, "xyyxx", tag1));
+            Assert.AreEqual(false, context.Cache.IsStringKeyInTag("does not exists", tag1));
+
+            Assert.AreEqual(true, context.Cache.IsHashFieldInTag(keyHash, "hx", tag1));
+            Assert.AreEqual(false, context.Cache.IsHashFieldInTag(keyHash, "hx", tag2));
+            Assert.AreEqual(true, context.Cache.IsHashFieldInTag(keyHash, "hy", tag1, tag2));
+            Assert.AreEqual(true, context.Cache.IsHashFieldInTag(keyHash, "hz", tag1, tag2));
+            Assert.AreEqual(false, context.Cache.IsHashFieldInTag(keyHash, "does not exists", tag1, tag2));
+
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sx", tag1));
+            Assert.AreEqual(false, context.Cache.IsSetMemberInTag(keySet, "sx", tag2));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sy", tag1));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sy", tag2));
+            Assert.AreEqual(false, context.Cache.IsSetMemberInTag(keySet, "sz", tag1));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sz", tag2));
+
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag1));
+            Assert.AreEqual(false, context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag2));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag1));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag2));
+            Assert.AreEqual(false, context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag1));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag2));
+
+            context.Cache.InvalidateKeysByTag(tag1, tag2);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Cache_SetHashed_TK_TV(RedisContext context)
         {
             var key = "UT_Cache_SetHashed_TK_TV";

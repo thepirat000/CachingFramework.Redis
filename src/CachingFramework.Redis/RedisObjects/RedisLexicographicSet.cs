@@ -18,7 +18,6 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         /// <param name="redisContext">The redis context.</param>
         /// <param name="redisKey">The redis key.</param>
-        /// <param name="cacheProvider">The cache provider.</param>
         internal RedisLexicographicSet(RedisProviderContext redisContext, string redisKey)
             : base(redisContext, redisKey)
         {
@@ -35,7 +34,7 @@ namespace CachingFramework.Redis.RedisObjects
             GetRedisDb().SortedSetAdd(RedisKey, collection.Select(x => new SortedSetEntry(x, 0)).ToArray());
         }
         /// <summary>
-        /// Returns the strings that starts with the specified <param name="partial"></param> string.
+        /// Returns the strings that starts with the specified partial string.
         /// </summary>
         /// <param name="partial">The partial string to match.</param>
         /// <param name="take">The take number for result pagination.</param>

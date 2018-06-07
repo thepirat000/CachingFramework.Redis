@@ -16,7 +16,6 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_RedisStress_BigAddDelete(RedisContext context)
         {
             string key = "UT_RedisStress_BigAddDelete";
-            string tag = "UT_RedisStress_BigAddDelete-tag1";
             int total = 1000;
             var sw = Stopwatch.StartNew();
             for (int i = 0; i < total; i++)

@@ -344,7 +344,8 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TK">The type of the key field</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
         /// <param name="key">The key.</param>
         /// <param name="field">The field key</param>
         /// <param name="value">The value to store</param>
@@ -374,5 +375,25 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this hash). NULL to keep the current expiration.</param>
         /// <param name="when">Indicates when this operation should be performed.</param>
         Task SetHashedAsync<TK, TV>(string key, TK field, TV value, string[] tags, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always);
+        /// <summary>
+        /// Determines if a redis string key is included in any of the given tags.
+        /// </summary>
+        /// <param name="key">The redis string key to find</param>
+        /// <param name="tags">The tags to look into</param>
+        Task<bool> IsStringKeyInTagAsync(string key, params string[] tags);
+        /// <summary>
+        /// Determines if a redis hash field is included in any of the given tags.
+        /// </summary>
+        /// <param name="key">The redis hash key to find</param>
+        /// <param name="field">The redis hash field to find</param>
+        /// <param name="tags">The tags to look into</param>
+        Task<bool> IsHashFieldInTagAsync<T>(string key, T field, params string[] tags);
+        /// <summary>
+        /// Determines if a redis set (or sorted set) member is included in any of the given tags.
+        /// </summary>
+        /// <param name="key">The redis set or sorted set key to find</param>
+        /// <param name="member">The redis set member to find</param>
+        /// <param name="tags">The tags to look into</param>
+        Task<bool> IsSetMemberInTagAsync<T>(string key, T member, params string[] tags);
     }
 }

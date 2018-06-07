@@ -29,5 +29,10 @@ namespace CachingFramework.Redis.Contracts
         /// Gets the Key/Event space notifications API.
         /// </summary>
         IKeyEventsProvider KeyEvents { get; }
+
+        /// <summary>
+        /// Gets the serializer for this context.
+        /// </summary>
+        ISerializer GetSerializer();
     }
 }

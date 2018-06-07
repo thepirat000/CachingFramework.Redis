@@ -275,18 +275,52 @@ context.Cache.RemoveTagsFromSetMember("users:set", "user:id:1", new[] { "green" 
 The same method can be used to remove tags from Sorted Set members and GeoSpatial index members.
 
 #### Get objects by tag
-Get all the objects related to *red* and/or *green*. Assuming all the keys related to the tags are of the same type:
+Get all the objects related to *red* and/or *green*: 
 ```c#
 IEnumerable<User> users = context.Cache.GetObjectsByTag<User>("red", "green");
 ```
 
+This assumes all the keys related to the tags are of the same type.
 
+#### Determine if member is tagged
+Determines whether a redis string key is included on a given tag:
+```c#
+bool x = context.Cache.IsStringKeyInTag("key", "blue");
+```
+
+Determines whether a redis hash field is included on a given tag:
+```c#
+bool x = context.Cache.IsHashFieldInTag("users:hash", "user:id:1", "blue");
+```
+
+Determines whether a redis set member is included on a given tag:
+```c#
+bool x = context.Cache.IsSetMemberInTag("users:set", user, "red");
+```
 
 #### Invalidate keys by tags
 Remove all the keys, hash fields, set members and sorted set members related to *blue* and/or *green* tags:
 ```c#
 context.Cache.InvalidateKeysByTag("blue", "green");
 ```
+
+#### Get members in tag
+Get all the members (keys, hash fields and set members) related to a particular tag:
+```c#
+IEnumerable<TagMember> members = context.Cache.GetMembersByTag("blue");
+foreach (TagMember member in members)
+{
+    var key = member.Key;
+    var type = member.MemberType;
+    var user = member.GetMemberAs<User>();
+}
+```
+
+`TagMember` contains the Redis Key on its `Key` property and the member type on `MemberType` property.
+If the member type is not a redis string, you can get the member value pointed by the tag
+by calling the `GetMemberAs<T>` method.
+
+The `MemberType` is one of `StringKey`, `HashField`, `SetMember` or `SortedSetMember`.
 
 #### Get keys by tag
 Get all the keys, hash fields and set members related to the given tags:

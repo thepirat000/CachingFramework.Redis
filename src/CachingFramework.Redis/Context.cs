@@ -68,7 +68,6 @@ namespace CachingFramework.Redis
         /// Initializes a new instance of the <see cref="Context" /> class injecting the connection multiplexer to use.
         /// </summary>
         /// <param name="connection">The connection multiplexer to use.</param>
-        /// <param name="serializer">The serializer.</param>
         public Context(IConnectionMultiplexer connection) : base(connection) { }
 
         /// <summary>

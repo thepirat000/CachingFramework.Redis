@@ -13,6 +13,63 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis_Async
     {
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_Cache_IsOnTagMethods_Async(RedisContext context)
+        {
+            var key = "UT_Cache_IsOnTagMethods";
+            var keyHash = "UT_Cache_IsOnTagMethods_HASH";
+            var keySet = "UT_Cache_IsOnTagMethods_SET";
+            var keySortedset = "UT_Cache_IsOnTagMethods_SSET";
+            var tag1 = "UT_Cache_IsOnTagMethods_TAG1";
+            var tag2 = "UT_Cache_IsOnTagMethods_TAG2";
+            await context.Cache.RemoveAsync(new[] { key, keyHash, keySet, keySortedset });
+            await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
+
+            await context.Cache.SetObjectAsync(key, "test", new[] { tag1 });
+
+            var hash = context.Collections.GetRedisDictionary<string, string>(keyHash);
+            await hash.AddAsync("hx", "one", new[] { tag1 });
+            await hash.AddAsync("hy", "two", new[] { tag1, tag2 });
+            await hash.AddAsync("hz", "three", new[] { tag2 });
+
+            var set = context.Collections.GetRedisSet<string>(keySet);
+            await set.AddAsync("sx", new[] { tag1 });
+            await set.AddAsync("sy", new[] { tag1, tag2 });
+            await set.AddAsync("sz", new[] { tag2 });
+
+            var sortedSet = context.Collections.GetRedisSortedSet<string>(keySortedset);
+            sortedSet.Add(1, "ssx", new[] { tag1 });
+            sortedSet.Add(2, "ssy", new[] { tag1, tag2 });
+            sortedSet.Add(3, "ssz", new[] { tag2 });
+
+            Assert.AreEqual(true, context.Cache.IsStringKeyInTag(key, tag1));
+            Assert.AreEqual(false, context.Cache.IsStringKeyInTag(key, tag2));
+            Assert.AreEqual(true, context.Cache.IsStringKeyInTag(key, "xyyxx", tag1));
+            Assert.AreEqual(false, context.Cache.IsStringKeyInTag("does not exists", tag1));
+
+            Assert.AreEqual(true, context.Cache.IsHashFieldInTag(keyHash, "hx", tag1));
+            Assert.AreEqual(false, context.Cache.IsHashFieldInTag(keyHash, "hx", tag2));
+            Assert.AreEqual(true, context.Cache.IsHashFieldInTag(keyHash, "hy", tag1, tag2));
+            Assert.AreEqual(true, context.Cache.IsHashFieldInTag(keyHash, "hz", tag1, tag2));
+            Assert.AreEqual(false, context.Cache.IsHashFieldInTag(keyHash, "does not exists", tag1, tag2));
+
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sx", tag1));
+            Assert.AreEqual(false, context.Cache.IsSetMemberInTag(keySet, "sx", tag2));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sy", tag1));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sy", tag2));
+            Assert.AreEqual(false, context.Cache.IsSetMemberInTag(keySet, "sz", tag1));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sz", tag2));
+
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag1));
+            Assert.AreEqual(false, context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag2));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag1));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag2));
+            Assert.AreEqual(false, context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag1));
+            Assert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag2));
+
+            await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
+        }
+
         [Test, TestCaseSource(typeof(Common), "Json")]
         public async Task UT_Cache_AddToSetAsync(RedisContext context)
         {
@@ -67,6 +124,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof (Common), "Raw")]
         public async Task UT_CacheNull_Async(RedisContext context)
         {
+            await Task.Delay(1);
             Assert.ThrowsAsync<ArgumentException>(async () => await context.Cache.SetObjectAsync(null, "this should fail"));
         }
 

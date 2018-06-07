@@ -424,5 +424,30 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// </summary>
         /// <param name="key">The redis key.</param>
         long HyperLogLogCount(string key);
+        /// <summary>
+        /// Determines if a redis string key is included in any of the given tags.
+        /// </summary>
+        /// <param name="key">The redis string key to find</param>
+        /// <param name="tags">The tags to look into</param>
+        bool IsStringKeyInTag(string key, params string[] tags);
+        /// <summary>
+        /// Determines if a redis hash field is included in any of the given tags.
+        /// </summary>
+        /// <param name="key">The redis hash key to find</param>
+        /// <param name="field">The redis hash field to find</param>
+        /// <param name="tags">The tags to look into</param>
+        bool IsHashFieldInTag<T>(string key, T field, params string[] tags);
+        /// <summary>
+        /// Determines if a redis set (or sorted set) member is included in any of the given tags.
+        /// </summary>
+        /// <param name="key">The redis set or sorted set key to find</param>
+        /// <param name="member">The redis set member to find</param>
+        /// <param name="tags">The tags to look into</param>
+        bool IsSetMemberInTag<T>(string key, T member, params string[] tags);
+        /// <summary>
+        /// Get all the members related to the given tag
+        /// </summary>
+        /// <param name="tag">The tag name to get its members</param>
+        IEnumerable<TagMember> GetMembersByTag(string tag);
     }
 }

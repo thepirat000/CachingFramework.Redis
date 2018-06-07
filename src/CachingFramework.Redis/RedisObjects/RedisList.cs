@@ -243,9 +243,11 @@ namespace CachingFramework.Redis.RedisObjects
             if (!before.IsNull)
             {
                 var batch = db.CreateBatch();
+#pragma warning disable 4014
                 batch.ListSetByIndexAsync(RedisKey, index, tempKey);
                 batch.ListInsertBeforeAsync(RedisKey, tempKey, Serialize(item));
                 batch.ListSetByIndexAsync(RedisKey, index + 1, (byte[])before);
+#pragma warning restore 4014
                 batch.Execute();
             }
         }
@@ -267,8 +269,10 @@ namespace CachingFramework.Redis.RedisObjects
             }
             var tempKey = GetTempKey();
             var batch = GetRedisDb().CreateBatch();
+#pragma warning disable 4014
             batch.ListSetByIndexAsync(RedisKey, index, tempKey);
             batch.ListRemoveAsync(RedisKey, tempKey, 1);
+#pragma warning restore 4014
             batch.Execute();
         }
         /// <summary>

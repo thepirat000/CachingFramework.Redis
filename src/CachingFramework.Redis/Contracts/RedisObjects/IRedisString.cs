@@ -71,7 +71,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="stop">The stop zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
         string this[long start, long stop] { get; }
         /// <summary>
-        /// Increments the number stored at key by <param name="increment"></param>. 
+        /// Increments the number stored at key by increment. 
         /// If the key does not exist, it is set to 0 before performing the operation. 
         /// An exception is thrown if the key content can not be represented as integer.
         /// </summary>
@@ -92,14 +92,14 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         void Clear();
         /// <summary>
         /// Returns the contents of the string as an integer value.
-        /// Returns the <param name="default"></param> when the key does not exists.
+        /// Returns the given default when the key does not exists.
         /// Throws an exception if the string value cannot be parsed as an integer
         /// </summary>
         /// <param name="default">The default value to return when the key does not exists (default is 0).</param>
         long AsInteger(long @default = 0);
         /// <summary>
         /// Returns the contents of the string as a floating point value.
-        /// Returns the <param name="default"></param> when the key does not exists.
+        /// Returns the given default when the key does not exists.
         /// Throws an exception if the string value cannot be parsed as a double precision floating point number.
         /// </summary>
         /// <param name="default">The default value to return when the key does not exists (default is 0).</param>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Contracts.Providers;
 using StackExchange.Redis;
 
@@ -858,6 +859,62 @@ namespace CachingFramework.Redis.Providers
             }
             return taggedItems.Select(x => x.ToString());
         }
+
+        /// <summary>
+        /// Get all the members related to the given tag
+        /// </summary>
+        /// <param name="tag">The tag name to get its members</param>
+        public IEnumerable<TagMember> GetMembersByTag(string tag)
+        {
+            var db = RedisConnection.GetDatabase();
+            var formatTag = FormatTag(tag);
+            if (db.KeyType(formatTag) == RedisType.Set)
+            {
+                var tagMembers = db.SetMembers(formatTag);
+                foreach (var tagMember in tagMembers)
+                {
+                    var tmString = tagMember.ToString();
+                    if (tmString.Contains(TagHashSeparator))
+                    {
+                        // Hash field
+                        var items = tmString.Split(new[] {TagHashSeparator}, 2, StringSplitOptions.None);
+                        var hashKey = items[0];
+                        yield return new TagMember(Serializer)
+                        {
+                            Key = hashKey,
+                            MemberType = TagMemberType.HashField,
+                            MemberValue = GetHashFieldItem(hashKey, tagMember)
+                        };
+                    }
+                    else if (tmString.Contains(TagSetSeparator))
+                    {
+                        // Set/SortedSet member
+                        var items = tmString.Split(new[] {TagSetSeparator}, 2, StringSplitOptions.None);
+                        var setKey = items[0];
+                        var keyType = db.KeyType(setKey);
+                        yield return new TagMember(Serializer)
+                        {
+                            Key = setKey,
+                            MemberType =
+                                keyType == RedisType.SortedSet
+                                    ? TagMemberType.SortedSetMember
+                                    : TagMemberType.SetMember,
+                            MemberValue = GetMemberSetItem(setKey, tagMember)
+                        };
+                    }
+                    else
+                    {
+                        // String
+                        yield return new TagMember(null)
+                        {
+                            Key = tmString,
+                            MemberType = TagMemberType.StringKey,
+                        };
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Returns all the objects that has the given tag(s) related.
         /// Assumes all the objects are of the same type <typeparamref name="T" />.
@@ -1190,7 +1247,8 @@ namespace CachingFramework.Redis.Providers
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TK">The type of the key field</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
         /// <param name="key">The key.</param>
         /// <param name="field">The field key</param>
         /// <param name="value">The value to store</param>
@@ -1540,6 +1598,113 @@ namespace CachingFramework.Redis.Providers
         {
             RunInAllMasters(svr => svr.FlushAllDatabases());
         }
+
+        /// <inheritdoc />
+        public bool IsStringKeyInTag(string key, params string[] tags)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                return false;
+            }
+            var db = RedisConnection.GetDatabase();
+            for (int i = 0; i < tags.Length; i++)
+            {
+                if (db.SetContains(FormatTag(tags[i]), key))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        /// <inheritdoc />
+        public bool IsHashFieldInTag<T>(string key, T field, params string[] tags)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                return false;
+            }
+            var db = RedisConnection.GetDatabase();
+            for (int i = 0; i < tags.Length; i++)
+            {
+                if (db.SetContains(FormatTag(tags[i]), FormatSerializedMember(key, TagHashSeparator, field)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <inheritdoc />
+        public bool IsSetMemberInTag<T>(string key, T member, params string[] tags)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                return false;
+            }
+            var db = RedisConnection.GetDatabase();
+            for (int i = 0; i < tags.Length; i++)
+            {
+                if (db.SetContains(FormatTag(tags[i]), FormatSerializedMember(key, TagSetSeparator, member)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> IsStringKeyInTagAsync(string key, params string[] tags)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                return false;
+            }
+            var db = RedisConnection.GetDatabase();
+            for (int i = 0; i < tags.Length; i++)
+            {
+                if (await db.SetContainsAsync(FormatTag(tags[i]), key))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        /// <inheritdoc />
+        public async Task<bool> IsHashFieldInTagAsync<T>(string key, T field, params string[] tags)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                return false;
+            }
+            var db = RedisConnection.GetDatabase();
+            for (int i = 0; i < tags.Length; i++)
+            {
+                if (await db.SetContainsAsync(FormatTag(tags[i]), FormatSerializedMember(key, TagHashSeparator, field)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        /// <inheritdoc />
+        public async Task<bool> IsSetMemberInTagAsync<T>(string key, T member, params string[] tags)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                return false;
+            }
+            var db = RedisConnection.GetDatabase();
+            for (int i = 0; i < tags.Length; i++)
+            {
+                if (await db.SetContainsAsync(FormatTag(tags[i]), FormatSerializedMember(key, TagSetSeparator, member)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         #endregion
 
         #region Private Methods

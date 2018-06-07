@@ -12,7 +12,6 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
         IRedisList<T> GetRedisList<T>(string key);
         /// <summary>
         /// Returns an IRedisDictionary implemented using a Redis Hash
@@ -20,21 +19,18 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <typeparam name="TKey">The key type</typeparam>
         /// <typeparam name="TValue">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
         IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key);
         /// <summary>
         /// Returns an IRedisSet implemented using a Redis Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
         IRedisSet<T> GetRedisSet<T>(string key);
         /// <summary>
         /// Returns an IRedisSortedSet implemented using a Redis Sorted Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        /// <param name="serializer">The serializer to use, or NULL to use the context serializer</param>
         IRedisSortedSet<T> GetRedisSortedSet<T>(string key);
         /// <summary>
         /// Returns an ICollection implemented using a Redis string as a bitmap
