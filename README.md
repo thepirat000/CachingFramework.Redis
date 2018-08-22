@@ -77,6 +77,76 @@ var context = new RedisContext(myMultiplexer);
 
 --------------
 
+Serialization
+=====
+
+Different serialization mechanisms are provided:
+
+| **Serializer** | **Data** | **Configuration** |
+| ----------- | ----------------------- | -------------------------- |
+|[**`BinarySerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/BinarySerializer.cs) | All types are serialized using the .NET `BinaryFormatter` and GZIP compressed. | Default for .Net Framework | 
+|[**`JsonSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/JsonSerializer.cs) | Data is stored as Json. Serialization can be configured with `JsonSerializerSettings`. | Default for .Net Core | 
+|[**`RawSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/RawSerializer.cs) | The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as UTF-8 strings. Any other type is serialized using the default serializer. | Serialization can be set-up per type using `SetSerializerFor()` |
+
+The `RedisContext` class has constructor overloads to supply the serialization mechanism, for example:
+
+```c#
+var context = new RedisContext("localhost:6379", new JsonSerializer());
+```
+
+#### Default serialization method
+
+You can change the _default serialization mechanism_ by setting the static property `RedisContext.DefaultSerializer`. 
+This default is used when creating `RedisContext` without an explicit serializer.
+
+Of course you must do this before any context creation, for example on your application startup:
+
+```c#
+RedisContext.DefaultSerializer = new JsonSerializer();
+```
+
+> NOTE: The **.NET Framework** version of the library will default the `RedisContext.DefaultSerializer` property to
+> BinarySerializer. And the **.NET Core** cer
+> 
+>If you don't explicitly set the `DefaultSerializer`, 
+> the default serialization method differs between the .NET Framework version (BinarySerializer) and the .NET Core version (JsonSerializer). 
+If you plan to consume data from different framework versions, make sure all of them are using the same serialization method.
+
+#### Custom serialization
+
+To provide a custom serialization mechanism, implement the `ISerializer` interface. For example:
+```c#
+public class MySerializer : ISerializer
+{
+    public byte[] Serialize<T>(T value)
+    {
+        return Encoding.UTF8.GetBytes(value.ToString());
+    }
+    public T Deserialize<T>(byte[] value)
+    {
+        return (T)Convert.ChangeType(Encoding.UTF8.GetString(value), typeof(T));
+    }
+}
+```
+
+#### Raw serializer
+
+The `RawSerializer` allows to dynamically override the serialization/deserialization logic per type with the method `SetSerializerFor<T>()`.
+
+For example, to allow the serialization of a `StringBuilder` as an UTF-8 encoded string:
+
+```c#
+// On your startup logic:
+RedisContext.DefaultSerializer = new RawSerializer()
+    .SetSerializerFor<StringBuilder>
+    (
+        sb => Encoding.UTF8.GetBytes(sb.ToString()), 
+        b => new StringBuilder(Encoding.UTF8.GetString(b))
+    );
+```
+
+--------------
+
 Typed cache
 =====
 Any primitive type or serializable class can be used as a cache value.
@@ -514,65 +584,6 @@ public long GetLoginCount(DateTime date)
 }
 ```
 
---------------
-
-Serialization
-=====
-
-To provide your own serialization mechanism implement the `ISerializer` interface.
-
-For example, a custom serializer for simple types:
-```c#
-public class MySerializer : ISerializer
-{
-    public byte[] Serialize<T>(T value)
-    {
-        return Encoding.UTF8.GetBytes(value.ToString());
-    }
-    public T Deserialize<T>(byte[] value)
-    {
-        return (T)Convert.ChangeType(Encoding.UTF8.GetString(value), typeof(T));
-    }
-}
-```
-
-The `RedisContext` class has constructor overloads to supply the serialization mechanism, for example:
-
-```c#
-var context = new RedisContext("localhost:6379", new MySerializer());
-```
-
-Different serialization mechanisms are provided:
-
-- **Binary Serializer** (default for NET45 and NET461):
-All types are serialized using the .NET `BinaryFormatter` from `System.Runtime.Serialization` and compressed using GZIP from `System.IO.Compression`.
-
-- **Json Serializer** (default for NET CORE):
-All types are serialized using the [JSON.NET](https://www.nuget.org/packages/Newtonsoft.Json/) library. 
-
-- **Raw Serializer**:
-The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as strings (UTF-8 encoded).
-Any other type is serialized using the default serializer. Allows overriding the serialization method per type.
-
-| **Serializer** | **Data** | **Configuration** |
-| ----------- | ----------------------- | -------------------------- |
-|**BinarySerializer** | Data is compressed and not human readable | Serialization cannot be configured (except `NonSerialized` attribute)| 
-|**JsonSerializer** | Data is stored as Json | Serialization can be configured with `JsonSerializerSettings` | 
-|**RawSerializer** | Simple types are stored as strings and are human readable | Serialization can be set-up per type using `SetSerializerFor()` | 
-
-The `RawSerializer` allows to dynamically override the serialization/deserialization logic per type with the method `SetSerializerFor<T>()`.
-
-For example, to allow the serialization of a `StringBuilder` as an UTF-8 encoded string:
-
-```c#
-var raw = new RawSerializer();
-raw.SetSerializerFor<StringBuilder>
-(
-    sb => Encoding.UTF8.GetBytes(sb.ToString()), 
-    b => new StringBuilder(Encoding.UTF8.GetString(b))
-);
-var context = new RedisContext("localhost:6379", raw);
-```
 --------------
 
 Keyspace Notifications API

@@ -43,11 +43,7 @@ namespace CachingFramework.Redis.Serializers
         /// </summary>
         public RawSerializer()
         {
-#if (NET45 || NET461)
-            _defaultSerializer = new BinarySerializer();
-#else
-            _defaultSerializer = new JsonSerializer();
-#endif
+            _defaultSerializer = RedisContext.DefaultSerializer;
             _serialDict = new Dictionary<Type, Func<object, byte[]>>
             {
                 [typeof (String)]   = o => GetBytes(o.ToString()), 
@@ -97,11 +93,12 @@ namespace CachingFramework.Redis.Serializers
         /// </summary>
         /// <param name="serializeMethod">The serialize method.</param>
         /// <param name="deserializeMethod">The deserialize method.</param>
-        public void SetSerializerFor<T>(Func<T, byte[]> serializeMethod,
+        public RawSerializer SetSerializerFor<T>(Func<T, byte[]> serializeMethod,
             Func<byte[], T> deserializeMethod)
         {
             _serialDict[typeof(T)] = o => serializeMethod((T)o);
             _deserialDict[typeof(T)] = b => deserializeMethod(b);
+            return this;
         }
         #endregion
 

@@ -13,6 +13,31 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis
     {
+        [Test, TestCaseSource(typeof(Common), "Json")]
+        public void UT_DefaultSerializer(RedisContext context)
+        {
+            var key = "UT_DefaultSerializer";
+            var prev = RedisContext.DefaultSerializer;
+
+            RedisContext.DefaultSerializer = new RawSerializer().SetSerializerFor<string>(s => new byte[] { 1, 2, 3 }, b => "123");
+
+            var ctx = new RedisContext(Common.Config);
+            ctx.Cache.Remove(key);
+            ctx.Cache.SetObject<string>("xxx", "value");
+
+            var value = ctx.Cache.GetObject<string>("xxx");
+            Assert.AreEqual("123", value);
+
+#if (NET45 || NET461)
+            Assert.IsTrue(prev is BinarySerializer);
+#else
+            Assert.IsTrue(prev is JsonSerializer);
+#endif
+
+            ctx.Cache.Remove(key);
+            RedisContext.DefaultSerializer = prev;
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Cache_MembersByTag(RedisContext context)
         {

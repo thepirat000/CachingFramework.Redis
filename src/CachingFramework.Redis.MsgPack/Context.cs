@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CachingFramework.Redis.MsgPack
 {
-    public class Context : Redis.Context
+    public class Context : Redis.RedisContext
     {
         public Context()
             : base("localhost:6379", new MsgPackSerializer())
