@@ -45,7 +45,7 @@ namespace CachingFramework.Redis.UnitTest
             _rawContext = new RedisContext(Config, new RawSerializer());
             _jsonContext = new RedisContext(Config, new JsonSerializer());
             _msgPackContext = new RedisContext(Config, new MsgPack.MsgPackSerializer());
-#if (NET45 || NET461)
+#if (NET461)
             _binaryContext = new RedisContext(Config, new BinarySerializer());
             All = new[] { _binaryContext, _rawContext, _jsonContext, _msgPackContext };
             BinAndRawAndJson = new[] { _binaryContext, _rawContext, _jsonContext };

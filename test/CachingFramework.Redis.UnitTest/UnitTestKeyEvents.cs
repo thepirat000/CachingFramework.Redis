@@ -13,12 +13,6 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestKeyEvents
     {
         [Test, TestCaseSource(typeof(Common), "Json")]
-        public void UT_SubscribeToAllEvents(RedisContext context)
-        {
-            UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Set, KeyEvent.Delete, KeyEvent.Delete }, KeyEventSubscriptionType.All);
-        }
-
-        [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_SubscribeToSpaceEvents(RedisContext context)
         {
             UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Delete }, KeyEventSubscriptionType.KeySpace);

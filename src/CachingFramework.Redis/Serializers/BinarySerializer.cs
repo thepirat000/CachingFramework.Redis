@@ -1,4 +1,4 @@
-﻿#if (NET45 || NET461)
+﻿#if (NET461)
 using System.IO;
 using System.IO.Compression;
 using CachingFramework.Redis.Contracts;

@@ -3,6 +3,7 @@ using StackExchange.Redis;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using StackExchange.Redis.Profiling;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -25,21 +26,6 @@ namespace CachingFramework.Redis.UnitTest
 
         /// <summary>Indicates whether any servers are connected</summary>
         public bool IsConnecte => this._connectionMultiplexer.IsConnected;
-
-        public void RegisterProfiler(IProfiler profiler)
-        {
-            this._connectionMultiplexer.RegisterProfiler(profiler);
-        }
-
-        public void BeginProfiling(object forContext)
-        {
-            this._connectionMultiplexer.BeginProfiling(forContext);
-        }
-
-        public ProfiledCommandEnumerable FinishProfiling(object forContext, bool allowCleanupSweep = true)
-        {
-            return this._connectionMultiplexer.FinishProfiling(forContext, allowCleanupSweep);
-        }
 
         public ServerCounters GetCounters()
         {
@@ -155,6 +141,21 @@ namespace CachingFramework.Redis.UnitTest
         {
         }
 
+        public void RegisterProfiler(Func<ProfilingSession> profilingSessionProvider)
+        {
+            this._connectionMultiplexer.RegisterProfiler(profilingSessionProvider);
+        }
+
+        public int GetHashSlot(RedisKey key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ExportConfiguration(Stream destination, ExportOptions options = (ExportOptions)(-1))
+        {
+            throw new NotImplementedException();
+        }
+
         public string ClientName => this._connectionMultiplexer.ClientName;
 
         public string Configuration => this._connectionMultiplexer.Configuration;
@@ -183,6 +184,8 @@ namespace CachingFramework.Redis.UnitTest
             get => this._connectionMultiplexer.StormLogThreshold;
             set => this._connectionMultiplexer.StormLogThreshold = value;
         }
+
+        public bool IsConnecting => throw new NotImplementedException();
 
         event EventHandler<RedisErrorEventArgs> IConnectionMultiplexer.ErrorMessage
         {

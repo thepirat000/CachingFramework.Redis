@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using CachingFramework.Redis.Contracts;
-#if (NET45 || NET461)
-using GoogleMaps.LocationServices;
-#endif
 using NUnit.Framework;
 
 namespace CachingFramework.Redis.UnitTest
@@ -14,9 +11,6 @@ namespace CachingFramework.Redis.UnitTest
     {
         private static GeoCoordinate _coordZapopan;
         private static GeoCoordinate _coordLondon;
-#if (NET45 || NET461)
-        private static GoogleLocationService _locationSvc;
-#endif
 
         [OneTimeSetUp]
         public static void ClassInitialize()
@@ -25,9 +19,6 @@ namespace CachingFramework.Redis.UnitTest
             {
                 Assert.Ignore($"Geospatial tests ignored for version {string.Join(".", Common.VersionInfo)}\n");
             }
-#if (NET45 || NET461)
-            _locationSvc = new GoogleLocationService();
-#endif
             _coordZapopan = new GeoCoordinate(20.6719563, -103.416501);
             _coordLondon = new GeoCoordinate(51.5073509, -0.1277583);
         }
@@ -99,14 +90,15 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(9100, kmlz, 100);
         }
 
-#if (NET45 || NET461)
+#if (NET461)
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Geo_GeoDistanceDirect(RedisContext context)
         {
             var key = "UT_Geo_GeoDistanceDirect";
             context.Cache.Remove(key);
-            var mdq = _locationSvc.GetLatLongFromAddress("Mar del Plata").ToGeoCoord();
-            var bue = _locationSvc.GetLatLongFromAddress("Buenos Aires").ToGeoCoord();
+            var mdq = new GeoCoordinate(38.0055, -57.5426);
+            var bue = new GeoCoordinate(34.6037, -58.3816);
+
             context.GeoSpatial.GeoAdd(key, new[] { 
                 new GeoMember<string>(mdq, "mdq"),
                 new GeoMember<string>(bue, "bue") });
@@ -126,7 +118,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(hash.StartsWith("9ewmwenq"));
         }
 
-#if (NET45 || NET461)
+#if (NET461)
         [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_Geo_GeoRadius(RedisContext context)
         {
@@ -134,12 +126,12 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             context.GeoSpatial.GeoAdd(key, _coordZapopan, "zapopan");
             context.GeoSpatial.GeoAdd(key, _coordLondon, "london");
-            var coordMx = _locationSvc.GetLatLongFromAddress("Mexico DF").ToGeoCoord();
+            var coordMx = new GeoCoordinate(19.4326, -99.1332);
             context.GeoSpatial.GeoAdd(key, coordMx, "mexico");
-            var coordZam = _locationSvc.GetLatLongFromAddress("Zamora, Michoacan").ToGeoCoord();
+            var coordZam = new GeoCoordinate(19.9902, -102.2834);
             context.GeoSpatial.GeoAdd(key, coordZam, "zamora");
-            var coordMor = _locationSvc.GetLatLongFromAddress("Morelia, Michoacan").ToGeoCoord();
-            var results500 = context.GeoSpatial.GeoRadius<string>(key, coordMor, 500, Unit.Kilometers).ToList();
+            var coordMor = new GeoCoordinate(19.7060, -101.1950);
+            var results500 = context.GeoSpatial.GeoRadius<string>(key, coordMor, 750, Unit.Kilometers).ToList();
             var results200 = context.GeoSpatial.GeoRadius<string>(key, coordMor, 200, Unit.Kilometers).ToList();
             var results500_count1 = context.GeoSpatial.GeoRadius<string>(key, coordMor, 500, Unit.Kilometers, 1).ToList();
             var results0 = context.GeoSpatial.GeoRadius<string>(key, coordMor, 1, Unit.Kilometers).ToList();
@@ -207,12 +199,12 @@ namespace CachingFramework.Redis.UnitTest
             return new List<User>() { user1, user2, user3, user4 };
         }
     }
-#if (NET45 || NET461)
+#if (NET461)
     public static class TempExtensions
     {
-        public static GeoCoordinate ToGeoCoord(this MapPoint coord)
+        public static GeoCoordinate ToGeoCoord(double lat, double lon)
         {
-            return new GeoCoordinate(coord.Latitude / 10000000, coord.Longitude / 10000000);
+            return new GeoCoordinate(lat / 10000000, lon / 10000000);
         }
     }
 #endif

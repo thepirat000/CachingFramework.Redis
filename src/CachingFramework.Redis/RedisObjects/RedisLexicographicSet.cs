@@ -42,7 +42,7 @@ namespace CachingFramework.Redis.RedisObjects
         public IEnumerable<string> AutoComplete(string partial, long take = -1)
         {
             return GetRedisDb()
-                    .SortedSetRangeByValue(RedisKey, partial, partial + (char) 255, Exclude.None, 0, take)
+                    .SortedSetRangeByValue(RedisKey, partial, partial + (char) 255, Exclude.None, Order.Ascending, 0, take)
                     .Select(value => (string)value);
         }
         /// <summary>
@@ -69,7 +69,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="item">The string to locate.</param>
         public bool Contains(string item)
         {
-            return GetRedisDb().SortedSetRangeByValue(RedisKey, item, item, Exclude.None, 0, 1).Length > 0;
+            return GetRedisDb().SortedSetRangeByValue(RedisKey, item, item, Exclude.None, Order.Ascending, 0, 1).Length > 0;
         }
         /// <summary>
         /// Copies the entire sorted set to a compatible one-dimensional array, starting at the specified index of the target array.

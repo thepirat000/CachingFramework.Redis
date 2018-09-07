@@ -44,7 +44,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users.Count, usersList.Count);
         }
 
-#if (NET45 || NET461)
+#if (NET461)
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_PubSub_SubscribeMultipleTypes(RedisContext context)
         {

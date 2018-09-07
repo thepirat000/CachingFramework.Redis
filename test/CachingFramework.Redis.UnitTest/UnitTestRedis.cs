@@ -28,7 +28,7 @@ namespace CachingFramework.Redis.UnitTest
             var value = ctx.Cache.GetObject<string>("xxx");
             Assert.AreEqual("123", value);
 
-#if (NET45 || NET461)
+#if (NET461)
             Assert.IsTrue(prev is BinarySerializer);
 #else
             Assert.IsTrue(prev is JsonSerializer);
@@ -1044,7 +1044,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(10, cnt);
         }
 
-#if (NET45 || NET461)
+#if (NET461)
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_CacheSerialization(RedisContext context)
         {

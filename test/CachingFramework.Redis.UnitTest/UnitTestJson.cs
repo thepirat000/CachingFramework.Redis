@@ -13,7 +13,7 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestJson
     {
 
-#if (NET45 || NET461)
+#if (NET461)
         [Test]
         public void UT_JsonGet()
         {
