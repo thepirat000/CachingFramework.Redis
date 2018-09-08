@@ -31,11 +31,6 @@ To install the package run the following command on the Package Manager Console:
 PM> Install-Package CachingFramework.Redis
 ```
 
-Or for the [Strong-Named](https://www.nuget.org/packages/CachingFramework.Redis.StrongName/) version:
-```
-PM> Install-Package CachingFramework.Redis.StrongName
-```
-
 ### Context
 The `RedisContext` class provides all the functionality divided into five categories, each of which is exposed as a property with the following names:
 - Cache
