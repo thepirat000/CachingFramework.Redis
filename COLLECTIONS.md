@@ -176,6 +176,7 @@ Mapping between `IRedisDictionary` methods/properties to the Redis commands used
 |------|------|-------|
 |`Add(TK key, TV value)`|[HSET](http://redis.io/commands/hset)|O(1)|
 |`AddRange(IEnum<KVP<TK, TV>> items)`|[HMSET](http://redis.io/commands/hmset)|O(M) where M is the number of fields being added|
+|`GetRange(TK[] keys)`|[HMGET](http://redis.io/commands/hmget)|O(M)|
 |`this[] get`|[HGET](http://redis.io/commands/hget)|O(1)|
 |`this[] set`|[HSET](http://redis.io/commands/hget)|O(1)|
 |`Remove(TK key)`|[HDEL](http://redis.io/commands/hdel)|O(1)|
