@@ -330,6 +330,17 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="fieldValues">The field keys and values to store</param>
         Task SetHashedAsync<T>(string key, IDictionary<string, T> fieldValues);
         /// <summary>
+        /// Sets multiple values to the hashset stored on the given key.
+        /// The field can be any serializable type
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fieldValues">The field keys and values</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        Task SetHashedAsync<TK, TV>(string key, IDictionary<TK, TV> fieldValues, TimeSpan? ttl = null, When when = When.Always);
+        /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)
         /// </summary>
@@ -395,5 +406,20 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="member">The redis set member to find</param>
         /// <param name="tags">The tags to look into</param>
         Task<bool> IsSetMemberInTagAsync<T>(string key, T member, params string[] tags);
+        /// <summary>
+        /// Asynchronously gets the specified hashed values from an array of hash fields
+        /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fields">The fields.</param>
+        Task<TV[]> GetHashedAsync<TK, TV>(string key, params TK[] fields);
+        /// <summary>
+        /// Asynchronously gets the specified hashed values from an array of hash fields of type string
+        /// </summary>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fields">The fields to get.</param>
+        Task<TV[]> GetHashedAsync<TV>(string key, params string[] fields);
     }
 }

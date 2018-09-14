@@ -18,6 +18,24 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestRedisObjects
     {
         [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_SetGetDictionaryFieldsMultiple(RedisContext ctx)
+        {
+            var key = "UT_SetGetDictionaryFieldsMultiple";
+            ctx.Cache.Remove(key);
+
+            var dict = ctx.Collections.GetRedisDictionary<string, int>(key);
+            dict.AddRange(Enumerable.Range(1, 20).ToDictionary(i => $"k{i}", i => i));
+
+            var result = dict.GetRange("k1", "k5", "kXXX", "k10").ToList();
+
+            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(1, result[0]);
+            Assert.AreEqual(5, result[1]);
+            Assert.AreEqual(0, result[2]);
+            Assert.AreEqual(10, result[3]);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheGeo_WithTags(RedisContext context)
         {
             string key = "UT_CacheGeo_WithTags";

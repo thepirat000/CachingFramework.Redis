@@ -14,6 +14,36 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestRedis_Async
     {
         [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_SetGetHashedMultiple_Async(RedisContext ctx)
+        {
+            var key = "UT_GetHashedMultiple";
+            await ctx.Cache.RemoveAsync(key);
+            await ctx.Cache.SetHashedAsync(key, Enumerable.Range(1, 20).ToDictionary(i => $"k{i}", i => i));
+            var result = (await ctx.Cache.GetHashedAsync<int>(key, "k1", "k5", "kXXX", "k10")).ToList();
+
+            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(1, result[0]);
+            Assert.AreEqual(5, result[1]);
+            Assert.AreEqual(0, result[2]);
+            Assert.AreEqual(10, result[3]);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_SetGetHashedMultiple_Generic_Async(RedisContext ctx)
+        {
+            var key = "UT_GetHashedMultiple_NonStringFields";
+            await ctx.Cache.RemoveAsync(key);
+            await ctx.Cache.SetHashedAsync<KeyValuePair<int, int>, int>(key, Enumerable.Range(1, 20).ToDictionary(i => new KeyValuePair<int, int>(1, i), i => i));
+            var result = (await ctx.Cache.GetHashedAsync<KeyValuePair<int, int>, int>(key, new KeyValuePair<int, int>(1, 1), new KeyValuePair<int, int>(1, 11), new KeyValuePair<int, int>(0, 0))).ToList();
+
+            Assert.AreEqual(3, result.Count);
+            Assert.AreEqual(1, result[0]);
+            Assert.AreEqual(11, result[1]);
+            Assert.AreEqual(0, result[2]);
+        }
+
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_Cache_IsOnTagMethods_Async(RedisContext context)
         {
             var key = "UT_Cache_IsOnTagMethods";

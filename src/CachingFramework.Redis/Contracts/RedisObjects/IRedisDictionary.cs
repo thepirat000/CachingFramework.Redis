@@ -49,5 +49,11 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="key">The key whose value to get.</param>
         /// <returns>The value stored at key</returns>
         TV GetValue(TK key);
+        /// <summary>
+        /// Gets the values associated with the specified collection of keys.
+        /// </summary>
+        /// <param name="keys">The keys whose values to get.</param>
+        /// <returns>An array of values returned in the same order as requested. If a field was not found, it will return its default value</returns>
+        TV[] GetRange(params TK[] keys);
     }
 }

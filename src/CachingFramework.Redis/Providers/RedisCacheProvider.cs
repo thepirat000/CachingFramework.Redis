@@ -1479,11 +1479,46 @@ namespace CachingFramework.Redis.Providers
         public void SetHashed<T>(string key, IDictionary<string, T> fieldValues)
         {
             var db = RedisConnection.GetDatabase();
-            db.HashSet(key, fieldValues.Select(x => new HashEntry(x.Key, Serializer.Serialize(x.Value))).ToArray());
+            var fields = fieldValues.Select(x => new HashEntry(x.Key, Serializer.Serialize(x.Value))).ToArray();
+            db.HashSet(key, fields);
         }
 
         /// <summary>
-        /// Gets a specified hashed value from a key
+        /// Sets multiple values to the hashset stored on the given key.
+        /// The field can be any serializable type
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fieldValues">The field keys and values</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        public void SetHashed<TK, TV>(string key, IDictionary<TK, TV> fieldValues, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always)
+        {
+            var db = RedisConnection.GetDatabase();
+            var fields = fieldValues.Select(x => new HashEntry(Serializer.Serialize(x.Key), Serializer.Serialize(x.Value))).ToArray();
+            db.HashSet(key, fields);
+        }
+
+        /// <summary>
+        /// Sets multiple values to the hashset stored on the given key.
+        /// The field can be any serializable type
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fieldValues">The field keys and values</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
+        /// <param name="when">Indicates when this operation should be performed.</param>
+        public async Task SetHashedAsync<TK, TV>(string key, IDictionary<TK, TV> fieldValues, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always)
+        {
+            var db = RedisConnection.GetDatabase();
+            var fields = fieldValues.Select(x => new HashEntry(Serializer.Serialize(x.Key), Serializer.Serialize(x.Value))).ToArray();
+            await db.HashSetAsync(key, fields);
+        }
+
+        /// <summary>
+        /// Gets a specified hashed value from a key and a field
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
@@ -1495,7 +1530,7 @@ namespace CachingFramework.Redis.Providers
         }
 
         /// <summary>
-        /// Gets a specified hased value from a key
+        /// Gets a specified hashed value from a key and field
         /// </summary>
         /// <typeparam name="TK">The type of the hash fields</typeparam>
         /// <typeparam name="TV">The type of the hash values</typeparam>
@@ -1506,6 +1541,77 @@ namespace CachingFramework.Redis.Providers
             var cacheValue = RedisConnection.GetDatabase().HashGet(key, Serializer.Serialize(field));
             return cacheValue.HasValue ? Serializer.Deserialize<TV>(cacheValue) : default(TV);
         }
+
+        /// <summary>
+        /// Gets the specified hashed values from an array of hash fields of type string
+        /// </summary>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fields">The fields to get.</param>
+        public TV[] GetHashed<TV>(string key, params string[] fields)
+        {
+            if (fields == null || fields.Length == 0)
+            {
+                return Array.Empty<TV>();
+            }
+            var hashFields = fields.Select(x => (RedisValue)x).ToArray();
+            var cacheValues = RedisConnection.GetDatabase().HashGet(key, hashFields);
+            return cacheValues.Select(v => v.HasValue ? Serializer.Deserialize<TV>(v) : default(TV)).ToArray();
+        }
+
+        /// <summary>
+        /// Gets the specified hashed values from an array of hash fields
+        /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fields">The fields.</param>
+        public TV[] GetHashed<TK, TV>(string key, params TK[] fields)
+        {
+            if (fields == null || fields.Length == 0)
+            {
+                return Array.Empty<TV>();
+            }
+            var hashFields = fields.Select(f => (RedisValue)Serializer.Serialize(f)).ToArray();
+            var cacheValues = RedisConnection.GetDatabase().HashGet(key, hashFields);
+            return cacheValues.Select(v => v.HasValue ? Serializer.Deserialize<TV>(v) : default(TV)).ToArray();
+        }
+
+        /// <summary>
+        /// Asynchronously gets the specified hashed values from an array of hash fields
+        /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fields">The fields.</param>
+        public async Task<TV[]> GetHashedAsync<TK, TV>(string key, params TK[] fields)
+        {
+            if (fields == null || fields.Length == 0)
+            {
+                return Array.Empty<TV>();
+            }
+            var hashFields = fields.Select(f => (RedisValue)Serializer.Serialize(f)).ToArray();
+            var cacheValues = await RedisConnection.GetDatabase().HashGetAsync(key, hashFields);
+            return cacheValues.Select(v => v.HasValue ? Serializer.Deserialize<TV>(v) : default(TV)).ToArray();
+        }
+
+        /// <summary>
+        /// Asynchronously gets the specified hashed values from an array of hash fields of type string
+        /// </summary>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="fields">The fields to get.</param>
+        public async Task<TV[]> GetHashedAsync<TV>(string key, params string[] fields)
+        {
+            if (fields == null || fields.Length == 0)
+            {
+                return Array.Empty<TV>();
+            }
+            var hashFields = fields.Select(x => (RedisValue)x).ToArray();
+            var cacheValues = await RedisConnection.GetDatabase().HashGetAsync(key, hashFields);
+            return cacheValues.Select(v => v.HasValue ? Serializer.Deserialize<TV>(v) : default(TV)).ToArray();
+        }
+
         /// <summary>
         /// Try to get the value of an element in a hashed key
         /// </summary>
@@ -2045,6 +2151,7 @@ namespace CachingFramework.Redis.Providers
             }
             return masters;
         }
+
         #endregion
     }
 }

@@ -13,6 +13,35 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis
     {
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_SetGetHashedMultiple(RedisContext ctx)
+        {
+            var key = "UT_GetHashedMultiple";
+            ctx.Cache.Remove(key);
+            ctx.Cache.SetHashed(key, Enumerable.Range(1, 20).ToDictionary(i => $"k{i}", i => i));
+            var result = ctx.Cache.GetHashed<int>(key, "k1", "k5", "kXXX", "k10").ToList();
+
+            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(1, result[0]);
+            Assert.AreEqual(5, result[1]);
+            Assert.AreEqual(0, result[2]);
+            Assert.AreEqual(10, result[3]);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_SetGetHashedMultiple_Generic(RedisContext ctx)
+        {
+            var key = "UT_GetHashedMultiple_NonStringFields";
+            ctx.Cache.Remove(key);
+            ctx.Cache.SetHashed<KeyValuePair<int, int>, int>(key, Enumerable.Range(1, 20).ToDictionary(i => new KeyValuePair<int, int>(1, i), i => i));
+            var result = ctx.Cache.GetHashed<KeyValuePair<int, int>, int>(key, new KeyValuePair<int, int>(1, 1), new KeyValuePair<int, int>(1, 11), new KeyValuePair<int, int>(0, 0)).ToList();
+
+            Assert.AreEqual(3, result.Count);
+            Assert.AreEqual(1, result[0]);
+            Assert.AreEqual(11, result[1]);
+            Assert.AreEqual(0, result[2]);
+        }
+
         [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_DefaultSerializer(RedisContext context)
         {

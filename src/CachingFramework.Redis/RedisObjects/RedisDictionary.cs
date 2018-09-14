@@ -140,7 +140,16 @@ namespace CachingFramework.Redis.RedisObjects
             var redisValue = await GetRedisDb().HashGetAsync(RedisKey, Serialize(key));
             return Deserialize<TV>(redisValue);
         }
-
+        /// <inheritdoc />
+        public TV[] GetRange(params TK[] keys)
+        {
+            return _cacheProvider.GetHashed<TK, TV>(RedisKey, keys);
+        }
+        /// <inheritdoc />
+        public async Task<TV[]> GetRangeAsync(params TK[] keys)
+        {
+            return await _cacheProvider.GetHashedAsync<TK, TV>(RedisKey, keys);
+        }
         #endregion
 
         #region IDictionary implementation
