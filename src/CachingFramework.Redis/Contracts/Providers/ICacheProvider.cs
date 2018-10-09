@@ -45,6 +45,47 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="expiry">The expiration timespan.</param>
         T FetchHashed<T>(string key, string field, Func<T> func, Func<T, string[]> tagsBuilder, TimeSpan? expiry = null);
         /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the tags returned by the given tag builder.
+        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tagsBuilder">The tags builder to specify tags depending on the value.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        TV FetchHashed<TK, TV>(string key, TK field, Func<TV> func, Func<TV, string[]> tagsBuilder, TimeSpan? expiry = null);
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        TV FetchHashed<TK, TV>(string key, TK field, Func<TV> func, TimeSpan? expiry = null);
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the given tags.
+        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        TV FetchHashed<TK, TV>(string key, TK field, Func<TV> func, string[] tags, TimeSpan? expiry = null);
+        /// <summary>
         /// Fetches data from the cache, using the given cache key.
         /// If there is data in the cache with the given key, then that data is returned.
         /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
@@ -284,6 +325,8 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
         /// <param name="when">Indicates when this operation should be performed.</param>
         void SetHashed<TK, TV>(string key, TK field, TV value, TimeSpan? ttl = null, When when = When.Always);
+        
+        
         /// <summary>
         /// Sets multiple values to the hashset stored on the given key.
         /// The field can be any serializable type
@@ -295,6 +338,7 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
         /// <param name="when">Indicates when this operation should be performed.</param>
         void SetHashed<TK, TV>(string key, IDictionary<TK, TV> fieldValues, TimeSpan? ttl = null, When when = When.Always);
+
         /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)
@@ -381,7 +425,7 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="field">The field.</param>
         TV GetHashed<TK, TV>(string key, TK field);
         /// <summary>
-        /// Try to get the value of a hash key
+        /// Try to get the value of a hash key assuming the fields are strings
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="field">The hash field.</param>
@@ -390,18 +434,43 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <returns>True if the cache contains a hashed element with the specified key and field; otherwise, false.</returns>
         bool TryGetHashed<T>(string key, string field, out T value);
         /// <summary>
-        /// Removes a specified hased value from cache
+        /// Try to get the value of a hash key
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The hash field.</param>
+        /// <param name="value">When this method returns, contains the value associated with the specified hash field within the key, if the key and field are found; 
+        /// otherwise, the default value for the type of the value parameter.</param>
+        /// <returns>True if the cache contains a hashed element with the specified key and field; otherwise, false.</returns>
+        bool TryGetHashed<TK, TV>(string key, TK field, out TV value);
+        /// <summary>
+        /// Removes a specified hased value from cache assuming the field as a string
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="field">The field.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         bool RemoveHashed(string key, string field);
         /// <summary>
-        /// Gets all the values from a hash.
-        /// The keys of the dictionary are the field names and the values are the objects
+        /// Removes a specified hased value from cache
         /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
         /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        bool RemoveHashed<TK>(string key, TK field);
+        /// <summary>
+        /// Gets all the values from a hash, assuming all the values in the hash are of the same type <typeparamref name="T" />.
+        /// The keys of the dictionary are the field names and the values are the objects.
+        /// The fields are assumed to be strings, otherwise use the overload indicating the field type.
+        /// </summary>
+        /// <typeparam name="T">The value type</typeparam>
+        /// <param name="key">The redis key.</param>
         IDictionary<string, T> GetHashedAll<T>(string key);
+        /// <summary>
+        /// Gets all the values from a hash, assuming all the values in the hash are of the same type <typeparamref name="TV" />.
+        /// The keys of the dictionary are the field names of type <typeparamref name="TK" /> and the values are the objects of type <typeparamref name="TV" />.
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The redis key.</param>
+        IDictionary<TK, TV> GetHashedAll<TK, TV>(string key);
         /// <summary>
         /// Matches a pattern on the field name of a hash, returning its values, assuming all the values in the hash are of the same type <typeparamref name="T" />.
         /// The keys of the dictionary are the field names and the values are the objects

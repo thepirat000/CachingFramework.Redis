@@ -14,6 +14,26 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestRedis_Async
     {
         [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_HashedWithFieldTypes_Async(RedisContext ctx)
+        {
+            var key = "UT_HashedWithFieldTypes_Async";
+            var tag = "tag-UT_HashedWithFieldTypes_Async";
+            await ctx.Cache.RemoveAsync(key);
+            var users = await GetUsersAsync().ForAwait();
+            var loc1 = new Location() { Id = 1, Name = "One" };
+            var loc2 = new Location() { Id = 2, Name = "Two" };
+            await ctx.Cache.FetchHashedAsync<Location, User>(key, loc1, async () => await Task.FromResult(users[0]));
+            await ctx.Cache.FetchHashedAsync<Location, User>(key, loc1, async () => await Task.FromResult(new User() { Id = 99999 })); // should not affect (ignored)
+            await ctx.Cache.FetchHashedAsync<Location, User>(key, loc2, async () => await Task.FromResult(users[1]), new[] { tag });
+
+            var all = await ctx.Cache.GetHashedAllAsync<Location, User>(key);
+
+            Assert.AreEqual(2, all.Count);
+            Assert.IsTrue(all.Any(_ => _.Key.Id == 1 && _.Key.Name == "One" && _.Value.Id == users[0].Id));
+            Assert.IsTrue(all.Any(_ => _.Key.Id == 2 && _.Key.Name == "Two" && _.Value.Id == users[1].Id));
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_SetGetHashedMultiple_Async(RedisContext ctx)
         {
             var key = "UT_GetHashedMultiple";

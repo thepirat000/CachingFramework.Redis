@@ -41,39 +41,6 @@ namespace CachingFramework.Redis.Providers
         #endregion
 
         #region ICacheProviderAsync Implementation
-        public async Task<T> FetchHashedAsync<T>(string key, string field, Func<Task<T>> func, TimeSpan? expiry = null)
-        {
-            return await FetchHashedAsync(key, field, func, (string[])null, expiry).ForAwait();
-        }
-
-        public async Task<T> FetchHashedAsync<T>(string key, string field, Func<Task<T>> func, string[] tags, TimeSpan? expiry = null)
-        {
-            return await FetchHashedAsync(key, field, func, _ => tags, expiry).ForAwait();
-        }
-
-        public async Task<T> FetchHashedAsync<T>(string key, string field, Func<Task<T>> func, Func<T, string[]> tagsBuilder, TimeSpan? expiry = null)
-        {
-            T value = default(T);
-            var cacheValue = await RedisConnection.GetDatabase().HashGetAsync(key, field).ForAwait();
-            if (cacheValue.HasValue)
-            {
-                value = Serializer.Deserialize<T>(cacheValue);
-            }
-            else
-            {
-                var task = func.Invoke();
-                if (task != null)
-                {
-                    value = await task;
-                    if (value != null)
-                    {
-                        var tags = tagsBuilder?.Invoke(value);
-                        await SetHashedAsync(key, field, value, tags, expiry).ForAwait(); 
-                    }
-                }
-            }
-            return value;
-        }
 
         public async Task<T> FetchObjectAsync<T>(string key, Func<Task<T>> func, TimeSpan? expiry = null)
         {
@@ -221,29 +188,6 @@ namespace CachingFramework.Redis.Providers
             return await RedisConnection.GetDatabase().KeyDeleteAsync(key).ForAwait();
         }
 
-        public async Task<T> GetHashedAsync<T>(string key, string field)
-        {
-            var cacheValue = await RedisConnection.GetDatabase().HashGetAsync(key, field).ForAwait();
-            return cacheValue.HasValue ? Serializer.Deserialize<T>(cacheValue) : default(T);
-        }
-
-        public async Task<TV> GetHashedAsync<TK, TV>(string key, TK field)
-        {
-            var cacheValue = await RedisConnection.GetDatabase().HashGetAsync(key, Serializer.Serialize(field)).ForAwait();
-            return cacheValue.HasValue ? Serializer.Deserialize<TV>(cacheValue) : default(TV);
-        }
-
-        public async Task<bool> RemoveHashedAsync(string key, string field)
-        {
-            return await RedisConnection.GetDatabase().HashDeleteAsync(key, field).ForAwait();
-        }
-
-        public async Task<IDictionary<string, T>> GetHashedAllAsync<T>(string key)
-        {
-            var hashValues = await RedisConnection.GetDatabase().HashGetAllAsync(key).ForAwait();
-            return hashValues.ToDictionary(k => k.Name.ToString(), v => Serializer.Deserialize<T>(v.Value));
-        }
-
         public async Task FlushAllAsync()
         {
             RunInAllMasters(async svr => await svr.FlushAllDatabasesAsync().ForAwait());
@@ -336,63 +280,6 @@ namespace CachingFramework.Redis.Providers
                 {
                     var tags = tagsBuilder?.Invoke(value);
                     SetObject(key, value, tags, expiry);
-                }
-            }
-            return value;
-        }
-
-        /// <summary>
-        /// Fetches hashed data from the cache, using the given cache key and field.
-        /// If there is data in the cache with the given key, then that data is returned.
-        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
-        /// written to the cache under the given cache key-field, and that will be returned.
-        /// </summary>
-        /// <param name="key">The cache key.</param>
-        /// <param name="field">The field to obtain.</param>
-        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
-        /// <param name="expiry">The expiration timespan.</param>
-        public T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null)
-        {
-            return FetchHashed(key, field, func, (string[])null, expiry);
-        }
-        /// <summary>
-        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the given tags.
-        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
-        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
-        /// written to the cache under the given cache key-field, and that will be returned.
-        /// </summary>
-        /// <param name="key">The cache key.</param>
-        /// <param name="field">The field to obtain.</param>
-        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
-        /// <param name="tags">The tags to relate to this field.</param>
-        /// <param name="expiry">The expiration timespan.</param>
-        public T FetchHashed<T>(string key, string field, Func<T> func, string[] tags, TimeSpan? expiry = null)
-        {
-            return FetchHashed(key, field, func, _ => tags, expiry);
-        }
-
-        /// <summary>
-        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the tags returned by the given tag builder.
-        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
-        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
-        /// written to the cache under the given cache key-field, and that will be returned.
-        /// </summary>
-        /// <param name="key">The cache key.</param>
-        /// <param name="field">The field to obtain.</param>
-        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
-        /// <param name="tagsBuilder">The tag builder to specify tags depending on the value.</param>
-        /// <param name="expiry">The expiration timespan.</param>
-        public T FetchHashed<T>(string key, string field, Func<T> func, Func<T, string[]> tagsBuilder, TimeSpan? expiry = null)
-        {
-            T value;
-            if (!TryGetHashed(key, field, out value))
-            {
-                value = func();
-                // ReSharper disable once CompareNonConstrainedGenericWithNull
-                if (value != null)
-                {
-                    var tags = tagsBuilder?.Invoke(value);
-                    SetHashed(key, field, value, tags, expiry);
                 }
             }
             return value;
@@ -1114,6 +1001,334 @@ namespace CachingFramework.Redis.Providers
             await Task.WhenAll(tasks).ForAwait();
         }
 
+        public void AddToSet<T>(string key, T value, string[] tags = null, TimeSpan? ttl = null)
+        {
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            batch.SetAddAsync(key, Serializer.Serialize(value));
+            // Set the key expiration
+            SetMaxExpiration(batch, key, ttl);
+            if (tags != null)
+            {
+                foreach (var tagName in tags)
+                {
+                    var tag = FormatTag(tagName);
+                    // Add the tag-key->field relation
+                    batch.SetAddAsync(tag, FormatSerializedMember(key, TagSetSeparator, value));
+                    // Set the tag expiration
+                    SetMaxExpiration(batch, tag, ttl);
+                }
+            }
+            batch.Execute();
+        }
+
+        public async Task AddToSetAsync<T>(string key, T value, string[] tags = null, TimeSpan? ttl = null)
+        {
+            var tasks = new List<Task>();
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            tasks.Add(batch.SetAddAsync(key, Serializer.Serialize(value)));
+            // Set the key expiration
+            tasks.Add(await SetMaxExpirationAsync(batch, key, ttl).ForAwait());
+            if (tags != null)
+            {
+                foreach (var tagName in tags)
+                {
+                    var tag = FormatTag(tagName);
+                    // Add the tag-key->field relation
+                    tasks.Add(batch.SetAddAsync(tag, FormatSerializedMember(key, TagSetSeparator, value)));
+                    // Set the tag expiration
+                    tasks.Add(await SetMaxExpirationAsync(batch, tag, ttl).ForAwait());
+                }
+            }
+            batch.Execute();
+            await Task.WhenAll(tasks).ForAwait();
+        }
+
+        public bool RemoveFromSet<T>(string key, T value)
+        {
+            var db = RedisConnection.GetDatabase();
+            return db.SetRemove(key, Serializer.Serialize(value));
+        }
+
+        public void AddToSortedSet<T>(string key, double score, T value, string[] tags = null, TimeSpan? ttl = null)
+        {
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            batch.SortedSetAddAsync(key, Serializer.Serialize(value), score);
+            // Set the key expiration
+            SetMaxExpiration(batch, key, ttl);
+            if (tags != null)
+            {
+                foreach (var tagName in tags)
+                {
+                    var tag = FormatTag(tagName);
+                    // Add the tag-key->field relation
+                    batch.SetAddAsync(tag, FormatSerializedMember(key, TagSetSeparator, value));
+                    // Set the tag expiration
+                    SetMaxExpiration(batch, tag, ttl);
+                }
+            }
+            batch.Execute();
+        }
+
+        public async Task AddToSortedSetAsync<T>(string key, double score, T value, string[] tags = null, TimeSpan? ttl = null)
+        {
+            var tasks = new List<Task>();
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            tasks.Add(batch.SortedSetAddAsync(key, Serializer.Serialize(value), score));
+            // Set the key expiration
+            tasks.Add(await SetMaxExpirationAsync(batch, key, ttl).ForAwait());
+            if (tags != null)
+            {
+                foreach (var tagName in tags)
+                {
+                    var tag = FormatTag(tagName);
+                    // Add the tag-key->field relation
+                    tasks.Add(batch.SetAddAsync(tag, FormatSerializedMember(key, TagSetSeparator, value)));
+                    // Set the tag expiration
+                    tasks.Add(await SetMaxExpirationAsync(batch, tag, ttl).ForAwait());
+                }
+            }
+            batch.Execute();
+            await Task.WhenAll(tasks).ForAwait();
+        }
+
+        public bool RemoveFromSortedSet<T>(string key, T value)
+        {
+            var db = RedisConnection.GetDatabase();
+            return db.SortedSetRemove(key, Serializer.Serialize(value));
+        }
+
+        public async Task<bool> RemoveFromSortedSetAsync<T>(string key, T value)
+        {
+            var db = RedisConnection.GetDatabase();
+            return await db.SortedSetRemoveAsync(key, Serializer.Serialize(value)).ForAwait();
+        }
+
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        public T FetchHashed<T>(string key, string field, Func<T> func, TimeSpan? expiry = null)
+        {
+            return FetchHashed(key, field, func, (string[])null, expiry);
+        }
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the given tags.
+        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        public T FetchHashed<T>(string key, string field, Func<T> func, string[] tags, TimeSpan? expiry = null)
+        {
+            return FetchHashed(key, field, func, _ => tags, expiry);
+        }
+
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the tags returned by the given tag builder.
+        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tagsBuilder">The tag builder to specify tags depending on the value.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        public T FetchHashed<T>(string key, string field, Func<T> func, Func<T, string[]> tagsBuilder, TimeSpan? expiry = null)
+        {
+            T value;
+            if (!TryGetHashed(key, field, out value))
+            {
+                value = func();
+                // ReSharper disable once CompareNonConstrainedGenericWithNull
+                if (value != null)
+                {
+                    var tags = tagsBuilder?.Invoke(value);
+                    SetHashed(key, field, value, tags, expiry);
+                }
+            }
+            return value;
+        }
+
+        public TV FetchHashed<TK, TV>(string key, TK field, Func<TV> func, TimeSpan? expiry = null)
+        {
+            return FetchHashed(key, field, func, (string[])null, expiry);
+        }
+
+        public TV FetchHashed<TK, TV>(string key, TK field, Func<TV> func, string[] tags, TimeSpan? expiry = null)
+        {
+            return FetchHashed(key, field, func, _ => tags, expiry);
+        }
+
+        public TV FetchHashed<TK, TV>(string key, TK field, Func<TV> func, Func<TV, string[]> tagsBuilder, TimeSpan? expiry = null)
+        {
+            TV value;
+            if (!TryGetHashed(key, field, out value))
+            {
+                value = func();
+                // ReSharper disable once CompareNonConstrainedGenericWithNull
+                if (value != null)
+                {
+                    var tags = tagsBuilder?.Invoke(value);
+                    SetHashed(key, field, value, tags, expiry);
+                }
+            }
+            return value;
+        }
+
+        public async Task<T> FetchHashedAsync<T>(string key, string field, Func<Task<T>> func, TimeSpan? expiry = null)
+        {
+            return await FetchHashedAsync(key, field, func, (string[])null, expiry).ForAwait();
+        }
+
+        public async Task<T> FetchHashedAsync<T>(string key, string field, Func<Task<T>> func, string[] tags, TimeSpan? expiry = null)
+        {
+            return await FetchHashedAsync(key, field, func, _ => tags, expiry).ForAwait();
+        }
+
+        public async Task<T> FetchHashedAsync<T>(string key, string field, Func<Task<T>> func, Func<T, string[]> tagsBuilder, TimeSpan? expiry = null)
+        {
+            T value = default(T);
+            var cacheValue = await RedisConnection.GetDatabase().HashGetAsync(key, field).ForAwait();
+            if (cacheValue.HasValue)
+            {
+                value = Serializer.Deserialize<T>(cacheValue);
+            }
+            else
+            {
+                var task = func.Invoke();
+                if (task != null)
+                {
+                    value = await task;
+                    if (value != null)
+                    {
+                        var tags = tagsBuilder?.Invoke(value);
+                        await SetHashedAsync(key, field, value, tags, expiry).ForAwait();
+                    }
+                }
+            }
+            return value;
+        }
+
+        public async Task<TV> FetchHashedAsync<TK, TV>(string key, TK field, Func<Task<TV>> func, TimeSpan? expiry = null)
+        {
+            return await FetchHashedAsync<TK, TV>(key, field, func, (string[])null, expiry).ForAwait();
+        }
+
+        public async Task<TV> FetchHashedAsync<TK, TV>(string key, TK field, Func<Task<TV>> func, string[] tags, TimeSpan? expiry = null)
+        {
+            return await FetchHashedAsync(key, field, func, _ => tags, expiry).ForAwait();
+        }
+
+        public async Task<TV> FetchHashedAsync<TK, TV>(string key, TK field, Func<Task<TV>> func, Func<TV, string[]> tagsBuilder, TimeSpan? expiry = null)
+        {
+            TV value = default(TV);
+            var cacheValue = await RedisConnection.GetDatabase().HashGetAsync(key, Serializer.Serialize(field)).ForAwait();
+            if (cacheValue.HasValue)
+            {
+                value = Serializer.Deserialize<TV>(cacheValue);
+            }
+            else
+            {
+                var task = func.Invoke();
+                if (task != null)
+                {
+                    value = await task;
+                    if (value != null)
+                    {
+                        var tags = tagsBuilder?.Invoke(value);
+                        await SetHashedAsync(key, field, value, tags, expiry).ForAwait();
+                    }
+                }
+            }
+            return value;
+        }
+
+        public async Task<T> GetHashedAsync<T>(string key, string field)
+        {
+            var cacheValue = await RedisConnection.GetDatabase().HashGetAsync(key, field).ForAwait();
+            return cacheValue.HasValue ? Serializer.Deserialize<T>(cacheValue) : default(T);
+        }
+
+        public async Task<TV> GetHashedAsync<TK, TV>(string key, TK field)
+        {
+            var cacheValue = await RedisConnection.GetDatabase().HashGetAsync(key, Serializer.Serialize(field)).ForAwait();
+            return cacheValue.HasValue ? Serializer.Deserialize<TV>(cacheValue) : default(TV);
+        }
+
+        /// <summary>
+        /// Removes a specified hased value from cache
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        public bool RemoveHashed(string key, string field)
+        {
+            return RedisConnection.GetDatabase().HashDelete(key, field);
+        }
+
+        public bool RemoveHashed<TK>(string key, TK field)
+        {
+            return RedisConnection.GetDatabase().HashDelete(key, Serializer.Serialize(field));
+        }
+
+        public async Task<bool> RemoveHashedAsync(string key, string field)
+        {
+            return await RedisConnection.GetDatabase().HashDeleteAsync(key, field).ForAwait();
+        }
+
+        public async Task<bool> RemoveHashedAsync<TK>(string key, TK field)
+        {
+            return await RedisConnection.GetDatabase().HashDeleteAsync(key, Serializer.Serialize(field)).ForAwait();
+        }
+
+        public async Task<IDictionary<string, T>> GetHashedAllAsync<T>(string key)
+        {
+            var hashValues = await RedisConnection.GetDatabase().HashGetAllAsync(key).ForAwait();
+            return hashValues.ToDictionary(k => k.Name.ToString(), v => Serializer.Deserialize<T>(v.Value));
+        }
+
+        public async Task<IDictionary<TK, TV>> GetHashedAllAsync<TK, TV>(string key)
+        {
+            var hashValues = await RedisConnection.GetDatabase().HashGetAllAsync(key).ForAwait();
+            return hashValues.ToDictionary(k => Serializer.Deserialize<TK>(k.Name), v => Serializer.Deserialize<TV>(v.Value));
+        }
+
+        /// <summary>
+        /// Gets all the values from a hash, assuming all the values in the hash are of the same type <typeparamref name="T" />.
+        /// The keys of the dictionary are the field names and the values are the objects.
+        /// The fields are assumed to be plain strings, otherwise use the overload indicating the field type to deserialize to.
+        /// </summary>
+        /// <typeparam name="T">The value type</typeparam>
+        /// <param name="key">The redis key.</param>
+        public IDictionary<string, T> GetHashedAll<T>(string key)
+        {
+            return RedisConnection.GetDatabase()
+                .HashGetAll(key)
+                .ToDictionary(k => k.Name.ToString(), v => Serializer.Deserialize<T>(v.Value));
+        }
+
+        public IDictionary<TK, TV> GetHashedAll<TK, TV>(string key)
+        {
+            return RedisConnection.GetDatabase()
+                .HashGetAll(key)
+                .ToDictionary(k => Serializer.Deserialize<TK>(k.Name), v => Serializer.Deserialize<TV>(v.Value));
+        }
+
+
         /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)
@@ -1363,112 +1578,6 @@ namespace CachingFramework.Redis.Providers
             await db.HashSetAsync(key, fieldValues.Select(x => new HashEntry(x.Key, Serializer.Serialize(x.Value))).ToArray()).ForAwait();
         }
 
-        public void AddToSet<T>(string key, T value, string[] tags = null, TimeSpan? ttl = null)
-        {
-            var db = RedisConnection.GetDatabase();
-            var batch = db.CreateBatch();
-            batch.SetAddAsync(key, Serializer.Serialize(value));
-            // Set the key expiration
-            SetMaxExpiration(batch, key, ttl);
-            if (tags != null)
-            {
-                foreach (var tagName in tags)
-                {
-                    var tag = FormatTag(tagName);
-                    // Add the tag-key->field relation
-                    batch.SetAddAsync(tag, FormatSerializedMember(key, TagSetSeparator, value));
-                    // Set the tag expiration
-                    SetMaxExpiration(batch, tag, ttl);
-                }
-            }
-            batch.Execute();
-        }
-
-        public async Task AddToSetAsync<T>(string key, T value, string[] tags = null, TimeSpan? ttl = null)
-        {
-            var tasks = new List<Task>();
-            var db = RedisConnection.GetDatabase();
-            var batch = db.CreateBatch();
-            tasks.Add(batch.SetAddAsync(key, Serializer.Serialize(value)));
-            // Set the key expiration
-            tasks.Add(await SetMaxExpirationAsync(batch, key, ttl).ForAwait());
-            if (tags != null)
-            {
-                foreach (var tagName in tags)
-                {
-                    var tag = FormatTag(tagName);
-                    // Add the tag-key->field relation
-                    tasks.Add(batch.SetAddAsync(tag, FormatSerializedMember(key, TagSetSeparator, value)));
-                    // Set the tag expiration
-                    tasks.Add(await SetMaxExpirationAsync(batch, tag, ttl).ForAwait());
-                }
-            }
-            batch.Execute();
-            await Task.WhenAll(tasks).ForAwait();
-        }
-
-        public bool RemoveFromSet<T>(string key, T value)
-        {
-            var db = RedisConnection.GetDatabase();
-            return db.SetRemove(key, Serializer.Serialize(value));
-        }
-
-        public void AddToSortedSet<T>(string key, double score, T value, string[] tags = null, TimeSpan? ttl = null)
-        {
-            var db = RedisConnection.GetDatabase();
-            var batch = db.CreateBatch();
-            batch.SortedSetAddAsync(key, Serializer.Serialize(value), score);
-            // Set the key expiration
-            SetMaxExpiration(batch, key, ttl);
-            if (tags != null)
-            {
-                foreach (var tagName in tags)
-                {
-                    var tag = FormatTag(tagName);
-                    // Add the tag-key->field relation
-                    batch.SetAddAsync(tag, FormatSerializedMember(key, TagSetSeparator, value));
-                    // Set the tag expiration
-                    SetMaxExpiration(batch, tag, ttl);
-                }
-            }
-            batch.Execute();
-        }
-
-        public async Task AddToSortedSetAsync<T>(string key, double score, T value, string[] tags = null, TimeSpan? ttl = null)
-        {
-            var tasks = new List<Task>();
-            var db = RedisConnection.GetDatabase();
-            var batch = db.CreateBatch();
-            tasks.Add(batch.SortedSetAddAsync(key, Serializer.Serialize(value), score));
-            // Set the key expiration
-            tasks.Add(await SetMaxExpirationAsync(batch, key, ttl).ForAwait());
-            if (tags != null)
-            {
-                foreach (var tagName in tags)
-                {
-                    var tag = FormatTag(tagName);
-                    // Add the tag-key->field relation
-                    tasks.Add(batch.SetAddAsync(tag, FormatSerializedMember(key, TagSetSeparator, value)));
-                    // Set the tag expiration
-                    tasks.Add(await SetMaxExpirationAsync(batch, tag, ttl).ForAwait());
-                }
-            }
-            batch.Execute();
-            await Task.WhenAll(tasks).ForAwait();
-        }
-
-        public bool RemoveFromSortedSet<T>(string key, T value)
-        {
-            var db = RedisConnection.GetDatabase();
-            return db.SortedSetRemove(key, Serializer.Serialize(value));
-        }
-
-        public async Task<bool> RemoveFromSortedSetAsync<T>(string key, T value)
-        {
-            var db = RedisConnection.GetDatabase();
-            return await db.SortedSetRemoveAsync(key, Serializer.Serialize(value)).ForAwait();
-        }
-
         /// <summary>
         /// Sets the specified key/values pairs to a hashset.
         /// (The latest expiration applies to the whole key)
@@ -1631,27 +1740,19 @@ namespace CachingFramework.Redis.Providers
             value = Serializer.Deserialize<T>(cacheValue);
             return true;
         }
-        /// <summary>
-        /// Removes a specified hased value from cache
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <param name="field">The field.</param>
-        public bool RemoveHashed(string key, string field)
+
+        public bool TryGetHashed<TK, TV>(string key, TK field, out TV value)
         {
-            return RedisConnection.GetDatabase().HashDelete(key, field);
+            var cacheValue = RedisConnection.GetDatabase().HashGet(key, Serializer.Serialize(field));
+            if (!cacheValue.HasValue)
+            {
+                value = default(TV);
+                return false;
+            }
+            value = Serializer.Deserialize<TV>(cacheValue);
+            return true;
         }
-        /// <summary>
-        /// Gets all the values from a hash, assuming all the values in the hash are of the same type <typeparamref name="T" />.
-        /// The keys of the dictionary are the field names and the values are the objects
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key">The key.</param>
-        public IDictionary<string, T> GetHashedAll<T>(string key)
-        {
-            return RedisConnection.GetDatabase()
-                .HashGetAll(key)
-                .ToDictionary(k => k.Name.ToString(), v => Serializer.Deserialize<T>(v.Value));
-        }
+
         /// <summary>
         /// Matches a pattern on the field name of a hash, returning its values, assuming all the values in the hash are of the same type <typeparamref name="T" />.
         /// The keys of the dictionary are the field names and the values are the objects
@@ -1664,6 +1765,7 @@ namespace CachingFramework.Redis.Providers
             return RedisConnection.GetDatabase().HashScan(key, pattern)
                 .Select(x => new KeyValuePair<string, T>(x.Name, Serializer.Deserialize<T>(x.Value)));
         }
+
         /// <summary>
         /// Adds all the element arguments to the HyperLogLog data structure stored at the specified key.
         /// </summary>

@@ -421,5 +421,61 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="key">The key.</param>
         /// <param name="fields">The fields to get.</param>
         Task<TV[]> GetHashedAsync<TV>(string key, params string[] fields);
+        /// <summary>
+        /// Gets all the values from a hash, assuming all the values in the hash are of the same type <typeparamref name="TV" />.
+        /// The keys of the dictionary are the field names of type <typeparamref name="TK" /> and the values are the objects of type <typeparamref name="TV" />.
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The redis key.</param>
+        Task<IDictionary<TK, TV>> GetHashedAllAsync<TK, TV>(string key);
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the tags returned by the given tag builder.
+        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tagsBuilder">The tags builder to specify tags depending on the value.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        Task<TV> FetchHashedAsync<TK, TV>(string key, TK field, Func<Task<TV>> func, Func<TV, string[]> tagsBuilder, TimeSpan? expiry = null);
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field.
+        /// If there is data in the cache with the given key, then that data is returned.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        Task<TV> FetchHashedAsync<TK, TV>(string key, TK field, Func<Task<TV>> func, TimeSpan? expiry = null);
+        /// <summary>
+        /// Fetches hashed data from the cache, using the given cache key and field, and associates the field to the given tags.
+        /// If there is data in the cache with the given key, then that data is returned, and the last three parameters are ignored.
+        /// If there is no such data in the cache (a cache miss occurred), then the value returned by func will be
+        /// written to the cache under the given cache key-field, and that will be returned.
+        /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
+        /// <typeparam name="TV">The type of the hash values</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="field">The field to obtain.</param>
+        /// <param name="func">The function that returns the cache value, only executed when there is a cache miss.</param>
+        /// <param name="tags">The tags to relate to this field.</param>
+        /// <param name="expiry">The expiration timespan.</param>
+        Task<TV> FetchHashedAsync<TK, TV>(string key, TK field, Func<Task<TV>> func, string[] tags, TimeSpan? expiry = null);
+        /// <summary>
+        /// Removes a specified hased value from cache
+        /// </summary>
+        /// <typeparam name="TK">The type of the hash fields</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="field">The field.</param>
+        Task<bool> RemoveHashedAsync<TK>(string key, TK field);
     }
 }

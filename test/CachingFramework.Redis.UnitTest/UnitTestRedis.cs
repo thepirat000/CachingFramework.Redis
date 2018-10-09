@@ -14,6 +14,34 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestRedis
     {
         [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_HashedWithFieldTypes(RedisContext ctx)
+        {
+            var key = "UT_HashedWithFieldTypes";
+            var tag = "tag-UT_HashedWithFieldTypes";
+            ctx.Cache.Remove(key);
+            var users = GetUsers();
+            var loc1 = new Location() { Id = 1, Name = "One" };
+            var loc2 = new Location() { Id = 2, Name = "Two" };
+            ctx.Cache.FetchHashed<Location, User>(key, loc1, () => users[0]);
+            ctx.Cache.FetchHashed<Location, User>(key, loc1, () => new User() { Id = 99999 }); // should not affect (ignored)
+            ctx.Cache.FetchHashed<Location, User>(key, loc2, () => users[1], new[] { tag });
+
+            ctx.Cache.SetHashed<Location, User>(key, new Location() { Name = "DELETEME" }, new User() { Id = 666 });
+            ctx.Cache.TryGetHashed<Location, User>(key, new Location() { Name = "DELETEME" }, out User deleted);
+            bool removed = ctx.Cache.RemoveHashed(key, new Location() { Name = "DELETEME" });
+
+            var all = ctx.Cache.GetHashedAll<Location, User>(key);
+
+            Assert.IsNotNull(deleted);
+            Assert.AreEqual(666, deleted.Id);
+            Assert.IsTrue(removed);
+            Assert.AreEqual(2, all.Count);
+            Assert.IsTrue(all.Any(_ => _.Key.Id == 1 && _.Key.Name == "One" && _.Value.Id == users[0].Id));
+            Assert.IsTrue(all.Any(_ => _.Key.Id == 2 && _.Key.Name == "Two" && _.Value.Id == users[1].Id));
+        }
+
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_SetGetHashedMultiple(RedisContext ctx)
         {
             var key = "UT_GetHashedMultiple";

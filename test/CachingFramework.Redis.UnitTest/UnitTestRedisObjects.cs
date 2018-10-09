@@ -1423,6 +1423,27 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, redisDict.Count);
         }
 
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheHash_Mix_WithType(RedisContext context)
+        {
+            var key = "UT_CacheHash_Mix_WithType";
+            var tag = "tag1-UT_CacheHash_Mix_WithType";
+            context.Cache.Remove(key);
+            var users = GetUsers();
+            var redisDict = context.Collections.GetRedisDictionary<Location, User>(key);
+            redisDict.AddRange(users.ToDictionary(k => new Location() { Id = k.Id, Name = k.Id.ToString() }));
+            context.Cache.AddTagsToKey(redisDict.RedisKey, new[] { tag });
+            var returnedDict = context.Cache.GetHashedAll<Location, User>(key);
+            Assert.AreEqual(users.Count, returnedDict.Count);
+            foreach (var u in users)
+            {
+                Assert.IsTrue(returnedDict.Keys.Any(k => k.Id == u.Id && k.Name == u.Id.ToString()));
+            }
+            Assert.AreEqual(1, redisDict[new Location() { Id = 1, Name = "1" }].Id);
+            context.Cache.InvalidateKeysByTag(tag);
+            Assert.AreEqual(0, redisDict.Count);
+        }
+
         private List<User> GetUsers()
         {
             var loc1 = new Location()
