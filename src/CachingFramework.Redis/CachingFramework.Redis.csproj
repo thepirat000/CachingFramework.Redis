@@ -4,7 +4,7 @@
     <Description>Redis client library based on StackExchange.Redis with features like an extensible serialization strategy, a tagging mechanism to group keys and hash fields, and more, all being cluster-compatible.</Description>
     <Copyright>Copyright 2016</Copyright>
     <AssemblyTitle>CachingFramework.Redis</AssemblyTitle>
-    <VersionPrefix>10.0.2</VersionPrefix>
+    <VersionPrefix>10.0.3</VersionPrefix>
     <Authors>Federico Colombo</Authors>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

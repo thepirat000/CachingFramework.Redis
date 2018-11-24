@@ -312,7 +312,8 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>true if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false.</returns>
         public async Task<bool> ContainsAsync(T item)
         {
-            for (int i = 0; i < Count; i++)
+            var count = Count;
+            for (int i = 0; i < count; i++)
             {
                 var value = await GetRedisDb().ListGetByIndexAsync(RedisKey, i);
                 if (value.Equals(Serialize(item)))
@@ -329,7 +330,8 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>The index of <paramref name="item" /> if found in the list; otherwise, -1.</returns>
         public async Task<int> IndexOfAsync(T item)
         {
-            for (int i = 0; i < Count; i++)
+            var count = Count;
+            for (int i = 0; i < count; i++)
             {
                 var value = await GetRedisDb().ListGetByIndexAsync(RedisKey, i);
                 if (value.Equals(Serialize(item)))
@@ -398,7 +400,8 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>true if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false.</returns>
         public bool Contains(T item)
         {
-            for (int i = 0; i < Count; i++)
+            var count = Count;
+            for (int i = 0; i < count; i++)
             {
                 if (GetRedisDb().ListGetByIndex(RedisKey, i).Equals(Serialize(item)))
                 {
@@ -423,7 +426,8 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>The index of <paramref name="item" /> if found in the list; otherwise, -1.</returns>
         public int IndexOf(T item)
         {
-            for (int i = 0; i < Count; i++)
+            var count = Count;
+            for (int i = 0; i < count; i++)
             {
                 if (GetRedisDb().ListGetByIndex(RedisKey, i).Equals(Serialize(item)))
                 {
@@ -463,7 +467,8 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.</returns>
         public IEnumerator<T> GetEnumerator()
         {
-            for (int i = 0; i < Count; i++)
+            var count = Count;
+            for (int i = 0; i < count; i++)
             {
                 yield return Deserialize<T>(GetRedisDb().ListGetByIndex(RedisKey, i));
             }
