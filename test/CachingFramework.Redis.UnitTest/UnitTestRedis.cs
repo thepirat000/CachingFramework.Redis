@@ -237,7 +237,7 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             context.Cache.InvalidateKeysByTag("tag 0->1", "tag 1->0", "tag S->0", "common");
             var users = GetUsers();
-            var dict = context.Collections.GetRedisDictionary<User, User>(key);
+            var dict = context.Collections.GetRedisDictionary<User, User>(key, 4);
 
             context.Cache.SetHashed<User, User>(key, users[0], users[1], new[] { "tag 0->1", "common" });
             dict.Add(users[1], users[0], new[] { "tag 1->0", "common" });
@@ -281,11 +281,11 @@ namespace CachingFramework.Redis.UnitTest
             var allTime = stp.Elapsed.TotalMilliseconds;
 
             stp = Stopwatch.StartNew();
-            var some = context.Cache.ScanHashed<string>(key, "*").Take(5).ToList();
+            var some = context.Cache.ScanHashed<string>(key, "*", 5).Take(5).ToList();
             var someTime = stp.Elapsed.TotalMilliseconds;
 
 
-            var c1 = context.Cache.ScanHashed<string>(key, "").Count();
+            var c1 = context.Cache.ScanHashed<string>(key, "", 20).Count();
             var c2 = context.Cache.ScanHashed<string>(key, null).Count();
 
 

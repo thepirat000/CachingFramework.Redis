@@ -21,14 +21,14 @@ namespace CachingFramework.Redis.UnitTest
             using (var ctx = new RedisContext(myMultiplexer))
             {
                 ctx.Cache.SetObject("Test_CustomMultiplexer_obj", "Test_CustomMultiplexer_value");
-                var list = ctx.Collections.GetRedisDictionary<string, string>("Test_CustomMultiplexer_hash");
+                var list = ctx.Collections.GetRedisDictionary<string, string>("Test_CustomMultiplexer_hash", 5);
                 list.Add("test", "value");
             }
 
             using (var ctx = new RedisContext(myMultiplexer))
             {
                 Assert.AreEqual("Test_CustomMultiplexer_value", ctx.Cache.GetObject<string>("Test_CustomMultiplexer_obj"));
-                var dict = ctx.Collections.GetRedisDictionary<string, string>("Test_CustomMultiplexer_hash");
+                var dict = ctx.Collections.GetRedisDictionary<string, string>("Test_CustomMultiplexer_hash", 5);
                 Assert.AreEqual("value", dict["test"]);
                 ctx.Cache.Remove("Test_CustomMultiplexer_obj");
                 ctx.Cache.Remove("Test_CustomMultiplexer_hash");

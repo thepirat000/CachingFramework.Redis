@@ -478,7 +478,8 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <typeparam name="T">The field value type</typeparam>
         /// <param name="key">The key.</param>
         /// <param name="pattern">The glob-style pattern to match.</param>
-        IEnumerable<KeyValuePair<string, T>> ScanHashed<T>(string key, string pattern);
+        /// <param name="pageSize">The scan page size to use.</param>
+        IEnumerable<KeyValuePair<string, T>> ScanHashed<T>(string key, string pattern, int pageSize = 10);
         /// <summary>
         /// Flushes all the databases on every master node.
         /// </summary>

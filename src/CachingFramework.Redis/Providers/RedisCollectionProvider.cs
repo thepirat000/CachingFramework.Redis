@@ -42,27 +42,30 @@ namespace CachingFramework.Redis.Providers
         /// <typeparam name="TKey">The key type</typeparam>
         /// <typeparam name="TValue">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key)
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        public IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key, int scanPageSize = 10)
         {
-            return new RedisDictionary<TKey, TValue>(_context, key, _cacheProvider);
+            return new RedisDictionary<TKey, TValue>(_context, key, _cacheProvider, scanPageSize);
         }
         /// <summary>
         /// Returns an ISet implemented using a Redis Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public IRedisSet<T> GetRedisSet<T>(string key)
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        public IRedisSet<T> GetRedisSet<T>(string key, int scanPageSize = 10)
         {
-            return new RedisSet<T>(_context, key, _cacheProvider);
+            return new RedisSet<T>(_context, key, _cacheProvider, scanPageSize);
         }
         /// <summary>
         /// Returns an ICollection implemented using a Redis Sorted Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        public IRedisSortedSet<T> GetRedisSortedSet<T>(string key)
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        public IRedisSortedSet<T> GetRedisSortedSet<T>(string key, int scanPageSize = 10)
         {
-            return new RedisSortedSet<T>(_context, key, _cacheProvider);
+            return new RedisSortedSet<T>(_context, key, _cacheProvider, scanPageSize);
         }
         /// <summary>
         /// Returns an ICollection implemented using a Redis string as a bitmap
@@ -76,9 +79,10 @@ namespace CachingFramework.Redis.Providers
         /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
         /// </summary>
         /// <param name="key">The redis key</param>
-        public IRedisLexicographicSet GetRedisLexicographicSet(string key)
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        public IRedisLexicographicSet GetRedisLexicographicSet(string key, int scanPageSize = 10)
         {
-            return new RedisLexicographicSet(_context, key);
+            return new RedisLexicographicSet(_context, key, scanPageSize);
         }
         /// <summary>
         /// Returns an ICollection(char) implemented using a Redis string

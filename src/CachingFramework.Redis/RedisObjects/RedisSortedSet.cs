@@ -17,6 +17,7 @@ namespace CachingFramework.Redis.RedisObjects
     {
         #region Fields
         private readonly ICacheProvider _cacheProvider;
+        private readonly int _scanPageSize;
         #endregion
         #region Constructors
         /// <summary>
@@ -25,10 +26,12 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="redisContext">The redis context.</param>
         /// <param name="redisKey">The redis key.</param>
         /// <param name="cacheProvider">The cache provider.</param>
-        internal RedisSortedSet(RedisProviderContext redisContext, string redisKey, ICacheProvider cacheProvider)
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        internal RedisSortedSet(RedisProviderContext redisContext, string redisKey, ICacheProvider cacheProvider, int scanPageSize)
             : base(redisContext, redisKey)
         {
             _cacheProvider = cacheProvider;
+            _scanPageSize = scanPageSize;
         }
         #endregion
 
@@ -206,7 +209,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.</returns>
         public IEnumerator<T> GetEnumerator()
         {
-            foreach (var item in GetRedisDb().SortedSetScan(RedisKey))
+            foreach (var item in GetRedisDb().SortedSetScan(RedisKey, default(RedisValue), _scanPageSize))
             {
                 yield return Deserialize<T>(item.Element);
             }

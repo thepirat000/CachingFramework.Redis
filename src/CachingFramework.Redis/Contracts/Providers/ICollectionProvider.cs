@@ -19,19 +19,22 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <typeparam name="TKey">The key type</typeparam>
         /// <typeparam name="TValue">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key);
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        IRedisDictionary<TKey, TValue> GetRedisDictionary<TKey, TValue>(string key, int scanPageSize = 10);
         /// <summary>
         /// Returns an IRedisSet implemented using a Redis Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        IRedisSet<T> GetRedisSet<T>(string key);
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        IRedisSet<T> GetRedisSet<T>(string key, int scanPageSize = 10);
         /// <summary>
         /// Returns an IRedisSortedSet implemented using a Redis Sorted Set
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="key">The redis key</param>
-        IRedisSortedSet<T> GetRedisSortedSet<T>(string key);
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        IRedisSortedSet<T> GetRedisSortedSet<T>(string key, int scanPageSize = 10);
         /// <summary>
         /// Returns an ICollection implemented using a Redis string as a bitmap
         /// </summary>
@@ -41,7 +44,8 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// Returns an ICollection(string) implemented using a Redis sorted set with lexicographical order
         /// </summary>
         /// <param name="key">The redis key</param>
-        IRedisLexicographicSet GetRedisLexicographicSet(string key);
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        IRedisLexicographicSet GetRedisLexicographicSet(string key, int scanPageSize = 10);
         /// <summary>
         /// Returns an ICollection(char) implemented using a Redis string
         /// </summary>

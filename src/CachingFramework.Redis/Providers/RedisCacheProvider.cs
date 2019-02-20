@@ -1760,9 +1760,10 @@ namespace CachingFramework.Redis.Providers
         /// <typeparam name="T">The field value type</typeparam>
         /// <param name="key">The key.</param>
         /// <param name="pattern">The glob-style pattern to match.</param>
-        public IEnumerable<KeyValuePair<string, T>> ScanHashed<T>(string key, string pattern)
+        /// <param name="pageSize">The scan page size to use.</param>
+        public IEnumerable<KeyValuePair<string, T>> ScanHashed<T>(string key, string pattern, int pageSize = 10)
         {
-            return RedisConnection.GetDatabase().HashScan(key, pattern)
+            return RedisConnection.GetDatabase().HashScan(key, pattern, pageSize)
                 .Select(x => new KeyValuePair<string, T>(x.Name, Serializer.Deserialize<T>(x.Value)));
         }
 

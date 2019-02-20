@@ -12,15 +12,19 @@ namespace CachingFramework.Redis.RedisObjects
     /// </summary>
     internal class RedisLexicographicSet : RedisBaseObject, IRedisLexicographicSet, ICollection<string>
     {
+        private readonly int _scanPageSize;
+
         #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisLexicographicSet" /> class.
         /// </summary>
         /// <param name="redisContext">The redis context.</param>
         /// <param name="redisKey">The redis key.</param>
-        internal RedisLexicographicSet(RedisProviderContext redisContext, string redisKey)
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        internal RedisLexicographicSet(RedisProviderContext redisContext, string redisKey, int scanPageSize)
             : base(redisContext, redisKey)
         {
+            _scanPageSize = scanPageSize;
         }
         #endregion
 
@@ -51,7 +55,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="pattern">The glob-style pattern.</param>
         public IEnumerable<string> Match(string pattern)
         {
-            return GetRedisDb().SortedSetScan(RedisKey, pattern).Select(x => (string) x.Element);
+            return GetRedisDb().SortedSetScan(RedisKey, pattern, _scanPageSize).Select(x => (string) x.Element);
         }
         #endregion
 
@@ -110,7 +114,7 @@ namespace CachingFramework.Redis.RedisObjects
         public IEnumerator<string> GetEnumerator()
         {
             var db = GetRedisDb();
-            foreach (var item in db.SortedSetScan(RedisKey))
+            foreach (var item in db.SortedSetScan(RedisKey, default(RedisValue), _scanPageSize))
             {
                 yield return item.Element;
             }

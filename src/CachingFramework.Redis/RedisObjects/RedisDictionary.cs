@@ -17,6 +17,7 @@ namespace CachingFramework.Redis.RedisObjects
     {
         #region Fields
         private readonly ICacheProvider _cacheProvider;
+        private readonly int _scanPageSize;
         #endregion
         #region Constructors
         /// <summary>
@@ -25,10 +26,12 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="redisContext">The redis context.</param>
         /// <param name="redisKey">The redis key.</param>
         /// <param name="cacheProvider">The cache provider.</param>
-        internal RedisDictionary(RedisProviderContext redisContext, string redisKey, ICacheProvider cacheProvider)
+        /// <param name="scanPageSize">The page size for Scan operations.</param>
+        internal RedisDictionary(RedisProviderContext redisContext, string redisKey, ICacheProvider cacheProvider, int scanPageSize)
             : base(redisContext, redisKey)
         {
             _cacheProvider = cacheProvider;
+            _scanPageSize = scanPageSize;
         }
         #endregion
         #region IRedisDictionary implementation
@@ -289,7 +292,7 @@ namespace CachingFramework.Redis.RedisObjects
         public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
         {
             var db = GetRedisDb();
-            foreach (var hashEntry in db.HashScan(RedisKey))
+            foreach (var hashEntry in db.HashScan(RedisKey, default(RedisValue), _scanPageSize))
             {
                 yield return new KeyValuePair<TK, TV>(Deserialize<TK>(hashEntry.Name), Deserialize<TV>(hashEntry.Value));
             }
