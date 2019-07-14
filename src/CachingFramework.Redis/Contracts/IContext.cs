@@ -1,5 +1,6 @@
 ﻿using System;
 using CachingFramework.Redis.Contracts.Providers;
+using StackExchange.Redis;
 
 namespace CachingFramework.Redis.Contracts
 {
@@ -29,7 +30,11 @@ namespace CachingFramework.Redis.Contracts
         /// Gets the Key/Event space notifications API.
         /// </summary>
         IKeyEventsProvider KeyEvents { get; }
-
+        /// <summary>
+        /// Gets the StackExchange.Redis's connection multiplexer.
+        /// Use this if you want to directly access the SE.Redis API.
+        /// </summary>
+        IConnectionMultiplexer GetConnectionMultiplexer();
         /// <summary>
         /// Gets the serializer for this context.
         /// </summary>

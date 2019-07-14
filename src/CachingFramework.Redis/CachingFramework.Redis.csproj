@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>Redis client library based on StackExchange.Redis with features like an extensible serialization strategy, a tagging mechanism to group keys and hash fields, and more, all being cluster-compatible.</Description>
     <Copyright>Copyright 2016</Copyright>
     <AssemblyTitle>CachingFramework.Redis</AssemblyTitle>
-    <VersionPrefix>10.0.4</VersionPrefix>
+    <VersionPrefix>10.0.5</VersionPrefix>
     <Authors>Federico Colombo</Authors>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
