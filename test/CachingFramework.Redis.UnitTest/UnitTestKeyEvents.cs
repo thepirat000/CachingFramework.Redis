@@ -67,6 +67,7 @@ namespace CachingFramework.Redis.UnitTest
             var objectKey = key ?? Guid.NewGuid().ToString();
 
             context.Cache.SetObject(objectKey, new { Name = "alex", Created = DateTime.UtcNow });
+            Thread.Sleep(500);
             context.Cache.Remove(objectKey);
 
             Assert.IsTrue(handle.Wait(5000));

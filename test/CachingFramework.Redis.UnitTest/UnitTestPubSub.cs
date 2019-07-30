@@ -15,7 +15,14 @@ namespace CachingFramework.Redis.UnitTest
             var ch = "UT_PubSub_SingleSubscribe";
             var users = GetUsers();
             var usersList = new List<User>();
-            context.PubSub.Subscribe<User>(ch, (c, o) => usersList.Add(o));
+            var locker = new object();
+            context.PubSub.Subscribe<User>(ch, (c, o) => 
+            {
+                lock (locker)
+                {
+                    usersList.Add(o);
+                }
+            });
             foreach (var t in users)
             {
                 context.PubSub.Publish(ch, t);
