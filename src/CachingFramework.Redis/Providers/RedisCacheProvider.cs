@@ -899,7 +899,7 @@ namespace CachingFramework.Redis.Providers
         {
             int startIndex = string.Format(TagFormat, "").Length;
             return
-                EnumerateInAllMasters(svr => svr.Keys(0, string.Format(TagFormat, "*")))
+                EnumerateInAllMasters(svr => svr.Keys(RedisConnection.GetDatabase().Database, string.Format(TagFormat, "*")))
                     .SelectMany(run => run.Select(r => r.ToString().Substring(startIndex)));
         }
 
@@ -911,7 +911,7 @@ namespace CachingFramework.Redis.Providers
         public IEnumerable<string> GetKeysByPattern(string pattern)
         {
             return
-                EnumerateInAllMasters(svr => svr.Keys(0, pattern))
+                EnumerateInAllMasters(svr => svr.Keys(RedisConnection.GetDatabase().Database, pattern))
                     .SelectMany(
                         run => run.Select(r => r.ToString()).Where(key => !key.StartsWith(string.Format(TagFormat, ""))));
         }
