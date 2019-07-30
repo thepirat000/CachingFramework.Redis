@@ -899,7 +899,7 @@ namespace CachingFramework.Redis.Providers
         {
             int startIndex = string.Format(TagFormat, "").Length;
             return
-                EnumerateInAllMasters(svr => svr.Keys(0, string.Format(TagFormat, "*")))
+                EnumerateInAllMasters(svr => svr.Keys(RedisConnection.GetDatabase().Database, string.Format(TagFormat, "*")))
                     .SelectMany(run => run.Select(r => r.ToString().Substring(startIndex)));
         }
 
