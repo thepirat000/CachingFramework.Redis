@@ -113,13 +113,13 @@ To provide a custom serialization mechanism, implement the `ISerializer` interfa
 ```c#
 public class MySerializer : ISerializer
 {
-    public byte[] Serialize<T>(T value)
+    public RedisValue Serialize<T>(T value)
     {
-        return Encoding.UTF8.GetBytes(value.ToString());
+        return value.ToString();
     }
-    public T Deserialize<T>(byte[] value)
+    public T Deserialize<T>(RedisValue value)
     {
-        return (T)Convert.ChangeType(Encoding.UTF8.GetString(value), typeof(T));
+        return (T)Convert.ChangeType(value.ToString(), typeof(T));
     }
 }
 ```
