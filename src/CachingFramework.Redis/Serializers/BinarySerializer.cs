@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using CachingFramework.Redis.Contracts;
 using System.Runtime.Serialization.Formatters.Binary;
+using StackExchange.Redis;
 
 namespace CachingFramework.Redis.Serializers
 {
@@ -29,7 +30,7 @@ namespace CachingFramework.Redis.Serializers
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>System.String.</returns>
-        public virtual byte[] Serialize<T>(T value)
+        public virtual RedisValue Serialize<T>(T value)
         {
             return Serialize((object)value);
         }
@@ -39,7 +40,7 @@ namespace CachingFramework.Redis.Serializers
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>``0.</returns>
-        public virtual T Deserialize<T>(byte[] value)
+        public virtual T Deserialize<T>(RedisValue value)
         {
             return (T)Deserialize(value);
         }

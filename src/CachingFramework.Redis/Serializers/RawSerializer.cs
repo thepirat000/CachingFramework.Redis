@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using CachingFramework.Redis.Contracts;
+using StackExchange.Redis;
 
 namespace CachingFramework.Redis.Serializers
 {
@@ -26,11 +27,11 @@ namespace CachingFramework.Redis.Serializers
         /// <summary>
         /// Dictionary of serializer methods per type
         /// </summary>
-        private readonly Dictionary<Type, Func<object, byte[]>> _serialDict;
+        private readonly Dictionary<Type, Func<object, RedisValue>> _serialDict;
         /// <summary>
         /// Dictionary of deserializer methods per type
         /// </summary>
-        private readonly Dictionary<Type, Func<byte[], object>> _deserialDict;
+        private readonly Dictionary<Type, Func<RedisValue, object>> _deserialDict;
         /// <summary>
         /// The default cultureinfo to use in the ToString methods.
         /// </summary>
@@ -44,7 +45,7 @@ namespace CachingFramework.Redis.Serializers
         public RawSerializer()
         {
             _defaultSerializer = RedisContext.DefaultSerializer;
-            _serialDict = new Dictionary<Type, Func<object, byte[]>>
+            _serialDict = new Dictionary<Type, Func<object, RedisValue>>
             {
                 [typeof (String)]   = o => GetBytes(o.ToString()), 
                 [typeof (Char)]     = o => GetBytes(o.ToString()),
@@ -64,7 +65,7 @@ namespace CachingFramework.Redis.Serializers
                 [typeof (Decimal)]  = o => GetBytes(((Decimal)o).ToString(FloatFormat, Culture)),
                 [typeof (DateTime)] = o => GetBytes(((DateTime)o).ToString(DateFormat, Culture))
             };
-            _deserialDict = new Dictionary<Type, Func<byte[], object>>
+            _deserialDict = new Dictionary<Type, Func<RedisValue, object>>
             {
                 [typeof (String)]   = b => GetString(b), 
                 [typeof (Char)]     = b => Convert.ToChar(GetString(b)),
@@ -106,7 +107,7 @@ namespace CachingFramework.Redis.Serializers
         /// <summary>
         /// Serializes the specified value.
         /// </summary>
-        public byte[] Serialize<T>(T value)
+        public RedisValue Serialize<T>(T value)
         {
             var type = typeof(T);
             return _serialDict.ContainsKey(type) 
@@ -116,7 +117,7 @@ namespace CachingFramework.Redis.Serializers
         /// <summary>
         /// Deserializes the specified value.
         /// </summary>
-        public T Deserialize<T>(byte[] value)
+        public T Deserialize<T>(RedisValue value)
         {
             var type = typeof(T);
             return (T) (_deserialDict.ContainsKey(type)

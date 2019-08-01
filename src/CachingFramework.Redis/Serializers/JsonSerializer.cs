@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
+using StackExchange.Redis;
 
 namespace CachingFramework.Redis.Serializers
 {
@@ -36,9 +37,9 @@ namespace CachingFramework.Redis.Serializers
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>System.Byte[].</returns>
-        public byte[] Serialize<T>(T value)
+        public RedisValue Serialize<T>(T value)
         {
-            return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value, _settings));
+            return JsonConvert.SerializeObject(value, _settings);
         }
 
         /// <summary>
@@ -47,9 +48,9 @@ namespace CachingFramework.Redis.Serializers
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>T.</returns>
-        public T Deserialize<T>(byte[] value)
+        public T Deserialize<T>(RedisValue value)
         {
-            return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(value), _settings);
+            return JsonConvert.DeserializeObject<T>(value, _settings);
         }
     }
 }

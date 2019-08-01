@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using MsgPack.Serialization;
+using StackExchange.Redis;
 
 namespace CachingFramework.Redis.MsgPack
 {
@@ -15,11 +16,11 @@ namespace CachingFramework.Redis.MsgPack
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>System.Byte[].</returns>
-        public byte[] Serialize<T>(T value)
+        public RedisValue Serialize<T>(T value)
         {
             if (value == null)
             {
-                return null;
+                return RedisValue.Null;
             }
             var serializer = SerializationContext.Default.GetSerializer(value.GetType());
             using (var stream = new MemoryStream())
@@ -35,9 +36,9 @@ namespace CachingFramework.Redis.MsgPack
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>T.</returns>
-        public T Deserialize<T>(byte[] value)
+        public T Deserialize<T>(RedisValue value)
         {
-            if (value == null)
+            if (value.IsNull)
             {
                 return default(T);
             }
