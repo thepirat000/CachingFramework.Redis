@@ -100,11 +100,8 @@ Of course you must do this before any context creation, for example on your appl
 RedisContext.DefaultSerializer = new JsonSerializer();
 ```
 
-> NOTE: The **.NET Framework** version of the library will default the `RedisContext.DefaultSerializer` property to
-> BinarySerializer. And the **.NET Core** cer
-> 
->If you don't explicitly set the `DefaultSerializer`, 
-> the default serialization method differs between the .NET Framework version (BinarySerializer) and the .NET Core version (JsonSerializer). 
+> NOTE: If you don't explicitly set the serializer, it will default depending on the framework: .NET Framework version will default to `BinarySerializer` and .NET Core to `JsonSerializer`. 
+
 If you plan to consume data from different framework versions, make sure all of them are using the same serialization method.
 
 #### Custom serialization
