@@ -93,7 +93,7 @@ namespace CachingFramework.Redis.RedisObjects
                 (offsetIsOrdinal ? "#" : "") + offset
             };
             var result = db.ScriptEvaluate(LuaScriptResource.Bitfield, new RedisKey[] { RedisKey }, args.ToArray());
-            return (T)Convert.ChangeType((decimal)result, typeof(T));
+            return (T)Convert.ChangeType((double)result, typeof(T));
         }
         /// <summary>
         /// Sets the specified integer field of arbitrary size in the bitmap
@@ -123,7 +123,7 @@ namespace CachingFramework.Redis.RedisObjects
             {
                 throw new OverflowException("The value would overflow the type " + fieldType);
             }
-            return (T)Convert.ChangeType((decimal)results[0], typeof(T));
+            return (T)Convert.ChangeType((double)results[0], typeof(T));
         }
         /// <summary>
         /// Increment the specified integer counter.
@@ -153,7 +153,7 @@ namespace CachingFramework.Redis.RedisObjects
             {
                 throw new OverflowException("The value would overflow the type " + fieldType);
             }
-            return (T)Convert.ChangeType((decimal)results[0], typeof(T));
+            return (T)Convert.ChangeType((double)results[0], typeof(T));
         }
         #endregion
 
