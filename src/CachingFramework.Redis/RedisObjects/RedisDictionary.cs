@@ -201,6 +201,23 @@ namespace CachingFramework.Redis.RedisObjects
             return true;
         }
         /// <summary>
+        /// Gets the value associated with the specified key.
+        /// </summary>
+        /// <param name="key">The key whose value to get.</param>
+        /// <returns>Tuple of bool and a value, where the boolean indicates if the object contains the element, and if with the specified key; otherwise, false.</returns>
+        public async Task<TryGetValueResult<TK, TV>> TryGetValueAsync(TK key)
+        {
+            var result = new TryGetValueResult<TK, TV>() { Found = false, Key = key, Value = default };
+            var redisValue = await GetRedisDb().HashGetAsync(RedisKey, Serialize(key));
+            if (redisValue.IsNull)
+            {
+                return result;
+            }
+            result.Found = true;
+            result.Value = Deserialize<TV>(redisValue);
+            return result;
+        }
+        /// <summary>
         /// Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the <see cref="T:System.Collections.Generic.IDictionary`2" />.
         /// </summary>
         /// <value>The values.</value>

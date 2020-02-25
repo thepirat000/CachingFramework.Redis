@@ -660,6 +660,31 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryTryGetAsync(RedisContext context)
+        {
+            // Arrange
+            string key = "UT_CacheDictionaryTryGetAsync";
+            await context.Cache.RemoveAsync(key);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key);
+
+            // Act
+            var usersKv = users.Select(x => new KeyValuePair<int, User>(x.Id, x));
+            await rd.AddRangeAsync(usersKv);
+            var tryGet1 = await rd.TryGetValueAsync(users[0].Id);
+            var tryGet2 = await rd.TryGetValueAsync(-567);
+
+            // Assert 
+            Assert.AreEqual(users.Count, rd.Count);
+            Assert.IsTrue(tryGet1.Found);
+            Assert.AreEqual(users[0].Id, tryGet1.Key);
+            Assert.AreEqual(users[0].Id, tryGet1.Value.Id);
+            Assert.IsFalse(tryGet2.Found);
+            Assert.AreEqual(-567, tryGet2.Key);
+            Assert.IsNull(tryGet2.Value);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheDictionaryObject_TTL(RedisContext context)
         {
             string key1 = "UT_CacheDictionaryObjectTTL1";
