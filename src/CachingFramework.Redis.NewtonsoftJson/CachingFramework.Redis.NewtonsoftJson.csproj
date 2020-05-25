@@ -1,19 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Redis client library based on StackExchange.Redis with features like an extensible serialization strategy, a tagging mechanism to group keys and hash fields, and more, all being cluster-compatible.</Description>
+    <Description>Newtonsoft Json serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.</Description>
     <Copyright>Copyright 2016</Copyright>
-    <AssemblyTitle>CachingFramework.Redis</AssemblyTitle>
+    <AssemblyTitle>CachingFramework.Redis.NewtonsoftJson</AssemblyTitle>
     <VersionPrefix>12.0.0</VersionPrefix>
     <Authors>Federico Colombo</Authors>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>CachingFramework.Redis</AssemblyName>
+    <AssemblyName>CachingFramework.Redis.NewtonsoftJson</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <AssemblyOriginatorKeyFile>../CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
-    <PackageId>CachingFramework.Redis</PackageId>
-    <PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis</PackageTags>
+    <PackageId>CachingFramework.Redis.NewtonsoftJson</PackageId>
+    <PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis;NewtonsoftJson;MessagePack</PackageTags>
     <PackageIconUrl>http://i.imgur.com/FrC8SWO.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/thepirat000/CachingFramework.Redis</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -26,18 +26,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CachingFramework.Redis\CachingFramework.Redis.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="StackExchange.Redis" Version="2.1.30" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE" />
   </ItemGroup>
-
 </Project>

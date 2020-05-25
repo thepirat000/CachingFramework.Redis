@@ -80,8 +80,10 @@ Different serialization mechanisms are provided:
 | **Serializer** | **Data** | **Configuration** |
 | ----------- | ----------------------- | -------------------------- |
 |[**`BinarySerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/BinarySerializer.cs) | All types are serialized using the .NET `BinaryFormatter` and GZIP compressed. | Default for .Net Framework | 
-|[**`JsonSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/JsonSerializer.cs) | Data is stored as Json. Serialization can be configured with `JsonSerializerSettings`. | Default for .Net Core | 
+|[**`JsonSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/JsonSerializer.cs) | Data is stored as Json using `System.Text.Json`. Serialization can be configured with `JsonSerializerOptions`. | Default for .Net Core | 
 |[**`RawSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/RawSerializer.cs) | The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as UTF-8 strings. Any other type is serialized using the default serializer. | Serialization can be set-up per type using `SetSerializerFor()` |
+|[**`NewtonsoftJsonSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis.NewtonsoftJson/NewtonsoftJsonSerializer.cs) | Data is stored as Json using `Newtonsoft.Json`. Serialization can be configured with `JsonSerializerSettings`. | NuGet Package [`CachingFramework.Redis.NewtonsoftJson`](https://www.nuget.org/packages/CachingFramework.Redis.NewtonsoftJson/) | 
+|[**`MsgPackSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis.MsgPack/MsgPackSerializer.cs) | Data is stored as [MessagePack](https://msgpack.org/) via `MsgPack.Cli`. | NuGet Package [`CachingFramework.Redis.MsgPack`](https://www.nuget.org/packages/CachingFramework.Redis.MsgPack/) | 
 
 The `RedisContext` class has constructor overloads to supply the serialization mechanism, for example:
 

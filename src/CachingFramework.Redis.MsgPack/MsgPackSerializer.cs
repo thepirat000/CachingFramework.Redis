@@ -6,7 +6,7 @@ using StackExchange.Redis;
 namespace CachingFramework.Redis.MsgPack
 {
     /// <summary>
-    /// Class JsonSerializer.
+    /// Class MsgPackSerializer.
     /// </summary>
     public class MsgPackSerializer : Contracts.ISerializer
     {

@@ -13,13 +13,15 @@ namespace CachingFramework.Redis.UnitTest
         private static RedisContext _binaryContext;
         // A context using json
         private static RedisContext _jsonContext;
+        // A context using newtonsoft json
+        private static RedisContext _newtonsoftJsonContext;
         // A context using msgpack
         private static RedisContext _msgPackContext;
 
 
         // TestCases
-        public static RedisContext[] JsonAndRaw { get { return new[] { _jsonContext, _rawContext }; } }
-        public static RedisContext[] Json { get { return new[] { _jsonContext }; } }
+        public static RedisContext[] JsonAndRaw { get { return new[] { _jsonContext, _rawContext, _newtonsoftJsonContext }; } }
+        public static RedisContext[] Json { get { return new[] { _jsonContext, _newtonsoftJsonContext }; } }
         public static RedisContext[] MsgPack { get { return new[] { _msgPackContext }; } }
         public static RedisContext[] Raw { get { return new[] { _rawContext }; } }
         public static RedisContext[] Bin { get { return new[] { _binaryContext }; } }
@@ -45,13 +47,14 @@ namespace CachingFramework.Redis.UnitTest
             _rawContext = new RedisContext(Config, new RawSerializer());
             _jsonContext = new RedisContext(Config, new JsonSerializer());
             _msgPackContext = new RedisContext(Config, new MsgPack.MsgPackSerializer());
+            _newtonsoftJsonContext = new RedisContext(Config, new NewtonsoftJson.NewtonsoftJsonSerializer());
 #if (NET461)
             _binaryContext = new RedisContext(Config, new BinarySerializer());
-            All = new[] { _binaryContext, _rawContext, _jsonContext, _msgPackContext };
-            BinAndRawAndJson = new[] { _binaryContext, _rawContext, _jsonContext };
+            All = new[] { _binaryContext, _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext };
+            BinAndRawAndJson = new[] { _binaryContext, _rawContext, _jsonContext, _newtonsoftJsonContext };
 #else
-            BinAndRawAndJson = new[] { _rawContext, _jsonContext };
-            All = new[] { _rawContext, _jsonContext, _msgPackContext };
+            BinAndRawAndJson = new[] { _rawContext, _jsonContext, _newtonsoftJsonContext };
+            All = new[] { _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext };
 #endif
 
             Thread.Sleep(1500);

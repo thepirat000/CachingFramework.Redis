@@ -15,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\CachingFramework.Redis.NewtonsoftJson\CachingFramework.Redis.NewtonsoftJson.csproj" />
     <ProjectReference Include="..\..\src\CachingFramework.Redis\CachingFramework.Redis.csproj" />
     <ProjectReference Include="..\..\src\CachingFramework.Redis.MsgPack\CachingFramework.Redis.MsgPack.csproj" />
   </ItemGroup>
