@@ -1111,8 +1111,114 @@ namespace CachingFramework.Redis.UnitTest
 
             ss.Clear();
             Assert.AreEqual(0, ss.Count);
+        }
 
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheSortedSet_GetRangeAsync(RedisContext context)
+        {
+            var key = "UT_CacheSortedSet_GetRangeAsync";
+            await context.Cache.RemoveAsync(key);
+            var ss = context.Collections.GetRedisSortedSet<User>(key);
+            var users = GetUsers();
 
+            await ss.AddAsync(double.NegativeInfinity, users[3]);
+            await ss.AddAsync(double.PositiveInfinity, users[2]);
+            await ss.AddAsync(12.34, users[0]);
+            await ss.AddAsync(23.45, users[1]);
+
+            var count = await ss.CountAsync();
+            var byRank = (await ss.GetRangeByRankAsync()).ToList();
+            Assert.AreEqual(4, count);
+            Assert.AreEqual(count, byRank.Count);
+            Assert.AreEqual(12.34, byRank[1].Score);
+            Assert.AreEqual(double.NegativeInfinity, byRank[0].Score);
+
+            var byScore = (await ss.GetRangeByScoreAsync(12.34, 23.449)).ToList();
+            Assert.AreEqual(1, byScore.Count);
+            Assert.AreEqual(users[0].Id, byScore[0].Value.Id);
+
+            byScore = (await ss.GetRangeByScoreAsync(12.34, 23.45)).ToList();
+            Assert.AreEqual(2, byScore.Count);
+            Assert.AreEqual(users[1].Id, byScore[1].Value.Id);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheSortedSet_GetRangeByRankNegativeAsync(RedisContext context)
+        {
+            var key = "UT_CacheSortedSet_GetRangeByRankNegativeAsync";
+            await context.Cache.RemoveAsync(key);
+            var ss = context.Collections.GetRedisSortedSet<string>(key);
+            await ss.AddRangeAsync(new[] { new SortedMember<string>(33, "c"), new SortedMember<string>(0, "a"), new SortedMember<string>(22, "b") });
+
+            var byRank = (await ss.GetRangeByRankAsync(-2, -1)).ToList();
+            var byRankRev = (await ss.GetRangeByRankAsync(-2, -1, true)).ToList();
+
+            Assert.AreEqual(2, byRank.Count);
+            Assert.AreEqual("b", byRank[0].Value);
+            Assert.AreEqual("c", byRank[1].Value);
+            Assert.AreEqual("a", byRankRev[1].Value);
+            Assert.AreEqual("b", byRankRev[0].Value);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheSortedSet_etcAsync(RedisContext context)
+        {
+            var key = "UT_CacheSortedSet_etcAsync";
+            var ss = context.Collections.GetRedisSortedSet<string>(key);
+            await context.Cache.RemoveAsync(key);
+            for (int i = 0; i < 255; i++)
+            {
+                await ss.AddAsync(i, "member " + i);
+            }
+            Assert.AreEqual(10, await ss.CountByScoreAsync(1, 10));
+            var incremented = await ss.IncrementScoreAsync("member 10", 1000);
+            Assert.AreEqual(1010, incremented);
+            Assert.AreEqual(255, ss.Count);
+
+            int x = 0;
+            foreach (var item in ss)
+            {
+                x++;
+            }
+            Assert.AreEqual(255, x);
+
+            var r0 = await ss.RankOfAsync("member 0");
+            var r9 = await ss.RankOfAsync("member 9");
+            var r10 = await ss.RankOfAsync("member 10");
+            var r11 = await ss.RankOfAsync("member 11");
+            var r254 = await ss.RankOfAsync("member 254");
+            var r255 = await ss.RankOfAsync("member 255");
+            var r0Rev = await ss.RankOfAsync("member 0", true);
+
+            Assert.AreEqual(0, r0);
+            Assert.AreEqual(9, r9);
+            Assert.AreEqual(10, r11);
+            Assert.AreEqual(254, r10);
+            Assert.AreEqual(253, r254);
+            Assert.AreEqual(254, r0Rev);
+            Assert.IsNull(r255);
+
+            var s0 = await ss.ScoreOfAsync("member 0");
+            var s254 = await ss.ScoreOfAsync("member 254");
+            var s255 = await ss.ScoreOfAsync("member 255");
+            Assert.AreEqual(0, s0);
+            Assert.AreEqual(254, s254);
+            Assert.IsNull(s255);
+
+            await ss.RemoveRangeByRankAsync(0, 2);
+            Assert.AreEqual(252, await ss.CountAsync());
+
+            await ss.RemoveRangeByScoreAsync(double.NegativeInfinity, 9);
+            Assert.AreEqual(245, await ss.CountAsync());
+
+            Assert.IsTrue(await ss.ContainsAsync("member 100"));
+            Assert.IsFalse(await ss.ContainsAsync("member 0"));
+
+            await ss.RemoveAsync("member 100");
+            Assert.IsFalse(await ss.ContainsAsync("member 100"));
+
+            await ((RedisBaseObject)ss).ClearAsync();
+            Assert.AreEqual(0, await ss.CountAsync());
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
