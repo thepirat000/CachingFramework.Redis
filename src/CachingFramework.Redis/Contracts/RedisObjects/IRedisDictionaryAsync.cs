@@ -23,6 +23,11 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="collection">The collection.</param>
         Task AddRangeAsync(IEnumerable<KeyValuePair<TK, TV>> collection);
         /// <summary>
+        /// Adds multiple elements to the dictionary related to the given tag(s).
+        /// </summary>
+        /// <param name="collection">The collection.</param>
+        Task AddRangeAsync(IEnumerable<KeyValuePair<TK, TV>> collection, string[] tags);
+        /// <summary>
         /// Returns the number of elements in the hash.
         /// </summary>
         Task<long> GetCountAsync();

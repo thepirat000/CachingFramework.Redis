@@ -11,6 +11,7 @@ using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
 using System.Threading.Tasks;
 using CachingFramework.Redis.Contracts.RedisObjects;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -862,6 +863,50 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(1, keys.Count);
             var val = Encoding.UTF8.GetString(context.GetSerializer().Serialize(1));
             Assert.AreEqual("UT_CacheDictionaryObject_AddAsyncWithTags:$_->_$:" + val, keys[0]);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheDictionaryObject_AddRangeWithTags(RedisContext context)
+        {
+            var key = "UT_CacheDictionaryObject_AddRangeWithTags";
+            var tags = new[] { "UT_CacheDictionaryObject_AddRangeWithTags_TAG1" };
+            context.Cache.Remove(key);
+            context.Cache.InvalidateKeysByTag(tags);
+
+            var redisDict = context.Collections.GetRedisDictionary<int, User>(key);
+            var users = GetUsers();
+            redisDict.AddRange(users.ToDictionary(k => k.Id), tags);
+
+            var ser = context.GetSerializer();
+            var members = context.Cache.GetMembersByTag(tags[0]).OrderBy(x => ser.Deserialize<int>(x.MemberValue)).ToList();
+
+            Assert.AreEqual(users.Count, members.Count);
+            Assert.AreEqual(key, members[0].Key);
+            Assert.AreEqual(TagMemberType.HashField, members[0].MemberType);
+            Assert.AreEqual(1, ser.Deserialize<int>(members[0].MemberValue));
+            Assert.AreEqual(2, ser.Deserialize<int>(members[1].MemberValue));
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryObject_AddRangeWithTags_Async(RedisContext context)
+        {
+            var key = "UT_CacheDictionaryObject_AddRangeWithTags_Async";
+            var tags = new[] { "UT_CacheDictionaryObject_AddRangeWithTags_Async_TAG1" };
+            await context.Cache.RemoveAsync(key);
+            await context.Cache.InvalidateKeysByTagAsync(tags);
+
+            var redisDict = context.Collections.GetRedisDictionary<int, User>(key);
+            var users = GetUsers();
+            await redisDict.AddRangeAsync(users.ToDictionary(k => k.Id), tags);
+
+            var ser = context.GetSerializer();
+            var members = context.Cache.GetMembersByTag(tags[0]).OrderBy(x => ser.Deserialize<int>(x.MemberValue)).ToList();
+
+            Assert.AreEqual(users.Count, members.Count);
+            Assert.AreEqual(key, members[0].Key);
+            Assert.AreEqual(TagMemberType.HashField, members[0].MemberType);
+            Assert.AreEqual(1, ser.Deserialize<int>(members[0].MemberValue));
+            Assert.AreEqual(2, ser.Deserialize<int>(members[1].MemberValue));
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]

@@ -20,7 +20,7 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <param name="context">The context.</param>
         public RedisCacheProvider(RedisProviderContext context)
-            :base(context)
+            : base(context)
         {
         }
         #endregion
@@ -764,7 +764,7 @@ namespace CachingFramework.Redis.Providers
                     if (tmString.Contains(TagHashSeparator))
                     {
                         // Hash field
-                        var items = tmString.Split(new[] {TagHashSeparator}, 2, StringSplitOptions.None);
+                        var items = tmString.Split(new[] { TagHashSeparator }, 2, StringSplitOptions.None);
                         var hashKey = items[0];
                         yield return new TagMember(Serializer)
                         {
@@ -776,7 +776,7 @@ namespace CachingFramework.Redis.Providers
                     else if (tmString.Contains(TagSetSeparator))
                     {
                         // Set/SortedSet member
-                        var items = tmString.Split(new[] {TagSetSeparator}, 2, StringSplitOptions.None);
+                        var items = tmString.Split(new[] { TagSetSeparator }, 2, StringSplitOptions.None);
                         var setKey = items[0];
                         var keyType = db.KeyType(setKey);
                         yield return new TagMember(Serializer)
@@ -838,7 +838,7 @@ namespace CachingFramework.Redis.Providers
                         //return the member value only if present on set
                         byte[] setMember = GetMemberSetItem(setKey, tagMember);
                         if ((keyType == RedisType.SortedSet && db.SortedSetRank(setKey, setMember).HasValue)
-                            || 
+                            ||
                             (keyType == RedisType.Set && db.SetContains(setKey, setMember)))
                         {
                             value = setMember;
@@ -1575,7 +1575,7 @@ namespace CachingFramework.Redis.Providers
         public async Task SetHashedAsync<T>(string key, IDictionary<string, T> fieldValues)
         {
             var db = RedisConnection.GetDatabase();
-            await db.HashSetAsync(key, 
+            await db.HashSetAsync(key,
                 fieldValues
                     .Select(x => new HashEntry(x.Key, Serializer.Serialize(x.Value)))
                     .ToArray()).ForAwait();
@@ -1604,12 +1604,59 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The key.</param>
         /// <param name="fieldValues">The field keys and values</param>
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
-        /// <param name="when">Indicates when this operation should be performed.</param>
-        public void SetHashed<TK, TV>(string key, IDictionary<TK, TV> fieldValues, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always, CommandFlags flags = CommandFlags.None)
+        public void SetHashed<TK, TV>(string key, IEnumerable<KeyValuePair<TK, TV>> fieldValues, TimeSpan? ttl = null, CommandFlags flags = CommandFlags.None)
         {
             var db = RedisConnection.GetDatabase();
             var fields = fieldValues.Select(x => new HashEntry(Serializer.Serialize(x.Key), Serializer.Serialize(x.Value))).ToArray();
             db.HashSet(key, fields, flags);
+        }
+
+        public void SetHashed<TK, TV>(string key, IEnumerable<KeyValuePair<TK, TV>> fieldValues, string[] tags, TimeSpan? ttl = null, CommandFlags flags = CommandFlags.None)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                SetHashed(key, fieldValues, ttl, flags);
+                return;
+            }
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            var fields = fieldValues.Select(x => new HashEntry(Serializer.Serialize(x.Key), Serializer.Serialize(x.Value))).ToArray();
+            batch.HashSetAsync(key, fields, flags);
+            foreach (var tagName in tags)
+            {
+                var tag = FormatTag(tagName);
+                // Add the tag-key->field relations
+                foreach (var fieldValue in fieldValues)
+                {
+                    batch.SetAddAsync(tag, FormatSerializedMember(key, TagHashSeparator, fieldValue.Key), flags);
+                }
+            }
+            batch.Execute();
+        }
+
+        public async Task SetHashedAsync<TK, TV>(string key, IEnumerable<KeyValuePair<TK, TV>> fieldValues, string[] tags, TimeSpan? ttl = null, CommandFlags flags = CommandFlags.None)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                await SetHashedAsync(key, fieldValues, ttl, flags).ForAwait();
+                return;
+            }
+            var db = RedisConnection.GetDatabase();
+            var batch = db.CreateBatch();
+            var fields = fieldValues.Select(x => new HashEntry(Serializer.Serialize(x.Key), Serializer.Serialize(x.Value))).ToArray();
+            var tasks = new List<Task>();
+            tasks.Add(batch.HashSetAsync(key, fields, flags));
+            foreach (var tagName in tags)
+            {
+                var tag = FormatTag(tagName);
+                // Add the tag-key->field relations
+                foreach (var fieldValue in fieldValues)
+                {
+                    tasks.Add(batch.SetAddAsync(tag, FormatSerializedMember(key, TagHashSeparator, fieldValue.Key), flags));
+                }
+            }
+            batch.Execute();
+            await Task.WhenAll(tasks).ForAwait();
         }
 
         /// <summary>
@@ -1621,8 +1668,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="key">The key.</param>
         /// <param name="fieldValues">The field keys and values</param>
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
-        /// <param name="when">Indicates when this operation should be performed.</param>
-        public async Task SetHashedAsync<TK, TV>(string key, IDictionary<TK, TV> fieldValues, TimeSpan? ttl = null, Contracts.When when = Contracts.When.Always, CommandFlags flags = CommandFlags.None)
+        public async Task SetHashedAsync<TK, TV>(string key, IEnumerable<KeyValuePair<TK, TV>> fieldValues, TimeSpan? ttl = null, CommandFlags flags = CommandFlags.None)
         {
             var db = RedisConnection.GetDatabase();
             var fields = fieldValues.Select(x => new HashEntry(Serializer.Serialize(x.Key), Serializer.Serialize(x.Value))).ToArray();

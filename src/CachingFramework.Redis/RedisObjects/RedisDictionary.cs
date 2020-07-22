@@ -7,6 +7,7 @@ using StackExchange.Redis;
 using CachingFramework.Redis.Contracts.Providers;
 using CachingFramework.Redis.Providers;
 using System.Threading.Tasks;
+using System.Diagnostics.Contracts;
 
 namespace CachingFramework.Redis.RedisObjects
 {
@@ -72,7 +73,12 @@ namespace CachingFramework.Redis.RedisObjects
                 await AddAsync(key, value);
                 return;
             }
-            await Task.Run(() => _cacheProvider.SetHashed<TK, TV>(RedisKey, key, value, tags));
+            await _cacheProvider.SetHashedAsync<TK, TV>(RedisKey, key, value, tags);
+        }
+
+        public void AddRange(IEnumerable<KeyValuePair<TK, TV>> collection, string[] tags)
+        {
+            _cacheProvider.SetHashed(RedisKey, collection, tags: tags);
         }
 
         /// <summary>
@@ -83,6 +89,15 @@ namespace CachingFramework.Redis.RedisObjects
         {
             await GetRedisDb()
                 .HashSetAsync(RedisKey, items.Select(i => new HashEntry(Serialize(i.Key), Serialize(i.Value))).ToArray());
+        }
+
+        /// <summary>
+        /// Adds multiple elements to the dictionary related to the given tags.
+        /// </summary>
+        /// <param name="items">The collection.</param>
+        public async Task AddRangeAsync(IEnumerable<KeyValuePair<TK, TV>> items, string[] tags)
+        {
+            await _cacheProvider.SetHashedAsync(RedisKey, items, tags: tags);
         }
 
         /// <summary>

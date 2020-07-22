@@ -326,8 +326,6 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
         /// <param name="when">Indicates when this operation should be performed.</param>
         void SetHashed<TK, TV>(string key, TK field, TV value, TimeSpan? ttl = null, When when = When.Always, CommandFlags flags = CommandFlags.None);
-        
-        
         /// <summary>
         /// Sets multiple values to the hashset stored on the given key.
         /// The field can be any serializable type
@@ -337,9 +335,18 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="key">The key.</param>
         /// <param name="fieldValues">The field keys and values</param>
         /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
-        /// <param name="when">Indicates when this operation should be performed.</param>
-        void SetHashed<TK, TV>(string key, IDictionary<TK, TV> fieldValues, TimeSpan? ttl = null, When when = When.Always, CommandFlags flags = CommandFlags.None);
-
+        void SetHashed<TK, TV>(string key, IEnumerable<KeyValuePair<TK, TV>> fieldValues, TimeSpan? ttl = null, CommandFlags flags = CommandFlags.None);
+        /// <summary>
+        /// Sets multiple values to the hashset stored on the given key related to the given tags.
+        /// The field can be any serializable type
+        /// </summary>
+        /// <typeparam name="TK">The field type</typeparam>
+        /// <typeparam name="TV">The value type</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="tags">Tags to relate.</param>
+        /// <param name="fieldValues">The field keys and values</param>
+        /// <param name="ttl">Set the current expiration timespan to the whole key (not only this field). NULL to keep the current expiration.</param>
+        void SetHashed<TK, TV>(string key, IEnumerable<KeyValuePair<TK, TV>> fieldValues, string[] tags, TimeSpan? ttl = null, CommandFlags flags = CommandFlags.None);
         /// <summary>
         /// Sets the specified value to a hashset using the pair hashKey+field.
         /// (The latest expiration applies to the whole key)

@@ -14,6 +14,36 @@ namespace CachingFramework.Redis.UnitTest
     public class UnitTestRedis
     {
         [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_MultipleAddHashedWithTags(RedisContext ctx)
+        {
+            var key = "UT_MultipleAddHashedWithTags";
+            var tags = new[] { "UT_MultipleAddHashedWithTags_TAG_1", "UT_MultipleAddHashedWithTags_TAG_2" };
+            ctx.Cache.Remove(key);
+            ctx.Cache.InvalidateKeysByTag(tags);
+
+            var dict = new Dictionary<string, string>()
+            {
+                {"1one", "VALUE 1" },
+                {"2two", "VALUE 2" }
+            };
+
+            ctx.Cache.SetHashed<string, string>(key, "3three", "VALUE 3", tags);
+            ctx.Cache.SetHashed(key, dict, tags: tags);
+
+            var ser = ctx.GetSerializer();
+            var members0 = ctx.Cache.GetMembersByTag(tags[0]).OrderBy(x => ser.Deserialize<string>(x.MemberValue)).ToList();
+            var members1 = ctx.Cache.GetMembersByTag(tags[1]).OrderBy(x => ser.Deserialize<string>(x.MemberValue)).ToList();
+
+            Assert.AreEqual(members0.Count, members1.Count);
+            Assert.AreEqual(3, members1.Count);
+            Assert.AreEqual(key, members0[0].Key);
+            Assert.AreEqual(TagMemberType.HashField, members0[1].MemberType);
+            Assert.AreEqual("1one", ser.Deserialize<string>(members0[0].MemberValue));
+            Assert.AreEqual("2two", ser.Deserialize<string>(members0[1].MemberValue));
+            Assert.AreEqual("3three", ser.Deserialize<string>(members0[2].MemberValue));
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_HashedWithFieldTypes(RedisContext ctx)
         {
             var key = "UT_HashedWithFieldTypes";

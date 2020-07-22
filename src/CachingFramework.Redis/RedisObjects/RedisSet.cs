@@ -114,7 +114,7 @@ namespace CachingFramework.Redis.RedisObjects
                 await AddAsync(item);
                 return;
             }
-            await Task.Run(() => _cacheProvider.AddToSet<T>(RedisKey, item, tags));
+            await _cacheProvider.AddToSetAsync<T>(RedisKey, item, tags);
         }
 
         /// <summary>
