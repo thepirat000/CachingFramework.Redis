@@ -23,6 +23,7 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <NoWarn>1701;1702;1573;1591</NoWarn>
+    <Version>12.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
