@@ -140,7 +140,16 @@ namespace CachingFramework.Redis.Providers
                 return Serializer.Deserialize<T>(cacheValue);
             }
             return default(T);
+        }
 
+        public async Task<(bool keyExists, T value)> TryGetObjectAsync<T>(string key, CommandFlags flags = CommandFlags.None)
+        {
+            var cacheValue = await RedisConnection.GetDatabase().StringGetAsync(key, flags).ForAwait();
+            if (cacheValue.HasValue)
+            {
+                return (true, Serializer.Deserialize<T>(cacheValue));
+            }
+            return (false, default(T));
         }
 
         public async Task<IEnumerable<string>> GetKeysByTagAsync(string[] tags, bool cleanUp = false)
