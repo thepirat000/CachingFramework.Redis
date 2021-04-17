@@ -728,6 +728,31 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync(tag);
         }
 
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheTryGetObject_Async(RedisContext context)
+        {
+            // Test the TryGetObject method
+            string key = "UT_CacheTryGetObject_Async";
+            context.Cache.Remove(key);
+            var expectedUser = new User()
+            {
+                Id = 1,
+                Deparments = new List<Department>()
+                {
+                    new Department() {Id = 1, Distance = 123.45m, Size = 2, Location = new Location { Id = 1, Name = "one" } },
+                    new Department() {Id = 2, Distance = 400, Size = 1, Location = new Location { Id = 2, Name = "two" } }
+                }
+            };
+            User cachedUser;
+            bool b;
+            await context.Cache.SetObjectAsync(key, expectedUser);
+            (b, cachedUser) = await context.Cache.TryGetObjectAsync<User>(key + "x7rz9a");
+            Assert.IsFalse(b);
+            Assert.IsNull(cachedUser);
+            (b, cachedUser) = await context.Cache.TryGetObjectAsync<User>(key);
+            Assert.IsTrue(b);
+            Assert.IsNotNull(cachedUser);
+        }
 
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSetWithTags_Expiration_Async(RedisContext context)

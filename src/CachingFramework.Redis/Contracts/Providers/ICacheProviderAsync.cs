@@ -215,6 +215,16 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <returns>``0.</returns>
         Task<T> GetObjectAsync<T>(string key, CommandFlags flags = CommandFlags.None);
         /// <summary>
+        /// Try to get the value of a key
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns>
+        /// KeyExists is True if the cache contains an element with the specified key; otherwise, false.
+        /// Value is the value associated with the specified key, if the key is found; otherwise, the default value for the type T.
+        /// </returns>
+        Task<(bool keyExists, T value)> TryGetObjectAsync<T>(string key, CommandFlags flags = CommandFlags.None);
+        /// <summary>
         /// Gets all the keys related to the given tag(s).
         /// Returns a hashset with the keys.
         /// </summary>
