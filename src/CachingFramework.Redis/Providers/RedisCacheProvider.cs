@@ -307,6 +307,7 @@ namespace CachingFramework.Redis.Providers
             var serialized = Serializer.Serialize(value);
             RedisConnection.GetDatabase().StringSet(key, serialized, ttl, (StackExchange.Redis.When)when, flags);
         }
+
         /// <summary>
         /// Set the value of a key, associating the key with the given tag(s).
         /// </summary>
@@ -948,7 +949,7 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <param name="key">The key to expire</param>
         /// <param name="expiration">The expiration local date time</param>
-        /// <returns>True is the key expiration was updated</returns>
+        /// <returns>True if the key expiration was updated</returns>
         public bool KeyExpire(string key, DateTime expiration, CommandFlags flags = CommandFlags.None)
         {
             return RedisConnection.GetDatabase().KeyExpire(key, expiration, flags);
@@ -958,11 +959,60 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <param name="key">The key to expire</param>
         /// <param name="ttl">The TTL timespan</param>
-        /// <returns>True is the key expiration was updated</returns>
+        /// <returns>True if the key expiration was updated</returns>
         public bool KeyTimeToLive(string key, TimeSpan ttl, CommandFlags flags = CommandFlags.None)
         {
             return RedisConnection.GetDatabase().KeyExpire(key, ttl, flags);
         }
+
+        /// <summary>
+        /// Sets the time-to-live of a key from a timespan value, also updates the TTL for the given tags.
+        /// </summary>
+        /// <param name="key">The key to expire</param>
+        /// <param name="ttl">The TTL timespan</param>
+        /// <param name="tags">The tags to apply the TTL</param>
+        public void KeyTimeToLive(string key, string[] tags, TimeSpan ttl, CommandFlags flags = CommandFlags.None)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                KeyTimeToLive(key, ttl, flags);
+                return;
+            }
+            var batch = RedisConnection.GetDatabase().CreateBatch();
+            batch.KeyExpireAsync(key, ttl, flags);
+            foreach(var tagName in tags)
+            {
+                var tag = FormatTag(tagName);
+                SetMaxExpiration(batch, tag, ttl, flags);
+            }
+            batch.Execute();
+        }
+
+        /// <summary>
+        /// Sets the time-to-live of a key from a timespan value, also updates the TTL for the given tags.
+        /// </summary>
+        /// <param name="key">The key to expire</param>
+        /// <param name="ttl">The TTL timespan</param>
+        /// <param name="tags">The tags to apply the TTL</param>
+        public async Task KeyTimeToLiveAsync(string key, string[] tags, TimeSpan ttl, CommandFlags flags = CommandFlags.None)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                await KeyTimeToLiveAsync(key, ttl, flags);
+                return;
+            }
+            var tasks = new List<Task>();
+            var batch = RedisConnection.GetDatabase().CreateBatch();
+            tasks.Add(batch.KeyExpireAsync(key, ttl, flags));
+            foreach (var tagName in tags)
+            {
+                var tag = FormatTag(tagName);
+                tasks.Add(await SetMaxExpirationAsync(batch, tag, ttl, flags).ForAwait());
+            }
+            batch.Execute();
+            await Task.WhenAll(tasks).ForAwait();
+        }
+
         /// <summary>
         /// Gets the time-to-live of a key.
         /// Returns NULL when key does not exist or does not have a timeout.

@@ -14,6 +14,10 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net461|AnyCPU'">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\CachingFramework.Redis.NewtonsoftJson\CachingFramework.Redis.NewtonsoftJson.csproj" />
     <ProjectReference Include="..\..\src\CachingFramework.Redis\CachingFramework.Redis.csproj" />

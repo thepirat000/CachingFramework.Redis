@@ -13,6 +13,31 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis_Async
     {
+        [Test, TestCaseSource(typeof(Common), "Json")]
+        public async Task UT_KeyTaggedTTL_Async(RedisContext ctx)
+        {
+            var key = "UT_KeyTaggedTTL_Async";
+            var tag = "UT_KeyTaggedTTL_Async-Tag1";
+            await ctx.Cache.RemoveAsync(key);
+            await ctx.Cache.InvalidateKeysByTagAsync(tag);
+            await ctx.Cache.SetObjectAsync(key, "the value", new[] { tag }, TimeSpan.FromSeconds(1));
+            await ctx.Cache.KeyTimeToLiveAsync(key, new[] { tag }, TimeSpan.FromHours(24));
+            await Task.Delay(1200);
+            var keys = await ctx.Cache.GetKeysByTagAsync(new[] { tag }, true);
+            var value = await ctx.Cache.GetObjectAsync<string>(key);
+            var ttlKey = await ctx.Cache.KeyTimeToLiveAsync(key);
+            var tagKey = ctx.Cache.GetAllTags().FirstOrDefault(k => k.Contains(tag));
+            Assert.IsNotNull(tagKey);
+            var ttlTag = await ctx.Cache.KeyTimeToLiveAsync(":$_tag_$:" + tagKey);
+
+            Assert.IsNotNull(ttlKey);
+            Assert.IsTrue(ttlKey.Value.TotalHours > 23 && ttlKey.Value.TotalHours < 25);
+            Assert.IsTrue(ttlTag.Value.TotalHours > 23 && ttlTag.Value.TotalHours < 25);
+
+            Assert.IsTrue(keys.Contains(key));
+            Assert.AreEqual("the value", value);
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_MultipleAddHashedWithTags_Async(RedisContext ctx)
         {

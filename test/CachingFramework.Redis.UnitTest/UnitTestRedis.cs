@@ -13,6 +13,33 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis
     {
+        [Test, TestCaseSource(typeof(Common), "Json")]
+        public void UT_KeyTaggedTTL(RedisContext ctx)
+        {
+            var key = "UT_KeyTaggedTTL";
+            var tag = "UT_KeyTaggedTTL-Tag1";
+            ctx.Cache.Remove(key);
+            ctx.Cache.InvalidateKeysByTag(tag);
+            ctx.Cache.SetObject(key, "the value", new[] { tag }, TimeSpan.FromSeconds(1));
+            ctx.Cache.KeyTimeToLive(key, new[] { tag }, TimeSpan.FromHours(24));
+
+            Thread.Sleep(1200);
+
+            var keys = ctx.Cache.GetKeysByTag(new[] { tag }, true);
+            var value = ctx.Cache.GetObject<string>(key);
+            var ttlKey = ctx.Cache.KeyTimeToLive(key);
+            var tagKey = ctx.Cache.GetAllTags().FirstOrDefault(k => k.Contains(tag));
+            Assert.IsNotNull(tagKey);
+            var ttlTag = ctx.Cache.KeyTimeToLive(":$_tag_$:" + tagKey); 
+
+            Assert.IsNotNull(ttlKey);
+            Assert.IsTrue(ttlKey.Value.TotalHours > 23 && ttlKey.Value.TotalHours < 25);
+            Assert.IsTrue(ttlTag.Value.TotalHours > 23 && ttlTag.Value.TotalHours < 25);
+            
+            Assert.IsTrue(keys.Contains(key));
+            Assert.AreEqual("the value", value);
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_MultipleAddHashedWithTags(RedisContext ctx)
         {
