@@ -80,8 +80,10 @@ Different serialization mechanisms are provided:
 | **Serializer** | **Data** | **Configuration** |
 | ----------- | ----------------------- | -------------------------- |
 |[**`BinarySerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/BinarySerializer.cs) | All types are serialized using the .NET `BinaryFormatter` and GZIP compressed. | Default for .Net Framework | 
-|[**`JsonSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/JsonSerializer.cs) | Data is stored as Json. Serialization can be configured with `JsonSerializerSettings`. | Default for .Net Core | 
+|[**`JsonSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/JsonSerializer.cs) | Data is stored as Json using `System.Text.Json`. Serialization can be configured with `JsonSerializerOptions`. | Default for .Net Core | 
 |[**`RawSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis/Serializers/RawSerializer.cs) | The [simple types](https://msdn.microsoft.com/en-us/library/ya5y69ds.aspx) are serialized as UTF-8 strings. Any other type is serialized using the default serializer. | Serialization can be set-up per type using `SetSerializerFor()` |
+|[**`NewtonsoftJsonSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis.NewtonsoftJson/NewtonsoftJsonSerializer.cs) | Data is stored as Json using `Newtonsoft.Json`. Serialization can be configured with `JsonSerializerSettings`. | NuGet Package [`CachingFramework.Redis.NewtonsoftJson`](https://www.nuget.org/packages/CachingFramework.Redis.NewtonsoftJson/) | 
+|[**`MsgPackSerializer`**](https://github.com/thepirat000/CachingFramework.Redis/blob/master/src/CachingFramework.Redis.MsgPack/MsgPackSerializer.cs) | Data is stored as [MessagePack](https://msgpack.org/) via `MsgPack.Cli`. | NuGet Package [`CachingFramework.Redis.MsgPack`](https://www.nuget.org/packages/CachingFramework.Redis.MsgPack/) | 
 
 The `RedisContext` class has constructor overloads to supply the serialization mechanism, for example:
 
@@ -100,11 +102,8 @@ Of course you must do this before any context creation, for example on your appl
 RedisContext.DefaultSerializer = new JsonSerializer();
 ```
 
-> NOTE: The **.NET Framework** version of the library will default the `RedisContext.DefaultSerializer` property to
-> BinarySerializer. And the **.NET Core** cer
-> 
->If you don't explicitly set the `DefaultSerializer`, 
-> the default serialization method differs between the .NET Framework version (BinarySerializer) and the .NET Core version (JsonSerializer). 
+> NOTE: If you don't explicitly set the serializer, it will default depending on the framework: .NET Framework version will default to `BinarySerializer` and .NET Core to `JsonSerializer`. 
+
 If you plan to consume data from different framework versions, make sure all of them are using the same serialization method.
 
 #### Custom serialization
@@ -113,13 +112,13 @@ To provide a custom serialization mechanism, implement the `ISerializer` interfa
 ```c#
 public class MySerializer : ISerializer
 {
-    public byte[] Serialize<T>(T value)
+    public RedisValue Serialize<T>(T value)
     {
-        return Encoding.UTF8.GetBytes(value.ToString());
+        return value.ToString();
     }
-    public T Deserialize<T>(byte[] value)
+    public T Deserialize<T>(RedisValue value)
     {
-        return (T)Convert.ChangeType(Encoding.UTF8.GetString(value), typeof(T));
+        return (T)Convert.ChangeType(value.ToString(), typeof(T));
     }
 }
 ```

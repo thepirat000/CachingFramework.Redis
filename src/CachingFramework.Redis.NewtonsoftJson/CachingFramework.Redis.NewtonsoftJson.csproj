@@ -1,19 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>MessagePack serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.</Description>
+    <Description>Newtonsoft Json serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.</Description>
     <Copyright>Copyright 2016</Copyright>
-    <AssemblyTitle>CachingFramework.Redis.MsgPack</AssemblyTitle>
+    <AssemblyTitle>CachingFramework.Redis.NewtonsoftJson</AssemblyTitle>
     <VersionPrefix>12.0.5</VersionPrefix>
     <Authors>Federico Colombo</Authors>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>CachingFramework.Redis.MsgPack</AssemblyName>
+    <AssemblyName>CachingFramework.Redis.NewtonsoftJson</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <AssemblyOriginatorKeyFile>../CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
-    <PackageId>CachingFramework.Redis.MsgPack</PackageId>
-    <PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis;MsgPack;MessagePack</PackageTags>
+    <PackageId>CachingFramework.Redis.NewtonsoftJson</PackageId>
+    <PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis;NewtonsoftJson;MessagePack</PackageTags>
     <PackageIconUrl>http://i.imgur.com/FrC8SWO.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/thepirat000/CachingFramework.Redis</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -32,7 +32,7 @@
   <ItemGroup>
     <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
-    <PackageReference Include="MsgPack.Cli" Version="0.8.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">

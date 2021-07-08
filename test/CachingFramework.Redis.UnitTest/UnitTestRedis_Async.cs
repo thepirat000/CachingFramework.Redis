@@ -13,6 +13,61 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis_Async
     {
+        [Test, TestCaseSource(typeof(Common), "Json")]
+        public async Task UT_KeyTaggedTTL_Async(RedisContext ctx)
+        {
+            var key = "UT_KeyTaggedTTL_Async";
+            var tag = "UT_KeyTaggedTTL_Async-Tag1";
+            await ctx.Cache.RemoveAsync(key);
+            await ctx.Cache.InvalidateKeysByTagAsync(tag);
+            await ctx.Cache.SetObjectAsync(key, "the value", new[] { tag }, TimeSpan.FromSeconds(1));
+            await ctx.Cache.KeyTimeToLiveAsync(key, new[] { tag }, TimeSpan.FromHours(24));
+            await Task.Delay(1200);
+            var keys = await ctx.Cache.GetKeysByTagAsync(new[] { tag }, true);
+            var value = await ctx.Cache.GetObjectAsync<string>(key);
+            var ttlKey = await ctx.Cache.KeyTimeToLiveAsync(key);
+            var tagKey = ctx.Cache.GetAllTags().FirstOrDefault(k => k.Contains(tag));
+            Assert.IsNotNull(tagKey);
+            var ttlTag = await ctx.Cache.KeyTimeToLiveAsync(":$_tag_$:" + tagKey);
+
+            Assert.IsNotNull(ttlKey);
+            Assert.IsTrue(ttlKey.Value.TotalHours > 23 && ttlKey.Value.TotalHours < 25);
+            Assert.IsTrue(ttlTag.Value.TotalHours > 23 && ttlTag.Value.TotalHours < 25);
+
+            Assert.IsTrue(keys.Contains(key));
+            Assert.AreEqual("the value", value);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_MultipleAddHashedWithTags_Async(RedisContext ctx)
+        {
+            var key = "UT_MultipleAddHashedWithTags_Async";
+            var tags = new[] { "UT_MultipleAddHashedWithTags_Async_TAG_1", "UT_MultipleAddHashedWithTags_Async_TAG_2" };
+            await ctx.Cache.RemoveAsync(key);
+            await ctx.Cache.InvalidateKeysByTagAsync(tags);
+
+            var dict = new Dictionary<string, string>()
+            {
+                {"1one", "VALUE 1" },
+                {"2two", "VALUE 2" }
+            };
+
+            await ctx.Cache.SetHashedAsync<string, string>(key, "3three", "VALUE 3", tags);
+            await ctx.Cache.SetHashedAsync(key, dict, tags: tags);
+
+            var ser = ctx.GetSerializer();
+            var members0 = ctx.Cache.GetMembersByTag(tags[0]).OrderBy(x => ser.Deserialize<string>(x.MemberValue)).ToList();
+            var members1 = ctx.Cache.GetMembersByTag(tags[1]).OrderBy(x => ser.Deserialize<string>(x.MemberValue)).ToList();
+
+            Assert.AreEqual(members0.Count, members1.Count);
+            Assert.AreEqual(3, members1.Count);
+            Assert.AreEqual(key, members0[0].Key);
+            Assert.AreEqual(TagMemberType.HashField, members0[1].MemberType);
+            Assert.AreEqual("1one", ser.Deserialize<string>(members0[0].MemberValue));
+            Assert.AreEqual("2two", ser.Deserialize<string>(members0[1].MemberValue));
+            Assert.AreEqual("3three", ser.Deserialize<string>(members0[2].MemberValue));
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_HashedWithFieldTypes_Async(RedisContext ctx)
         {
@@ -698,6 +753,31 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync(tag);
         }
 
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheTryGetObject_Async(RedisContext context)
+        {
+            // Test the TryGetObject method
+            string key = "UT_CacheTryGetObject_Async";
+            context.Cache.Remove(key);
+            var expectedUser = new User()
+            {
+                Id = 1,
+                Deparments = new List<Department>()
+                {
+                    new Department() {Id = 1, Distance = 123.45m, Size = 2, Location = new Location { Id = 1, Name = "one" } },
+                    new Department() {Id = 2, Distance = 400, Size = 1, Location = new Location { Id = 2, Name = "two" } }
+                }
+            };
+            User cachedUser;
+            bool b;
+            await context.Cache.SetObjectAsync(key, expectedUser);
+            (b, cachedUser) = await context.Cache.TryGetObjectAsync<User>(key + "x7rz9a");
+            Assert.IsFalse(b);
+            Assert.IsNull(cachedUser);
+            (b, cachedUser) = await context.Cache.TryGetObjectAsync<User>(key);
+            Assert.IsTrue(b);
+            Assert.IsNotNull(cachedUser);
+        }
 
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSetWithTags_Expiration_Async(RedisContext context)

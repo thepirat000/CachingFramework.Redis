@@ -23,6 +23,11 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="collection">The collection.</param>
         Task AddRangeAsync(IEnumerable<KeyValuePair<TK, TV>> collection);
         /// <summary>
+        /// Adds multiple elements to the dictionary related to the given tag(s).
+        /// </summary>
+        /// <param name="collection">The collection.</param>
+        Task AddRangeAsync(IEnumerable<KeyValuePair<TK, TV>> collection, string[] tags);
+        /// <summary>
         /// Returns the number of elements in the hash.
         /// </summary>
         Task<long> GetCountAsync();
@@ -86,5 +91,11 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="keys">The keys whose values to get.</param>
         /// <returns>An array of values returned in the same order as requested. If a field was not found, it will return its default value</returns>
         Task<TV[]> GetRangeAsync(params TK[] keys);
+        /// <summary>
+        /// Gets the value associated with the specified key.
+        /// </summary>
+        /// <param name="key">The key whose value to get.</param>
+        /// <returns>Tuple of bool and a value, where the boolean indicates if the object contains the element, and if with the specified key; otherwise, false.</returns>
+        Task<TryGetValueResult<TK, TV>> TryGetValueAsync(TK key);
     }
 }

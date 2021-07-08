@@ -11,6 +11,7 @@ using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
 using System.Threading.Tasks;
 using CachingFramework.Redis.Contracts.RedisObjects;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -660,6 +661,31 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryTryGetAsync(RedisContext context)
+        {
+            // Arrange
+            string key = "UT_CacheDictionaryTryGetAsync";
+            await context.Cache.RemoveAsync(key);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key);
+
+            // Act
+            var usersKv = users.Select(x => new KeyValuePair<int, User>(x.Id, x));
+            await rd.AddRangeAsync(usersKv);
+            var tryGet1 = await rd.TryGetValueAsync(users[0].Id);
+            var tryGet2 = await rd.TryGetValueAsync(-567);
+
+            // Assert 
+            Assert.AreEqual(users.Count, rd.Count);
+            Assert.IsTrue(tryGet1.Found);
+            Assert.AreEqual(users[0].Id, tryGet1.Key);
+            Assert.AreEqual(users[0].Id, tryGet1.Value.Id);
+            Assert.IsFalse(tryGet2.Found);
+            Assert.AreEqual(-567, tryGet2.Key);
+            Assert.IsNull(tryGet2.Value);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheDictionaryObject_TTL(RedisContext context)
         {
             string key1 = "UT_CacheDictionaryObjectTTL1";
@@ -837,6 +863,50 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(1, keys.Count);
             var val = Encoding.UTF8.GetString(context.GetSerializer().Serialize(1));
             Assert.AreEqual("UT_CacheDictionaryObject_AddAsyncWithTags:$_->_$:" + val, keys[0]);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_CacheDictionaryObject_AddRangeWithTags(RedisContext context)
+        {
+            var key = "UT_CacheDictionaryObject_AddRangeWithTags";
+            var tags = new[] { "UT_CacheDictionaryObject_AddRangeWithTags_TAG1" };
+            context.Cache.Remove(key);
+            context.Cache.InvalidateKeysByTag(tags);
+
+            var redisDict = context.Collections.GetRedisDictionary<int, User>(key);
+            var users = GetUsers();
+            redisDict.AddRange(users.ToDictionary(k => k.Id), tags);
+
+            var ser = context.GetSerializer();
+            var members = context.Cache.GetMembersByTag(tags[0]).OrderBy(x => ser.Deserialize<int>(x.MemberValue)).ToList();
+
+            Assert.AreEqual(users.Count, members.Count);
+            Assert.AreEqual(key, members[0].Key);
+            Assert.AreEqual(TagMemberType.HashField, members[0].MemberType);
+            Assert.AreEqual(1, ser.Deserialize<int>(members[0].MemberValue));
+            Assert.AreEqual(2, ser.Deserialize<int>(members[1].MemberValue));
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryObject_AddRangeWithTags_Async(RedisContext context)
+        {
+            var key = "UT_CacheDictionaryObject_AddRangeWithTags_Async";
+            var tags = new[] { "UT_CacheDictionaryObject_AddRangeWithTags_Async_TAG1" };
+            await context.Cache.RemoveAsync(key);
+            await context.Cache.InvalidateKeysByTagAsync(tags);
+
+            var redisDict = context.Collections.GetRedisDictionary<int, User>(key);
+            var users = GetUsers();
+            await redisDict.AddRangeAsync(users.ToDictionary(k => k.Id), tags);
+
+            var ser = context.GetSerializer();
+            var members = context.Cache.GetMembersByTag(tags[0]).OrderBy(x => ser.Deserialize<int>(x.MemberValue)).ToList();
+
+            Assert.AreEqual(users.Count, members.Count);
+            Assert.AreEqual(key, members[0].Key);
+            Assert.AreEqual(TagMemberType.HashField, members[0].MemberType);
+            Assert.AreEqual(1, ser.Deserialize<int>(members[0].MemberValue));
+            Assert.AreEqual(2, ser.Deserialize<int>(members[1].MemberValue));
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
@@ -1086,8 +1156,114 @@ namespace CachingFramework.Redis.UnitTest
 
             ss.Clear();
             Assert.AreEqual(0, ss.Count);
+        }
 
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheSortedSet_GetRangeAsync(RedisContext context)
+        {
+            var key = "UT_CacheSortedSet_GetRangeAsync";
+            await context.Cache.RemoveAsync(key);
+            var ss = context.Collections.GetRedisSortedSet<User>(key);
+            var users = GetUsers();
 
+            await ss.AddAsync(double.NegativeInfinity, users[3]);
+            await ss.AddAsync(double.PositiveInfinity, users[2]);
+            await ss.AddAsync(12.34, users[0]);
+            await ss.AddAsync(23.45, users[1]);
+
+            var count = await ss.CountAsync();
+            var byRank = (await ss.GetRangeByRankAsync()).ToList();
+            Assert.AreEqual(4, count);
+            Assert.AreEqual(count, byRank.Count);
+            Assert.AreEqual(12.34, byRank[1].Score);
+            Assert.AreEqual(double.NegativeInfinity, byRank[0].Score);
+
+            var byScore = (await ss.GetRangeByScoreAsync(12.34, 23.449)).ToList();
+            Assert.AreEqual(1, byScore.Count);
+            Assert.AreEqual(users[0].Id, byScore[0].Value.Id);
+
+            byScore = (await ss.GetRangeByScoreAsync(12.34, 23.45)).ToList();
+            Assert.AreEqual(2, byScore.Count);
+            Assert.AreEqual(users[1].Id, byScore[1].Value.Id);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheSortedSet_GetRangeByRankNegativeAsync(RedisContext context)
+        {
+            var key = "UT_CacheSortedSet_GetRangeByRankNegativeAsync";
+            await context.Cache.RemoveAsync(key);
+            var ss = context.Collections.GetRedisSortedSet<string>(key);
+            await ss.AddRangeAsync(new[] { new SortedMember<string>(33, "c"), new SortedMember<string>(0, "a"), new SortedMember<string>(22, "b") });
+
+            var byRank = (await ss.GetRangeByRankAsync(-2, -1)).ToList();
+            var byRankRev = (await ss.GetRangeByRankAsync(-2, -1, true)).ToList();
+
+            Assert.AreEqual(2, byRank.Count);
+            Assert.AreEqual("b", byRank[0].Value);
+            Assert.AreEqual("c", byRank[1].Value);
+            Assert.AreEqual("a", byRankRev[1].Value);
+            Assert.AreEqual("b", byRankRev[0].Value);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheSortedSet_etcAsync(RedisContext context)
+        {
+            var key = "UT_CacheSortedSet_etcAsync";
+            var ss = context.Collections.GetRedisSortedSet<string>(key);
+            await context.Cache.RemoveAsync(key);
+            for (int i = 0; i < 255; i++)
+            {
+                await ss.AddAsync(i, "member " + i);
+            }
+            Assert.AreEqual(10, await ss.CountByScoreAsync(1, 10));
+            var incremented = await ss.IncrementScoreAsync("member 10", 1000);
+            Assert.AreEqual(1010, incremented);
+            Assert.AreEqual(255, ss.Count);
+
+            int x = 0;
+            foreach (var item in ss)
+            {
+                x++;
+            }
+            Assert.AreEqual(255, x);
+
+            var r0 = await ss.RankOfAsync("member 0");
+            var r9 = await ss.RankOfAsync("member 9");
+            var r10 = await ss.RankOfAsync("member 10");
+            var r11 = await ss.RankOfAsync("member 11");
+            var r254 = await ss.RankOfAsync("member 254");
+            var r255 = await ss.RankOfAsync("member 255");
+            var r0Rev = await ss.RankOfAsync("member 0", true);
+
+            Assert.AreEqual(0, r0);
+            Assert.AreEqual(9, r9);
+            Assert.AreEqual(10, r11);
+            Assert.AreEqual(254, r10);
+            Assert.AreEqual(253, r254);
+            Assert.AreEqual(254, r0Rev);
+            Assert.IsNull(r255);
+
+            var s0 = await ss.ScoreOfAsync("member 0");
+            var s254 = await ss.ScoreOfAsync("member 254");
+            var s255 = await ss.ScoreOfAsync("member 255");
+            Assert.AreEqual(0, s0);
+            Assert.AreEqual(254, s254);
+            Assert.IsNull(s255);
+
+            await ss.RemoveRangeByRankAsync(0, 2);
+            Assert.AreEqual(252, await ss.CountAsync());
+
+            await ss.RemoveRangeByScoreAsync(double.NegativeInfinity, 9);
+            Assert.AreEqual(245, await ss.CountAsync());
+
+            Assert.IsTrue(await ss.ContainsAsync("member 100"));
+            Assert.IsFalse(await ss.ContainsAsync("member 0"));
+
+            await ss.RemoveAsync("member 100");
+            Assert.IsFalse(await ss.ContainsAsync("member 100"));
+
+            await ((RedisBaseObject)ss).ClearAsync();
+            Assert.AreEqual(0, await ss.CountAsync());
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]

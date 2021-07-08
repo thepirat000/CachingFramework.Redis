@@ -13,7 +13,7 @@ namespace CachingFramework.Redis.Contracts.RedisObjects
         /// <param name="collection">The collection of string to add.</param>
         void AddRange(IEnumerable<string> collection);
         /// <summary>
-        /// Returns a list with the strings that starts with the specified <param name="partial"></param> string.
+        /// Returns a list with the strings that starts with the specified partial string.
         /// </summary>
         /// <param name="partial">The partial string to match.</param>
         /// <param name="take">The take number for result pagination.</param>

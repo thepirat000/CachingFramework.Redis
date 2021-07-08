@@ -1,40 +1,33 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System;
+using System.IO;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 
-namespace CachingFramework.Redis.Serializers
+namespace CachingFramework.Redis.NewtonsoftJson
 {
     /// <summary>
     /// Class JsonSerializer.
     /// </summary>
-    public class JsonSerializer : Contracts.ISerializer
+    public class NewtonsoftJsonSerializer : Contracts.ISerializer
     {
         /// <summary>
         /// The _settings
         /// </summary>
-        private readonly JsonSerializerOptions _settings;
+        private readonly JsonSerializerSettings _settings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonSerializer"/> class.
         /// </summary>
-        public JsonSerializer()
+        public NewtonsoftJsonSerializer()
+            : this(new JsonSerializerSettings())
         {
-            _settings = new JsonSerializerOptions()
-            {
-                PropertyNameCaseInsensitive = true
-            };
-            _settings.Converters.Add(new HandleSpecialDoublesAsStrings());
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonSerializer"/> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
-        public JsonSerializer(JsonSerializerOptions settings)
+        public NewtonsoftJsonSerializer(JsonSerializerSettings settings)
         {
             _settings = settings;
         }
@@ -47,7 +40,7 @@ namespace CachingFramework.Redis.Serializers
         /// <returns>System.Byte[].</returns>
         public RedisValue Serialize<T>(T value)
         {
-            return System.Text.Json.JsonSerializer.Serialize(value, _settings);
+            return JsonConvert.SerializeObject(value, _settings);
         }
 
         /// <summary>
@@ -58,7 +51,7 @@ namespace CachingFramework.Redis.Serializers
         /// <returns>T.</returns>
         public T Deserialize<T>(RedisValue value)
         {
-            return System.Text.Json.JsonSerializer.Deserialize<T>(value, _settings);
+            return JsonConvert.DeserializeObject<T>(value, _settings);
         }
     }
 }

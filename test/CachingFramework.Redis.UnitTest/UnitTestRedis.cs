@@ -13,6 +13,63 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis
     {
+        [Test, TestCaseSource(typeof(Common), "Json")]
+        public void UT_KeyTaggedTTL(RedisContext ctx)
+        {
+            var key = "UT_KeyTaggedTTL";
+            var tag = "UT_KeyTaggedTTL-Tag1";
+            ctx.Cache.Remove(key);
+            ctx.Cache.InvalidateKeysByTag(tag);
+            ctx.Cache.SetObject(key, "the value", new[] { tag }, TimeSpan.FromSeconds(1));
+            ctx.Cache.KeyTimeToLive(key, new[] { tag }, TimeSpan.FromHours(24));
+
+            Thread.Sleep(1200);
+
+            var keys = ctx.Cache.GetKeysByTag(new[] { tag }, true);
+            var value = ctx.Cache.GetObject<string>(key);
+            var ttlKey = ctx.Cache.KeyTimeToLive(key);
+            var tagKey = ctx.Cache.GetAllTags().FirstOrDefault(k => k.Contains(tag));
+            Assert.IsNotNull(tagKey);
+            var ttlTag = ctx.Cache.KeyTimeToLive(":$_tag_$:" + tagKey); 
+
+            Assert.IsNotNull(ttlKey);
+            Assert.IsTrue(ttlKey.Value.TotalHours > 23 && ttlKey.Value.TotalHours < 25);
+            Assert.IsTrue(ttlTag.Value.TotalHours > 23 && ttlTag.Value.TotalHours < 25);
+            
+            Assert.IsTrue(keys.Contains(key));
+            Assert.AreEqual("the value", value);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public void UT_MultipleAddHashedWithTags(RedisContext ctx)
+        {
+            var key = "UT_MultipleAddHashedWithTags";
+            var tags = new[] { "UT_MultipleAddHashedWithTags_TAG_1", "UT_MultipleAddHashedWithTags_TAG_2" };
+            ctx.Cache.Remove(key);
+            ctx.Cache.InvalidateKeysByTag(tags);
+
+            var dict = new Dictionary<string, string>()
+            {
+                {"1one", "VALUE 1" },
+                {"2two", "VALUE 2" }
+            };
+
+            ctx.Cache.SetHashed<string, string>(key, "3three", "VALUE 3", tags);
+            ctx.Cache.SetHashed(key, dict, tags: tags);
+
+            var ser = ctx.GetSerializer();
+            var members0 = ctx.Cache.GetMembersByTag(tags[0]).OrderBy(x => ser.Deserialize<string>(x.MemberValue)).ToList();
+            var members1 = ctx.Cache.GetMembersByTag(tags[1]).OrderBy(x => ser.Deserialize<string>(x.MemberValue)).ToList();
+
+            Assert.AreEqual(members0.Count, members1.Count);
+            Assert.AreEqual(3, members1.Count);
+            Assert.AreEqual(key, members0[0].Key);
+            Assert.AreEqual(TagMemberType.HashField, members0[1].MemberType);
+            Assert.AreEqual("1one", ser.Deserialize<string>(members0[0].MemberValue));
+            Assert.AreEqual("2two", ser.Deserialize<string>(members0[1].MemberValue));
+            Assert.AreEqual("3three", ser.Deserialize<string>(members0[2].MemberValue));
+        }
+
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_HashedWithFieldTypes(RedisContext ctx)
         {
