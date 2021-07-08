@@ -39,6 +39,12 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheGeo_WithTags(RedisContext context)
         {
+            if (Common.VersionInfo[0] < 3 || Common.VersionInfo[1] < 2)
+            {
+                Assert.Ignore($"Geospatial tests ignored for version {string.Join(".", Common.VersionInfo)}\n");
+                return;
+            }
+
             string key = "UT_CacheGeo_WithTags";
             context.Cache.Remove(key);
             context.Cache.InvalidateKeysByTag("tag1", "tag2", "common");

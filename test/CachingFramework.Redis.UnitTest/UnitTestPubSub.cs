@@ -13,7 +13,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_PubSub_SingleSubscribe(RedisContext context)
         {
-            var ch = TestContext.CurrentContext.Test.MethodName;
+            var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
             var users = GetUsers();
             var usersList = new List<User>();
             var locker = new object();
@@ -37,7 +37,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_PubSub_SingleUnsubscribe(RedisContext context)
         {
-            var ch = TestContext.CurrentContext.Test.MethodName;
+            var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
             var users = GetUsers();
             var usersList = new List<User>();
             context.PubSub.Subscribe<User>(ch, (c, o) => usersList.Add(o));
@@ -56,7 +56,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_PubSub_SubscribeMultipleTypes(RedisContext context)
         {
-            var ch = TestContext.CurrentContext.Test.MethodName;
+            var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
             var users = GetUsers();
             int objCount = 0;
             int iDtoCount = 0;
@@ -79,7 +79,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_PubSub_SubscribeWilcards(RedisContext context)
         {
-            var ch = TestContext.CurrentContext.Test.MethodName;
+            var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
             var users = GetUsers();
             var channels = new List<string>();
             var objects = new List<User>();
@@ -114,7 +114,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_PubSub_SingleSubscribeAsync(RedisContext context)
         {
-            var ch = TestContext.CurrentContext.Test.MethodName;
+            var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
             var users = GetUsers();
             var usersList = new List<User>();
             var locker = new object();
@@ -138,7 +138,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_PubSub_SingleUnsubscribeAsync(RedisContext context)
         {
-            var ch = TestContext.CurrentContext.Test.MethodName;
+            var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
             var users = GetUsers();
             var usersList = new List<User>();
             await context.PubSub.SubscribeAsync<User>(ch, (c, o) => usersList.Add(o));
@@ -157,7 +157,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public async Task UT_PubSub_SubscribeMultipleTypesAsync(RedisContext context)
         {
-            var ch = TestContext.CurrentContext.Test.MethodName;
+            var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
             var users = GetUsers();
             int objCount = 0;
             int iDtoCount = 0;
@@ -180,7 +180,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_PubSub_SubscribeWilcardsAsync(RedisContext context)
         {
-            var ch = TestContext.CurrentContext.Test.MethodName;
+            var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
             var users = GetUsers();
             var channels = new List<string>();
             var objects = new List<User>();

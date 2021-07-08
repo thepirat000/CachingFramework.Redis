@@ -22,6 +22,7 @@ namespace CachingFramework.Redis.UnitTest
         // TestCases
         public static RedisContext[] JsonAndRaw { get { return new[] { _jsonContext, _rawContext, _newtonsoftJsonContext }; } }
         public static RedisContext[] Json { get { return new[] { _jsonContext, _newtonsoftJsonContext }; } }
+        public static RedisContext[] NewtonsoftJson { get { return new[] { _newtonsoftJsonContext }; } }
         public static RedisContext[] MsgPack { get { return new[] { _msgPackContext }; } }
         public static RedisContext[] Raw { get { return new[] { _rawContext }; } }
         public static RedisContext[] Bin { get { return new[] { _binaryContext }; } }
