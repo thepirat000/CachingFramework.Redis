@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace CachingFramework.Redis.UnitTest
@@ -12,7 +13,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_PubSub_SingleSubscribe(RedisContext context)
         {
-            var ch = "UT_PubSub_SingleSubscribe";
+            var ch = TestContext.CurrentContext.Test.MethodName;
             var users = GetUsers();
             var usersList = new List<User>();
             var locker = new object();
@@ -36,7 +37,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_PubSub_SingleUnsubscribe(RedisContext context)
         {
-            var ch = "UT_PubSub_SingleUnsubscribe";
+            var ch = TestContext.CurrentContext.Test.MethodName;
             var users = GetUsers();
             var usersList = new List<User>();
             context.PubSub.Subscribe<User>(ch, (c, o) => usersList.Add(o));
@@ -55,7 +56,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_PubSub_SubscribeMultipleTypes(RedisContext context)
         {
-            var ch = "UT_PubSub_SingleUnsubscribe";
+            var ch = TestContext.CurrentContext.Test.MethodName;
             var users = GetUsers();
             int objCount = 0;
             int iDtoCount = 0;
@@ -78,7 +79,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_PubSub_SubscribeWilcards(RedisContext context)
         {
-            var ch = "UT_PubSub_SubscribeWilcards";
+            var ch = TestContext.CurrentContext.Test.MethodName;
             var users = GetUsers();
             var channels = new List<string>();
             var objects = new List<User>();
@@ -109,6 +110,106 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, channels.Count);
             Assert.AreEqual(1, user0count);
         }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_PubSub_SingleSubscribeAsync(RedisContext context)
+        {
+            var ch = TestContext.CurrentContext.Test.MethodName;
+            var users = GetUsers();
+            var usersList = new List<User>();
+            var locker = new object();
+            await context.PubSub.SubscribeAsync<User>(ch, (c, o) =>
+            {
+                lock (locker)
+                {
+                    usersList.Add(o);
+                }
+            });
+            foreach (var t in users)
+            {
+                await context.PubSub.PublishAsync(ch, t);
+            }
+            await Task.Delay(500);
+            Assert.AreEqual(users.Count, usersList.Count);
+            Assert.IsTrue(users.All(u => usersList.Any(ul => ul.Id == u.Id)));
+            await context.PubSub.UnsubscribeAsync(ch);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_PubSub_SingleUnsubscribeAsync(RedisContext context)
+        {
+            var ch = TestContext.CurrentContext.Test.MethodName;
+            var users = GetUsers();
+            var usersList = new List<User>();
+            await context.PubSub.SubscribeAsync<User>(ch, (c, o) => usersList.Add(o));
+            foreach (var t in users)
+            {
+                await context.PubSub.PublishAsync(ch, t);
+            }
+            await Task.Delay(500);
+            Assert.AreEqual(users.Count, usersList.Count);
+            await context.PubSub.UnsubscribeAsync(ch);
+            await context.PubSub.PublishAsync(ch, users[0]);
+            Assert.AreEqual(users.Count, usersList.Count);
+        }
+
+#if (NET461)
+        [Test, TestCaseSource(typeof(Common), "Bin")]
+        public async Task UT_PubSub_SubscribeMultipleTypesAsync(RedisContext context)
+        {
+            var ch = TestContext.CurrentContext.Test.MethodName;
+            var users = GetUsers();
+            int objCount = 0;
+            int iDtoCount = 0;
+            await context.PubSub.SubscribeAsync<object>(ch, (c, o) => objCount++);
+            await context.PubSub.SubscribeAsync<IDto>(ch, (c, o) => iDtoCount++);
+            foreach (var t in users)
+            {
+                await context.PubSub.PublishAsync(ch, t);
+            }
+            await context.PubSub.PublishAsync(ch, new Exception("a different object type"));
+            await context.PubSub.PublishAsync(ch, users[0].Deparments[0]);
+            await context.PubSub.PublishAsync(ch, "some string");
+            await Task.Delay(500);
+            Assert.AreEqual(users.Count + 3, objCount);
+            Assert.AreEqual(users.Count + 1, iDtoCount);
+            await context.PubSub.UnsubscribeAsync(ch);
+        }
+#endif
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_PubSub_SubscribeWilcardsAsync(RedisContext context)
+        {
+            var ch = TestContext.CurrentContext.Test.MethodName;
+            var users = GetUsers();
+            var channels = new List<string>();
+            var objects = new List<User>();
+            await context.PubSub.SubscribeAsync<User>(ch + ".*", (c, o) =>
+            {
+                channels.Add(c);
+                objects.Add(o);
+            });
+            int user0count = 0;
+            await context.PubSub.SubscribeAsync<User>(ch + ".user0", (c, o) =>
+            {
+                user0count++;
+            });
+            await context.PubSub.PublishAsync(ch + ".user0", users[0]);
+            await Task.Delay(200);
+            await context.PubSub.PublishAsync(ch + ".user1", users[1]);
+            await Task.Delay(200);
+            Assert.AreEqual(2, channels.Count);
+            Assert.AreEqual(users[0].Id, objects[0].Id);
+            Assert.AreEqual(users[1].Id, objects[1].Id);
+            Assert.AreEqual(1, user0count);
+
+            await context.PubSub.UnsubscribeAsync(ch + ".*");
+            await Task.Delay(1500);
+            await context.PubSub.PublishAsync(ch + ".user2", users[2]);
+            Assert.AreEqual(2, channels.Count);
+            Assert.AreEqual(1, user0count);
+        }
+
 
         private List<User> GetUsers()
         {
