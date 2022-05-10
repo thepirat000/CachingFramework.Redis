@@ -939,6 +939,21 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, (exp - realLocalExp).TotalSeconds, 1);
         }
 
+        [Test, TestCaseSource(typeof(Common), "Json")]
+        public void UT_CacheList_EXP_Expired(RedisContext context)
+        {
+            string key = "UT_CacheList_EXP_Expired";
+            context.Cache.Remove(key);
+            var set = context.Collections.GetRedisSet<string>(key);
+            set.AddRange(new[] { "test1", "test2", "test3" });
+            Assert.AreEqual(3, set.Count);
+            var realLocalExp = DateTime.UtcNow.AddDays(-4);
+            set.Expiration = realLocalExp;
+            Thread.Sleep(250);
+            Assert.IsFalse(context.Cache.KeyExists(key));
+            Assert.AreEqual(0, set.Count);
+        }
+
 #if (NET461)
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_CacheList_StrObj(RedisContext context)
