@@ -1,14 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net461;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
     <AssemblyName>CachingFramework.Redis.UnitTest</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <AssemblyOriginatorKeyFile>../../src/CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
     <PackageId>CachingFramework.Redis.UnitTest</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <RuntimeIdentifiers>win7-x64</RuntimeIdentifiers>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
@@ -19,16 +18,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\CachingFramework.Redis.NewtonsoftJson\CachingFramework.Redis.NewtonsoftJson.csproj" />
-    <ProjectReference Include="..\..\src\CachingFramework.Redis\CachingFramework.Redis.csproj" />
-    <ProjectReference Include="..\..\src\CachingFramework.Redis.MsgPack\CachingFramework.Redis.MsgPack.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="Moq" Version="4.17.2" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
-    <PackageReference Include="NUnit" Version="3.7.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0" />
-    <PackageReference Include="Moq" Version="4.7.99" />
+    <ProjectReference Include="..\..\src\CachingFramework.Redis.NewtonsoftJson\CachingFramework.Redis.NewtonsoftJson.csproj" />
+    <ProjectReference Include="..\..\src\CachingFramework.Redis\CachingFramework.Redis.csproj" />
+    <ProjectReference Include="..\..\src\CachingFramework.Redis.MsgPack\CachingFramework.Redis.MsgPack.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">

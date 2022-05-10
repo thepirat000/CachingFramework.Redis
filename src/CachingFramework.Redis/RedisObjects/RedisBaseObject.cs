@@ -80,7 +80,7 @@ namespace CachingFramework.Redis.RedisObjects
         public DateTime? Expiration
         {
             get { return DateTime.Now + GetRedisDb().KeyTimeToLive(RedisKey); }
-            set { GetRedisDb().KeyExpire(RedisKey, value); }
+            set { GetRedisDb().KeyExpire(RedisKey, value?.ToUniversalTime() - DateTime.UtcNow); }
         }
         /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.

@@ -4,9 +4,8 @@
     <Description>Newtonsoft Json serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.</Description>
     <Copyright>Copyright 2016</Copyright>
     <AssemblyTitle>CachingFramework.Redis.NewtonsoftJson</AssemblyTitle>
-    <VersionPrefix>12.0.6</VersionPrefix>
     <Authors>Federico Colombo</Authors>
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0;net5.0;net6.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>CachingFramework.Redis.NewtonsoftJson</AssemblyName>
     <SignAssembly>true</SignAssembly>
@@ -30,9 +29,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
