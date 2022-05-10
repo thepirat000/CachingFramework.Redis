@@ -1,0 +1,6 @@
+<Project>
+ <PropertyGroup>
+	 <Version>13.0.0-dev1</Version>
+	 <PackageReleaseNotes>Updates nugets and adds net5.0 and net6.0 as targets</PackageReleaseNotes>
+ </PropertyGroup>
+</Project>
