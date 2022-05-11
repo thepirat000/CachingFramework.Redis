@@ -105,7 +105,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<long> GetSetAsync(long value)
         {
-            return (long) await GetRedisDb().StringGetSetAsync(RedisKey, value);
+            return (long) await GetRedisDb().StringGetSetAsync(RedisKey, value).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public double GetSet(double value)
