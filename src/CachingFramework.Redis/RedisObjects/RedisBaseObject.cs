@@ -103,7 +103,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         public async Task ClearAsync()
         {
-            await GetRedisDb().KeyDeleteAsync(RedisKey);
+            await GetRedisDb().KeyDeleteAsync(RedisKey).ConfigureAwait(false);
         }
     }
 }

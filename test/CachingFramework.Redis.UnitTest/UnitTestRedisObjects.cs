@@ -12,6 +12,7 @@ using NUnit.Framework;
 using System.Threading.Tasks;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using System.Runtime.InteropServices.ComTypes;
+using Nito.AsyncEx;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -690,6 +691,31 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(-567, tryGet2.Key);
             Assert.IsNull(tryGet2.Value);
         }
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryTryGetAsync_NoDeadlocks(RedisContext context)
+        {
+            // Arrange
+            string key = "UT_CacheDictionaryTryGetAsync";
+            await context.Cache.RemoveAsync(key);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key);
+
+            // Act
+            var usersKv = users.Select(x => new KeyValuePair<int, User>(x.Id, x));
+            await rd.AddRangeAsync(usersKv);
+
+            var t = Task.Run(() =>
+            {
+                var singleThreadedSyncCtx = new AsyncContext().SynchronizationContext;
+                SynchronizationContext.SetSynchronizationContext(singleThreadedSyncCtx);
+                _ = rd.TryGetValueAsync(users[0].Id).Result;
+            });
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            if (!t.IsCompleted)
+                throw new Exception("Code has deadlocked."); //usually means you have forgotten a ConfigureAwait(false)
+        }
+
 
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheDictionaryObject_TTL(RedisContext context)
@@ -784,6 +810,182 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(1.23 - 2.01, r3, 0.0001);
             Assert.AreEqual(1.23 - 2.01, v1, 0.0001);
             Assert.AreEqual(-2.23, v2, 0.0001);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryObjectAsync_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheDictionaryObjectAsync";
+            context.Cache.Remove(key1);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key1);
+
+            // Test AddMultiple
+            await TestDeadlock(() =>
+            {
+                var usersKv = users.Select(x => new KeyValuePair<int, User>(x.Id, x));
+                rd.AddRangeAsync(usersKv).Wait();
+            });
+
+            // Test Count
+            await TestDeadlock(() =>
+            {
+                _ = rd.GetCountAsync().Result;
+            });
+
+            // Test ContainsKey
+            await TestDeadlock(() =>
+            {
+                _ = rd.ContainsKeyAsync(users[1].Id).Result;
+            });
+
+            // Test Contains
+            await TestDeadlock(() =>
+            {
+                _ = rd.ContainsAsync(new KeyValuePair<int, User>(users.Last().Id, users.Last())).Result;
+            });
+
+            // Test Add
+            await TestDeadlock(() =>
+            {
+                _ = rd.AddAsync(0, new User() { Id = 0 });
+            });
+
+            // Test Remove
+            await TestDeadlock(() =>
+            {
+                _ = rd.RemoveAsync(0).Result;
+            });
+            // Test Clear
+            await TestDeadlock(() =>
+            {
+                rd.ClearAsync().Wait();
+            });
+        }
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryAddRangeAsync_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheDictionaryObjectAsync";
+            context.Cache.Remove(key1);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key1);
+
+            // Test AddMultiple
+            await TestDeadlock(() =>
+            {
+                var usersKv = users.Select(x => new KeyValuePair<int, User>(x.Id, x));
+                rd.AddRangeAsync(usersKv).Wait();
+            });
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryGetCountAsync_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheDictionaryObjectAsync";
+            context.Cache.Remove(key1);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key1);
+
+            
+
+            // Test Count
+            await TestDeadlock(() =>
+            {
+                _ = rd.GetCountAsync().Result;
+            });
+        }
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryContainsKeyAsync_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheDictionaryObjectAsync";
+            context.Cache.Remove(key1);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key1);
+
+
+            // Test ContainsKey
+            await TestDeadlock(() =>
+            {
+                _ = rd.ContainsKeyAsync(users[1].Id).Result;
+            });
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryContainsAsync_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheDictionaryObjectAsync";
+            context.Cache.Remove(key1);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key1);
+
+
+            // Test Contains
+            await TestDeadlock(() =>
+            {
+                _ = rd.ContainsAsync(new KeyValuePair<int, User>(users.Last().Id, users.Last())).Result;
+            });
+
+        }
+
+        
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryAddAsync_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheDictionaryObjectAsync";
+            context.Cache.Remove(key1);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key1);
+
+            // Test Add
+            await TestDeadlock(() =>
+            {
+                _ = rd.AddAsync(0, new User() { Id = 0 });
+            });
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryRemoveAsync_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheDictionaryObjectAsync";
+            context.Cache.Remove(key1);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key1);
+
+            // Test Remove
+            await TestDeadlock(() =>
+            {
+                _ = rd.RemoveAsync(0).Result;
+            });
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryClearAsync_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheDictionaryObjectAsync";
+            context.Cache.Remove(key1);
+            var users = GetUsers();
+            var rd = context.Collections.GetRedisDictionary<int, User>(key1);
+
+            // Test Clear
+            await TestDeadlock(() =>
+            {
+                rd.ClearAsync().Wait();
+            });
+        }
+
+        private static async Task TestDeadlock(Action action)
+        {
+            var t = Task.Run(() =>
+            {
+                var singleThreadedSyncCtx = new AsyncContext().SynchronizationContext;
+                SynchronizationContext.SetSynchronizationContext(singleThreadedSyncCtx);
+
+                action();
+            });
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            if (!t.IsCompleted)
+                throw new Exception("Code has deadlocked."); //usually means you have forgotten a ConfigureAwait(false)
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]

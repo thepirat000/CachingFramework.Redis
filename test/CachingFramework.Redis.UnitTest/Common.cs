@@ -40,7 +40,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         public static int[] VersionInfo { get; set; }
-        public static string Config = "localhost:6379, allowAdmin=true"; 
+        public static string Config = "localhost:6379, allowAdmin=true,password=kehXq4PKBgx8q@Hh"; 
 
         static Common()
         {
