@@ -821,43 +821,43 @@ namespace CachingFramework.Redis.UnitTest
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
 
             // Test AddMultiple
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 var usersKv = users.Select(x => new KeyValuePair<int, User>(x.Id, x));
                 rd.AddRangeAsync(usersKv).Wait();
             });
 
             // Test Count
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 _ = rd.GetCountAsync().Result;
             });
 
             // Test ContainsKey
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 _ = rd.ContainsKeyAsync(users[1].Id).Result;
             });
 
             // Test Contains
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 _ = rd.ContainsAsync(new KeyValuePair<int, User>(users.Last().Id, users.Last())).Result;
             });
 
             // Test Add
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 _ = rd.AddAsync(0, new User() { Id = 0 });
             });
 
             // Test Remove
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 _ = rd.RemoveAsync(0).Result;
             });
             // Test Clear
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 rd.ClearAsync().Wait();
             });
@@ -871,7 +871,7 @@ namespace CachingFramework.Redis.UnitTest
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
 
             // Test AddMultiple
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 var usersKv = users.Select(x => new KeyValuePair<int, User>(x.Id, x));
                 rd.AddRangeAsync(usersKv).Wait();
@@ -889,7 +889,7 @@ namespace CachingFramework.Redis.UnitTest
             
 
             // Test Count
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 _ = rd.GetCountAsync().Result;
             });
@@ -904,7 +904,7 @@ namespace CachingFramework.Redis.UnitTest
 
 
             // Test ContainsKey
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 _ = rd.ContainsKeyAsync(users[1].Id).Result;
             });
@@ -920,7 +920,7 @@ namespace CachingFramework.Redis.UnitTest
 
 
             // Test Contains
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 _ = rd.ContainsAsync(new KeyValuePair<int, User>(users.Last().Id, users.Last())).Result;
             });
@@ -938,7 +938,7 @@ namespace CachingFramework.Redis.UnitTest
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
 
             // Test Add
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 _ = rd.AddAsync(0, new User() { Id = 0 });
             });
@@ -953,7 +953,7 @@ namespace CachingFramework.Redis.UnitTest
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
 
             // Test Remove
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 _ = rd.RemoveAsync(0).Result;
             });
@@ -968,25 +968,13 @@ namespace CachingFramework.Redis.UnitTest
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
 
             // Test Clear
-            await TestDeadlock(() =>
+            await Common.TestDeadlock(() =>
             {
                 rd.ClearAsync().Wait();
             });
         }
 
-        private static async Task TestDeadlock(Action action)
-        {
-            var t = Task.Run(() =>
-            {
-                var singleThreadedSyncCtx = new AsyncContext().SynchronizationContext;
-                SynchronizationContext.SetSynchronizationContext(singleThreadedSyncCtx);
-
-                action();
-            });
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            if (!t.IsCompleted)
-                throw new Exception("Code has deadlocked."); //usually means you have forgotten a ConfigureAwait(false)
-        }
+        
 
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObjectAsync(RedisContext context)
@@ -1115,6 +1103,29 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(TagMemberType.HashField, members[0].MemberType);
             Assert.AreEqual(1, ser.Deserialize<int>(members[0].MemberValue));
             Assert.AreEqual(2, ser.Deserialize<int>(members[1].MemberValue));
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryObject_AddRangeWithTags_Async_NoDeadlocks(RedisContext context)
+        {
+            var key = "UT_CacheDictionaryObject_AddRangeWithTags_Async";
+            var tags = new[] { "UT_CacheDictionaryObject_AddRangeWithTags_Async_TAG1" };
+            await Common.TestDeadlock(() =>
+            {
+                _ = context.Cache.RemoveAsync(key).Result;
+            });
+
+            await Common.TestDeadlock(() =>
+            {
+                context.Cache.InvalidateKeysByTagAsync(tags).Wait();
+            });
+
+            var redisDict = context.Collections.GetRedisDictionary<int, User>(key);
+            var users = GetUsers();
+            await Common.TestDeadlock(() =>
+            {
+                redisDict.AddRangeAsync(users.ToDictionary(k => k.Id), tags).Wait();
+            });            
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]

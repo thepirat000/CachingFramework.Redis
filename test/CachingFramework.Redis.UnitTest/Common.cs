@@ -2,8 +2,10 @@
 using System.Configuration;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using CachingFramework.Redis.Serializers;
 using Microsoft.Extensions.Configuration;
+using Nito.AsyncEx;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -79,6 +81,19 @@ namespace CachingFramework.Redis.UnitTest
                 server.ConfigSet("notify-keyspace-events", "KEA");
             }
             
+        }
+        public static async Task TestDeadlock(Action action)
+        {
+            var t = Task.Run(() =>
+            {
+                var singleThreadedSyncCtx = new AsyncContext().SynchronizationContext;
+                SynchronizationContext.SetSynchronizationContext(singleThreadedSyncCtx);
+
+                action();
+            });
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            if (!t.IsCompleted)
+                throw new Exception("Code has deadlocked."); //usually means you have forgotten a ConfigureAwait(false)
         }
     }
 }

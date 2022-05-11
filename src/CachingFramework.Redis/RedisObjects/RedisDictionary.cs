@@ -97,7 +97,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="items">The collection.</param>
         public async Task AddRangeAsync(IEnumerable<KeyValuePair<TK, TV>> items, string[] tags)
         {
-            await _cacheProvider.SetHashedAsync(RedisKey, items, tags: tags);
+            await _cacheProvider.SetHashedAsync(RedisKey, items, tags: tags).ConfigureAwait(false);
         }
 
         /// <summary>
