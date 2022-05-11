@@ -70,10 +70,10 @@ namespace CachingFramework.Redis.RedisObjects
         {
             if (tags == null || tags.Length == 0)
             {
-                await AddAsync(key, value);
+                await AddAsync(key, value).ConfigureAwait(false);
                 return;
             }
-            await _cacheProvider.SetHashedAsync<TK, TV>(RedisKey, key, value, tags);
+            await _cacheProvider.SetHashedAsync<TK, TV>(RedisKey, key, value, tags).ConfigureAwait(false);
         }
 
         public void AddRange(IEnumerable<KeyValuePair<TK, TV>> collection, string[] tags)
@@ -115,7 +115,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="value">The value.</param>
         public async Task AddAsync(TK key, TV value)
         {
-            await GetRedisDb().HashSetAsync(RedisKey, Serialize(key), Serialize(value));
+            await GetRedisDb().HashSetAsync(RedisKey, Serialize(key), Serialize(value)).ConfigureAwait(false);
         }
 
         /// <summary>

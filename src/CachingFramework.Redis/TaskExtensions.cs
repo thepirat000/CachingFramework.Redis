@@ -13,7 +13,7 @@ namespace CachingFramework.Redis
     internal static partial class TaskExtensions
     {
         /// <summary>
-        /// Configure a task to be awaited without re-entering to the request context (for performance).
+        /// Configure a task to be awaited without re-entering to the request context (for performance). This is just a wrapper of ConfigureAwait(false)
         /// </summary>
         /// <param name="task">The task.</param>
         public static ConfiguredTaskAwaitable ForAwait(this Task task)
@@ -21,7 +21,7 @@ namespace CachingFramework.Redis
             return task.ConfigureAwait(false);
         }
         /// <summary>
-        /// Configure a task to be awaited without re-entering to the request context (for performance).
+        /// Configure a task to be awaited without re-entering to the request context (for performance). This is just a wrapper of ConfigureAwait(false)
         /// </summary>
         /// <param name="task">The task.</param>
         public static ConfiguredTaskAwaitable<T> ForAwait<T>(this Task<T> task)

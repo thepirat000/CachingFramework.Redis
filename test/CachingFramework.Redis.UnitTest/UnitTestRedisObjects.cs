@@ -522,6 +522,72 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheListObject_Async_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheListObject_Async";
+
+            await Common.TestDeadlock(() =>
+            {
+                context.Cache.RemoveAsync(key1).Wait();
+            });
+            
+            
+            
+            var users = GetUsers();
+            var rl = context.Collections.GetRedisList<int>(key1);
+
+
+            await Common.TestDeadlock(() =>
+            {
+                rl.AddRangeAsync(users.Select(u => u.Id)).Wait();
+            });
+
+            await Common.TestDeadlock(() =>
+            {
+                rl.InsertAsync(0, 0).Wait();
+            });
+
+            // Test RemoveAt
+            await Common.TestDeadlock(() =>
+            {
+                rl.RemoveAtAsync(0).Wait();
+            });
+
+            await Common.TestDeadlock(() =>
+            {
+                // Test Add
+                rl.AddAsync(5).Wait();
+            });
+
+            await Common.TestDeadlock(() =>
+            {
+                // Test IndexOf
+                _ = rl.IndexOfAsync(users[2].Id).Result;
+            });
+
+            await Common.TestDeadlock(() =>
+            {
+                // Test Remove
+                rl.RemoveAsync(users[2].Id, 1).Wait();
+            });
+
+            await Common.TestDeadlock(() =>
+            {
+                // Test Contains
+                rl.ContainsAsync(users[2].Id).Wait();
+            });
+
+            await Common.TestDeadlock(() =>
+            {
+                // Test Clear
+                rl.ClearAsync().Wait();
+            });
+
+        }
+
+
+
+        [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListPushPop_Async(RedisContext context)
         {
             string key = "UT_CacheListPushPop_Async";
@@ -543,6 +609,43 @@ namespace CachingFramework.Redis.UnitTest
             var reml = await rl.PopLastAsync();
             Assert.AreEqual(users.Count, rl.Count);
             Assert.AreEqual(666, reml.Id);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheListPushPop_Async_NoDeadlock(RedisContext context)
+        {
+            string key = "UT_CacheListPushPop_Async";
+            await Common.TestDeadlock(() =>
+            {
+                _ = context.Cache.RemoveAsync(key).Result;
+            });
+
+            var users = GetUsers();
+            var rl = context.Collections.GetRedisList<User>(key);
+
+            await Common.TestDeadlock(() =>
+            {
+                rl.AddRangeAsync(users).Wait();
+            });
+            await Common.TestDeadlock(() =>
+            {
+                rl.PushFirstAsync(new User() { Id = 0 }).Wait();
+            });
+
+            await Common.TestDeadlock(() =>
+            {
+                rl.PushLastAsync(new User() { Id = 666 }).Wait();
+            });
+
+            await Common.TestDeadlock(() =>
+            {
+                _ = rl.PopFirstAsync().Result;
+            });
+
+            await Common.TestDeadlock(() =>
+            {
+                rl.PopLastAsync().Wait();
+            });
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
@@ -940,7 +1043,7 @@ namespace CachingFramework.Redis.UnitTest
             // Test Add
             await Common.TestDeadlock(() =>
             {
-                _ = rd.AddAsync(0, new User() { Id = 0 });
+                rd.AddAsync(0, new User() { Id = 0 }).Wait();
             });
         }
 
@@ -1055,6 +1158,27 @@ namespace CachingFramework.Redis.UnitTest
             var users = GetUsers();
             var rl = context.Collections.GetRedisDictionary<int, User>(key1);
             await rl.AddAsync(1, users[0], new[] { tag1 });
+            var keys = context.Cache.GetKeysByTag(new[] { tag1 }, true).ToList();
+            Assert.AreEqual(1, keys.Count);
+            var val = Encoding.UTF8.GetString(context.GetSerializer().Serialize(1));
+            Assert.AreEqual("UT_CacheDictionaryObject_AddAsyncWithTags:$_->_$:" + val, keys[0]);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheDictionaryObject_AddAsyncWithTags_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheDictionaryObject_AddAsyncWithTags";
+            string tag1 = "UT_CacheDictionaryObject_AddAsyncWithTags_TAG1";
+            context.Cache.Remove(key1);
+            context.Cache.InvalidateKeysByTag(tag1);
+            var users = GetUsers();
+            var rl = context.Collections.GetRedisDictionary<int, User>(key1);
+
+            await Common.TestDeadlock(() =>
+            {
+                rl.AddAsync(1, users[0], new[] { tag1 }).Wait();
+            });
+
             var keys = context.Cache.GetKeysByTag(new[] { tag1 }, true).ToList();
             Assert.AreEqual(1, keys.Count);
             var val = Encoding.UTF8.GetString(context.GetSerializer().Serialize(1));
@@ -1948,6 +2072,69 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(3, user.Id);
             user = await rs.PopAsync();
             Assert.IsNull(user);
+        }
+
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_CacheSetObjectAsync_NoDeadlocks(RedisContext context)
+        {
+            string key1 = "UT_CacheSetObjectAsync";
+            await Common.TestDeadlock(() =>
+            {
+                _ = context.Cache.RemoveAsync(key1).Result;
+            });
+            
+            var users = GetUsers();
+            var rs = context.Collections.GetRedisSet<User>(key1);
+
+            await Common.TestDeadlock(() =>
+            {
+                rs.AddRangeAsync(users).Wait();
+            });
+
+
+            // Test Count
+            await Common.TestDeadlock(() =>
+            {
+                rs.GetCountAsync().Wait();
+            });
+
+            // Test Contains
+            await Common.TestDeadlock(() =>
+            {
+                rs.ContainsAsync(users[2]).Wait();
+            });
+            
+            // Test Add
+            var newUser = new User() { Id = 5 };
+            await Common.TestDeadlock(() =>
+            {
+                rs.AddAsync(newUser).Wait();
+            });
+
+            Assert.IsTrue(await (rs.ContainsAsync(newUser)));
+            await Common.TestDeadlock(() =>
+            {
+                // Test Remove
+                rs.RemoveAsync(users[2]).Wait();
+            });
+
+            // Test Clear
+            await Common.TestDeadlock(() =>
+            {
+                rs.ClearAsync().Wait();
+            });
+
+            // Test GetRandomMember
+            await Common.TestDeadlock(() =>
+            {
+                rs.GetRandomMemberAsync().Wait();
+            });
+
+            // Test Pop
+            await Common.TestDeadlock(() =>
+            {
+                _ = rs.PopAsync().Result;
+            });
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]

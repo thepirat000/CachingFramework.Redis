@@ -77,21 +77,21 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="collection">The collection.</param>
         public async Task AddRangeAsync(IEnumerable<T> collection)
         {
-            await GetRedisDb().SetAddAsync(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray());
+            await GetRedisDb().SetAddAsync(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray()).ConfigureAwait(false);
         }
         /// <summary>
         /// Returns the number of elements in the set.
         /// </summary>
         public async Task<long> GetCountAsync()
         {
-            return await GetRedisDb().SetLengthAsync(RedisKey);
+            return await GetRedisDb().SetLengthAsync(RedisKey).ConfigureAwait(false);
         }
         /// <summary>
         /// Returns and remove a random value from the set.
         /// </summary>
         public async Task<T> PopAsync()
         {
-            var item = await GetRedisDb().SetPopAsync(RedisKey);
+            var item = await GetRedisDb().SetPopAsync(RedisKey).ConfigureAwait(false);
             return Deserialize<T>(item);
         }
         /// <summary>
@@ -99,7 +99,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         public async Task<T> GetRandomMemberAsync()
         {
-            var item = await GetRedisDb().SetRandomMemberAsync(RedisKey);
+            var item = await GetRedisDb().SetRandomMemberAsync(RedisKey).ConfigureAwait(false);
             return Deserialize<T>(item);
         }
         /// <summary>
@@ -111,10 +111,10 @@ namespace CachingFramework.Redis.RedisObjects
         {
             if (tags == null || tags.Length == 0)
             {
-                await AddAsync(item);
+                await AddAsync(item).ConfigureAwait(false);
                 return;
             }
-            await _cacheProvider.AddToSetAsync<T>(RedisKey, item, tags);
+            await _cacheProvider.AddToSetAsync<T>(RedisKey, item, tags).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         public async Task<bool> AddAsync(T item)
         {
-            return await GetRedisDb().SetAddAsync(RedisKey, Serialize(item));
+            return await GetRedisDb().SetAddAsync(RedisKey, Serialize(item)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>true if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false.</returns>
         public async Task<bool> ContainsAsync(T item)
         {
-            return await GetRedisDb().SetContainsAsync(RedisKey, Serialize(item));
+            return await GetRedisDb().SetContainsAsync(RedisKey, Serialize(item)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>true if <paramref name="item" /> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false. This method also returns false if <paramref name="item" /> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
         public async Task<bool> RemoveAsync(T item)
         {
-            return await GetRedisDb().SetRemoveAsync(RedisKey, Serialize(item));
+            return await GetRedisDb().SetRemoveAsync(RedisKey, Serialize(item)).ConfigureAwait(false);
         }
         #endregion
 
