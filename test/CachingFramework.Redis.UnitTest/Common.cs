@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using System.Threading;
 using CachingFramework.Redis.Serializers;
+using Microsoft.Extensions.Configuration;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -44,7 +46,14 @@ namespace CachingFramework.Redis.UnitTest
 
         static Common()
         {
-            
+            var configuration = new ConfigurationBuilder()
+                                    .AddUserSecrets<UnitTestRedis>()
+                                    .Build();
+
+            var p = configuration["Password"];
+            if (!string.IsNullOrEmpty(p))
+                Config += $",password={p}";
+
             _rawContext = new RedisContext(Config, new RawSerializer());
             _jsonContext = new RedisContext(Config, new JsonSerializer());
             _msgPackContext = new RedisContext(Config, new MsgPack.MsgPackSerializer());
