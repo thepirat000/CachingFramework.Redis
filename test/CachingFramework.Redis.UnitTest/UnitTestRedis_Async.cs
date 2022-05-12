@@ -310,7 +310,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "BinAndRawAndJson")]
         public async Task UT_CacheSerializer_Async(RedisContext context)
         {
-            var kss = "short:string";
+            var kss = "short:string:async";
             var kch = "char";
             var kds = "decimal";
             var kls = "long:string";
