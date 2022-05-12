@@ -61,7 +61,7 @@ namespace CachingFramework.Redis.RedisObjects
 
 
         /// <summary>
-        /// Adds a single element to the dictionary related to the given tag(s).
+        /// Adds a single element to the dictionary related to the given tag(s). This will overwrite an existing item with the same key.
         /// </summary>
         /// <param name="key">The redis key.</param>
         /// <param name="value">The value.</param>
