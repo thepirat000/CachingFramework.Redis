@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using MsgPack.Serialization;
+using MessagePack;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.MsgPack
@@ -10,6 +10,15 @@ namespace CachingFramework.Redis.MsgPack
     /// </summary>
     public class MsgPackSerializer : Contracts.ISerializer
     {
+        private readonly MessagePackSerializerOptions options;
+        public MsgPackSerializer(MessagePackSerializerOptions options = null)
+        {
+            if (options == null)
+                options = MessagePackSerializerOptions.Standard
+                                .WithSecurity(MessagePackSecurity.UntrustedData);
+            this.options = options;
+
+        }
         /// <summary>
         /// Serializes the specified value.
         /// </summary>
@@ -22,12 +31,8 @@ namespace CachingFramework.Redis.MsgPack
             {
                 return RedisValue.Null;
             }
-            var serializer = SerializationContext.Default.GetSerializer(value.GetType());
-            using (var stream = new MemoryStream())
-            {
-                serializer.Pack(stream, value);
-                return stream.ToArray();
-            }
+
+            return MessagePackSerializer.Serialize(value, options);
         }
 
         /// <summary>
@@ -40,13 +45,10 @@ namespace CachingFramework.Redis.MsgPack
         {
             if (value.IsNull)
             {
-                return default(T);
+                return default;
             }
-            using (var stream = new MemoryStream(value))
-            {
-                var deserialized = SerializationContext.Default.GetSerializer(typeof(T)).Unpack(stream);
-                return (T)deserialized;
-            }
+            return MessagePackSerializer.Deserialize<T>(value, options);
+            
         }
     }
 }

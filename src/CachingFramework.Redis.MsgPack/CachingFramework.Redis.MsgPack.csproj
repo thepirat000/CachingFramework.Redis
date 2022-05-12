@@ -1,8 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>MessagePack serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.</Description>
-    <Copyright>Copyright 2016</Copyright>
+    <Description>
+		MessagePack serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.
+		This uses MessagePack for C# which requires annotations on the objects you want to save in Redis. You can read more about serialization using MessagePack in https://github.com/neuecc/MessagePack-CSharp#readme
+	</Description>
+    <Copyright>Copyright 2016-2022</Copyright>
     <AssemblyTitle>CachingFramework.Redis.MsgPack</AssemblyTitle>
     <Authors>Federico Colombo</Authors>
     <TargetFrameworks>net461;netstandard2.0;net5.0;net6.0</TargetFrameworks>
@@ -16,6 +19,7 @@
     <PackageIconUrl>http://i.imgur.com/FrC8SWO.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/thepirat000/CachingFramework.Redis</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <PackageReleaseNotes>Removes the old MsgPack.Cli package and instead uses the newer MessagePack for C# package.</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/thepirat000/CachingFramework.Redis</RepositoryUrl>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -29,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MessagePack" Version="2.3.85" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
     <PackageReference Include="MsgPack.Cli" Version="0.8.0" />

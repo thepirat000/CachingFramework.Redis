@@ -882,7 +882,7 @@ namespace CachingFramework.Redis.Providers
             {
                 return Serializer.Deserialize<T>(cacheValue);
             }
-            return default(T);
+            return default;
         }
         /// <summary>
         /// Try to get the value of a key
