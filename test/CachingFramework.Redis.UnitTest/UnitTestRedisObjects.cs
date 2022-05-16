@@ -530,9 +530,9 @@ namespace CachingFramework.Redis.UnitTest
             {
                 context.Cache.RemoveAsync(key1).Wait();
             });
-            
-            
-            
+
+
+
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<int>(key1);
 
@@ -584,8 +584,6 @@ namespace CachingFramework.Redis.UnitTest
             });
 
         }
-
-
 
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListPushPop_Async(RedisContext context)
@@ -1178,11 +1176,6 @@ namespace CachingFramework.Redis.UnitTest
             {
                 rl.AddAsync(1, users[0], new[] { tag1 }).Wait();
             });
-
-            var keys = context.Cache.GetKeysByTag(new[] { tag1 }, true).ToList();
-            Assert.AreEqual(1, keys.Count);
-            var val = Encoding.UTF8.GetString(context.GetSerializer().Serialize(1));
-            Assert.AreEqual("UT_CacheDictionaryObject_AddAsyncWithTags_NoDeadlocks:$_->_$:" + val, keys[0]);
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
@@ -2111,7 +2104,6 @@ namespace CachingFramework.Redis.UnitTest
                 rs.AddAsync(newUser).Wait();
             });
 
-            Assert.IsTrue(await (rs.ContainsAsync(newUser)));
             await Common.TestDeadlock(() =>
             {
                 // Test Remove
