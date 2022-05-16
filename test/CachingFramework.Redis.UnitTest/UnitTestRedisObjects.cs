@@ -40,7 +40,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheGeo_WithTags(RedisContext context)
         {
-            if (Common.VersionInfo[0] < 3 || Common.VersionInfo[1] < 2)
+            if (Common.VersionInfo[0] < 3)
             {
                 Assert.Ignore($"Geospatial tests ignored for version {string.Join(".", Common.VersionInfo)}\n");
                 return;
@@ -524,7 +524,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListObject_Async_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheListObject_Async";
+            string key1 = "UT_CacheListObject_Async_NoDeadlocks";
 
             await Common.TestDeadlock(() =>
             {
@@ -798,7 +798,7 @@ namespace CachingFramework.Redis.UnitTest
         public async Task UT_CacheDictionaryTryGetAsync_NoDeadlocks(RedisContext context)
         {
             // Arrange
-            string key = "UT_CacheDictionaryTryGetAsync";
+            string key = "UT_CacheDictionaryTryGetAsync_NoDeadlocks";
             await context.Cache.RemoveAsync(key);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key);
@@ -918,7 +918,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObjectAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectAsync";
+            string key1 = "UT_CacheDictionaryObjectAsync_NoDeadlocks";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -968,7 +968,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryAddRangeAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectAsync";
+            string key1 = "UT_CacheDictionaryAddRangeAsync_NoDeadlocks";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -984,7 +984,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryGetCountAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectAsync";
+            string key1 = "UT_CacheDictionaryGetCountAsync_NoDeadlocks";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1016,7 +1016,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryContainsAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectAsync";
+            string key1 = "UT_CacheDictionaryContainsAsync_NoDeadlocks";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1035,7 +1035,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryAddAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectAsync";
+            string key1 = "UT_CacheDictionaryAddAsync_NoDeadlocks";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1050,7 +1050,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryRemoveAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectAsync";
+            string key1 = "UT_CacheDictionaryRemoveAsync_NoDeadlocks";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1065,7 +1065,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryClearAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectAsync";
+            string key1 = "UT_CacheDictionaryClearAsync_NoDeadlocks";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1167,8 +1167,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObject_AddAsyncWithTags_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObject_AddAsyncWithTags";
-            string tag1 = "UT_CacheDictionaryObject_AddAsyncWithTags_TAG1";
+            string key1 = "UT_CacheDictionaryObject_AddAsyncWithTags_NoDeadlocks";
+            string tag1 = "UT_CacheDictionaryObject_AddAsyncWithTags_NoDeadlocks_TAG1";
             context.Cache.Remove(key1);
             context.Cache.InvalidateKeysByTag(tag1);
             var users = GetUsers();
@@ -1232,8 +1232,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObject_AddRangeWithTags_Async_NoDeadlocks(RedisContext context)
         {
-            var key = "UT_CacheDictionaryObject_AddRangeWithTags_Async";
-            var tags = new[] { "UT_CacheDictionaryObject_AddRangeWithTags_Async_TAG1" };
+            var key = "UT_CacheDictionaryObject_AddRangeWithTags_Async_NoDeadlocks";
+            var tags = new[] { "UT_CacheDictionaryObject_AddRangeWithTags_Async_NoDeadlocksTAG1" };
             await Common.TestDeadlock(() =>
             {
                 _ = context.Cache.RemoveAsync(key).Result;
@@ -2077,7 +2077,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSetObjectAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheSetObjectAsync";
+            string key1 = "UT_CacheSetObjectAsync_NoDeadlocks";
             await Common.TestDeadlock(() =>
             {
                 _ = context.Cache.RemoveAsync(key1).Result;

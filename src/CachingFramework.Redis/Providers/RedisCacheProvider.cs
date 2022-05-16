@@ -1272,7 +1272,7 @@ namespace CachingFramework.Redis.Providers
                 var task = func.Invoke();
                 if (task != null)
                 {
-                    value = await task.ConfigureAwait(false);
+                    value = await task.ForAwait();
                     if (value != null)
                     {
                         var tags = tagsBuilder?.Invoke(value);
@@ -1306,7 +1306,7 @@ namespace CachingFramework.Redis.Providers
                 var task = func.Invoke();
                 if (task != null)
                 {
-                    value = await task.ConfigureAwait(false);
+                    value = await task.ForAwait();
                     if (value != null)
                     {
                         var tags = tagsBuilder?.Invoke(value);
@@ -1731,7 +1731,7 @@ namespace CachingFramework.Redis.Providers
         {
             var db = RedisConnection.GetDatabase();
             var fields = fieldValues.Select(x => new HashEntry(Serializer.Serialize(x.Key), Serializer.Serialize(x.Value))).ToArray();
-            await db.HashSetAsync(key, fields, flags).ConfigureAwait(false);
+            await db.HashSetAsync(key, fields, flags).ForAwait();
         }
 
         /// <summary>
@@ -1808,7 +1808,7 @@ namespace CachingFramework.Redis.Providers
                 return Array.Empty<TV>();
             }
             var hashFields = fields.Select(f => (RedisValue)Serializer.Serialize(f)).ToArray();
-            var cacheValues = await RedisConnection.GetDatabase().HashGetAsync(key, hashFields).ConfigureAwait(false);
+            var cacheValues = await RedisConnection.GetDatabase().HashGetAsync(key, hashFields).ForAwait();
             return cacheValues.Select(v => v.HasValue ? Serializer.Deserialize<TV>(v) : default(TV)).ToArray();
         }
 
@@ -1825,7 +1825,7 @@ namespace CachingFramework.Redis.Providers
                 return Array.Empty<TV>();
             }
             var hashFields = fields.Select(x => (RedisValue)x).ToArray();
-            var cacheValues = await RedisConnection.GetDatabase().HashGetAsync(key, hashFields).ConfigureAwait(false);
+            var cacheValues = await RedisConnection.GetDatabase().HashGetAsync(key, hashFields).ForAwait();
             return cacheValues.Select(v => v.HasValue ? Serializer.Deserialize<TV>(v) : default(TV)).ToArray();
         }
 
@@ -1980,7 +1980,7 @@ namespace CachingFramework.Redis.Providers
             var db = RedisConnection.GetDatabase();
             for (int i = 0; i < tags.Length; i++)
             {
-                if (await db.SetContainsAsync(FormatTag(tags[i]), key).ConfigureAwait(false))
+                if (await db.SetContainsAsync(FormatTag(tags[i]), key).ForAwait())
                 {
                     return true;
                 }
@@ -1997,7 +1997,7 @@ namespace CachingFramework.Redis.Providers
             var db = RedisConnection.GetDatabase();
             for (int i = 0; i < tags.Length; i++)
             {
-                if (await db.SetContainsAsync(FormatTag(tags[i]), FormatSerializedMember(key, TagHashSeparator, field)).ConfigureAwait(false))
+                if (await db.SetContainsAsync(FormatTag(tags[i]), FormatSerializedMember(key, TagHashSeparator, field)).ForAwait())
                 {
                     return true;
                 }
@@ -2014,7 +2014,7 @@ namespace CachingFramework.Redis.Providers
             var db = RedisConnection.GetDatabase();
             for (int i = 0; i < tags.Length; i++)
             {
-                if (await db.SetContainsAsync(FormatTag(tags[i]), FormatSerializedMember(key, TagSetSeparator, member)).ConfigureAwait(false))
+                if (await db.SetContainsAsync(FormatTag(tags[i]), FormatSerializedMember(key, TagSetSeparator, member)).ForAwait())
                 {
                     return true;
                 }
