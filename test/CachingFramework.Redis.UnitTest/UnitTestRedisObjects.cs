@@ -524,81 +524,15 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListObject_Async_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheListObject_Async";
-
-            await Common.TestDeadlock(() =>
-            {
-                context.Cache.RemoveAsync(key1).Wait();
-            });
-            
-            
-            
-            var users = GetUsers();
-            var rl = context.Collections.GetRedisList<int>(key1);
-
-
-            await Common.TestDeadlock(() =>
-            {
-                rl.AddRangeAsync(users.Select(u => u.Id)).Wait();
-            });
-
-            await Common.TestDeadlock(() =>
-            {
-                rl.InsertAsync(0, 0).Wait();
-            });
-
-            // Test RemoveAt
-            await Common.TestDeadlock(() =>
-            {
-                rl.RemoveAtAsync(0).Wait();
-            });
-
-            await Common.TestDeadlock(() =>
-            {
-                // Test Add
-                rl.AddAsync(5).Wait();
-            });
-
-            await Common.TestDeadlock(() =>
-            {
-                // Test IndexOf
-                _ = rl.IndexOfAsync(users[2].Id).Result;
-            });
-
-            await Common.TestDeadlock(() =>
-            {
-                // Test Remove
-                rl.RemoveAsync(users[2].Id, 1).Wait();
-            });
-
-            await Common.TestDeadlock(() =>
-            {
-                // Test Contains
-                rl.ContainsAsync(users[2].Id).Wait();
-            });
-
-            await Common.TestDeadlock(() =>
-            {
-                // Test Clear
-                rl.ClearAsync().Wait();
-            });
-
-        }
-
-
-
-        [Test, TestCaseSource(typeof(Common), "All")]
-        public async Task UT_CacheListObject_Async_NoDeadlocks(RedisContext context)
-        {
             string key1 = "UT_CacheListObject_Async_NoDeadlocks";
 
             await Common.TestDeadlock(() =>
             {
                 context.Cache.RemoveAsync(key1).Wait();
             });
-            
-            
-            
+
+
+
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<int>(key1);
 
@@ -650,8 +584,6 @@ namespace CachingFramework.Redis.UnitTest
             });
 
         }
-
-
 
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListPushPop_Async(RedisContext context)
