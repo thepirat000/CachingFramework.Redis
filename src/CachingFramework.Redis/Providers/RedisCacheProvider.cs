@@ -1272,7 +1272,7 @@ namespace CachingFramework.Redis.Providers
                 var task = func.Invoke();
                 if (task != null)
                 {
-                    value = await task;
+                    value = await task.ForAwait();
                     if (value != null)
                     {
                         var tags = tagsBuilder?.Invoke(value);

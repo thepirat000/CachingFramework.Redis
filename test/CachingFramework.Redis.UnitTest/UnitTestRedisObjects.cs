@@ -2104,7 +2104,6 @@ namespace CachingFramework.Redis.UnitTest
                 rs.AddAsync(newUser).Wait();
             });
 
-            Assert.IsTrue(await (rs.ContainsAsync(newUser)));
             await Common.TestDeadlock(() =>
             {
                 // Test Remove
