@@ -1,6 +1,6 @@
 <Project>
  <PropertyGroup>
-	 <Version>13.0.0</Version>
-	 <PackageReleaseNotes>Updates nugets and adds net5.0 and net6.0 as targets</PackageReleaseNotes>
+	 <Version>14.0.0</Version>
+	 <PackageReleaseNotes>Updates all the async code, and ensures all of it uses .ConfigureAwait removing deadlocks.</PackageReleaseNotes>
  </PropertyGroup>
 </Project>

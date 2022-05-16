@@ -422,7 +422,9 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "BinAndRawAndJson")]
         public void UT_CacheSerializer(RedisContext context)
         {
-            var kss = "short:string";
+            System.Diagnostics.Debug.WriteLine($"Using the {context.GetSerializer().GetType().Name} as serializer");
+
+            var kss = "short:string:sync";
             var kch = "char";
             var kds = "decimal";
             var kls = "long:string";

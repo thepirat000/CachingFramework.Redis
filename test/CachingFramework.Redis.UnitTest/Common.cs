@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using CachingFramework.Redis.Serializers;
+using Microsoft.Extensions.Configuration;
+using Nito.AsyncEx;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -44,7 +48,14 @@ namespace CachingFramework.Redis.UnitTest
 
         static Common()
         {
-            
+            var configuration = new ConfigurationBuilder()
+                                    .AddUserSecrets<UnitTestRedis>()
+                                    .Build();
+
+            var p = configuration["Password"];
+            if (!string.IsNullOrEmpty(p))
+                Config += $",password={p}";
+
             _rawContext = new RedisContext(Config, new RawSerializer());
             _jsonContext = new RedisContext(Config, new JsonSerializer());
             _msgPackContext = new RedisContext(Config, new MsgPack.MsgPackSerializer());
@@ -70,6 +81,19 @@ namespace CachingFramework.Redis.UnitTest
                 server.ConfigSet("notify-keyspace-events", "KEA");
             }
             
+        }
+        public static async Task TestDeadlock(Action action)
+        {
+            var t = Task.Run(() =>
+            {
+                var singleThreadedSyncCtx = new AsyncContext().SynchronizationContext;
+                SynchronizationContext.SetSynchronizationContext(singleThreadedSyncCtx);
+
+                action();
+            });
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            if (!t.IsCompleted)
+                throw new Exception("Code has deadlocked."); //usually means you have forgotten a ConfigureAwait(false)
         }
     }
 }

@@ -54,7 +54,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<long> AppendAsync(string value)
         {
-            return await GetRedisDb().StringAppendAsync(RedisKey, value);
+            return await GetRedisDb().StringAppendAsync(RedisKey, value).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public void Set(string value)
@@ -64,7 +64,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task SetAsync(string value)
         {
-            await GetRedisDb().StringSetAsync(RedisKey, value);
+            await GetRedisDb().StringSetAsync(RedisKey, value).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public void Set(long value)
@@ -75,7 +75,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task SetAsync(long value)
         {
-            await GetRedisDb().StringSetAsync(RedisKey, value);
+            await GetRedisDb().StringSetAsync(RedisKey, value).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public void Set(double value)
@@ -85,7 +85,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task SetAsync(double value)
         {
-            await GetRedisDb().StringSetAsync(RedisKey, value);
+            await GetRedisDb().StringSetAsync(RedisKey, value).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public string GetSet(string value)
@@ -95,7 +95,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<string> GetSetAsync(string value)
         {
-            return await GetRedisDb().StringGetSetAsync(RedisKey, value);
+            return await GetRedisDb().StringGetSetAsync(RedisKey, value).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public long GetSet(long value)
@@ -105,7 +105,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<long> GetSetAsync(long value)
         {
-            return (long) await GetRedisDb().StringGetSetAsync(RedisKey, value);
+            return (long) await GetRedisDb().StringGetSetAsync(RedisKey, value).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public double GetSet(double value)
@@ -115,7 +115,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<double> GetSetAsync(double value)
         {
-            return (double) await GetRedisDb().StringGetSetAsync(RedisKey, value);
+            return (double) await GetRedisDb().StringGetSetAsync(RedisKey, value).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public string this[long start, long stop] => GetRange(start, stop);
@@ -130,7 +130,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<string> ToStringAsync()
         {
-            return await GetRedisDb().StringGetAsync(RedisKey);
+            return await GetRedisDb().StringGetAsync(RedisKey).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public long SetRange(long offset, string value)
@@ -140,7 +140,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<long> SetRangeAsync(long offset, string value)
         {
-            return (long)await GetRedisDb().StringSetRangeAsync(RedisKey, offset, value);
+            return (long)await GetRedisDb().StringSetRangeAsync(RedisKey, offset, value).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public string GetRange(long start = 0, long stop = -1)
@@ -150,7 +150,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<string> GetRangeAsync(long start = 0, long stop = -1)
         {
-            return await GetRedisDb().StringGetRangeAsync(RedisKey, start, stop);
+            return await GetRedisDb().StringGetRangeAsync(RedisKey, start, stop).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public long Length => GetRedisDb().StringLength(RedisKey);
@@ -163,7 +163,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<long> IncrementByAsync(long increment)
         {
-            return await GetRedisDb().StringIncrementAsync(RedisKey, increment);
+            return await GetRedisDb().StringIncrementAsync(RedisKey, increment).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public double IncrementByFloat(double increment)
@@ -173,7 +173,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<double> IncrementByFloatAsync(double increment)
         {
-            return await GetRedisDb().StringIncrementAsync(RedisKey, increment);
+            return await GetRedisDb().StringIncrementAsync(RedisKey, increment).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public long AsInteger(long @default = default(long))
@@ -184,7 +184,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<long> AsIntegerAsync(long @default = default(long))
         {
-            var value = await GetRedisDb().StringGetAsync(RedisKey);
+            var value = await GetRedisDb().StringGetAsync(RedisKey).ConfigureAwait(false);
             return value.IsNull ? @default : (long)value;
         }
         /// <inheritdoc />
@@ -196,7 +196,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<double> AsFloatAsync(double @default = default(double))
         {
-            var value = await GetRedisDb().StringGetAsync(RedisKey);
+            var value = await GetRedisDb().StringGetAsync(RedisKey).ConfigureAwait(false);
             return value.IsNull ? @default : (double)value;
         }
         #endregion

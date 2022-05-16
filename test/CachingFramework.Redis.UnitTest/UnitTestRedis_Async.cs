@@ -185,6 +185,15 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(1, set.Count);
             Assert.AreEqual("test", (await set.GetRandomMemberAsync()));
         }
+        [Test, TestCaseSource(typeof(Common), "Json")]
+        public async Task UT_Cache_AddToSetAsync_NoDeadlocks(RedisContext context)
+        {
+            await Common.TestDeadlock(() =>
+            {
+                var key = "UT_Cache_AddToSetAsync";
+                context.Cache.AddToSetAsync(key, "test").Wait();
+            });
+        }
 
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_Cache_SetHashed_TK_TV_WithTags_Async(RedisContext context)
@@ -213,6 +222,21 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[1].Id, t01[0].Id);
             Assert.AreEqual(users[0].Id, t10[0].Id);
             Assert.AreEqual(users[0].Id, tS0[0].Id);
+
+        }
+        [Test, TestCaseSource(typeof(Common), "All")]
+        public async Task UT_Cache_SetHashed_TK_TV_WithTags_Async_NoDeadlocks(RedisContext context)
+        {
+            var key = "UT_Cache_SetHashed_TK_TV_WithTags_Async";
+            context.Cache.Remove(key);
+            context.Cache.InvalidateKeysByTag("tag 0->1", "tag 1->0", "tag S->0", "common");
+            var users = await GetUsersAsync().ForAwait();
+
+            await Common.TestDeadlock(() =>
+            {
+                context.Cache.SetHashedAsync<User, User>(key, users[0], users[1], new[] { "tag 0->1", "common" }).Wait();
+                _ = context.Cache.GetHashedAsync<User, User>(key, users[0]).Result;
+            });
 
         }
 
@@ -286,7 +310,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "BinAndRawAndJson")]
         public async Task UT_CacheSerializer_Async(RedisContext context)
         {
-            var kss = "short:string";
+            var kss = "short:string:async";
             var kch = "char";
             var kds = "decimal";
             var kls = "long:string";

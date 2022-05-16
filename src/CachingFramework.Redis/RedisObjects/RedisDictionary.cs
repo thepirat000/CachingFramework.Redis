@@ -61,7 +61,7 @@ namespace CachingFramework.Redis.RedisObjects
 
 
         /// <summary>
-        /// Adds a single element to the dictionary related to the given tag(s).
+        /// Adds a single element to the dictionary related to the given tag(s). This will overwrite an existing item with the same key.
         /// </summary>
         /// <param name="key">The redis key.</param>
         /// <param name="value">The value.</param>
@@ -70,10 +70,10 @@ namespace CachingFramework.Redis.RedisObjects
         {
             if (tags == null || tags.Length == 0)
             {
-                await AddAsync(key, value);
+                await AddAsync(key, value).ConfigureAwait(false);
                 return;
             }
-            await _cacheProvider.SetHashedAsync<TK, TV>(RedisKey, key, value, tags);
+            await _cacheProvider.SetHashedAsync<TK, TV>(RedisKey, key, value, tags).ConfigureAwait(false);
         }
 
         public void AddRange(IEnumerable<KeyValuePair<TK, TV>> collection, string[] tags)
@@ -88,7 +88,7 @@ namespace CachingFramework.Redis.RedisObjects
         public async Task AddRangeAsync(IEnumerable<KeyValuePair<TK, TV>> items)
         {
             await GetRedisDb()
-                .HashSetAsync(RedisKey, items.Select(i => new HashEntry(Serialize(i.Key), Serialize(i.Value))).ToArray());
+                .HashSetAsync(RedisKey, items.Select(i => new HashEntry(Serialize(i.Key), Serialize(i.Value))).ToArray()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="items">The collection.</param>
         public async Task AddRangeAsync(IEnumerable<KeyValuePair<TK, TV>> items, string[] tags)
         {
-            await _cacheProvider.SetHashedAsync(RedisKey, items, tags: tags);
+            await _cacheProvider.SetHashedAsync(RedisKey, items, tags: tags).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         public async Task<long> GetCountAsync()
         {
-            return await GetRedisDb().HashLengthAsync(RedisKey);
+            return await GetRedisDb().HashLengthAsync(RedisKey).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="value">The value.</param>
         public async Task AddAsync(TK key, TV value)
         {
-            await GetRedisDb().HashSetAsync(RedisKey, Serialize(key), Serialize(value));
+            await GetRedisDb().HashSetAsync(RedisKey, Serialize(key), Serialize(value)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>true if the <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the key; otherwise, false.</returns>
         public async Task<bool> ContainsKeyAsync(TK key)
         {
-            return await GetRedisDb().HashExistsAsync(RedisKey, Serialize(key));
+            return await GetRedisDb().HashExistsAsync(RedisKey, Serialize(key)).ConfigureAwait(false);
         }
         /// <summary>
         /// Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.
@@ -134,7 +134,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>true if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false.</returns>
         public async Task<bool> ContainsAsync(KeyValuePair<TK, TV> item)
         {
-            return await GetRedisDb().HashExistsAsync(RedisKey, Serialize(item.Key));
+            return await GetRedisDb().HashExistsAsync(RedisKey, Serialize(item.Key)).ConfigureAwait(false);
         }
         /// <summary>
         /// Removes the element with the specified key from the <see cref="T:System.Collections.Generic.IDictionary`2" />.
@@ -143,7 +143,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>true if the element is successfully removed; otherwise, false.  This method also returns false if <paramref name="key" /> was not found in the original <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
         public async Task<bool> RemoveAsync(TK key)
         {
-            return await GetRedisDb().HashDeleteAsync(RedisKey, Serialize(key));
+            return await GetRedisDb().HashDeleteAsync(RedisKey, Serialize(key)).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -155,7 +155,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<TV> GetValueAsync(TK key)
         {
-            var redisValue = await GetRedisDb().HashGetAsync(RedisKey, Serialize(key));
+            var redisValue = await GetRedisDb().HashGetAsync(RedisKey, Serialize(key)).ConfigureAwait(false);
             return Deserialize<TV>(redisValue);
         }
         /// <inheritdoc />
@@ -166,7 +166,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <inheritdoc />
         public async Task<TV[]> GetRangeAsync(params TK[] keys)
         {
-            return await _cacheProvider.GetHashedAsync<TK, TV>(RedisKey, keys);
+            return await _cacheProvider.GetHashedAsync<TK, TV>(RedisKey, keys).ConfigureAwait(false);
         }
         #endregion
 
@@ -223,7 +223,7 @@ namespace CachingFramework.Redis.RedisObjects
         public async Task<TryGetValueResult<TK, TV>> TryGetValueAsync(TK key)
         {
             var result = new TryGetValueResult<TK, TV>() { Found = false, Key = key, Value = default };
-            var redisValue = await GetRedisDb().HashGetAsync(RedisKey, Serialize(key));
+            var redisValue = await GetRedisDb().HashGetAsync(RedisKey, Serialize(key)).ConfigureAwait(false);
             if (redisValue.IsNull)
             {
                 return result;
@@ -348,7 +348,7 @@ namespace CachingFramework.Redis.RedisObjects
         public async Task<long> IncrementByAsync(TK key, long increment)
         {
             var db = GetRedisDb();
-            return await db.HashIncrementAsync(RedisKey, Serialize(key), increment);
+            return await db.HashIncrementAsync(RedisKey, Serialize(key), increment).ConfigureAwait(false);
         }
         /// <inheritdoc />
         public double IncrementByFloat(TK key, double increment)
@@ -360,7 +360,7 @@ namespace CachingFramework.Redis.RedisObjects
         public async Task<double> IncrementByFloatAsync(TK key, double increment)
         {
             var db = GetRedisDb();
-            return await db.HashIncrementAsync(RedisKey, Serialize(key), increment);
+            return await db.HashIncrementAsync(RedisKey, Serialize(key), increment).ConfigureAwait(false);
         }
         #endregion
     }
