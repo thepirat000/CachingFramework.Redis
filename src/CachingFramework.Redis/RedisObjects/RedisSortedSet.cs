@@ -66,11 +66,11 @@ namespace CachingFramework.Redis.RedisObjects
             var db = GetRedisDb();
             if (when == When.Always)
             {
-                await db.SortedSetAddAsync(RedisKey, Serialize(member.Value), member.Score).ConfigureAwait(false);
+                await db.SortedSetAddAsync(RedisKey, Serialize(member.Value), member.Score).ForAwait();
             }
             else
             {
-                await db.ScriptEvaluateAsync(LuaScriptResource.Zadd, new RedisKey[] { RedisKey }, new RedisValue[] { when == When.Exists ? "XX" : "NX", member.Score, Serialize(member.Value) }).ConfigureAwait(false);
+                await db.ScriptEvaluateAsync(LuaScriptResource.Zadd, new RedisKey[] { RedisKey }, new RedisValue[] { when == When.Exists ? "XX" : "NX", member.Score, Serialize(member.Value) }).ForAwait();
             }
         }
         /// <summary>
@@ -93,7 +93,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="when">Indicates when this operation should be performed.</param>
         public async Task AddAsync(double score, T item, When when = When.Always)
         {
-            await AddAsync(new SortedMember<T>(score, item), when).ConfigureAwait(false);
+            await AddAsync(new SortedMember<T>(score, item), when).ForAwait();
         }
 
         public void Add(SortedMember<T> member, string[] tags)
@@ -103,7 +103,7 @@ namespace CachingFramework.Redis.RedisObjects
 
         public async Task AddAsync(SortedMember<T> member, string[] tags)
         {
-            await AddAsync(member.Score, member.Value, tags).ConfigureAwait(false);
+            await AddAsync(member.Score, member.Value, tags).ForAwait();
         }
 
         public void Add(double score, T item, string[] tags)
@@ -120,10 +120,10 @@ namespace CachingFramework.Redis.RedisObjects
         {
             if (tags == null || tags.Length == 0)
             {
-                await AddAsync(score, item).ConfigureAwait(false);
+                await AddAsync(score, item).ForAwait();
                 return;
             }
-            await _cacheProvider.AddToSortedSetAsync(RedisKey, score, item, tags).ConfigureAwait(false);
+            await _cacheProvider.AddToSortedSetAsync(RedisKey, score, item, tags).ForAwait();
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace CachingFramework.Redis.RedisObjects
             var db = GetRedisDb();
             if (when == When.Always)
             {
-                await db.SortedSetAddAsync(RedisKey, members.Select(x => new SortedSetEntry(Serialize(x.Value), x.Score)).ToArray()).ConfigureAwait(false);
+                await db.SortedSetAddAsync(RedisKey, members.Select(x => new SortedSetEntry(Serialize(x.Value), x.Score)).ToArray()).ForAwait();
             }
             else
             {
@@ -174,7 +174,7 @@ namespace CachingFramework.Redis.RedisObjects
                     @params.Add(x.Score);
                     @params.Add(Serialize(x.Value));
                 }
-                await db.ScriptEvaluateAsync(LuaScriptResource.Zadd, new RedisKey[] { RedisKey }, @params.ToArray()).ConfigureAwait(false);
+                await db.ScriptEvaluateAsync(LuaScriptResource.Zadd, new RedisKey[] { RedisKey }, @params.ToArray()).ForAwait();
             }
         }
 
@@ -191,7 +191,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         public async Task<long> CountAsync()
         {
-            return await GetRedisDb().SortedSetLengthAsync(RedisKey).ConfigureAwait(false);
+            return await GetRedisDb().SortedSetLengthAsync(RedisKey).ForAwait();
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="max">The maximum score to consider (inclusive).</param>
         public async Task<long> CountByScoreAsync(double min, double max)
         {
-            return await GetRedisDb().SortedSetLengthAsync(RedisKey, min, max).ConfigureAwait(false);
+            return await GetRedisDb().SortedSetLengthAsync(RedisKey, min, max).ForAwait();
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="take">The take number for result pagination.</param>
         public async Task<IEnumerable<SortedMember<T>>> GetRangeByScoreAsync(double min = double.NegativeInfinity, double max = double.PositiveInfinity, bool descending = false, long skip = 0, long take = -1)
         {
-            return (await GetRedisDb().SortedSetRangeByScoreWithScoresAsync(RedisKey, min, max, Exclude.None, descending ? Order.Descending : Order.Ascending, skip, take).ConfigureAwait(false))
+            return (await GetRedisDb().SortedSetRangeByScoreWithScoresAsync(RedisKey, min, max, Exclude.None, descending ? Order.Descending : Order.Ascending, skip, take).ForAwait())
                 .Select(x => new SortedMember<T>(x.Score, Deserialize<T>(x.Element)));
         }
 
@@ -262,7 +262,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="descending">if set to <c>true</c> the elements are considered to be ordered from high to low scores.</param>
         public async Task<IEnumerable<SortedMember<T>>> GetRangeByRankAsync(long start = 0, long stop = -1, bool descending = false)
         {
-            return (await GetRedisDb().SortedSetRangeByRankWithScoresAsync(RedisKey, start, stop, descending ? Order.Descending : Order.Ascending).ConfigureAwait(false))
+            return (await GetRedisDb().SortedSetRangeByRankWithScoresAsync(RedisKey, start, stop, descending ? Order.Descending : Order.Ascending).ForAwait())
                 .Select(x => new SortedMember<T>(x.Score, Deserialize<T>(x.Element)));
         }
 
@@ -283,7 +283,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="max">The maximum score to consider.</param>
         public async Task RemoveRangeByScoreAsync(double min, double max)
         {
-            await GetRedisDb().SortedSetRemoveRangeByScoreAsync(RedisKey, min, max).ConfigureAwait(false);
+            await GetRedisDb().SortedSetRemoveRangeByScoreAsync(RedisKey, min, max).ForAwait();
         }
 
         /// <summary>
@@ -307,7 +307,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="stop">The stop zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
         public async Task RemoveRangeByRankAsync(long start, long stop)
         {
-            await GetRedisDb().SortedSetRemoveRangeByRankAsync(RedisKey, start, stop).ConfigureAwait(false);
+            await GetRedisDb().SortedSetRemoveRangeByRankAsync(RedisKey, start, stop).ForAwait();
         }
 
         /// <summary>
@@ -333,7 +333,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>The new score of the member</returns>
         public async Task<double> IncrementScoreAsync(T item, double value)
         {
-            return await GetRedisDb().SortedSetIncrementAsync(RedisKey, Serialize(item), value).ConfigureAwait(false);
+            return await GetRedisDb().SortedSetIncrementAsync(RedisKey, Serialize(item), value).ForAwait();
         }
 
         /// <summary>
@@ -357,7 +357,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>The rank of the item in the sorted set, or NULL when the key or the member does not exists</returns>
         public async Task<long?> RankOfAsync(T item, bool descending = false)
         {
-            return await GetRedisDb().SortedSetRankAsync(RedisKey, Serialize(item), descending ? Order.Descending : Order.Ascending).ConfigureAwait(false);
+            return await GetRedisDb().SortedSetRankAsync(RedisKey, Serialize(item), descending ? Order.Descending : Order.Ascending).ForAwait();
         }
 
         /// <summary>
@@ -377,7 +377,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>The score of the item in the sorted set, or NULL when the key or the member does not exists</returns>
         public async Task<double?> ScoreOfAsync(T item)
         {
-            return await GetRedisDb().SortedSetScoreAsync(RedisKey, Serialize(item)).ConfigureAwait(false);
+            return await GetRedisDb().SortedSetScoreAsync(RedisKey, Serialize(item)).ForAwait();
         }
         #endregion
 
@@ -421,7 +421,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="item">The item to add.</param>
         public async Task AddAsync(T item)
         {
-            await AddAsync(0, item).ConfigureAwait(false);
+            await AddAsync(0, item).ForAwait();
         }
         /// <summary>
         /// Determines whether the sorted set contains a specific item.
@@ -439,7 +439,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>true if <paramref name="item" /> is found; otherwise, false.</returns>
         public async Task<bool> ContainsAsync(T item)
         {
-            return (await RankOfAsync(item).ConfigureAwait(false)).HasValue;
+            return (await RankOfAsync(item).ForAwait()).HasValue;
         }
         /// <summary>
         /// Copies the entire sorted set to a compatible one-dimensional array, starting at the specified index of the target array.
@@ -474,7 +474,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>true if <paramref name="item" /> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false. This method also returns false if <paramref name="item" /> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
         public async Task<bool> RemoveAsync(T item)
         {
-            return await GetRedisDb().SortedSetRemoveAsync(RedisKey, Serialize(item)).ConfigureAwait(false);
+            return await GetRedisDb().SortedSetRemoveAsync(RedisKey, Serialize(item)).ForAwait();
         }
         #endregion
     }

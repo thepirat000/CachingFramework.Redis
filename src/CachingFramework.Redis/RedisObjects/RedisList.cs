@@ -174,7 +174,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="collection">The collection.</param>
         public async Task AddRangeAsync(IEnumerable<T> collection)
         {
-            await GetRedisDb().ListRightPushAsync(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray()).ConfigureAwait(false);
+            await GetRedisDb().ListRightPushAsync(RedisKey, collection.Select(x => (RedisValue)Serialize(x)).ToArray()).ForAwait();
         }
         /// <summary>
         /// Adds a new item to the list at the start of the list.
@@ -182,7 +182,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="item">The item to add</param>
         public async Task PushFirstAsync(T item)
         {
-            await GetRedisDb().ListLeftPushAsync(RedisKey, Serialize(item)).ConfigureAwait(false);
+            await GetRedisDb().ListLeftPushAsync(RedisKey, Serialize(item)).ForAwait();
         }
         /// <summary>
         /// Adds a new item to the list at the end of the list (has the same effect as Add method).
@@ -190,14 +190,14 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="item">The item to add</param>
         public async Task PushLastAsync(T item)
         {
-            await GetRedisDb().ListRightPushAsync(RedisKey, Serialize(item)).ConfigureAwait(false);
+            await GetRedisDb().ListRightPushAsync(RedisKey, Serialize(item)).ForAwait();
         }
         /// <summary>
         /// Removes the item at the start of the list and returns the item removed.
         /// </summary>
         public async Task<T> PopFirstAsync()
         {
-            var value = await GetRedisDb().ListLeftPopAsync(RedisKey).ConfigureAwait(false);
+            var value = await GetRedisDb().ListLeftPopAsync(RedisKey).ForAwait();
             return Deserialize<T>(value);
         }
         /// <summary>
@@ -205,7 +205,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// </summary>
         public async Task<T> PopLastAsync()
         {
-            var value = await GetRedisDb().ListRightPopAsync(RedisKey).ConfigureAwait(false);
+            var value = await GetRedisDb().ListRightPopAsync(RedisKey).ForAwait();
             return Deserialize<T>(value);
         }
         /// <summary>
@@ -217,7 +217,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="stop">The stop.</param>
         public async Task<IEnumerable<T>> GetRangeAsync(long start = 0, long stop = -1)
         {
-            var range = await GetRedisDb().ListRangeAsync(RedisKey, start, stop).ConfigureAwait(false);
+            var range = await GetRedisDb().ListRangeAsync(RedisKey, start, stop).ForAwait();
             return range.Select(Deserialize<T>);
         }
         /// <summary>
@@ -229,17 +229,17 @@ namespace CachingFramework.Redis.RedisObjects
         {
             if (index == 0)
             {
-                await PushFirstAsync(item).ConfigureAwait(false);
+                await PushFirstAsync(item).ForAwait();
                 return;
             }
             if (index == Count)
             {
-                await PushLastAsync(item).ConfigureAwait(false);
+                await PushLastAsync(item).ForAwait();
                 return;
             }
             var tempKey = GetTempKey();
             var db = GetRedisDb();
-            var before = await db.ListGetByIndexAsync(RedisKey, index).ConfigureAwait(false);
+            var before = await db.ListGetByIndexAsync(RedisKey, index).ForAwait();
             if (!before.IsNull)
             {
                 var batch = db.CreateBatch();
@@ -259,12 +259,12 @@ namespace CachingFramework.Redis.RedisObjects
         {
             if (index == 0)
             {
-                await PopFirstAsync().ConfigureAwait(false);
+                await PopFirstAsync().ForAwait();
                 return;
             }
             if (index == Count - 1)
             {
-                await PopLastAsync().ConfigureAwait(false);
+                await PopLastAsync().ForAwait();
                 return;
             }
             var tempKey = GetTempKey();
@@ -284,7 +284,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="stop">The stop zero-based index (can be negative number indicating offset from the end of the sorted set).</param>
         public async Task TrimAsync(long start, long stop = -1)
         {
-            await GetRedisDb().ListTrimAsync(RedisKey, start, stop).ConfigureAwait(false);
+            await GetRedisDb().ListTrimAsync(RedisKey, start, stop).ForAwait();
         }
         /// <summary>
         /// Removes the specified occurrences of a specific object from the <see cref="T:System.Collections.Generic.ICollection`1"/>.
@@ -294,7 +294,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <returns>true if at least one element was successfully removed from the list.</returns>
         public async Task<bool> RemoveAsync(T item, long count)
         {
-            var result = await GetRedisDb().ListRemoveAsync(RedisKey, Serialize(item), count).ConfigureAwait(false);
+            var result = await GetRedisDb().ListRemoveAsync(RedisKey, Serialize(item), count).ForAwait();
             return result > 0;
         }
         /// <summary>
@@ -303,7 +303,7 @@ namespace CachingFramework.Redis.RedisObjects
         /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
         public async Task AddAsync(T item)
         {
-            await PushLastAsync(item).ConfigureAwait(false);
+            await PushLastAsync(item).ForAwait();
         }
         /// <summary>
         /// Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.
@@ -315,7 +315,7 @@ namespace CachingFramework.Redis.RedisObjects
             var count = Count;
             for (int i = 0; i < count; i++)
             {
-                var value = await GetRedisDb().ListGetByIndexAsync(RedisKey, i).ConfigureAwait(false);
+                var value = await GetRedisDb().ListGetByIndexAsync(RedisKey, i).ForAwait();
                 if (value.Equals(Serialize(item)))
                 {
                     return true;
@@ -333,7 +333,7 @@ namespace CachingFramework.Redis.RedisObjects
             var count = Count;
             for (int i = 0; i < count; i++)
             {
-                var value = await GetRedisDb().ListGetByIndexAsync(RedisKey, i).ConfigureAwait(false);
+                var value = await GetRedisDb().ListGetByIndexAsync(RedisKey, i).ForAwait();
                 if (value.Equals(Serialize(item)))
                 {
                     return i;

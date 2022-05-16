@@ -10,7 +10,7 @@ namespace CachingFramework.Redis.UnitTest
         [OneTimeSetUp]
         public void SetUpFixture()
         {
-            if (Common.VersionInfo[0] < 3 || Common.VersionInfo[1] < 2)
+            if (Common.VersionInfo[0] < 3)
             {
                 Assert.Ignore($"Bitfield tests ignored for version {string.Join(".", Common.VersionInfo)}\n");
             }

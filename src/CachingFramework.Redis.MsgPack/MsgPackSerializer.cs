@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using MessagePack;
+﻿using MessagePack;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.MsgPack
@@ -10,13 +8,17 @@ namespace CachingFramework.Redis.MsgPack
     /// </summary>
     public class MsgPackSerializer : Contracts.ISerializer
     {
-        private readonly MessagePackSerializerOptions options;
+        private readonly MessagePackSerializerOptions _options;
+
         public MsgPackSerializer(MessagePackSerializerOptions options = null)
         {
             if (options == null)
+            {
                 options = MessagePackSerializerOptions.Standard
-                                .WithSecurity(MessagePackSecurity.UntrustedData);
-            this.options = options;
+                    .WithSecurity(MessagePackSecurity.UntrustedData);
+            }
+
+            _options = options;
 
         }
         /// <summary>
@@ -32,7 +34,7 @@ namespace CachingFramework.Redis.MsgPack
                 return RedisValue.Null;
             }
 
-            return MessagePackSerializer.Serialize(value, options);
+            return MessagePackSerializer.Serialize(value, _options);
         }
 
         /// <summary>
@@ -47,7 +49,7 @@ namespace CachingFramework.Redis.MsgPack
             {
                 return default;
             }
-            return MessagePackSerializer.Deserialize<T>(value, options);
+            return MessagePackSerializer.Deserialize<T>(value, _options);
             
         }
     }
