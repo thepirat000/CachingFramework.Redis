@@ -15,7 +15,7 @@ namespace CachingFramework.Redis.UnitTest
         [OneTimeSetUp]
         public static void ClassInitialize()
         {
-            if (Common.VersionInfo[0] < 3 || Common.VersionInfo[1] < 2)
+            if (Common.VersionInfo[0] < 3)
             {
                 Assert.Ignore($"Geospatial tests ignored for version {string.Join(".", Common.VersionInfo)}\n");
             }
