@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.Serializers
@@ -11,7 +6,7 @@ namespace CachingFramework.Redis.Serializers
     /// <summary>
     /// Class JsonSerializer.
     /// </summary>
-    public class JsonSerializer : Contracts.ISerializer
+    public class JsonSerializer : Contracts.SerializerBase
     {
         /// <summary>
         /// The _settings
@@ -45,7 +40,7 @@ namespace CachingFramework.Redis.Serializers
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>System.Byte[].</returns>
-        public RedisValue Serialize<T>(T value)
+        public override RedisValue Serialize<T>(T value)
         {
             return System.Text.Json.JsonSerializer.Serialize(value, _settings);
         }
@@ -56,7 +51,7 @@ namespace CachingFramework.Redis.Serializers
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>T.</returns>
-        public T Deserialize<T>(RedisValue value)
+        public override T Deserialize<T>(RedisValue value)
         {
             return System.Text.Json.JsonSerializer.Deserialize<T>(value, _settings);
         }

@@ -1,12 +1,8 @@
-﻿using System;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
 namespace CachingFramework.Redis.Contracts
 {
-    /// <summary>
-    /// Interface that defines serialization/deserialization generic methods to be used by the cache engine
-    /// </summary>
-    public interface ISerializer
+    public abstract class SerializerBase : ISerializer
     {
         /// <summary>
         /// Serializes the specified value.
@@ -14,20 +10,20 @@ namespace CachingFramework.Redis.Contracts
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>System.String.</returns>
-        RedisValue Serialize<T>(T value);
+        public abstract RedisValue Serialize<T>(T value);
         /// <summary>
         /// Deserializes the specified value.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
-        T Deserialize<T>(RedisValue value);
+        public abstract T Deserialize<T>(RedisValue value);
         /// <summary>
-        /// The prefix for the keys that represents tags
+        /// The prefix for the keys that represents tags. Default value is ":$_tag_$:".
         /// </summary>
-        string TagPrefix { get; set; }
+        public virtual string TagPrefix { get; set; } = ":$_tag_$:";
         /// <summary>
-        /// The postfix for the keys that represents tags
+        /// The postfix for the keys that represents tags. Default value is null.
         /// </summary>
-        string TagPostfix { get; set; }
+        public virtual string TagPostfix { get; set; } = null;
     }
 }

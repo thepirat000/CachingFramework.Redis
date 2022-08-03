@@ -108,15 +108,18 @@ If you plan to consume data from different framework versions, make sure all of 
 
 #### Custom serialization
 
-To provide a custom serialization mechanism, implement the `ISerializer` interface. For example:
+To provide a custom serialization mechanism, implement the `ISerializer` interface (or inherit from `SerializerBase` class). 
+
+For example:
+
 ```c#
-public class MySerializer : ISerializer
+public class MySerializer : SerializerBase
 {
-    public RedisValue Serialize<T>(T value)
+    public override RedisValue Serialize<T>(T value)
     {
         return value.ToString();
     }
-    public T Deserialize<T>(RedisValue value)
+    public override T Deserialize<T>(RedisValue value)
     {
         return (T)Convert.ChangeType(value.ToString(), typeof(T));
     }
@@ -275,6 +278,25 @@ Cluster compatible tagging mechanism where tags are used to group keys, hash fie
 A tag can be related to any number of keys, hash fields, or set members.
 
 ![Image of Tagging Mechanism](http://i.imgur.com/zFoDif4.jpg)
+
+### Tagging storage
+
+Each tag is stored in a Redis Set whose values are the keys that the tag references.
+These specialized Redis Sets are stored at keys with a custom internal format. 
+By default, the key format for a tag named **`RED`** is **`:$_tag_$:RED`**
+
+The internal key format for the tags can be customized with the properties `TagPrefix` and `TagPostfix` in the serializer. 
+
+For example:
+
+```c#
+RedisContext.DefaultSerializer.TagPrefix = "{tag:";
+RedisContext.DefaultSerializer.TagPostfix = "}";
+```
+
+So the internal key for the tag **`RED`** will be **`{tag:RED}`**
+
+
 
 #### Add a **single object** related to a tag
 Add a single object to the cache and associate it with tags *red* and *blue*:

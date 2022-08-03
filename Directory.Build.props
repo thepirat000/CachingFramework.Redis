@@ -1,6 +1,6 @@
 <Project>
  <PropertyGroup>
-	 <Version>14.0.0</Version>
-	 <PackageReleaseNotes>Updates all the async code, and ensures all of it uses .ConfigureAwait removing deadlocks.</PackageReleaseNotes>
+	 <Version>14.1.0</Version>
+	 <PackageReleaseNotes>Configurable tag key prefix and postfix (#78).</PackageReleaseNotes>
  </PropertyGroup>
 </Project>

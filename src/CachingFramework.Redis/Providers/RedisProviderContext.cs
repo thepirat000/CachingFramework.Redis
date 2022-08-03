@@ -14,6 +14,7 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <value>The redis connection.</value>
         public IConnectionMultiplexer RedisConnection { get; set; }
+
         /// <summary>
         /// The serializer
         /// </summary>

@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.NewtonsoftJson
@@ -8,7 +6,7 @@ namespace CachingFramework.Redis.NewtonsoftJson
     /// <summary>
     /// Class JsonSerializer.
     /// </summary>
-    public class NewtonsoftJsonSerializer : Contracts.ISerializer
+    public class NewtonsoftJsonSerializer : Contracts.SerializerBase
     {
         /// <summary>
         /// The _settings
@@ -38,7 +36,7 @@ namespace CachingFramework.Redis.NewtonsoftJson
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>System.Byte[].</returns>
-        public RedisValue Serialize<T>(T value)
+        public override RedisValue Serialize<T>(T value)
         {
             return JsonConvert.SerializeObject(value, _settings);
         }
@@ -49,7 +47,7 @@ namespace CachingFramework.Redis.NewtonsoftJson
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>T.</returns>
-        public T Deserialize<T>(RedisValue value)
+        public override T Deserialize<T>(RedisValue value)
         {
             return JsonConvert.DeserializeObject<T>(value, _settings);
         }

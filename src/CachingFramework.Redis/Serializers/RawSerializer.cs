@@ -12,7 +12,7 @@ namespace CachingFramework.Redis.Serializers
     /// Any other types are Binary Serialized with GZIP compression.
     /// Objects to serialize must be marked with [Serializable] attribute.
     /// </summary>
-    public class RawSerializer : ISerializer
+    public class RawSerializer : SerializerBase
     {
         #region Fields
         private readonly ISerializer _defaultSerializer;
@@ -107,7 +107,7 @@ namespace CachingFramework.Redis.Serializers
         /// <summary>
         /// Serializes the specified value.
         /// </summary>
-        public RedisValue Serialize<T>(T value)
+        public override RedisValue Serialize<T>(T value)
         {
             var type = typeof(T);
             return _serialDict.ContainsKey(type) 
@@ -117,7 +117,7 @@ namespace CachingFramework.Redis.Serializers
         /// <summary>
         /// Deserializes the specified value.
         /// </summary>
-        public T Deserialize<T>(RedisValue value)
+        public override T Deserialize<T>(RedisValue value)
         {
             var type = typeof(T);
             return (T) (_deserialDict.ContainsKey(type)

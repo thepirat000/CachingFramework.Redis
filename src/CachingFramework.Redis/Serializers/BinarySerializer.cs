@@ -11,7 +11,7 @@ namespace CachingFramework.Redis.Serializers
     /// All types are serialized using a Binary Serializer with GZIP compression.
     /// Objects to serialize must be marked with [Serializable] attribute.
     /// </summary>
-    public class BinarySerializer : ISerializer
+    public class BinarySerializer : SerializerBase
     {
         #region Fields
         /// <summary>
@@ -30,7 +30,7 @@ namespace CachingFramework.Redis.Serializers
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>System.String.</returns>
-        public virtual RedisValue Serialize<T>(T value)
+        public override RedisValue Serialize<T>(T value)
         {
             return Serialize((object)value);
         }
@@ -40,7 +40,7 @@ namespace CachingFramework.Redis.Serializers
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>``0.</returns>
-        public virtual T Deserialize<T>(RedisValue value)
+        public override T Deserialize<T>(RedisValue value)
         {
             return (T)Deserialize(value);
         }
