@@ -6,7 +6,7 @@ namespace CachingFramework.Redis.MsgPack
     /// <summary>
     /// Class MsgPackSerializer.
     /// </summary>
-    public class MsgPackSerializer : Contracts.ISerializer
+    public class MsgPackSerializer : Contracts.SerializerBase
     {
         private readonly MessagePackSerializerOptions _options;
 
@@ -27,7 +27,7 @@ namespace CachingFramework.Redis.MsgPack
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>System.Byte[].</returns>
-        public RedisValue Serialize<T>(T value)
+        public override RedisValue Serialize<T>(T value)
         {
             if (value == null)
             {
@@ -43,7 +43,7 @@ namespace CachingFramework.Redis.MsgPack
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
         /// <returns>T.</returns>
-        public T Deserialize<T>(RedisValue value)
+        public override T Deserialize<T>(RedisValue value)
         {
             if (value.IsNull)
             {

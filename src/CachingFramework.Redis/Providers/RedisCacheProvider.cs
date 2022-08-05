@@ -27,10 +27,6 @@ namespace CachingFramework.Redis.Providers
 
         #region Fields
         /// <summary>
-        /// The tag format for the keys representing tags
-        /// </summary>
-        private const string TagFormat = ":$_tag_$:{0}";
-        /// <summary>
         /// Separator to use for the value when a tag is related to a HASH field
         /// </summary>
         private const string TagHashSeparator = ":$_->_$:";
@@ -907,10 +903,12 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         public IEnumerable<string> GetAllTags()
         {
-            int startIndex = string.Format(TagFormat, "").Length;
-            return
-                EnumerateInAllMasters(svr => svr.Keys(RedisConnection.GetDatabase().Database, string.Format(TagFormat, "*")))
-                    .SelectMany(run => run.Select(r => r.ToString().Substring(startIndex)));
+            int startIndex = (Serializer.TagPrefix ?? "").Length;
+            int postfixLen = (Serializer.TagPostfix ?? "").Length;
+            var searchPattern = $"{Serializer.TagPrefix}*{Serializer.TagPostfix}";
+            return EnumerateInAllMasters(svr => svr.Keys(RedisConnection.GetDatabase().Database, searchPattern))
+                    .SelectMany(run => run.Select(r =>
+                        r.ToString().Substring(startIndex, r.ToString().Length - startIndex - postfixLen)));
         }
 
         /// <summary>
@@ -923,7 +921,8 @@ namespace CachingFramework.Redis.Providers
             return
                 EnumerateInAllMasters(svr => svr.Keys(RedisConnection.GetDatabase().Database, pattern, flags: flags))
                     .SelectMany(
-                        run => run.Select(r => r.ToString()).Where(key => !key.StartsWith(string.Format(TagFormat, ""))));
+                        run => run.Select(r => r.ToString()).Where(key => 
+                            !(key.StartsWith(Serializer.TagPrefix ?? "") && key.EndsWith(Serializer.TagPostfix ?? ""))));
         }
 
         /// <summary>
@@ -2091,7 +2090,7 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <param name="db">The database.</param>
         /// <param name="tags">The tags.</param>
-        private static ISet<RedisValue> GetTaggedItemsNoCleanup(IDatabase db, params string[] tags)
+        private ISet<RedisValue> GetTaggedItemsNoCleanup(IDatabase db, params string[] tags)
         {
             var keys = new List<RedisValue>();
             foreach (var tagName in tags)
@@ -2105,7 +2104,7 @@ namespace CachingFramework.Redis.Providers
             return new HashSet<RedisValue>(keys);
         }
 
-        private async static Task<ISet<RedisValue>> GetTaggedItemsNoCleanupAsync(IDatabase db, params string[] tags)
+        private async Task<ISet<RedisValue>> GetTaggedItemsNoCleanupAsync(IDatabase db, params string[] tags)
         {
             var keys = new List<RedisValue>();
             foreach (var tagName in tags)
@@ -2126,7 +2125,7 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <param name="db">The database.</param>
         /// <param name="tags">The tags.</param>
-        private static ISet<RedisValue> GetTaggedItemsWithCleanup(IDatabase db, params string[] tags)
+        private ISet<RedisValue> GetTaggedItemsWithCleanup(IDatabase db, params string[] tags)
         {
             bool exists;
             var ret = new HashSet<RedisValue>();
@@ -2189,7 +2188,7 @@ namespace CachingFramework.Redis.Providers
             return ret;
         }
 
-        private async static Task<ISet<RedisValue>> GetTaggedItemsWithCleanupAsync(IDatabase db, params string[] tags)
+        private async Task<ISet<RedisValue>> GetTaggedItemsWithCleanupAsync(IDatabase db, params string[] tags)
         {
             bool exists;
             var ret = new HashSet<RedisValue>();
@@ -2281,10 +2280,11 @@ namespace CachingFramework.Redis.Providers
         /// </summary>
         /// <param name="tag">The tag name</param>
         /// <returns>RedisKey.</returns>
-        private static RedisKey FormatTag(string tag)
+        private RedisKey FormatTag(string tag)
         {
-            return string.Format(TagFormat, tag);
+            return $"{Serializer.TagPrefix}{tag}{Serializer.TagPostfix}";
         }
+        
         /// <summary>
         /// Return the RedisValue to use for a tag that points to a hash field
         /// </summary>
@@ -2294,7 +2294,7 @@ namespace CachingFramework.Redis.Providers
         private static RedisValue FormatHashField(string key, string field)
         {
             // set_key:$_->_$:hash_field
-            return key + TagHashSeparator + field;
+            return $"{key}{TagHashSeparator}{field}";
         }
         /// <summary>
         /// Return the RedisValue to use for a tag that points to a serialized member (hash field/member set)
@@ -2304,7 +2304,7 @@ namespace CachingFramework.Redis.Providers
         /// <param name="member">The member (hash field/member set).</param>
         private RedisValue FormatSerializedMember<T>(string key, string separator, T member)
         {
-            // set_key:$_-S>_$:serialized_member
+            // set_key:separator:serialized_member
             byte[] prefix = System.Text.Encoding.UTF8.GetBytes(key + separator);
             byte[] memberSerialized = Serializer.Serialize(member);
             byte[] result = new byte[prefix.Length + memberSerialized.Length];
