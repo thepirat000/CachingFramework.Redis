@@ -1,0 +1,1 @@
+dotnet test CachingFramework.Redis.UnitTest --logger:"console;verbosity=normal" -c Release

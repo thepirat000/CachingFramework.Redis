@@ -1,6 +1,6 @@
 <Project>
  <PropertyGroup>
-	 <Version>14.1.0</Version>
-	 <PackageReleaseNotes>Configurable tag key prefix and postfix (#78).</PackageReleaseNotes>
+	 <Version>15.0.0</Version>
+	 <PackageReleaseNotes>Optimize assembly generation, using Release configuration (#82).</PackageReleaseNotes>
  </PropertyGroup>
 </Project>

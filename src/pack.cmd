@@ -1,7 +1,7 @@
-del "CachingFramework.Redis\bin\debug\*.nupkg"
-del "CachingFramework.Redis.MsgPack\bin\debug\*.nupkg"
-del "CachingFramework.Redis.NewtonsoftJson\bin\debug\*.nupkg"
+del "CachingFramework.Redis\bin\release\*.nupkg"
+del "CachingFramework.Redis.MsgPack\bin\release\*.nupkg"
+del "CachingFramework.Redis.NewtonsoftJson\bin\release\*.nupkg"
 
-dotnet pack "CachingFramework.Redis/"
-dotnet pack "CachingFramework.Redis.MsgPack/"
-dotnet pack "CachingFramework.Redis.NewtonsoftJson/"
+dotnet pack "CachingFramework.Redis/" -c Release
+dotnet pack "CachingFramework.Redis.MsgPack/" -c Release
+dotnet pack "CachingFramework.Redis.NewtonsoftJson/" -c Release
