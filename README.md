@@ -7,7 +7,7 @@
 .NET Redis client library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) adding some interesting features like an **extensible serialization** strategy, a **tagging mechanism** to group keys, hash fields and set members, and a **fetching mechanism** to support atomic add/get operations, all being cluster-compatible.
 
 ## Features
- * .NET Framework and .NET Core support (Net Standard 1.5)
+ * .NET Framework and .NET Core support
  * [**Typed cache**](#typed-cache): any serializable object can be used as a cache value.
  * [**Fetching mechanism**](#fetching-mechanism): shortcut cache methods for atomic add/get operations (cache-aside pattern).
  * [**Tagging mechanism**](#tagging-mechanism): cache items can be tagged allowing to retrieve or invalidate keys or members by tag.
