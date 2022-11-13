@@ -38,5 +38,10 @@ namespace CachingFramework.Redis.Providers
             _context = context;
         }
         #endregion
+
+        protected IDatabase GetRedisDb()
+        {
+            return _context.GetRedisDatabase();
+        }
     }
 }

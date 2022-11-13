@@ -7,12 +7,60 @@ using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
 using System.Threading.Tasks;
+using StackExchange.Redis.KeyspaceIsolation;
 
 namespace CachingFramework.Redis.UnitTest
 {
     [TestFixture]
     public class UnitTestRedis_Async
     {
+        [Test]
+        public async Task Test_KeyPrefix_Multiple_Async()
+        {
+            var key = nameof(Test_KeyPrefix_Multiple_Async);
+            var tag = nameof(Test_KeyPrefix_Multiple_Async) + "_TAG";
+            var prefix1 = "P1";
+            var prefix2 = "P2";
+            using (var ctx1 = new RedisContext(Common.Config, new DatabaseOptions { KeyPrefix = prefix1 }))
+            using (var ctx2 = new RedisContext(Common.Config, new DatabaseOptions { KeyPrefix = prefix2 }))
+            {
+                await ctx1.Cache.SetObjectAsync(key, "ctx1", new[] { tag });
+                await ctx2.Cache.SetObjectAsync(key, "ctx2", new[] { tag });
+
+                Assert.AreEqual("ctx1", await ctx1.Cache.GetObjectAsync<string>(key));
+                Assert.AreEqual("ctx2", await ctx2.Cache.GetObjectAsync<string>(key));
+
+                var byTag1 = ctx1.Cache.GetObjectsByTag<string>(tag).ToList();
+                var byTag2 = ctx2.Cache.GetObjectsByTag<string>(tag).ToList();
+
+                Assert.AreEqual(1, byTag1.Count);
+                Assert.AreEqual(1, byTag2.Count);
+                Assert.AreEqual("ctx1", byTag1[0]);
+                Assert.AreEqual("ctx2", byTag2[0]);
+            }
+        }
+
+        [Test]
+        public async Task Test_KeyPrefix_Async()
+        {
+            var key = nameof(Test_KeyPrefix_Async);
+            var prefix = "TEST-PREFIX-";
+            using (var ctx = new RedisContext(Common.Config, new DatabaseOptions { KeyPrefix = prefix }))
+            {
+                await ctx.Cache.SetObjectAsync(key, "value");
+
+                var x = await ctx.Cache.GetObjectAsync<string>(key);
+
+                Assert.AreEqual("value", x);
+            }
+            using (var ctx = new RedisContext("localhost:6379"))
+            {
+                var y = await ctx.Cache.GetObjectAsync<string>(prefix + key);
+
+                Assert.AreEqual("value", y);
+            }
+        }
+        
         [Test, TestCaseSource(typeof(Common), "Json")]
         public async Task UT_KeyTaggedTTL_Async(RedisContext ctx)
         {

@@ -7,12 +7,60 @@ using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
 using System.Diagnostics;
+using StackExchange.Redis.KeyspaceIsolation;
 
 namespace CachingFramework.Redis.UnitTest
 {
     [TestFixture]
     public class UnitTestRedis
     {
+        [Test]
+        public void Test_KeyPrefix_Multiple()
+        {
+            var key = nameof(Test_KeyPrefix_Multiple);
+            var tag = nameof(Test_KeyPrefix_Multiple) + "_TAG";
+            var prefix1 = "P1";
+            var prefix2 = "P2";
+            using (var ctx1 = new RedisContext(Common.Config, new DatabaseOptions { KeyPrefix = prefix1 }))
+            using (var ctx2 = new RedisContext(Common.Config, new DatabaseOptions { KeyPrefix = prefix2 }))
+            {
+                ctx1.Cache.SetObject(key, "ctx1", new[] { tag } );
+                ctx2.Cache.SetObject(key, "ctx2", new[] { tag } );
+
+                Assert.AreEqual("ctx1", ctx1.Cache.GetObject<string>(key));
+                Assert.AreEqual("ctx2", ctx2.Cache.GetObject<string>(key));
+
+                var byTag1 = ctx1.Cache.GetObjectsByTag<string>(tag).ToList();
+                var byTag2 = ctx2.Cache.GetObjectsByTag<string>(tag).ToList();
+                
+                Assert.AreEqual(1, byTag1.Count);
+                Assert.AreEqual(1, byTag2.Count);
+                Assert.AreEqual("ctx1", byTag1[0]);
+                Assert.AreEqual("ctx2", byTag2[0]);
+            }
+        }
+
+        [Test]
+        public void Test_KeyPrefix()
+        {
+            var key = nameof(Test_KeyPrefix);
+            var prefix = "TEST-PREFIX-";
+            using (var ctx = new RedisContext(Common.Config, new DatabaseOptions { KeyPrefix = prefix }))
+            {
+                ctx.Cache.SetObject(key, "value");
+                
+                var x = ctx.Cache.GetObject<string>(key);
+                
+                Assert.AreEqual("value", x);
+            }
+            using (var ctx = new RedisContext("localhost:6379"))
+            {
+                var y = ctx.Cache.GetObject<string>(prefix + key);
+
+                Assert.AreEqual("value", y);
+            }
+        }
+
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CustomTagPostfix(RedisContext ctx)
         {
@@ -626,10 +674,11 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.FlushAll();
             context.Cache.SetObject(key, "some value", new[] { "tag3", "tag4" });
             context.Cache.SetObject(key2, "some value2");
+            var keyPrefix = context.GetDatabaseOptions().KeyPrefix;
             var keys = context.Cache.GetKeysByPattern("*");
             Assert.AreEqual(2, keys.Count());
-            Assert.IsTrue(keys.Contains(key));
-            Assert.IsTrue(keys.Contains(key2));
+            Assert.IsTrue(keys.Contains(keyPrefix + key));
+            Assert.IsTrue(keys.Contains(keyPrefix + key2));
         }
 
         [Test]

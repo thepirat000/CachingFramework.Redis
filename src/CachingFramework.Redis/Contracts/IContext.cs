@@ -39,5 +39,9 @@ namespace CachingFramework.Redis.Contracts
         /// Gets the serializer for this context.
         /// </summary>
         ISerializer GetSerializer();
+        /// <summary>
+        /// Gets the Database Options for this context.
+        /// </summary>
+        DatabaseOptions GetDatabaseOptions();
     }
 }

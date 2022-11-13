@@ -65,7 +65,8 @@ namespace CachingFramework.Redis.UnitTest
             }
 
             var objectKey = key ?? Guid.NewGuid().ToString();
-
+            var keyPrefix = context.GetDatabaseOptions().KeyPrefix;
+            
             context.Cache.SetObject(objectKey, new { Name = "alex", Created = DateTime.UtcNow });
             Thread.Sleep(500);
             context.Cache.Remove(objectKey);
@@ -78,7 +79,7 @@ namespace CachingFramework.Redis.UnitTest
                 KeyValuePair<string, KeyEvent> e;
                 Assert.IsTrue(result.TryDequeue(out e));
                 Assert.AreEqual(expectedEvent, e.Value);
-                Assert.AreEqual(objectKey, e.Key);
+                Assert.AreEqual(e.Key, keyPrefix + objectKey);
             }
 
             //Now test Unsubscribe. No more events should be received in queue and handle will timeout.

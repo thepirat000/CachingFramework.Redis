@@ -41,11 +41,11 @@ namespace CachingFramework.Redis.RedisObjects
         /// <summary>
         /// Gets the redis database.
         /// </summary>
-        /// <returns>IDatabase.</returns>
         internal IDatabase GetRedisDb()
         {
-            return Connection.GetDatabase();
+            return RedisContext.GetRedisDatabase();
         }
+        
         /// <summary>
         /// Serializes the specified object.
         /// </summary>

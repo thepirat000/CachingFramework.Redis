@@ -41,7 +41,7 @@ namespace CachingFramework.Redis.Providers
         /// <returns>The number of elements added to the sorted set, not including elements already existing.</returns>
         public int GeoAdd<T>(string key, GeoMember<T>[] members, string[] tags = null)
         {
-            var db = RedisConnection.GetDatabase();
+            var db = GetRedisDb();
             var values = new GeoEntry[members.Length];
             for(int i = 0; i < values.Length; i++)
             {
@@ -96,7 +96,7 @@ namespace CachingFramework.Redis.Providers
         /// <returns>System.String.</returns>
         public string GeoHash<T>(string key, T member)
         {
-            var db = RedisConnection.GetDatabase();
+            var db = GetRedisDb();
             return db.GeoHash(key, Serializer.Serialize(member));
         }
         /// <summary>
@@ -108,7 +108,7 @@ namespace CachingFramework.Redis.Providers
         /// <returns>IEnumerable{GeoMember{``0}}.</returns>
         public IEnumerable<GeoMember<T>> GeoPosition<T>(string key, T[] members)
         {
-            var db = RedisConnection.GetDatabase();
+            var db = GetRedisDb();
             var redisMembers = members.Select(m => (RedisValue)Serializer.Serialize<T>(m)).ToArray();
             var results = db.GeoPosition(key, redisMembers);
             if (results != null)
@@ -151,7 +151,7 @@ namespace CachingFramework.Redis.Providers
         /// <returns>The distance in the given unit or -1 in case of a non-existing member.</returns>
         public double GeoDistance<T>(string key, T member1, T member2, Unit unit)
         {
-            var db = RedisConnection.GetDatabase();
+            var db = GetRedisDb();
             var dist = db.GeoDistance(key, Serializer.Serialize(member1), Serializer.Serialize(member2), (GeoUnit)unit);
             return dist.HasValue ? dist.Value : -1;
         }
@@ -167,7 +167,7 @@ namespace CachingFramework.Redis.Providers
         /// <returns>IEnumerable{GeoMember{``0}}.</returns>
         public IEnumerable<GeoMember<T>> GeoRadius<T>(string key, GeoCoordinate center, double radius, Unit unit, int count = 0)
         {
-            var db = RedisConnection.GetDatabase();
+            var db = GetRedisDb();
             var results = db.GeoRadius(key, center.Longitude, center.Latitude, radius, (GeoUnit)unit, count, Order.Ascending);
             foreach(var result in results)
             {

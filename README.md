@@ -44,12 +44,24 @@ Connect to Redis on localhost port 6379:
 ```c#
 var context = new RedisContext();
 ```
-#### Custom configuration
+#### Custom connection configuration
 ```c#
 var context = new RedisContext("10.0.0.1:7000, 10.0.0.2:7000, connectRetry=10, abortConnect=false, allowAdmin=true");
 ```
 
 The constructor parameter must be a valid StackExchange.Redis connection string. Check [this](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Configuration.md) for more information about StackExchange.Redis configuration options.
+
+
+#### Custom database options
+```c#
+var context = new RedisContext("localhost:6379", new DatabaseOptions 
+{ 
+  KeyPrefix = "Cache:", 
+  DbIndex = 2 
+});
+```
+
+The `DatabaseOptions` parameter allows configuring a global Key prefix and Database index to use within the context
 
 #### Custom multiplexer
 

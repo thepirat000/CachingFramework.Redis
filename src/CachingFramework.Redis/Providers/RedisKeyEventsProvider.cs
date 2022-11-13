@@ -75,8 +75,9 @@ namespace CachingFramework.Redis.Providers
             }
         }
 
-        private static string GetEventChannelName(KeyEventSubscriptionType subscriptionType, string key = null, KeyEvent? eventType = null)
+        private string GetEventChannelName(KeyEventSubscriptionType subscriptionType, string key = null, KeyEvent? eventType = null)
         {
+            var keyPrefix = _context.DatabaseOptions?.KeyPrefix ?? "";
             switch (subscriptionType)
             {
                 case KeyEventSubscriptionType.All:
@@ -84,7 +85,7 @@ namespace CachingFramework.Redis.Providers
                 case KeyEventSubscriptionType.KeyEvent:
                     return string.Format("__keyevent@*__:{0}", eventType.HasValue ? TextAttributeCache<KeyEvent>.Instance.GetEnumText(eventType.Value) : "*");
                 case KeyEventSubscriptionType.KeySpace:
-                    return string.Format("__keyspace@*__:{0}", key ?? "*");
+                    return string.Format("__keyspace@*__:{0}", keyPrefix + (key ?? "*"));
                 default:
                     throw new NotImplementedException(string.Format("Subscription not implemented for type: {0}", subscriptionType));
             }

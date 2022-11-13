@@ -53,24 +53,24 @@ namespace CachingFramework.Redis
         /// Initializes a new instance of the <see cref="RedisContext" /> class given the cache engine type and its configuration string, and using the default Serializer.
         /// </summary>
         /// <param name="configuration">The configuration string.</param>
-        public RedisContext(string configuration) : this(configuration, RedisContext.DefaultSerializer, null) { }
+        public RedisContext(string configuration) : this(configuration, RedisContext.DefaultSerializer, (TextWriter)null) { }
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisContext" /> class given the cache engine type and its configuration string, and using the default Serializer.
         /// </summary>
         /// <param name="configuration">The configuration object.</param>
-        public RedisContext(ConfigurationOptions configuration) : this(configuration, RedisContext.DefaultSerializer, null) { }
+        public RedisContext(ConfigurationOptions configuration) : this(configuration, RedisContext.DefaultSerializer, (TextWriter)null) { }
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisContext" /> class.
         /// </summary>
         /// <param name="configuration">The configuration string.</param>
         /// <param name="serializer">The serializer.</param>
-        public RedisContext(string configuration, ISerializer serializer) : this(configuration, serializer, null) { }
+        public RedisContext(string configuration, ISerializer serializer) : this(configuration, serializer, (TextWriter)null) { }
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisContext" /> class.
         /// </summary>
         /// <param name="configuration">The configuration object.</param>
         /// <param name="serializer">The serializer.</param>
-        public RedisContext(ConfigurationOptions configuration, ISerializer serializer) : this(configuration, serializer, null) { }
+        public RedisContext(ConfigurationOptions configuration, ISerializer serializer) : this(configuration, serializer, (TextWriter)null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisContext" /> class injecting the connection multiplexer and serializer to use.
@@ -131,9 +131,101 @@ namespace CachingFramework.Redis
             _pubsubProvider = new RedisPubSubProvider(_internalContext);
             _keyEventsProvider = new RedisKeyEventsProvider(_internalContext);
         }
-#endregion
 
-#region IContext implementation
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisContext" /> class given the cache engine type its configuration string and a database getter, using the default Serializer.
+        /// </summary>
+        /// <param name="configuration">The configuration string.</param>
+        /// <param name="databaseOptions">The custom database options.</param>
+        public RedisContext(string configuration, DatabaseOptions databaseOptions) : this(configuration, RedisContext.DefaultSerializer, null, databaseOptions) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisContext" /> class given the cache engine type its configuration options and a database getter, using the default Serializer.
+        /// </summary>
+        /// <param name="configuration">The configuration object.</param>
+        /// <param name="databaseOptions">The custom database options.</param>
+        public RedisContext(ConfigurationOptions configuration, DatabaseOptions databaseOptions) : this(configuration, RedisContext.DefaultSerializer, null, databaseOptions) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisContext" /> class.
+        /// </summary>
+        /// <param name="configuration">The configuration string.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="databaseOptions">The custom database options.</param>
+        public RedisContext(string configuration, ISerializer serializer, DatabaseOptions databaseOptions) : this(configuration, serializer, null, databaseOptions) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisContext" /> class.
+        /// </summary>
+        /// <param name="configuration">The configuration object.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="databaseOptions">The custom database options.</param>
+        public RedisContext(ConfigurationOptions configuration, ISerializer serializer, DatabaseOptions databaseOptions) : this(configuration, serializer, null, databaseOptions) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisContext" /> class injecting the connection multiplexer, serializer and database getter to use.
+        /// </summary>
+        /// <param name="connection">The connection multiplexer to use.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="databaseOptions">The custom database options.</param>
+        public RedisContext(IConnectionMultiplexer connection, ISerializer serializer, DatabaseOptions databaseOptions)
+        {
+            _internalContext = new RedisProviderContext(connection, serializer ?? RedisContext.DefaultSerializer, databaseOptions);
+            _cacheProvider = new RedisCacheProvider(_internalContext);
+            _collectionProvider = new RedisCollectionProvider(_internalContext, _cacheProvider);
+            _geoProvider = new RedisGeoProvider(_internalContext, _cacheProvider);
+            _pubsubProvider = new RedisPubSubProvider(_internalContext);
+            _keyEventsProvider = new RedisKeyEventsProvider(_internalContext);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisContext"/> class injecting the connection multiplexer to use using the default serializer.
+        /// </summary>
+        /// <param name="connection">The connection multiplexer to use.</param>
+        /// <param name="databaseOptions">The custom database options.</param>
+        public RedisContext(IConnectionMultiplexer connection, DatabaseOptions databaseOptions)
+        {
+            _internalContext = new RedisProviderContext(connection, RedisContext.DefaultSerializer, databaseOptions);
+            _cacheProvider = new RedisCacheProvider(_internalContext);
+            _collectionProvider = new RedisCollectionProvider(_internalContext, _cacheProvider);
+            _geoProvider = new RedisGeoProvider(_internalContext, _cacheProvider);
+            _pubsubProvider = new RedisPubSubProvider(_internalContext);
+            _keyEventsProvider = new RedisKeyEventsProvider(_internalContext);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisContext" /> class.
+        /// </summary>
+        /// <param name="configuration">The configuration string.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="log">The textwriter to use for logging purposes.</param>
+        /// <param name="databaseOptions">The custom database options.</param>
+        public RedisContext(string configuration, ISerializer serializer, TextWriter log, DatabaseOptions databaseOptions)
+        {
+            _internalContext = new RedisProviderContext(configuration, serializer ?? RedisContext.DefaultSerializer, log, databaseOptions);
+            _cacheProvider = new RedisCacheProvider(_internalContext);
+            _collectionProvider = new RedisCollectionProvider(_internalContext, _cacheProvider);
+            _geoProvider = new RedisGeoProvider(_internalContext, _cacheProvider);
+            _pubsubProvider = new RedisPubSubProvider(_internalContext);
+            _keyEventsProvider = new RedisKeyEventsProvider(_internalContext);
+        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisContext" /> class.
+        /// </summary>
+        /// <param name="configuration">The configuration object.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="log">The textwriter to use for logging purposes.</param>
+        /// <param name="databaseOptions">The custom database options.</param>
+        public RedisContext(ConfigurationOptions configuration, ISerializer serializer, TextWriter log, DatabaseOptions databaseOptions)
+        {
+            _internalContext = new RedisProviderContext(configuration, serializer ?? RedisContext.DefaultSerializer, log, databaseOptions);
+            _cacheProvider = new RedisCacheProvider(_internalContext);
+            _collectionProvider = new RedisCollectionProvider(_internalContext, _cacheProvider);
+            _geoProvider = new RedisGeoProvider(_internalContext, _cacheProvider);
+            _pubsubProvider = new RedisPubSubProvider(_internalContext);
+            _keyEventsProvider = new RedisKeyEventsProvider(_internalContext);
+        }
+
+        #endregion
+
+        #region IContext implementation
         /// <summary>
         /// Gets the cache API.
         /// </summary>
@@ -195,12 +287,25 @@ namespace CachingFramework.Redis
         }
 
         /// <summary>
+        /// Gets the Database Options for this context.
+        /// </summary>
+        public DatabaseOptions GetDatabaseOptions()
+        {
+            return _internalContext.DatabaseOptions;
+        }
+
+        /// <summary>
         /// Disposes this instance.
         /// </summary>
         public void Dispose()
         {
             _internalContext.RedisConnection.Dispose();
         }
-#endregion
+
+        public override string ToString()
+        {
+            return _internalContext.ToString();
+        }
+        #endregion
     }
 }

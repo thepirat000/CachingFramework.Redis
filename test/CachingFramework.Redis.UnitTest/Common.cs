@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CachingFramework.Redis.Serializers;
 using Microsoft.Extensions.Configuration;
 using Nito.AsyncEx;
+using StackExchange.Redis.KeyspaceIsolation;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -17,6 +18,8 @@ namespace CachingFramework.Redis.UnitTest
         private static RedisContext _binaryContext;
         // A context using json
         private static RedisContext _jsonContext;
+        // A context using json and a prefix for the keys
+        private static RedisContext _jsonPrefixedContext;
         // A context using newtonsoft json
         private static RedisContext _newtonsoftJsonContext;
         // A context using msgpack
@@ -24,8 +27,9 @@ namespace CachingFramework.Redis.UnitTest
 
 
         // TestCases
-        public static RedisContext[] JsonAndRaw { get { return new[] { _jsonContext, _rawContext, _newtonsoftJsonContext }; } }
-        public static RedisContext[] Json { get { return new[] { _jsonContext, _newtonsoftJsonContext }; } }
+        public static RedisContext[] JsonAndRaw { get { return new[] { _jsonContext, _rawContext, _newtonsoftJsonContext, _jsonPrefixedContext }; } }
+        public static RedisContext[] Json { get { return new[] { _jsonContext, _newtonsoftJsonContext, _jsonPrefixedContext }; } }
+        public static RedisContext[] JsonKeyPrefix { get { return new[] { _jsonPrefixedContext }; } }
         public static RedisContext[] NewtonsoftJson { get { return new[] { _newtonsoftJsonContext }; } }
         public static RedisContext[] MsgPack { get { return new[] { _msgPackContext }; } }
         public static RedisContext[] Raw { get { return new[] { _rawContext }; } }
@@ -58,15 +62,16 @@ namespace CachingFramework.Redis.UnitTest
 
             _rawContext = new RedisContext(Config, new RawSerializer());
             _jsonContext = new RedisContext(Config, new JsonSerializer());
+            _jsonPrefixedContext = new RedisContext(Config, new JsonSerializer(), new DatabaseOptions { KeyPrefix = "PREFIX-" });
             _msgPackContext = new RedisContext(Config, new MsgPack.MsgPackSerializer());
             _newtonsoftJsonContext = new RedisContext(Config, new NewtonsoftJson.NewtonsoftJsonSerializer());
 #if (NET461)
             _binaryContext = new RedisContext(Config, new BinarySerializer());
-            All = new[] { _binaryContext, _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext };
-            BinAndRawAndJson = new[] { _binaryContext, _rawContext, _jsonContext, _newtonsoftJsonContext };
+            All = new[] { _binaryContext, _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext, _jsonPrefixedContext };
+            BinAndRawAndJson = new[] { _binaryContext, _rawContext, _jsonContext, _newtonsoftJsonContext, _jsonPrefixedContext };
 #else
-            BinAndRawAndJson = new[] { _rawContext, _jsonContext, _newtonsoftJsonContext };
-            All = new[] { _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext };
+            BinAndRawAndJson = new[] { _rawContext, _jsonContext, _newtonsoftJsonContext, _jsonPrefixedContext };
+            All = new[] { _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext, _jsonPrefixedContext };
 #endif
 
             Thread.Sleep(1500);
