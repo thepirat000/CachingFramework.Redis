@@ -7,13 +7,33 @@ using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
 using System.Diagnostics;
-using StackExchange.Redis.KeyspaceIsolation;
 
 namespace CachingFramework.Redis.UnitTest
 {
     [TestFixture]
     public class UnitTestRedis
     {
+#if NET6_0_OR_GREATER
+        [Test, TestCaseSource(typeof(Common), nameof(Common.MsgPack))]
+        public void UT_MessagePack_DateOnly(RedisContext ctx)
+        {
+            var x = new 
+            {
+                SomeDate = DateOnly.FromDateTime(DateTime.Now),
+                TimeOnly = TimeOnly.FromDateTime(DateTime.Now.AddHours(1))
+            };
+
+            ctx.Cache.SetObject("UT_MessagePack_DateOnly_DO", x.SomeDate);
+            ctx.Cache.SetObject("UT_MessagePack_DateOnly_TO", x.TimeOnly);
+
+            var dateOnly = ctx.Cache.GetObject<DateOnly>("UT_MessagePack_DateOnly_DO");
+            var timeOnly = ctx.Cache.GetObject<TimeOnly>("UT_MessagePack_DateOnly_TO");
+
+            Assert.AreEqual(x.SomeDate, dateOnly);
+            Assert.AreEqual(x.TimeOnly, timeOnly);
+        }
+#endif
+
         [Test]
         public void Test_KeyPrefix_Multiple()
         {

@@ -111,12 +111,13 @@ namespace CachingFramework.Redis.Providers
             var db = GetRedisDb();
             var redisMembers = members.Select(m => (RedisValue)Serializer.Serialize<T>(m)).ToArray();
             var results = db.GeoPosition(key, redisMembers);
+            
             if (results != null)
             {
                 for(int i = 0; i < results.Length; i++)
                 {
                     var result = results[i];
-                    if (!result.HasValue)
+                    if (!result.HasValue || (result.Value.Latitude == 0 && result.Value.Longitude == 0))
                     {
                         yield return null;
                     }

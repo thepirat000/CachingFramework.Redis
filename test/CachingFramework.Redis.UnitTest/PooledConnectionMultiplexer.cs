@@ -3,6 +3,7 @@ using StackExchange.Redis;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using StackExchange.Redis.Maintenance;
 using StackExchange.Redis.Profiling;
 
 namespace CachingFramework.Redis.UnitTest
@@ -87,6 +88,11 @@ namespace CachingFramework.Redis.UnitTest
             return this._connectionMultiplexer.GetServer(endpoint, asyncState);
         }
 
+        public IServer[] GetServers()
+        {
+            return _connectionMultiplexer.GetServers();
+        }
+
         public Task<bool> ConfigureAsync(TextWriter log = null)
         {
             return this._connectionMultiplexer.ConfigureAsync(log);
@@ -148,12 +154,12 @@ namespace CachingFramework.Redis.UnitTest
 
         public int GetHashSlot(RedisKey key)
         {
-            throw new NotImplementedException();
+            return _connectionMultiplexer.GetHashSlot(key);
         }
 
         public void ExportConfiguration(Stream destination, ExportOptions options = (ExportOptions)(-1))
         {
-            throw new NotImplementedException();
+            _connectionMultiplexer.ExportConfiguration(destination, options);
         }
 
         public string ClientName => this._connectionMultiplexer.ClientName;
@@ -223,10 +229,21 @@ namespace CachingFramework.Redis.UnitTest
             remove { this._connectionMultiplexer.ConfigurationChangedBroadcast -= value; }
         }
 
+        public event EventHandler<ServerMaintenanceEvent> ServerMaintenanceEvent
+        {
+            add { this._connectionMultiplexer.ServerMaintenanceEvent += value; }
+            remove { this._connectionMultiplexer.ServerMaintenanceEvent -= value; }
+        }
+
         event EventHandler<HashSlotMovedEventArgs> IConnectionMultiplexer.HashSlotMoved
         {
             add { this._connectionMultiplexer.HashSlotMoved += value; }
             remove { this._connectionMultiplexer.HashSlotMoved -= value; }
+        }
+        
+        public ValueTask DisposeAsync()
+        {
+            return new ValueTask();
         }
     }
 }

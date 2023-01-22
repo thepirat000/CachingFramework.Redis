@@ -43,12 +43,18 @@ namespace CachingFramework.Redis.UnitTest
             var key = "UT_Geo_GeoPos";
             context.Cache.Remove(key);
             var cnt = context.GeoSpatial.GeoAdd(key, _coordZapopan, "Zapopan");
+            context.GeoSpatial.GeoAdd(key, 0D, 0D, "Zero");
             var coordGet = context.GeoSpatial.GeoPosition(key, "Zapopan");
+            var coordGetZero = context.GeoSpatial.GeoPosition(key, "Zero");
             var coordErr = context.GeoSpatial.GeoPosition(key, "not exists");
+            
             Assert.IsNull(coordErr);
+            Assert.IsNotNull(coordGetZero);
             Assert.AreEqual(1, cnt);
             Assert.AreEqual(_coordZapopan.Latitude, coordGet.Latitude, 0.00001);
             Assert.AreEqual(_coordZapopan.Longitude, coordGet.Longitude, 0.00001);
+            Assert.AreEqual(0, coordGetZero.Latitude, 0.00001);
+            Assert.AreEqual(0, coordGetZero.Longitude, 0.00001);
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
