@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿using NUnit.Framework;using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,9 +27,9 @@ namespace CachingFramework.Redis.UnitTest
 
             using (var ctx = new RedisContext(myMultiplexer))
             {
-                Assert.AreEqual("Test_CustomMultiplexer_value", ctx.Cache.GetObject<string>("Test_CustomMultiplexer_obj"));
+                ClassicAssert.AreEqual("Test_CustomMultiplexer_value", ctx.Cache.GetObject<string>("Test_CustomMultiplexer_obj"));
                 var dict = ctx.Collections.GetRedisDictionary<string, string>("Test_CustomMultiplexer_hash", 5);
-                Assert.AreEqual("value", dict["test"]);
+                ClassicAssert.AreEqual("value", dict["test"]);
                 ctx.Cache.Remove("Test_CustomMultiplexer_obj");
                 ctx.Cache.Remove("Test_CustomMultiplexer_hash");
             }

@@ -41,13 +41,13 @@ namespace CachingFramework.Redis.Providers
         private void SubscribeToRedis(string channel, Action<string, KeyEvent> action)
         {
             var sub = RedisConnection.GetSubscriber();
-            sub.Subscribe(channel, (ch, value) => { ProcessNotification(ch, value, action); });
+            sub.Subscribe(GetChannel(channel), (ch, value) => { ProcessNotification(ch, value, action); });
         }
 
         private void UnsubscribeFromRedis(string channel)
         {
             var sub = RedisConnection.GetSubscriber();
-            sub.Unsubscribe(channel);
+            sub.Unsubscribe(GetChannel(channel));
         }
 
 

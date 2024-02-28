@@ -5,7 +5,7 @@
     <Copyright>Copyright 2016</Copyright>
     <AssemblyTitle>CachingFramework.Redis.NewtonsoftJson</AssemblyTitle>
     <Authors>Federico Colombo</Authors>
-    <TargetFrameworks>net461;netstandard2.0;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>CachingFramework.Redis.NewtonsoftJson</AssemblyName>
     <SignAssembly>true</SignAssembly>
@@ -13,7 +13,6 @@
     <AssemblyOriginatorKeyFile>../CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
     <PackageId>CachingFramework.Redis.NewtonsoftJson</PackageId>
     <PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis;NewtonsoftJson;MessagePack</PackageTags>
-    <PackageIconUrl>http://i.imgur.com/FrC8SWO.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/thepirat000/CachingFramework.Redis</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
@@ -22,6 +21,8 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <NoWarn>1701;1702;1573;1591</NoWarn>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>15.1.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,12 +30,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.6.90" />
+    <PackageReference Include="StackExchange.Redis" Version="2.7.23" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

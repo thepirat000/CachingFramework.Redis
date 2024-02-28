@@ -43,5 +43,6 @@ namespace CachingFramework.Redis.Providers
         {
             return _context.GetRedisDatabase();
         }
+        protected StackExchange.Redis.RedisChannel GetChannel(string channel) => new StackExchange.Redis.RedisChannel(channel, StackExchange.Redis.RedisChannel.PatternMode.Auto);
     }
 }

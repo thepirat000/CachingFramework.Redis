@@ -8,7 +8,7 @@
     <Copyright>Copyright 2016-2022</Copyright>
     <AssemblyTitle>CachingFramework.Redis.MsgPack</AssemblyTitle>
     <Authors>Federico Colombo</Authors>
-    <TargetFrameworks>net461;netstandard2.0;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>CachingFramework.Redis.MsgPack</AssemblyName>
     <SignAssembly>true</SignAssembly>
@@ -16,7 +16,6 @@
     <AssemblyOriginatorKeyFile>../CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
     <PackageId>CachingFramework.Redis.MsgPack</PackageId>
     <PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis;MsgPack;MessagePack</PackageTags>
-    <PackageIconUrl>http://i.imgur.com/FrC8SWO.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/thepirat000/CachingFramework.Redis</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	  <PackageReleaseNotes>Removes the old MsgPack.Cli package and instead uses the newer MessagePack for C# package.</PackageReleaseNotes>
@@ -26,25 +25,27 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <NoWarn>1701;1702;1573;1591</NoWarn>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>15.1.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CachingFramework.Redis\CachingFramework.Redis.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MessagePack" Version="2.4.59" />
-    <PackageReference Include="StackExchange.Redis" Version="2.6.90" />
+    <PackageReference Include="MessagePack" Version="2.5.140" />
+    <PackageReference Include="StackExchange.Redis" Version="2.7.23" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
 	<PackageReference Include="MsgPack.Cli" Version="1.0.1" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CachingFramework.Redis\CachingFramework.Redis.csproj" />
   </ItemGroup>
 </Project>

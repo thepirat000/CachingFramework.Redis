@@ -30,7 +30,7 @@ namespace CachingFramework.Redis.Providers
         public async Task SubscribeAsync<T>(string channel, Action<string, T> action)
         {
             var sub = RedisConnection.GetSubscriber();
-            await sub.SubscribeAsync(channel, (ch, value) =>
+            await sub.SubscribeAsync(GetChannel(channel), (ch, value) =>
             {
                 var obj = Serializer.Deserialize<T>(value);
                 action(ch, obj);
@@ -45,7 +45,7 @@ namespace CachingFramework.Redis.Providers
         public async Task SubscribeAsync<T>(string channel, Action<T> action)
         {
             var sub = RedisConnection.GetSubscriber();
-            await sub.SubscribeAsync(channel, (ch, value) =>
+            await sub.SubscribeAsync(GetChannel(channel), (ch, value) =>
             {
                 var obj = Serializer.Deserialize<T>(value);
                 action(obj);
@@ -58,7 +58,7 @@ namespace CachingFramework.Redis.Providers
         public async Task UnsubscribeAsync(string channel)
         {
             var sub = RedisConnection.GetSubscriber();
-            await sub.UnsubscribeAsync(channel).ForAwait();
+            await sub.UnsubscribeAsync(GetChannel(channel)).ForAwait();
         }
         /// <summary>
         /// Publishes an object to the specified channel.
@@ -69,7 +69,7 @@ namespace CachingFramework.Redis.Providers
         public async Task PublishAsync<T>(string channel, T item)
         {
             var sub = RedisConnection.GetSubscriber();
-            await sub.PublishAsync(channel, Serializer.Serialize(item)).ForAwait();
+            await sub.PublishAsync(GetChannel(channel), Serializer.Serialize(item)).ForAwait();
         }
         #endregion
 
@@ -83,7 +83,7 @@ namespace CachingFramework.Redis.Providers
         public void Subscribe<T>(string channel, Action<string, T> action)
         {
             var sub = RedisConnection.GetSubscriber();
-            sub.Subscribe(channel, (ch, value) =>
+            sub.Subscribe(GetChannel(channel), (ch, value) =>
             {
                 var obj = Serializer.Deserialize<T>(value);
                 action(ch, obj);
@@ -98,7 +98,7 @@ namespace CachingFramework.Redis.Providers
         public void Subscribe<T>(string channel, Action<T> action)
         {
             var sub = RedisConnection.GetSubscriber();
-            sub.Subscribe(channel, (ch, value) =>
+            sub.Subscribe(GetChannel(channel), (ch, value) =>
             {
                 var obj = Serializer.Deserialize<T>(value);
                 action(obj);
@@ -111,7 +111,7 @@ namespace CachingFramework.Redis.Providers
         public void Unsubscribe(string channel)
         {
             var sub = RedisConnection.GetSubscriber();
-            sub.Unsubscribe(channel);
+            sub.Unsubscribe(GetChannel(channel));
         }
         /// <summary>
         /// Publishes an object to the specified channel.
@@ -122,7 +122,7 @@ namespace CachingFramework.Redis.Providers
         public void Publish<T>(string channel, T item)
         {
             var sub = RedisConnection.GetSubscriber();
-            sub.Publish(channel, Serializer.Serialize(item));
+            sub.Publish(GetChannel(channel), Serializer.Serialize(item));
         }
         #endregion
     }
