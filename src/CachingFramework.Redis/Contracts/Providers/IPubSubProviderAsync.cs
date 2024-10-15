@@ -23,6 +23,13 @@ namespace CachingFramework.Redis.Contracts.Providers
         /// <param name="action">The action where the first parameter is the object message.</param>
         Task SubscribeAsync<T>(string channel, Action<T> action);
         /// <summary>
+        /// Subscribes to a specified channel for a speficied type.
+        /// </summary>
+        /// <typeparam name="T">The item type</typeparam>
+        /// <param name="channelName">The channel name.</param>
+        /// <param name="action">The action where the first parameter is the object message.</param>
+        Task SubscribeAsync<T>(string channelName, Func<T, Task> action);
+        /// <summary>
         /// Unsubscribes from the specified channel.
         /// </summary>
         /// <param name="channel">The channel name.</param>

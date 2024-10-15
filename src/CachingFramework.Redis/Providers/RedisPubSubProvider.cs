@@ -52,6 +52,21 @@ namespace CachingFramework.Redis.Providers
             }).ForAwait();
         }
         /// <summary>
+        /// Subscribes to a specified channel for a speficied type.
+        /// </summary>
+        /// <typeparam name="T">The item type</typeparam>
+        /// <param name="channelName">The channel name.</param>
+        /// <param name="action">The action where the first parameter is the channel name and the second is the object message.</param>
+        public async Task SubscribeAsync<T>(string channelName, Func<T, Task> action)
+        {
+            var sub = RedisConnection.GetSubscriber();
+            var channel = await sub.SubscribeAsync(GetChannel(channelName));
+            channel.OnMessage(async channelMessage => {
+
+                await action(Serializer.Deserialize<T>(channelMessage.Message));
+            });
+        }
+        /// <summary>
         /// Unsubscribes from the specified channel.
         /// </summary>
         /// <param name="channel">The channel name.</param>
