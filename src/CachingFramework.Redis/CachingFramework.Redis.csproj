@@ -22,7 +22,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <NoWarn>1701;1702;1573;1591</NoWarn>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>15.3.0</Version>
+    <Version>15.4.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

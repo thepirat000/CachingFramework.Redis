@@ -26,11 +26,11 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <NoWarn>1701;1702;1573;1591</NoWarn>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>15.3.0</Version>
+    <Version>15.4.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MessagePack" Version="2.5.172" />
+    <PackageReference Include="MessagePack" Version="2.5.187" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
