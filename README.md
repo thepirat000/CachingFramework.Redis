@@ -1,7 +1,7 @@
 # CachingFramework.Redis
 
-[![issues-open](https://img.shields.io/github/issues-raw/thepirat000/CachingFramework.Redis.svg?label=open)](https://github.com/thepirat000/CachingFramework.Redis/issues)
-[![issues-closed](https://img.shields.io/github/issues-closed-raw/thepirat000/CachingFramework.Redis.svg?label=closed)](https://github.com/thepirat000/CachingFramework.Redis/issues)
+[![issues-open](https://img.shields.io/github/issues-raw/thepirat000/CachingFramework.Redis.svg?label=issues%20open)](https://github.com/thepirat000/CachingFramework.Redis/issues)
+[![issues-closed](https://img.shields.io/github/issues-closed-raw/thepirat000/CachingFramework.Redis.svg?label=issues%20closed)](https://github.com/thepirat000/CachingFramework.Redis/issues)
 
 .NET Redis client library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) adding some interesting features like an **extensible serialization** strategy, a **tagging mechanism** to group keys, hash fields and set members, and a **fetching mechanism** to support atomic add/get operations, all being cluster-compatible.
 
