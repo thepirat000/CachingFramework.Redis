@@ -965,7 +965,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(10, cnt);
         }
 
-#if (NET461)
+#if (NET462)
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public async Task UT_CacheSetHashed_MultipleFieldsDistinctTypes_Async(RedisContext context)
         {

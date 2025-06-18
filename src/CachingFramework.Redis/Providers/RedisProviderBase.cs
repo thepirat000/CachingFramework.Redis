@@ -43,5 +43,10 @@ namespace CachingFramework.Redis.Providers
         {
             return _context.GetRedisDatabase();
         }
+
+        protected RedisChannel GetChannel(string channel)
+        {
+            return new RedisChannel(channel, RedisChannel.PatternMode.Auto);
+        }
     }
 }

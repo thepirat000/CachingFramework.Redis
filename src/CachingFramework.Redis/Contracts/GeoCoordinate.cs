@@ -6,7 +6,7 @@ namespace CachingFramework.Redis.Contracts
     /// <summary>
     /// Class representing a position in Latitude/Longitude terms.
     /// </summary>
-#if (NET461)
+#if (NET462)
     [Serializable]
 #endif
     public class GeoCoordinate

@@ -52,7 +52,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users.Count, usersList.Count);
         }
 
-#if (NET461)
+#if (NET462)
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_PubSub_SubscribeMultipleTypes(RedisContext context)
         {
@@ -153,7 +153,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users.Count, usersList.Count);
         }
 
-#if (NET461)
+#if (NET462)
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public async Task UT_PubSub_SubscribeMultipleTypesAsync(RedisContext context)
         {
@@ -190,9 +190,10 @@ namespace CachingFramework.Redis.UnitTest
                 objects.Add(o);
             });
             int user0count = 0;
-            await context.PubSub.SubscribeAsync<User>(ch + ".user0", (c, o) =>
+            await context.PubSub.SubscribeAsync<User>(ch + ".user0", _ =>
             {
                 user0count++;
+                return Task.CompletedTask;
             });
             await context.PubSub.PublishAsync(ch + ".user0", users[0]);
             await Task.Delay(200);

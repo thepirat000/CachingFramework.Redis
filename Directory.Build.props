@@ -1,6 +1,6 @@
 <Project>
  <PropertyGroup>
-	 <Version>15.0.2</Version>
-	 <PackageReleaseNotes>Update CachingFramework.Redis.MsgPack to support DateOnly and TimeOnly serialization (#85).</PackageReleaseNotes>
+	 <Version>16.0.0</Version>
+	 <PackageReleaseNotes>Updating packages to latest. Updating .NET framework target versions (#89).</PackageReleaseNotes>
  </PropertyGroup>
 </Project>

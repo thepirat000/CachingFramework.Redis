@@ -1,4 +1,4 @@
-﻿#if (NET461)
+﻿#if (NET462)
 using System.IO;
 using System.IO.Compression;
 using CachingFramework.Redis.Contracts;

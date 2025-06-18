@@ -13,7 +13,7 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestRedis
     {
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
         [Test, TestCaseSource(typeof(Common), nameof(Common.MsgPack))]
         public void UT_MessagePack_DateOnly(RedisContext ctx)
         {
@@ -292,7 +292,7 @@ namespace CachingFramework.Redis.UnitTest
             var value = ctx.Cache.GetObject<string>("xxx");
             Assert.AreEqual("123", value);
 
-#if (NET461)
+#if (NET462)
             Assert.IsTrue(prev is BinarySerializer);
 #else
             Assert.IsTrue(prev is JsonSerializer);
@@ -1319,7 +1319,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(10, cnt);
         }
 
-#if (NET461)
+#if (NET462)
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public void UT_CacheSerialization(RedisContext context)
         {

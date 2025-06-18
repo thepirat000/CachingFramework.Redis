@@ -1,50 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Description>
-		MessagePack serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.
-		This uses MessagePack for C# which requires annotations on the objects you want to save in Redis. You can read more about serialization using MessagePack in https://github.com/neuecc/MessagePack-CSharp#readme
-	</Description>
-    <Copyright>Copyright 2016-2022</Copyright>
-    <AssemblyTitle>CachingFramework.Redis.MsgPack</AssemblyTitle>
-    <Authors>Federico Colombo</Authors>
-    <TargetFrameworks>net461;netstandard2.0;net5.0;net6.0</TargetFrameworks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>CachingFramework.Redis.MsgPack</AssemblyName>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <AssemblyOriginatorKeyFile>../CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
-    <PackageId>CachingFramework.Redis.MsgPack</PackageId>
-    <PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis;MsgPack;MessagePack</PackageTags>
-    <PackageIconUrl>http://i.imgur.com/FrC8SWO.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/thepirat000/CachingFramework.Redis</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-	  <PackageReleaseNotes>Removes the old MsgPack.Cli package and instead uses the newer MessagePack for C# package.</PackageReleaseNotes>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/thepirat000/CachingFramework.Redis</RepositoryUrl>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <NoWarn>1701;1702;1573;1591</NoWarn>
-  </PropertyGroup>
+	<PropertyGroup>
+		<Description>
+			MessagePack serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.
+			This uses MessagePack for C# which requires annotations on the objects you want to save in Redis. You can read more about serialization using MessagePack in https://github.com/neuecc/MessagePack-CSharp#readme
+		</Description>
+		<Copyright>Copyright 2016-2022</Copyright>
+		<AssemblyTitle>CachingFramework.Redis.MsgPack</AssemblyTitle>
+		<Authors>Federico Colombo</Authors>
+		<TargetFrameworks>netstandard2.0;net6.0;net8.0;net9.0</TargetFrameworks>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<AssemblyName>CachingFramework.Redis.MsgPack</AssemblyName>
+		<SignAssembly>true</SignAssembly>
+		<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+		<AssemblyOriginatorKeyFile>../CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
+		<PackageId>CachingFramework.Redis.MsgPack</PackageId>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis;MsgPack;MessagePack</PackageTags>
+		<PackageProjectUrl>https://github.com/thepirat000/CachingFramework.Redis</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReleaseNotes>Removes the old MsgPack.Cli package and instead uses the newer MessagePack for C# package.</PackageReleaseNotes>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/thepirat000/CachingFramework.Redis</RepositoryUrl>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+		<NoWarn>1701;1702;1573;1591</NoWarn>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CachingFramework.Redis\CachingFramework.Redis.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MessagePack" Version="3.1.4" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MessagePack" Version="2.4.59" />
-    <PackageReference Include="StackExchange.Redis" Version="2.6.90" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
-	<PackageReference Include="MsgPack.Cli" Version="1.0.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\CachingFramework.Redis\CachingFramework.Redis.csproj" />
+	</ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="images\icon.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE" />
-  </ItemGroup>
 </Project>

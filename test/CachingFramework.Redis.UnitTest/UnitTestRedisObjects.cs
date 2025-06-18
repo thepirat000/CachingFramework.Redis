@@ -1284,7 +1284,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, set.Count);
         }
 
-#if (NET461)
+#if (NET462)
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_CacheList_StrObj(RedisContext context)
         {

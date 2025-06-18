@@ -96,7 +96,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(9100, kmlz, 100);
         }
 
-#if (NET461)
+#if (NET462)
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Geo_GeoDistanceDirect(RedisContext context)
         {
@@ -124,7 +124,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(hash.StartsWith("9ewmwenq"));
         }
 
-#if (NET461)
+#if (NET462)
         [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_Geo_GeoRadius(RedisContext context)
         {
@@ -205,7 +205,7 @@ namespace CachingFramework.Redis.UnitTest
             return new List<User>() { user1, user2, user3, user4 };
         }
     }
-#if (NET461)
+#if (NET462)
     public static class TempExtensions
     {
         public static GeoCoordinate ToGeoCoord(double lat, double lon)

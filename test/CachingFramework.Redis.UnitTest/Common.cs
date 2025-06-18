@@ -65,7 +65,7 @@ namespace CachingFramework.Redis.UnitTest
             _jsonPrefixedContext = new RedisContext(Config, new JsonSerializer(), new DatabaseOptions { KeyPrefix = "PREFIX-" });
             _msgPackContext = new RedisContext(Config, new MsgPack.MsgPackSerializer());
             _newtonsoftJsonContext = new RedisContext(Config, new NewtonsoftJson.NewtonsoftJsonSerializer());
-#if (NET461)
+#if (NET462)
             _binaryContext = new RedisContext(Config, new BinarySerializer());
             All = new[] { _binaryContext, _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext, _jsonPrefixedContext };
             BinAndRawAndJson = new[] { _binaryContext, _rawContext, _jsonContext, _newtonsoftJsonContext, _jsonPrefixedContext };

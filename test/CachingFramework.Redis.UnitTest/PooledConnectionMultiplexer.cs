@@ -240,10 +240,15 @@ namespace CachingFramework.Redis.UnitTest
             add { this._connectionMultiplexer.HashSlotMoved += value; }
             remove { this._connectionMultiplexer.HashSlotMoved -= value; }
         }
-        
+
         public ValueTask DisposeAsync()
         {
-            return new ValueTask();
+            return _connectionMultiplexer.DisposeAsync();
+        }
+
+        public void AddLibraryNameSuffix(string suffix)
+        {
+            _connectionMultiplexer.AddLibraryNameSuffix(suffix);
         }
     }
 }

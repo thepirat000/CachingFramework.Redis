@@ -16,7 +16,7 @@ namespace CachingFramework.Redis
         /// <summary>
         /// Gets or sets the default serializer to use when creating a new RedisContext. 
         /// </summary>
-#if (NET461)
+#if (NET462)
         public static ISerializer DefaultSerializer { get; set; } = new BinarySerializer();
 #else
         public static ISerializer DefaultSerializer { get; set; } = new JsonSerializer();

@@ -8,7 +8,7 @@ namespace CachingFramework.Redis.UnitTest
     public interface IDto
     {
     }
-#if NET461 
+#if NET462 
     [Serializable]
 #endif
     [MessagePackObject]
@@ -19,7 +19,7 @@ namespace CachingFramework.Redis.UnitTest
         [Key(2)]
         public List<Department> Deparments { get; set; }
     }
-#if NET461 
+#if NET462 
     [Serializable]
 #endif
     [MessagePackObject]
@@ -34,7 +34,7 @@ namespace CachingFramework.Redis.UnitTest
         [Key(4)]
         public decimal Distance { get; set; }
     }
-#if NET461 
+#if NET462 
     [Serializable]
 #endif
     [MessagePackObject]
@@ -45,7 +45,7 @@ namespace CachingFramework.Redis.UnitTest
         [Key(2)]
         public string Name { get; set; }
     }
-#if NET461 
+#if NET462 
     [Serializable]
 #endif
     [MessagePackObject]
@@ -54,7 +54,7 @@ namespace CachingFramework.Redis.UnitTest
         [Key(1)]
         public byte[] Data { get; set; }
     }
-#if NET461 
+#if NET462 
     [Serializable]
 #endif
     [MessagePackObject]
@@ -73,7 +73,7 @@ namespace CachingFramework.Redis.UnitTest
         [Key(6)]
         public string CompleteName { get { return LastName + ";" + FirstName; } }
     }
-#if NET461 
+#if NET462 
     [Serializable]
 #endif
     [MessagePackObject]
