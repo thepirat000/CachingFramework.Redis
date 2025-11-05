@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using StackExchange.Redis;
 using System.IO;
 using System.Net;
@@ -249,6 +249,11 @@ namespace CachingFramework.Redis.UnitTest
         public void AddLibraryNameSuffix(string suffix)
         {
             _connectionMultiplexer.AddLibraryNameSuffix(suffix);
+        }
+
+        public IServer GetServer(RedisKey key, object asyncState = null, CommandFlags flags = CommandFlags.None)
+        {
+            return this._connectionMultiplexer.GetServer(key, asyncState, flags);
         }
     }
 }

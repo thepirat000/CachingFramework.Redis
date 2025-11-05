@@ -5,10 +5,10 @@
 			MessagePack serializer for CachingFramework.Redis, a distributed caching based on StackExchange.Redis and Redis. Includes support for all redis data types, tagging mechanism, cache invalidation, PubSub, GeoSpatial indexes, HyperLogLog and is cluster-compatible.
 			This uses MessagePack for C# which requires annotations on the objects you want to save in Redis. You can read more about serialization using MessagePack in https://github.com/neuecc/MessagePack-CSharp#readme
 		</Description>
-		<Copyright>Copyright 2016-2022</Copyright>
+		<Copyright>Copyright 2016-2025</Copyright>
 		<AssemblyTitle>CachingFramework.Redis.MsgPack</AssemblyTitle>
 		<Authors>Federico Colombo</Authors>
-		<TargetFrameworks>netstandard2.0;net6.0;net8.0;net9.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<AssemblyName>CachingFramework.Redis.MsgPack</AssemblyName>
 		<SignAssembly>true</SignAssembly>

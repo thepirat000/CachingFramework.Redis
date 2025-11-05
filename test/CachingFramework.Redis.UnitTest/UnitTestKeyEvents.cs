@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using CachingFramework.Redis.Contracts;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -71,23 +72,23 @@ namespace CachingFramework.Redis.UnitTest
             Thread.Sleep(500);
             context.Cache.Remove(objectKey);
 
-            Assert.IsTrue(handle.Wait(5000));
-            Assert.AreEqual(expectedEvents.Count, result.Count);
+            ClassicAssert.IsTrue(handle.Wait(5000));
+            ClassicAssert.AreEqual(expectedEvents.Count, result.Count);
 
             foreach (var expectedEvent in expectedEvents)
             {
                 KeyValuePair<string, KeyEvent> e;
-                Assert.IsTrue(result.TryDequeue(out e));
-                Assert.AreEqual(expectedEvent, e.Value);
-                Assert.AreEqual(e.Key, keyPrefix + objectKey);
+                ClassicAssert.IsTrue(result.TryDequeue(out e));
+                ClassicAssert.AreEqual(expectedEvent, e.Value);
+                ClassicAssert.AreEqual(e.Key, keyPrefix + objectKey);
             }
 
             //Now test Unsubscribe. No more events should be received in queue and handle will timeout.
             handle.Reset(1);
             unsubscribeAction();
             context.Cache.SetObject(objectKey, new { Name = "alex", Created = DateTime.UtcNow }, TimeSpan.FromMilliseconds(500));
-            Assert.IsFalse(handle.Wait(1000));
-            Assert.IsTrue(result.IsEmpty);
+            ClassicAssert.IsFalse(handle.Wait(1000));
+            ClassicAssert.IsTrue(result.IsEmpty);
 
             context.KeyEvents.Unsubscribe(KeyEventSubscriptionType.All);
         }
