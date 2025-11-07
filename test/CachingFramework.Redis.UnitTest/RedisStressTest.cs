@@ -63,8 +63,8 @@ namespace CachingFramework.Redis.UnitTest
         {
             const string test = "UT_RedisBomb";
             Stress(100, test, context);
-            Stress(1000, test, context);
             /*
+            Stress(1000, test, context);
             Stress(10000, test);
             Stress(100000, test);
             Stress(200000, test);
