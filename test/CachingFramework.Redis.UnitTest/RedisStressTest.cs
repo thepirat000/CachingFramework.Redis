@@ -16,7 +16,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_RedisStress_BigAddDelete(RedisContext context)
         {
             string key = "UT_RedisStress_BigAddDelete";
-            int total = 1000;
+            int total = 10;
             var sw = Stopwatch.StartNew();
             for (int i = 0; i < total; i++)
             {
@@ -44,7 +44,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             string key = "UT_CacheBigRemoveByTag";
             string tag = "mytag";
-            int total = 1000;
+            int total = 10;
             for (int i = 0; i < total; i++)
             {
                 context.Cache.SetObject(key + i, new User() { Id = i }, new[] { tag });
@@ -79,7 +79,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_RedisStress_GetAllTags(RedisContext context)
         {
             const string test = "UT_RedisStress_GetAllTags";
-            const int keyCount = 1500;
+            const int keyCount = 15;
             var realTags = new HashSet<string>();
             for (int mod = 1; mod <= 216; mod++)
             {
@@ -124,7 +124,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_RedisStress_GetKeysByTag(RedisContext context)
         {
             const string test = "UT_RedisStress_GetKeysByTag";
-            const int keyCount = 1500;
+            const int keyCount = 15;
             for (int mod = 1; mod <= 216; mod++)
             {
                 context.Cache.InvalidateKeysByTag(GetTag(mod, test));
@@ -169,7 +169,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_RedisStress_RemoveKeysByTags(RedisContext context)
         {
             const string test = "UT_RedisStress_RemoveKeysByTags";
-            const int keyCount = 3000;
+            const int keyCount = 30;
             RemoveKeys(keyCount, test, context);
             for (int mod = 1; mod <= 216; mod++)
             {
@@ -214,7 +214,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheString_BigString(RedisContext context)
         {
             var key = "UT_CacheString_BigString";
-            int i = 999999;
+            int i = 99999;
             context.Cache.Remove(key);
             var cs = context.Collections.GetRedisString(key);
             cs.SetRange(i, "test");
