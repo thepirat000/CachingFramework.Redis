@@ -102,7 +102,6 @@ jobs:
             /d:sonar.cs.vstest.reportsPaths="test/TestResult/**/*.trx" \
             /d:sonar.cs.opencover.reportsPaths="test/TestResult/**/*.opencover.xml" \
             /d:sonar.exclusions="**/docs/**,**/documents/**,**/tools/**,**/packages/**" \
-            /d:sonar.coverage.exclusions="" \
             /v:"${{ env.PROJECT_VERSION }}"
 
       - name: Dotnet Restore 
