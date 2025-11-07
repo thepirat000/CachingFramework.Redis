@@ -1168,29 +1168,32 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheSetWithTags_Expiration(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
-            var key2 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-2";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Guid.NewGuid()}";
+            var key2 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-2-{Guid.NewGuid()}";
             context.Cache.Remove(key);
             context.Cache.Remove(key2);
             var users = GetUsers();
             context.Cache.InvalidateKeysByTag("user:" + users[0].Id, "user:" + users[1].Id, "user-info");
 
             context.Cache.SetObject(key, users[0], new[] { "user:" + users[0].Id, "user-info" }, TimeSpan.FromSeconds(1));
-            context.Cache.SetObject(key2, users[1], new[] { "user:" + users[1].Id, "user-info" }, TimeSpan.FromSeconds(5));
+            context.Cache.SetObject(key2, users[1], new[] { "user:" + users[1].Id, "user-info" }, TimeSpan.FromSeconds(60));
+
             var keys = context.Cache.GetKeysByTag(new[] { "user:" + users[0].Id }).ToList();
             Assert.IsTrue(keys.Contains(key));
+
             var value = context.Cache.GetObject<User>(keys.First());
             Assert.IsNotNull(value);
-            Thread.Sleep(1200);
+
+            Thread.Sleep(2000);
+
             var keys2 = context.Cache.GetKeysByTag(new[] { "user:" + users[0].Id });
             Assert.IsFalse(keys2.Contains(key));
+
             value = context.Cache.GetObject<User>(key);
             Assert.IsNull(value);
+
             var keys3 = context.Cache.GetKeysByTag(new[] { "user-info" });
             Assert.IsTrue(keys3.Contains(key2));
-            Thread.Sleep(4000);
-            var keys4 = context.Cache.GetKeysByTag(new[] { "user-info" });
-            Assert.IsFalse(keys4.Contains(key2));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]

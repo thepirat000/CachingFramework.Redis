@@ -1,38 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	<TargetFrameworks>net462;netcoreapp3.1;net6.0;net8.0;net9.0</TargetFrameworks>
-    <AssemblyName>CachingFramework.Redis.UnitTest</AssemblyName>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <AssemblyOriginatorKeyFile>../../src/CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
-    <PackageId>CachingFramework.Redis.UnitTest</PackageId>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <UserSecretsId>24d7c230-0d1f-46a5-ad0b-dd322c108f4f</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net462;netcoreapp3.1;net6.0;net8.0;net9.0</TargetFrameworks>
+		<AssemblyName>CachingFramework.Redis.UnitTest</AssemblyName>
+		<SignAssembly>true</SignAssembly>
+		<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+		<AssemblyOriginatorKeyFile>../../src/CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
+		<PackageId>CachingFramework.Redis.UnitTest</PackageId>
+		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+		<UserSecretsId>24d7c230-0d1f-46a5-ad0b-dd322c108f4f</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-    <PackageReference Include="Moq" Version="4.17.2" />
-    <PackageReference Include="Nito.AsyncEx.Context" Version="5.1.2" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+		<PackageReference Include="Moq" Version="4.17.2" />
+		<PackageReference Include="Nito.AsyncEx.Context" Version="5.1.2" />
+		<PackageReference Include="NUnit" Version="3.13.3" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\CachingFramework.Redis.NewtonsoftJson\CachingFramework.Redis.NewtonsoftJson.csproj" />
-    <ProjectReference Include="..\..\src\CachingFramework.Redis\CachingFramework.Redis.csproj" />
-    <ProjectReference Include="..\..\src\CachingFramework.Redis.MsgPack\CachingFramework.Redis.MsgPack.csproj" />
-  </ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' != 'net462' ">
+		<ProjectReference Include="..\..\src\CachingFramework.Redis.MemoryPack\CachingFramework.Redis.MemoryPack.csproj" />
+	</ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\CachingFramework.Redis.NewtonsoftJson\CachingFramework.Redis.NewtonsoftJson.csproj" />
+		<ProjectReference Include="..\..\src\CachingFramework.Redis\CachingFramework.Redis.csproj" />
+		<ProjectReference Include="..\..\src\CachingFramework.Redis.MsgPack\CachingFramework.Redis.MsgPack.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+		<Reference Include="System" />
+		<Reference Include="Microsoft.CSharp" />
+	</ItemGroup>
 
 </Project>

@@ -1,6 +1,9 @@
-﻿using MessagePack;
-using System;
+﻿using System;
+using MessagePack;
 using System.Collections.Generic;
+#if !NET462 
+using MemoryPack;
+#endif
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -10,9 +13,12 @@ namespace CachingFramework.Redis.UnitTest
     }
 #if NET462 
     [Serializable]
+#else
+    [MemoryPackable]
 #endif
     [MessagePackObject]
-    public class User : IDto
+    
+    public partial class User : IDto
     {
         [Key(1)]
         public int Id { get; set; }
@@ -21,9 +27,11 @@ namespace CachingFramework.Redis.UnitTest
     }
 #if NET462 
     [Serializable]
+#else
+    [MemoryPackable]
 #endif
     [MessagePackObject]
-    public class Department : IDto
+    public partial class Department : IDto
     {
         [Key(1)]
         public int Id { get; set; }
@@ -36,29 +44,35 @@ namespace CachingFramework.Redis.UnitTest
     }
 #if NET462 
     [Serializable]
+#else
+    [MemoryPackable]
 #endif
     [MessagePackObject]
-    public class Location : IDto
+    public partial class Location : IDto
     {
         [Key(1)]
         public int Id { get; set; }
         [Key(2)]
         public string Name { get; set; }
     }
-#if NET462 
+#if NET462
     [Serializable]
+#else
+    [MemoryPackable]
 #endif
     [MessagePackObject]
-    public class Jpeg
+    public partial class Jpeg
     {
         [Key(1)]
         public byte[] Data { get; set; }
     }
-#if NET462 
+#if NET462
     [Serializable]
+#else
+    [MemoryPackable]
 #endif
     [MessagePackObject]
-    public class DistributorInfo
+    public partial class DistributorInfo
     {
         [Key(1)]
         public DistributorInfo Parent { get; set; }
@@ -73,11 +87,13 @@ namespace CachingFramework.Redis.UnitTest
         [Key(6)]
         public string CompleteName { get { return LastName + ";" + FirstName; } }
     }
-#if NET462 
+#if NET462
     [Serializable]
+#else
+    [MemoryPackable]
 #endif
     [MessagePackObject]
-    public class DistributorCompReview
+    public partial class DistributorCompReview
     {
         [Key(1)]
         public string DistributorId { get; set; }

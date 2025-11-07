@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="COLLECTIONS.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="docker/docker-compose.yml" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/CachingFramework.Redis.MemoryPack/CachingFramework.Redis.MemoryPack.csproj" />
+    <Project Path="src/CachingFramework.Redis.MsgPack/CachingFramework.Redis.MsgPack.csproj" />
+    <Project Path="src/CachingFramework.Redis.NewtonsoftJson/CachingFramework.Redis.NewtonsoftJson.csproj" />
+    <Project Path="src/CachingFramework.Redis/CachingFramework.Redis.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/CachingFramework.Redis.UnitTest/CachingFramework.Redis.UnitTest.csproj" />
+  </Folder>
+</Solution>

@@ -88,6 +88,11 @@ namespace CachingFramework.Redis.UnitTest
             return this._connectionMultiplexer.GetServer(endpoint, asyncState);
         }
 
+        public IServer GetServer(RedisKey key, object asyncState = null, CommandFlags flags = CommandFlags.None)
+        {
+            return this._connectionMultiplexer.GetServer(key, asyncState, flags);
+        }
+
         public IServer[] GetServers()
         {
             return _connectionMultiplexer.GetServers();

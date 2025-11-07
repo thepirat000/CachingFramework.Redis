@@ -1,1 +1,154 @@
+name: CI - Build and Tests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+env:
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  ACCEPT_EULA: 'Y'
+
+jobs:
+  build-and-test-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version from Directory.Build.props
+        shell: bash
+        run: |
+          version=$(grep -oP '<Version>\K[\d\.]+(?:-[\w\-\.]+)?' Directory.Build.props)
+          echo "PROJECT_VERSION=$version" >> $GITHUB_ENV
+          echo "PROJECT_VERSION=$version"
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            2.1.x
+            3.1.x
+            6.0.x
+            7.0.x 
+            8.0.x
+            9.0.x
+
+      - name: Show docker versions
+        run: |
+          docker --version
+          docker compose version
+
+      - name: Docker pull
+        run: docker compose -f ./docker/docker-compose.yml pull
+
+      - name: Docker compose
+        run: |
+          docker compose -f ./docker/docker-compose.yml up -d --remove-orphans
+
+      - name: Sleep for 10 seconds
+        run: sleep 10s
+        shell: bash
+
+      - name: Wait for services
+        run: |
+          set -e
+
+          wait_for_port() {
+            host=$1
+            port=$2
+            name=$3
+            retries=60
+            echo "Waiting for $host:$port ..."
+            for i in $(seq 1 $retries); do
+              if timeout 1 bash -c "cat < /dev/null > /dev/tcp/$host/$port" 2>/dev/null; then
+                echo "$host:$port $name is available"
+                return 0
+              fi
+              sleep 1
+            done
+            echo "Timeout waiting for $host:$port $name" >&2
+            return 1
+          }
+
+          # List of host:port pairs to check. Adjust or expand as needed.
+          wait_for_port localhost 6379 redis
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.2
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'      
+        with:
+          nuget-version: '6.x'      
+  
+      - name: Install dotnet Tools
+        run: |
+          dotnet new tool-manifest
+          dotnet tool install dotnet-reportgenerator-globaltool
+          dotnet tool install --global dotnet-sonarscanner --version 10.1.2
+          
+      - name: SonarScanner Begin
+        shell: bash
+        run: |
+          dotnet sonarscanner begin \
+            /o:"thepirat000" \
+            /k:"CachingFramework.Redis" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.login="${{ env.SONAR_TOKEN }}" \
+            /d:sonar.cs.vstest.reportsPaths="test/TestResult/**/*.trx" \
+            /d:sonar.cs.opencover.reportsPaths="test/TestResult/**/*.opencover.xml" \
+            /d:sonar.exclusions="**/docs/**,**/documents/**,**/tools/**,**/packages/**" \
+            /d:sonar.coverage.exclusions="" \
+            /v:"${{ env.PROJECT_VERSION }}"
+
+      - name: Dotnet Restore 
+        run: dotnet restore ./CachingFramework.sln
+        
+      - name: Dotnet Build CachingFramework.sln
+        run: dotnet build ./CachingFramework.sln --no-restore -c release
+     
+      - name: Run tests
+        run: |
+          dotnet test ./CachingFramework.sln --no-build -c release --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=VSTest" "-m:1" --results-directory "./test/TestResult"
+  
+      - name: SonarScanner End
+        shell: bash
+        run: |
+          dotnet sonarscanner end \
+            /d:sonar.login="${{ env.SONAR_TOKEN }}"
+
+      - name: Generate Code Coverage Report
+        run: |
+          dotnet reportgenerator -reports:${{ github.workspace }}/test/TestResult/**/*.cobertura.xml -targetdir:"${{ github.workspace }}/Tests/coveragereport" -reporttypes:"MarkdownSummary;Html" "-assemblyfilters:+CachingFramework.*;-*UnitTest"
+  
+      - name: Upload Code Coverage Report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coveragereport
+          path: ${{ github.workspace }}/Tests/coveragereport
+      
+      - name: Rename summary coverage file
+        continue-on-error: true
+        run: mv -f "${{ github.workspace }}/Tests/coveragereport/Summary.md" "${{ github.workspace }}/CODE_COVERAGE.md"
+  
+      - name: Commit CODE_COVERAGE.md
+        continue-on-error: true
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Commit CODE_COVERAGE.md
+          file_pattern: 'CODE_COVERAGE.md'
+
+      - name: Tear down containers
+        if: always()
+        run: docker compose -f ./docker/docker-compose.yml down -v --remove-orphans
+
+      - name: Clean up Docker images and containers
+        if: always()
+        run: |
+          docker system prune -af
+          docker builder prune -af
 

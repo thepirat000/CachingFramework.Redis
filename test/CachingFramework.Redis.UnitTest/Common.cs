@@ -24,6 +24,8 @@ namespace CachingFramework.Redis.UnitTest
         private static RedisContext _newtonsoftJsonContext;
         // A context using msgpack
         private static RedisContext _msgPackContext;
+        // A context using memorypack
+        private static RedisContext _memoryPackContext;
 
 
         // TestCases
@@ -32,6 +34,7 @@ namespace CachingFramework.Redis.UnitTest
         public static RedisContext[] JsonKeyPrefix { get { return new[] { _jsonPrefixedContext }; } }
         public static RedisContext[] NewtonsoftJson { get { return new[] { _newtonsoftJsonContext }; } }
         public static RedisContext[] MsgPack { get { return new[] { _msgPackContext }; } }
+        public static RedisContext[] MemoryPack { get { return new[] { _memoryPackContext }; } }
         public static RedisContext[] Raw { get { return new[] { _rawContext }; } }
         public static RedisContext[] Bin { get { return new[] { _binaryContext }; } }
         public static RedisContext[] All { get; set; }
@@ -70,8 +73,9 @@ namespace CachingFramework.Redis.UnitTest
             All = new[] { _binaryContext, _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext, _jsonPrefixedContext };
             BinAndRawAndJson = new[] { _binaryContext, _rawContext, _jsonContext, _newtonsoftJsonContext, _jsonPrefixedContext };
 #else
+            _memoryPackContext = new RedisContext(Config, new MemoryPack.MemoryPackSerializer());
             BinAndRawAndJson = new[] { _rawContext, _jsonContext, _newtonsoftJsonContext, _jsonPrefixedContext };
-            All = new[] { _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext, _jsonPrefixedContext };
+            All = new[] { _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext, _jsonPrefixedContext, _memoryPackContext };
 #endif
 
             Thread.Sleep(1500);
