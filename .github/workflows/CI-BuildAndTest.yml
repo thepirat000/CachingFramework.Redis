@@ -13,7 +13,7 @@ env:
 
 jobs:
   build-and-test-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04   #Can't use a newer version due to Mono requirements
     timeout-minutes: 60
 
     steps:
