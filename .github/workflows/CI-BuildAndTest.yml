@@ -105,14 +105,14 @@ jobs:
             /v:"${{ env.PROJECT_VERSION }}"
 
       - name: Dotnet Restore 
-        run: dotnet restore ./CachingFramework.sln
+        run: dotnet restore ./CachingFramework.slnx
         
-      - name: Dotnet Build CachingFramework.sln
-        run: dotnet build ./CachingFramework.sln --no-restore -c release
+      - name: Dotnet Build CachingFramework.slnx
+        run: dotnet build ./CachingFramework.slnx --no-restore -c release
      
       - name: Run tests
         run: |
-          dotnet test ./CachingFramework.sln --no-build -c release --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=VSTest" "-m:1" --results-directory "./test/TestResult"
+          dotnet test ./CachingFramework.slnx --no-build -c release --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=VSTest" "-m:1" --results-directory "./test/TestResult"
   
       - name: SonarScanner End
         shell: bash
