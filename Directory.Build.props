@@ -1,6 +1,28 @@
 <Project>
- <PropertyGroup>
-	 <Version>17.0.0</Version>
-	 <PackageReleaseNotes>New project CachingFramework.Redis.MemoryPack and updated dependencies.</PackageReleaseNotes>
- </PropertyGroup>
+	<PropertyGroup>
+		<Version>17.0.0</Version>
+		<PackageReleaseNotes>New project CachingFramework.Redis.MemoryPack and updated dependencies.</PackageReleaseNotes>
+		<CheckEolTargetFramework>false</CheckEolTargetFramework>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<Choose>
+		<When Condition="$(MSBuildProjectName.Contains('UnitTest'))">
+			<PropertyGroup>
+				<IsTestProject>True</IsTestProject>
+
+				<!-- Enable coverage collection -->
+				<IsCollectCoverage>true</IsCollectCoverage>
+				<CollectCoverage>true</CollectCoverage>
+
+				<!-- TRX -->
+				<VSTestResultsDirectory>..\TestResult\$(MSBuildProjectName)</VSTestResultsDirectory>
+				<ResultsDirectory>..\TestResult\$(MSBuildProjectName)\</ResultsDirectory>
+
+				<!-- Output to ../TestResult/{ProjectName}.xml -->
+				<CoverletOutput>..\TestResult\$(MSBuildProjectName)\</CoverletOutput>
+				<CoverletOutputFormat>opencover,cobertura</CoverletOutputFormat>
+			</PropertyGroup>
+		</When>
+	</Choose>
 </Project>

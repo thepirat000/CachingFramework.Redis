@@ -112,7 +112,7 @@ jobs:
      
       - name: Run tests
         run: |
-          dotnet test ./CachingFramework.slnx --no-build -c release --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=VSTest" "-m:1" --results-directory "./test/TestResult" --filter "Test_KeyPrefix"
+          dotnet test ./CachingFramework.slnx --no-build -c release --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=VSTest" "-m:1" --results-directory "./test/TestResult"
   
       - name: SonarScanner End
         shell: bash
