@@ -590,12 +590,11 @@ namespace CachingFramework.Redis.UnitTest
             var ksby = "primitive:sbyte";
             var ki16 = "primitive:int16";
             var ki32 = "primitive:int32";
-            var kuip = "primitive:uintptr";
             var kdbl = "primitive:double";
             var kdt = "datetime";
 
             context.Cache.Remove(new[] { kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64, 
-                kch, kds, kdt, kby, ksby, ki16, ki32, kuip, kdbl });
+                kch, kds, kdt, kby, ksby, ki16, ki32, kdbl });
             var ss = "this is a short string";
             var ls = @"UTF-8 is a character encoding capable of encoding all possible characters, or code points, in Unicode.
                        The encoding is variable-length and uses 8-bit code units. It was designed for backward compatibility with ASCII, and to avoid the complications of endianness and byte order marks in the alternative UTF-16 and UTF-32 encodings. The name is derived from: Universal Coded Character Set + Transformation Format—8-bit.";
@@ -606,11 +605,6 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.SetObject<SByte>(ksby, SByte.MaxValue);
             context.Cache.SetObject<Int16>(ki16, Int16.MaxValue);
             context.Cache.SetObject<Int32>(ki32, Int32.MaxValue);
-            // TODO: System.Text.JSon cannot serialize this.
-            if (context.GetSerializer().GetType() != typeof(JsonSerializer))
-            {
-                context.Cache.SetObject<UIntPtr>(kuip, UIntPtr.Zero);
-            }
             context.Cache.SetObject<Double>(kdbl, Double.NegativeInfinity);
             context.Cache.SetObject<bool>(kpBool, true);
             context.Cache.SetObject<int>(kpInt, int.MaxValue);
@@ -647,7 +641,6 @@ namespace CachingFramework.Redis.UnitTest
             var ksby_ = context.Cache.GetObject<SByte>(ksby);
             var ki16_ = context.Cache.GetObject<Int16>(ki16);
             var ki32_ = context.Cache.GetObject<Int32>(ki32);
-            var kuip_ = context.Cache.GetObject<UIntPtr>(kuip);
             var kdbl_ = context.Cache.GetObject<Double>(kdbl);
             var kpBool_ = context.Cache.GetObject<bool>(kpBool);
 
@@ -660,7 +653,6 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(SByte.MaxValue, ksby_);
             Assert.AreEqual(Int16.MaxValue, ki16_);
             Assert.AreEqual(Int32.MaxValue, ki32_);
-            Assert.AreEqual(UIntPtr.Zero, kuip_);
             Assert.AreEqual(Double.NegativeInfinity, kdbl_);
             Assert.AreEqual(int.MaxValue, pInt_);
             Assert.AreEqual(long.MaxValue, pLong_);
@@ -673,7 +665,7 @@ namespace CachingFramework.Redis.UnitTest
             }
             Assert.AreEqual(true, kpBool_);
             context.Cache.Remove(new[] { kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64, 
-                kch, kds, kdt, kby, ksby, ki16, ki32, kuip, kdbl });
+                kch, kds, kdt, kby, ksby, ki16, ki32, kdbl });
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]

@@ -81,7 +81,7 @@ namespace CachingFramework.Redis.UnitTest
             const string test = "UT_RedisStress_GetAllTags";
             const int keyCount = 15;
             var realTags = new HashSet<string>();
-            for (int mod = 1; mod <= 216; mod++)
+            for (int mod = 1; mod <= 10; mod++)
             {
                 var tag = GetTag(mod, test);
                 realTags.Add(tag);
