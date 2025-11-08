@@ -1182,13 +1182,16 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             context.Cache.Remove(key2);
             var users = GetUsers();
-            var prefix = $"user-{Common.GetUId()}:";
-            context.Cache.InvalidateKeysByTag("user:" + users[0].Id, "user:" + users[1].Id, prefix + "user-info");
+            var user0Tag = $"user:{users[0].Id}-{Common.GetUId()}";
+            var user1Tag = $"user:{users[1].Id}-{Common.GetUId()}";
+            var userInfoTag = $"user-info-{Common.GetUId()}";
 
-            context.Cache.SetObject(key, users[0], new[] { prefix + users[0].Id, prefix + "user-info" }, TimeSpan.FromSeconds(1));
-            context.Cache.SetObject(key2, users[1], new[] { prefix + users[1].Id, prefix + "user-info" }, TimeSpan.FromSeconds(60));
+            context.Cache.InvalidateKeysByTag(user0Tag, "user:" + users[1].Id, userInfoTag);
 
-            var keys = context.Cache.GetKeysByTag(new[] { prefix + users[0].Id }).ToList();
+            context.Cache.SetObject(key, users[0], new[] { user0Tag, userInfoTag }, TimeSpan.FromSeconds(1));
+            context.Cache.SetObject(key2, users[1], new[] { user1Tag, userInfoTag }, TimeSpan.FromSeconds(60));
+
+            var keys = context.Cache.GetKeysByTag(new[] { user0Tag }).ToList();
             Assert.IsTrue(keys.Contains(key));
 
             var value = context.Cache.GetObject<User>(keys.First());
@@ -1196,13 +1199,13 @@ namespace CachingFramework.Redis.UnitTest
 
             Thread.Sleep(2000);
 
-            var keys2 = context.Cache.GetKeysByTag(new[] { prefix + users[0].Id });
+            var keys2 = context.Cache.GetKeysByTag(new[] { user0Tag });
             Assert.IsFalse(keys2.Contains(key));
 
             value = context.Cache.GetObject<User>(key);
             Assert.IsNull(value);
 
-            var keys3 = context.Cache.GetKeysByTag(new[] { prefix + "user-info" });
+            var keys3 = context.Cache.GetKeysByTag(new[] { userInfoTag });
             Assert.IsTrue(keys3.Contains(key2));
         }
 
@@ -1212,13 +1215,15 @@ namespace CachingFramework.Redis.UnitTest
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
-            context.Cache.InvalidateKeysByTag("user:" + users[0].Id);
+            var user0Tag = $"user:{users[0].Id}-{Common.GetUId()}";
 
-            context.Cache.SetObject(key, users[0], new[] { "user:" + users[0].Id });
-            var keys = context.Cache.GetKeysByTag(new[] { "user:" + users[0].Id }, true);
+            context.Cache.InvalidateKeysByTag(user0Tag);
+
+            context.Cache.SetObject(key, users[0], new[] { user0Tag });
+            var keys = context.Cache.GetKeysByTag(new[] { user0Tag }, true);
             Assert.IsTrue(keys.Contains(key));
             context.Cache.Remove(key);
-            var keys2 = context.Cache.GetKeysByTag(new[] { "user:" + users[0].Id }, true);
+            var keys2 = context.Cache.GetKeysByTag(new[] { user0Tag }, true);
             Assert.IsFalse(keys2.Contains(key));
         }
 
@@ -1230,13 +1235,16 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key0);
             context.Cache.Remove(key1);
             var users = GetUsers();
-            context.Cache.InvalidateKeysByTag("user:" + users[0].Id, "user:" + users[1].Id, "user-info");
+            var user0Tag = $"user:{users[0].Id}-{Common.GetUId()}";
+            var user1Tag = $"user:{users[1].Id}-{Common.GetUId()}";
+            var userInfoTag = $"user-info-{Common.GetUId()}";
+            context.Cache.InvalidateKeysByTag(user0Tag, user1Tag, userInfoTag);
 
-            context.Cache.SetObject(key0, users[0], new[] { "user:" + users[0].Id, "user-info" });
-            context.Cache.SetObject(key1, users[1], new[] { "user:" + users[1].Id, "user-info" });
-            var keys0 = context.Cache.GetKeysByTag(new[] { "user:" + users[0].Id });
-            var keys1 = context.Cache.GetKeysByTag(new[] { "user:" + users[1].Id });
-            var keys = context.Cache.GetKeysByTag(new[] { "user-info" }).ToList();
+            context.Cache.SetObject(key0, users[0], new[] { user0Tag, userInfoTag });
+            context.Cache.SetObject(key1, users[1], new[] { user1Tag, userInfoTag });
+            var keys0 = context.Cache.GetKeysByTag(new[] { user0Tag });
+            var keys1 = context.Cache.GetKeysByTag(new[] { user1Tag });
+            var keys = context.Cache.GetKeysByTag(new[] { userInfoTag }).ToList();
             Assert.IsTrue(keys0.Contains(key0));
             Assert.IsTrue(keys1.Contains(key1));
             Assert.IsTrue(keys.Contains(key0) && keys.Contains(key1));
