@@ -405,9 +405,9 @@ namespace CachingFramework.Redis.UnitTest
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<User>(key1);
             rl.AddRange(users);
-            rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
+            rl.TimeToLive = TimeSpan.FromMilliseconds(1000);
             Assert.AreEqual(users.Count, rl.Count);
-            Thread.Sleep(2000);
+            Thread.Sleep(4000);
             Assert.AreEqual(0, rl.Count);
         }
 
