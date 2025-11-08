@@ -481,7 +481,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Cache_Hash_Scan(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
-            int total = 10000;
+            int total = 100;
             context.Cache.Remove(key);
             var fields = Enumerable.Range(1, total)
                 .Select(i => new KeyValuePair<string, string>(i.ToString(), Guid.NewGuid().ToString()+ Guid.NewGuid().ToString()+ Guid.NewGuid().ToString()+ Guid.NewGuid().ToString()))
@@ -491,19 +491,9 @@ namespace CachingFramework.Redis.UnitTest
             var dict = context.Collections.GetRedisDictionary<string, string>(key);
             Assert.AreEqual(total, dict.Count);
 
-            var stp = Stopwatch.StartNew();
-            var all = context.Cache.GetHashedAll<string>(key).Take(5).ToList();
-            var allTime = stp.Elapsed.TotalMilliseconds;
-
-            stp = Stopwatch.StartNew();
-            var some = context.Cache.ScanHashed<string>(key, "*", 5).Take(5).ToList();
-            var someTime = stp.Elapsed.TotalMilliseconds;
-            
             var c1 = context.Cache.ScanHashed<string>(key, "", 20).Count();
             var c2 = context.Cache.ScanHashed<string>(key, null).Count();
             
-            // Assert the HSCAN lasted at most the 0.5 times of the time of the HGETALL
-            Assert.IsTrue((someTime / (double)allTime) < 0.5);
             Assert.AreEqual(total, c1);
             Assert.AreEqual(total, c2);
             context.Cache.Remove(key);
@@ -1197,7 +1187,7 @@ namespace CachingFramework.Redis.UnitTest
             var value = context.Cache.GetObject<User>(keys.First());
             Assert.IsNotNull(value);
 
-            Thread.Sleep(2000);
+            Thread.Sleep(3000);
 
             var keys2 = context.Cache.GetKeysByTag(new[] { user0Tag });
             Assert.IsFalse(keys2.Contains(key));

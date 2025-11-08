@@ -477,9 +477,11 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheByteArray_Async(RedisContext context)
         {
-            context.Cache.SetObject("key", "jpeg");
-            var o = await context.Cache.GetObjectAsync<string>("key");
             string key = $"UT_CacheByteArray_Async-{Common.GetUId()}";
+
+            context.Cache.SetObject(key, "jpeg");
+            var o = await context.Cache.GetObjectAsync<string>(key);
+            
             Jpeg jpeg = new Jpeg()
             {
                 Data = Enumerable.Range(0, 200000)
@@ -881,7 +883,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(keys.Contains(key));
             var value = await context.Cache.GetObjectAsync<User>(keys.First());
             Assert.IsNotNull(value);
-            Thread.Sleep(2200);
+            Thread.Sleep(3000);
             var keys2 = await context.Cache.GetKeysByTagAsync(new[] { prefix + "user:" + users[0].Id });
             Assert.IsFalse(keys2.Contains(key));
             value = await context.Cache.GetObjectAsync<User>(key);

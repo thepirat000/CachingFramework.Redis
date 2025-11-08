@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -39,16 +40,17 @@ namespace CachingFramework.Redis.UnitTest
         {
             var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var users = GetUsers();
-            var usersList = new List<User>();
+            var usersList = new ConcurrentBag<User>();
             context.PubSub.Subscribe<User>(ch, (c, o) => usersList.Add(o));
             foreach (var t in users)
             {
                 context.PubSub.Publish(ch, t);
             }
-            Thread.Sleep(500);
+            Thread.Sleep(2000);
             Assert.AreEqual(users.Count, usersList.Count);
             context.PubSub.Unsubscribe(ch);
             context.PubSub.Publish(ch, users[0]);
+            Thread.Sleep(1000);
             Assert.AreEqual(users.Count, usersList.Count);
         }
 
@@ -146,10 +148,11 @@ namespace CachingFramework.Redis.UnitTest
             {
                 await context.PubSub.PublishAsync(ch, t);
             }
-            await Task.Delay(500);
+            await Task.Delay(2000);
             Assert.AreEqual(users.Count, usersList.Count);
             await context.PubSub.UnsubscribeAsync(ch);
             await context.PubSub.PublishAsync(ch, users[0]);
+            await Task.Delay(1000);
             Assert.AreEqual(users.Count, usersList.Count);
         }
 

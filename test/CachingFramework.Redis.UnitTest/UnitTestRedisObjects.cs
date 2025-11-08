@@ -47,15 +47,18 @@ namespace CachingFramework.Redis.UnitTest
             }
 
             string key = $"UT_CacheGeo_WithTags-{Common.GetUId()}";
+            var tag1 = $"tag1-{Common.GetUId()}";
+            var tag2 = $"tag2-{Common.GetUId()}";
+            var common = $"common-{Common.GetUId()}";
             context.Cache.Remove(key);
-            context.Cache.InvalidateKeysByTag("tag1", "tag2", "common");
+            context.Cache.InvalidateKeysByTag(tag1, tag2, common);
 
-            var geo1 = context.GeoSpatial.GeoAdd(key, 12.34, 23.45, "value1", new[] { "tag1", "common" });
-            var geo2 = context.GeoSpatial.GeoAdd(key, 33.34, 11.45, "value2", new[] { "tag2", "common" });
+            var geo1 = context.GeoSpatial.GeoAdd(key, 12.34, 23.45, "value1", new[] { tag1, common });
+            var geo2 = context.GeoSpatial.GeoAdd(key, 33.34, 11.45, "value2", new[] { tag2, common });
 
-            var t1 = context.Cache.GetObjectsByTag<string>("tag1").ToList();
-            var t2 = context.Cache.GetObjectsByTag<string>("tag2").ToList();
-            var x = context.Cache.GetObjectsByTag<string>("common").ToList();
+            var t1 = context.Cache.GetObjectsByTag<string>(tag1).ToList();
+            var t2 = context.Cache.GetObjectsByTag<string>(tag2).ToList();
+            var x = context.Cache.GetObjectsByTag<string>(common).ToList();
 
             Assert.AreEqual(2, x.Count);
             Assert.AreEqual(1, t1.Count);
@@ -65,10 +68,10 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(t1.Contains("value1"));
             Assert.IsTrue(t2.Contains("value2"));
 
-            context.Cache.RemoveTagsFromSetMember(key, "value1", new[] { "tag1" });
-            Assert.AreEqual(0, context.Cache.GetObjectsByTag<string>("tag1").Count());
+            context.Cache.RemoveTagsFromSetMember(key, "value1", new[] { tag1 });
+            Assert.AreEqual(0, context.Cache.GetObjectsByTag<string>(tag1).Count());
 
-            context.Cache.InvalidateKeysByTag("common");
+            context.Cache.InvalidateKeysByTag(common);
 
             Assert.IsNull(context.GeoSpatial.GeoPosition(key, "value1"));
             Assert.IsNull(context.GeoSpatial.GeoPosition(key, "value2"));
@@ -689,9 +692,9 @@ namespace CachingFramework.Redis.UnitTest
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<User>(key1);
             await rl.AddRangeAsync(users);
-            rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
+            rl.TimeToLive = TimeSpan.FromMilliseconds(1000);
             Assert.AreEqual(users.Count, rl.Count);
-            Thread.Sleep(2000);
+            Thread.Sleep(4000);
             Assert.AreEqual(0, rl.Count);
         }
 
