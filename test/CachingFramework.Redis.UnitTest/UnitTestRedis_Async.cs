@@ -61,7 +61,7 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
         
-        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.JsonKeyPrefix))]
         public async Task UT_KeyTaggedTTL_Async(RedisContext ctx)
         {
             var key = "UT_KeyTaggedTTL_Async" + "_" + Common.GetUId();
