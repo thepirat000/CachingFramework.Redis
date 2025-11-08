@@ -877,13 +877,13 @@ namespace CachingFramework.Redis.UnitTest
             var prefix = Common.GetUId();
             await context.Cache.InvalidateKeysByTagAsync(prefix + "user:" + users[0].Id, prefix + "user:" + users[1].Id, prefix + "user-info");
 
-            await context.Cache.SetObjectAsync(key, users[0], new[] { prefix + "user:" + users[0].Id, prefix + "user-info" }, TimeSpan.FromSeconds(2));
+            await context.Cache.SetObjectAsync(key, users[0], new[] { prefix + "user:" + users[0].Id, prefix + "user-info" }, TimeSpan.FromSeconds(1));
             await context.Cache.SetObjectAsync(key2, users[1], new[] { prefix + "user:" + users[1].Id, prefix + "user-info" }, TimeSpan.FromSeconds(60));
             var keys = (await context.Cache.GetKeysByTagAsync(new[] { prefix + "user:" + users[0].Id })).ToList();
             Assert.IsTrue(keys.Contains(key));
             var value = await context.Cache.GetObjectAsync<User>(keys.First());
             Assert.IsNotNull(value);
-            Thread.Sleep(3000);
+            await Task.Delay(3000);
             var keys2 = await context.Cache.GetKeysByTagAsync(new[] { prefix + "user:" + users[0].Id });
             Assert.IsFalse(keys2.Contains(key));
             value = await context.Cache.GetObjectAsync<User>(key);
@@ -945,6 +945,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.SetObjectAsync(key1, users[0], new[] { tag1 });
             await context.Cache.SetObjectAsync(key2, users[1], new[] { tag2 });
             await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
+            await Task.Delay(4000);
             var keys = await context.Cache.GetKeysByTagAsync(new [] {tag1, tag2});
             var user = await context.Cache.GetObjectAsync<User>(key1);
             Assert.IsNull(user);
