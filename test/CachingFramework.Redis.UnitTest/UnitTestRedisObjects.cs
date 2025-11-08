@@ -119,33 +119,34 @@ namespace CachingFramework.Redis.UnitTest
             string key = $"UT_CacheSet_Mix_WithTags_Set-{Common.GetUId()}";
             string sskey = $"UT_CacheSet_Mix_WithTags_SortedSet-{Common.GetUId()}";
             string geokey = $"UT_CacheSet_Mix_WithTags_Geo-{Common.GetUId()}";
-            context.Cache.InvalidateKeysByTag("tag");
+            var tag = $"tag-{Common.GetUId()}";
+            context.Cache.InvalidateKeysByTag(tag);
             context.Cache.Remove(key);
             context.Cache.Remove(sskey);
             var set = context.Collections.GetRedisSet<string>(key);
             var sset = context.Collections.GetRedisSortedSet<string>(sskey);
             context.GeoSpatial.GeoAdd(geokey, 12.34, 23.45, "geo2");
-            context.Cache.AddTagsToSetMember(geokey, "geo2", new[] { "tag" });
+            context.Cache.AddTagsToSetMember(geokey, "geo2", new[] { tag });
 
             set.Add("s1");
-            set.Add("s2", new[] { "tag" });
+            set.Add("s2", new[] { tag });
             set.Add("s3");
 
             sset.Add(0.1, "ss1");
             sset.Add(0.2, "ss2");
-            context.Cache.AddTagsToSetMember(sskey, "ss2", new[] { "tag" });
+            context.Cache.AddTagsToSetMember(sskey, "ss2", new[] { tag });
             sset.Add(0.3, "ss3");
 
-            var x = context.Cache.GetObjectsByTag<string>("tag").ToList();
+            var x = context.Cache.GetObjectsByTag<string>(tag).ToList();
 
             Assert.AreEqual(3, x.Count);
             Assert.IsTrue(x.Contains("geo2"));
             Assert.IsTrue(x.Contains("s2"));
             Assert.IsTrue(x.Contains("ss2"));
 
-            context.Cache.InvalidateKeysByTag("tag");
+            context.Cache.InvalidateKeysByTag(tag);
 
-            x = context.Cache.GetObjectsByTag<string>("tag").ToList();
+            x = context.Cache.GetObjectsByTag<string>(tag).ToList();
             var pos = context.GeoSpatial.GeoPosition(geokey, "geo2");
 
             Assert.AreEqual(0, x.Count);
@@ -1357,7 +1358,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNull(user);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.NewtonsoftJson))]
         public void UT_CacheSetObject_TTL(RedisContext context)
         {
             string key1 = $"UT_CacheSetObject_TTL-{Common.GetUId()}";
@@ -1367,7 +1368,7 @@ namespace CachingFramework.Redis.UnitTest
             rl.AddRange(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
             Assert.AreEqual(users.Count, rl.Count);
-            Thread.Sleep(2000);
+            Thread.Sleep(4000);
             Assert.AreEqual(0, rl.Count);
         }
 
@@ -2148,9 +2149,9 @@ namespace CachingFramework.Redis.UnitTest
             var users = GetUsers();
             var rl = context.Collections.GetRedisSet<User>(key1);
             await rl.AddRangeAsync(users);
-            rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
+            rl.TimeToLive = TimeSpan.FromMilliseconds(1000);
             Assert.AreEqual(users.Count, await rl.GetCountAsync());
-            Thread.Sleep(2000);
+            Thread.Sleep(4000);
             Assert.AreEqual(0, await rl.GetCountAsync());
         }
 

@@ -916,13 +916,16 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.RemoveAsync(key0);
             await context.Cache.RemoveAsync(key1);
             var users = await GetUsersAsync();
-            await context.Cache.InvalidateKeysByTagAsync("user:" + users[0].Id, "user:" + users[1].Id, "user-info");
+            var user0 = $"user:{users[0].Id}-{Common.GetUId()}";
+            var user1 = $"user:{users[1].Id}-{Common.GetUId()}";
+            var userInfo = $"user-info-{Common.GetUId()}";
+            await context.Cache.InvalidateKeysByTagAsync(user0, user1, userInfo);
 
-            await context.Cache.SetObjectAsync(key0, users[0], new[] { "user:" + users[0].Id, "user-info" });
-            await context.Cache.SetObjectAsync(key1, users[1], new[] { "user:" + users[1].Id, "user-info" });
-            var keys0 = await context.Cache.GetKeysByTagAsync(new[] { "user:" + users[0].Id });
-            var keys1 = await context.Cache.GetKeysByTagAsync(new[] { "user:" + users[1].Id });
-            var keys = (await context.Cache.GetKeysByTagAsync(new[] { "user-info" })).ToList();
+            await context.Cache.SetObjectAsync(key0, users[0], new[] { user0, userInfo });
+            await context.Cache.SetObjectAsync(key1, users[1], new[] { user1, userInfo });
+            var keys0 = await context.Cache.GetKeysByTagAsync(new[] { user0 });
+            var keys1 = await context.Cache.GetKeysByTagAsync(new[] { user0 });
+            var keys = (await context.Cache.GetKeysByTagAsync(new[] { userInfo })).ToList();
             Assert.IsTrue(keys0.Contains(key0));
             Assert.IsTrue(keys1.Contains(key1));
             Assert.IsTrue(keys.Contains(key0) && keys.Contains(key1));

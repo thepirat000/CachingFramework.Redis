@@ -11,7 +11,7 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class UnitTestPubSub
     {
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_PubSub_SingleSubscribe(RedisContext context)
         {
             var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -29,13 +29,13 @@ namespace CachingFramework.Redis.UnitTest
             {
                 context.PubSub.Publish(ch, t);
             }
-            Thread.Sleep(500);
+            Thread.Sleep(2000);
             Assert.AreEqual(users.Count, usersList.Count);
             Assert.IsTrue(users.All(u => usersList.Any(ul => ul.Id == u.Id)));
             context.PubSub.Unsubscribe(ch);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_PubSub_SingleUnsubscribe(RedisContext context)
         {
             var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -55,7 +55,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 #if (NET462)
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public void UT_PubSub_SubscribeMultipleTypes(RedisContext context)
         {
             var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -78,7 +78,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 #endif
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_PubSub_SubscribeWilcards(RedisContext context)
         {
             var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -113,7 +113,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(1, user0count);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_PubSub_SingleSubscribeAsync(RedisContext context)
         {
             var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -137,7 +137,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.PubSub.UnsubscribeAsync(ch);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_PubSub_SingleUnsubscribeAsync(RedisContext context)
         {
             var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -157,7 +157,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 #if (NET462)
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public async Task UT_PubSub_SubscribeMultipleTypesAsync(RedisContext context)
         {
             var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -180,7 +180,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 #endif
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_PubSub_SubscribeWilcardsAsync(RedisContext context)
         {
             var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";

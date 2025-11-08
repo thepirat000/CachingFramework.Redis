@@ -51,7 +51,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         public static int[] VersionInfo { get; set; }
-        public static string Config = "localhost:6379, allowAdmin=true"; 
+        public static string Config = "localhost:6379, allowAdmin=true, connectTimeout=10000, syncTimeout=30000, asyncTimeout=30000"; 
 
         static Common()
         {

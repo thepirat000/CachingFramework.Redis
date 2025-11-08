@@ -23,7 +23,7 @@ namespace CachingFramework.Redis.UnitTest
             _coordLondon = new GeoCoordinate(51.5073509, -0.1277583);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_Geo_GeoAdd(RedisContext context)
         {
             var key = $"UT_Geo_GeoAdd-{Common.GetUId()}";
@@ -37,7 +37,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(_coordZapopan.Longitude, coord.Longitude, 0.00001);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Geo_GeoPos(RedisContext context)
         {
             var key = $"UT_Geo_GeoPos-{Common.GetUId()}";
@@ -57,7 +57,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, coordGetZero.Longitude, 0.00001);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Geo_GeoPosMultiple(RedisContext context)
         {
             var key = $"UT_Geo_GeoPosMultiple-{Common.GetUId()}";
@@ -77,7 +77,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(null, coords[1]);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Geo_GeoDistance(RedisContext context)
         {
             var key = $"UT_Geo_GeoDistance-{Common.GetUId()}";
@@ -97,7 +97,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 #if (NET462)
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Geo_GeoDistanceDirect(RedisContext context)
         {
             var key = $"UT_Geo_GeoDistanceDirect-{Common.GetUId()}";
@@ -112,7 +112,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(385, km, 15);
         }
 #endif
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Geo_GeoHash(RedisContext context)
         {
             var key = $"UT_Geo_GeoHash-{Common.GetUId()}";
