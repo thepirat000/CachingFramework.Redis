@@ -1011,7 +1011,8 @@ namespace CachingFramework.Redis.UnitTest
 
             context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(1000));
             context.Cache.SetHashed(key, "2", users[1], TimeSpan.FromMilliseconds(10000));
-            Thread.Sleep(2000);
+            
+            Thread.Sleep(4000);
 
             var user1 = context.Cache.GetHashed<User>(key, "1");
             var user2 = context.Cache.GetHashed<User>(key, "2");

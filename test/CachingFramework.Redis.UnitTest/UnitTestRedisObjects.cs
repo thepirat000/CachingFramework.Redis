@@ -695,7 +695,7 @@ namespace CachingFramework.Redis.UnitTest
             await rl.AddRangeAsync(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1000);
             Assert.AreEqual(users.Count, rl.Count);
-            Thread.Sleep(4000);
+            await Task.Delay(4000);
             Assert.AreEqual(0, rl.Count);
         }
 

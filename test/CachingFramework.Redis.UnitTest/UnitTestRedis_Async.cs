@@ -70,7 +70,7 @@ namespace CachingFramework.Redis.UnitTest
             await ctx.Cache.InvalidateKeysByTagAsync(tag);
             await ctx.Cache.SetObjectAsync(key, "the value", new[] { tag }, TimeSpan.FromSeconds(1));
             await ctx.Cache.KeyTimeToLiveAsync(key, new[] { tag }, TimeSpan.FromHours(24));
-            await Task.Delay(1200);
+            await Task.Delay(4000);
             var keys = await ctx.Cache.GetKeysByTagAsync(new[] { tag }, true);
             var value = await ctx.Cache.GetObjectAsync<string>(key);
             var ttlKey = await ctx.Cache.KeyTimeToLiveAsync(key);
