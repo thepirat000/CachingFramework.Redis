@@ -125,7 +125,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(key, tagSetMembers[0].ToString());
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CustomTagPrefixPostfix(RedisContext ctx)
         {
             // Arrange
@@ -193,7 +193,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("the value", value);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_MultipleAddHashedWithTags(RedisContext ctx)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -223,7 +223,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("3three", ser.Deserialize<string>(members0[2].MemberValue));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_HashedWithFieldTypes(RedisContext ctx)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -251,7 +251,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_SetGetHashedMultiple(RedisContext ctx)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -266,7 +266,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(10, result[3]);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_SetGetHashedMultiple_Generic(RedisContext ctx)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -305,7 +305,7 @@ namespace CachingFramework.Redis.UnitTest
             RedisContext.DefaultSerializer = prev;
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Cache_MembersByTag(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -366,7 +366,7 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.InvalidateKeysByTag(tag1, tag2);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Cache_IsOnTagMethods(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -423,7 +423,7 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.InvalidateKeysByTag(tag1, tag2);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Cache_SetHashed_TK_TV(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -440,7 +440,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[1].Id, u1.Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Cache_SetHashed_TK_TV_WithTags(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -477,7 +477,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[1].Id, dict[users[0]].Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Cache_Hash_Scan(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -666,7 +666,7 @@ namespace CachingFramework.Redis.UnitTest
                 kch, kds, kdt, kby, ksby, ki16, ki32, kdbl });
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Cache_GetAllTags(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -676,7 +676,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(tags.Contains("tag2"));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Cache_GetKeysByPattern(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -712,7 +712,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[0].Id, v3);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheByteArray(RedisContext context)
         {
             context.Cache.SetObject("key", "jpeg");
@@ -729,7 +729,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(Enumerable.SequenceEqual(jpeg.Data, jpeg2.Data));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheAddGet(RedisContext context)
         {
             // Test the Add and Get methods
@@ -744,7 +744,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("one", user.Deparments[0].Location.Name);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheFetch(RedisContext context)
         {
             // Test the Fetch method
@@ -758,7 +758,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(a[0].Id, b[0].Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheFetch_TTL(RedisContext context)
         {
             // Test the Fetch method
@@ -773,7 +773,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, count);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheFetchHashed(RedisContext context)
         {
             // Test the FetchHashed method
@@ -786,7 +786,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[0].Id, returnedUser2.Id);
         }
 
-        [Test, TestCaseSource(typeof (Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof (Common), nameof(Common.Json))]
         public void UT_CacheFetch_Nulls(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -796,7 +796,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(context.Cache.KeyExists(key));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheFetchHashed_Nulls(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -806,7 +806,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(context.Cache.KeyExists(key));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheTryGetObject(RedisContext context)
         {
             // Test the TryGetObject method
@@ -823,7 +823,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNotNull(u1);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheTryGetHashed(RedisContext context)
         {
             // Test the TryGetHashed method
@@ -840,7 +840,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNotNull(u1);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheGetSetObject(RedisContext context)
         {
             // Test the GetSetObject method
@@ -861,7 +861,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, integer);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheGetHashAll(RedisContext context)
         {
             // Test the GetHashAll method
@@ -879,7 +879,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, dict["2"].Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheRemove(RedisContext context)
         {
             // Test the Remove method
@@ -897,7 +897,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNull(returnedUser);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheRemoveMultiple(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -916,7 +916,7 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheRemoveHashed(RedisContext context)
         {
             // Test the Remove method for a complete hash set
@@ -941,7 +941,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, returnedUser2.Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheRemove_PreviouslyHashed(RedisContext context)
         {
             // Test the Remove hashed method
@@ -966,7 +966,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNull(returnedUser2);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheAdd_Expiration(RedisContext context)
         {
             // Test the expiration of the Add method
@@ -983,7 +983,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNull(user);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheAddHashed_Expiration_1(RedisContext context)
         {
             // Test the expiration of the AddHashed method (MAX ttl applies)
@@ -1001,7 +1001,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNotNull(user2);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheAddHashed_Expiration_2(RedisContext context)
         {
             // Test the expiration of the Fetch method (last larger expiration applies)
@@ -1019,7 +1019,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNotNull(user2);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheAddHashed_Expiration_3(RedisContext context)
         {
             // Test the expiration of the Fetch method (last no-expiration applies)
@@ -1051,7 +1051,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(ttl.Value.Seconds >= 8);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheSetHashed_Tags(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -1113,7 +1113,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[1].Id, u.Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheSetWithTags_Default(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -1126,7 +1126,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNotNull(value);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheFetchWithTags(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -1143,7 +1143,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(keys.Contains(key));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheSetWithTags_PersistentOverridesExpiration(RedisContext context)
         {
             var key1 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -1152,7 +1152,7 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.InvalidateKeysByTag(tag);
             context.Cache.SetObject(key1, "test value 1", new[] { tag }, TimeSpan.FromSeconds(1));
             context.Cache.SetObject(key2, "test value 2", new[] { tag }, TimeSpan.MaxValue);
-            Thread.Sleep(2000);
+            Thread.Sleep(4000);
             var keys = context.Cache.GetKeysByTag(new[] { tag }).ToList();
             var keysCleaned = context.Cache.GetKeysByTag(new[] { tag }, true).ToList();
             Assert.AreEqual(2, keys.Count);
@@ -1164,7 +1164,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheSetWithTags_Expiration(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -1199,7 +1199,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(keys3.Contains(key2));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheSetWithTags_Removal(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -1217,7 +1217,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(keys2.Contains(key));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheSetWithTags_Multiple(RedisContext context)
         {
             var key0 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-0-{Common.GetUId()}";
@@ -1240,7 +1240,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(keys.Contains(key0) && keys.Contains(key1));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheRemoveByTags(RedisContext context)
         {
             var key1 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-1-{Common.GetUId()}";
@@ -1260,7 +1260,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, keys.Count());
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheGetObjectsByTag(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}" + "{0}";
@@ -1288,7 +1288,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNull(context.Cache.GetObject<User>(string.Format(key, 1)));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheAddRemoveTagToKey(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -1304,7 +1304,7 @@ namespace CachingFramework.Redis.UnitTest
 
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CacheSetHashedAll(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -1317,7 +1317,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(users.All(x => response.ContainsKey(x.Id.ToString())));
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Cache_HllAddCount(RedisContext context)
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";

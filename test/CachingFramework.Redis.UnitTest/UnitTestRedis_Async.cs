@@ -61,7 +61,7 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
         
-        [Test, TestCaseSource(typeof(Common), "Json")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_KeyTaggedTTL_Async(RedisContext ctx)
         {
             var key = "UT_KeyTaggedTTL_Async" + "_" + Common.GetUId();
@@ -86,7 +86,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("the value", value);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_MultipleAddHashedWithTags_Async(RedisContext ctx)
         {
             var key = $"UT_MultipleAddHashedWithTags_Async-{Common.GetUId()}";
@@ -116,7 +116,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("3three", ser.Deserialize<string>(members0[2].MemberValue));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_HashedWithFieldTypes_Async(RedisContext ctx)
         {
             var key = $"UT_HashedWithFieldTypes_Async-{Common.GetUId()}";
@@ -136,7 +136,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(all.Any(_ => _.Key.Id == 2 && _.Key.Name == "Two" && _.Value.Id == users[1].Id));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_SetGetHashedMultiple_Async(RedisContext ctx)
         {
             var key = $"UT_GetHashedMultiple-{Common.GetUId()}";
@@ -151,7 +151,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(10, result[3]);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public async Task UT_SetGetHashedMultiple_Generic_Async(RedisContext ctx)
         {
             var key = $"UT_GetHashedMultiple_NonStringFields-{Common.GetUId()}";
@@ -166,7 +166,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_Cache_IsOnTagMethods_Async(RedisContext context)
         {
             var key = $"UT_Cache_IsOnTagMethods-{Common.GetUId()}";
@@ -223,7 +223,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
         }
 
-        [Test, TestCaseSource(typeof(Common), "Json")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_Cache_AddToSetAsync(RedisContext context)
         {
             var key = $"UT_Cache_AddToSetAsync-{Common.GetUId()}";
@@ -233,7 +233,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(1, set.Count);
             Assert.AreEqual("test", (await set.GetRandomMemberAsync()));
         }
-        [Test, TestCaseSource(typeof(Common), "Json")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_Cache_AddToSetAsync_NoDeadlocks(RedisContext context)
         {
             await Common.TestDeadlock(() =>
@@ -243,7 +243,7 @@ namespace CachingFramework.Redis.UnitTest
             });
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_Cache_SetHashed_TK_TV_WithTags_Async(RedisContext context)
         {
             var key = $"UT_Cache_SetHashed_TK_TV_WithTags_Async-{Common.GetUId()}";
@@ -276,7 +276,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[0].Id, tS0[0].Id);
 
         }
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_Cache_SetHashed_TK_TV_WithTags_Async_NoDeadlocks(RedisContext context)
         {
             var key = $"UT_Cache_SetHashed_TK_TV_WithTags_Async-{Common.GetUId()}";
@@ -292,7 +292,7 @@ namespace CachingFramework.Redis.UnitTest
 
         }
 
-        [Test, TestCaseSource(typeof(Common), "Raw")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
         public async Task UT_Context_Dispose_Async(RedisContext context)
         {
             var ctx = new RedisContext(context.GetConnectionMultiplexer().Configuration, context.GetSerializer());
@@ -303,14 +303,14 @@ namespace CachingFramework.Redis.UnitTest
             Assert.ThrowsAsync<ObjectDisposedException>(async () => await ctx.Cache.SetObjectAsync("key", "value2"));
         }
 
-        [Test, TestCaseSource(typeof (Common), "Raw")]
+        [Test, TestCaseSource(typeof (Common), nameof(Common.Raw))]
         public async Task UT_CacheNull_Async(RedisContext context)
         {
             await Task.Delay(1);
             Assert.ThrowsAsync<ArgumentException>(async () => await context.Cache.SetObjectAsync(null, "this should fail"));
         }
 
-        [Test, TestCaseSource(typeof (Common), "Raw")]
+        [Test, TestCaseSource(typeof (Common), nameof(Common.Raw))]
         public async Task UT_CacheSet_When_Async(RedisContext context)
         {
             var key = $"UT_CacheSet_When_Async-{Common.GetUId()}";
@@ -326,7 +326,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.RemoveAsync(key);
         }
 
-        [Test, TestCaseSource(typeof(Common), "Raw")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
         public async Task UT_CacheSetHashed_When_Async(RedisContext context)
         {
             var key = $"UT_CacheSetHashed_When_Async-{Common.GetUId()}";
@@ -341,7 +341,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.RemoveAsync(key);
         }
 
-        [Test, TestCaseSource(typeof (Common), "Raw")]
+        [Test, TestCaseSource(typeof (Common), nameof(Common.Raw))]
         public async Task UT_CacheHackTag_Async(RedisContext context)
         {
             var key = $"UT_CacheHackTag_Async-{Common.GetUId()}";
@@ -474,7 +474,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[0].Id, v3);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheByteArray_Async(RedisContext context)
         {
             string key = $"UT_CacheByteArray_Async-{Common.GetUId()}";
@@ -493,7 +493,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(Enumerable.SequenceEqual(jpeg.Data, jpeg2.Data));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheAddGet_Async(RedisContext context)
         {
             // Test the Add and Get methods
@@ -508,7 +508,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual("one", user.Deparments[0].Location.Name);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheFetch_Async(RedisContext context)
         {
             // Test the Fetch method
@@ -522,7 +522,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(a[0].Id, b[0].Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheFetch_TTL_Async(RedisContext context)
         {
             // Test the Fetch method
@@ -537,7 +537,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, count);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheFetchHashed_Async(RedisContext context)
         {
             // Test the FetchHashed method
@@ -550,7 +550,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[0].Id, returnedUser2.Id);
         }
 
-        [Test, TestCaseSource(typeof (Common), "All")]
+        [Test, TestCaseSource(typeof (Common), nameof(Common.Json))]
         public async Task UT_CacheFetch_Nulls_Async(RedisContext context)
         {
             string key = $"UT_CacheFetch_Nulls_Async-{Common.GetUId()}";
@@ -560,7 +560,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(await context.Cache.KeyExistsAsync(key));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheFetchHashed_Nulls_Async(RedisContext context)
         {
             string key = $"UT_CacheFetchHashed_Nulls_Async-{Common.GetUId()}";
@@ -570,7 +570,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(context.Cache.KeyExists(key));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheGetSetObject_Async(RedisContext context)
         {
             // Test the GetSetObject method
@@ -591,7 +591,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, integer);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheGetHashAll_Async(RedisContext context)
         {
             // Test the GetHashAll method
@@ -609,7 +609,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, dict["2"].Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheRemove_Async(RedisContext context)
         {
             // Test the Remove method
@@ -627,7 +627,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNull(returnedUser);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheRemoveMultiple_Async(RedisContext context)
         {
             string key = $"UT_CacheRemoveMultiple_Async-{Common.GetUId()}";
@@ -646,7 +646,7 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheRemoveHashed_Async(RedisContext context)
         {
             // Test the Remove method for a complete hash set
@@ -671,7 +671,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(2, returnedUser2.Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheRemove_PreviouslyHashed_Async(RedisContext context)
         {
             // Test the Remove hashed method
@@ -696,7 +696,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNull(returnedUser2);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheAdd_Expiration_Async(RedisContext context)
         {
             // Test the expiration of the Add method
@@ -713,7 +713,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNull(user);
         }
 
-        [Test, TestCaseSource(typeof(Common), "Json")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheSetHashed_KeyTimeToLive_Async(RedisContext context)
         {
             // Test the expiration of the Fetch method (last no-expiration applies)
@@ -727,7 +727,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(ttl.Value.Seconds >= 8);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheSetHashed_Tags_Async(RedisContext context)
         {
             string key = $"UT_CacheSetHashed_Tags_Async-{Common.GetUId()}";
@@ -764,7 +764,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(1, objs.Count);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheFetchHashed_Tags_Async(RedisContext context)
         {
             string key = $"UT_CacheFetchHashed_Tags_Async-{Common.GetUId()}";
@@ -789,7 +789,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[1].Id, u.Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UtCacheSetWithTagsAsyncTask_Async(RedisContext context)
         {
             string key = $"UtCacheSetWithTagsAsyncTask_Async-{Common.GetUId()}";
@@ -803,7 +803,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNotNull(value);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheFetchWithTags_Async(RedisContext context)
         {
             string key = $"UT_CacheFetchWithTags_Async-{Common.GetUId()}";
@@ -820,7 +820,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(keys.Contains(key));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheSetWithTags_PersistentOverridesExpiration_Async(RedisContext context)
         {
             string key1 = $"UT_CacheSetWithTags_Special1-{Common.GetUId()}";
@@ -829,7 +829,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync(tag);
             await context.Cache.SetObjectAsync(key1, "test value 1", new[] { tag }, TimeSpan.FromSeconds(1));
             await context.Cache.SetObjectAsync(key2, "test value 2", new[] { tag }, TimeSpan.MaxValue);
-            Thread.Sleep(1500);
+            Thread.Sleep(4000);
             var keys = (await context.Cache.GetKeysByTagAsync(new[] { tag })).ToList();
             var keysCleaned = (await context.Cache.GetKeysByTagAsync(new[] { tag }, true)).ToList();
             Assert.AreEqual(2, keys.Count);
@@ -840,7 +840,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync(tag);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheTryGetObject_Async(RedisContext context)
         {
             // Test the TryGetObject method
@@ -866,7 +866,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsNotNull(cachedUser);
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheSetWithTags_Expiration_Async(RedisContext context)
         {
             string key = $"UT_CacheSetWithTags_Expiration_Async-{Common.GetUId()}";
@@ -892,7 +892,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(keys3.Contains(key2));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheSetWithTags_Removal_Async(RedisContext context)
         {
             string key = $"UT_CacheSetWithTags_Removal_Async-{Common.GetUId()}";
@@ -908,7 +908,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsFalse(keys2.Contains(key));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheSetWithTags_Multiple_Async(RedisContext context)
         {
             string key0 = $"UT_CacheSetWithTags_Multiple_Async0-{Common.GetUId()}";
@@ -928,7 +928,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(keys.Contains(key0) && keys.Contains(key1));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheRemoveByTags_Async(RedisContext context)
         {
             string key1 = $"UT_CacheRemoveByTags_Async1-{Common.GetUId()}";
@@ -948,7 +948,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, keys.Count());
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheSetHashedAll_Async(RedisContext context)
         {
             string key = $"UT_CacheSetHashedAll_Async-{Common.GetUId()}";
@@ -961,7 +961,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(users.All(x => response.ContainsKey(x.Id.ToString())));
         }
 
-        [Test, TestCaseSource(typeof(Common), "All")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_Cache_HllAddCount_Async(RedisContext context)
         {
             string key = $"UT_Cache_HllAddCount_Async-{Common.GetUId()}";
@@ -975,7 +975,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 #if (NET462)
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public async Task UT_CacheSetHashed_MultipleFieldsDistinctTypes_Async(RedisContext context)
         {
             string key = $"UT_CacheSetHashed_MultipleFieldsDistinctTypes_Async-{Common.GetUId()}";
@@ -1005,7 +1005,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(444, ((Location)all["D"]).Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public async Task UT_CacheSerialization_Async(RedisContext context)
         {
             string key = $"UT_CacheSerialization_Async-{Common.GetUId()}";
@@ -1043,7 +1043,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(usr.GetHashCode(), v);
         }
 
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public async Task UT_CacheFetch_TagsBuilder_Async(RedisContext context)
         {
             string key = $"UT_CacheFetch_TagsBuilder_Async-{Common.GetUId()}";
@@ -1059,7 +1059,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(user.Id, result.Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public async Task UT_CacheFetchHashed_TagsBuilder_Async(RedisContext context)
         {
             string key = $"UT_CacheFetchHashed_TagsBuilder_Async-{Common.GetUId()}";
@@ -1076,7 +1076,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(user.Id, result.Id);
         }
 
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public async Task UT_CacheTagRename_Async(RedisContext context)
         {
             string key = $"UT_CacheTagRename_Async-{Common.GetUId()}";
@@ -1096,7 +1096,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
         }
 
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public async Task UT_CacheFieldTagRename_Async(RedisContext context)
         {
             string key = $"UT_CacheFieldTagRename_Async-{Common.GetUId()}";
