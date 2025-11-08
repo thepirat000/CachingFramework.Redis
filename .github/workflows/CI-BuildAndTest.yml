@@ -112,13 +112,17 @@ jobs:
      
       - name: Run tests
         run: |
-          dotnet test ./CachingFramework.slnx --no-build -c release --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=VSTest" "-m:1" --results-directory "./test/TestResult"
+          dotnet test ./CachingFramework.slnx --no-build -c release --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=VSTest" --results-directory "./test/TestResult"
   
       - name: SonarScanner End
         shell: bash
         run: |
           dotnet sonarscanner end \
             /d:sonar.login="${{ env.SONAR_TOKEN }}"
+
+      - name: List directory
+        shell: bash
+        run: ls -R
 
       - name: Generate Code Coverage Report
         run: |

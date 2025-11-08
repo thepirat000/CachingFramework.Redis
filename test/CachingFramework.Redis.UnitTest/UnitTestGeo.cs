@@ -26,7 +26,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Geo_GeoAdd(RedisContext context)
         {
-            var key = "UT_Geo_GeoAdd";
+            var key = $"UT_Geo_GeoAdd-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
             var cnt = context.GeoSpatial.GeoAdd(key, _coordZapopan, users[0]);
@@ -40,7 +40,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Geo_GeoPos(RedisContext context)
         {
-            var key = "UT_Geo_GeoPos";
+            var key = $"UT_Geo_GeoPos-{Common.GetUId()}";
             context.Cache.Remove(key);
             var cnt = context.GeoSpatial.GeoAdd(key, _coordZapopan, "Zapopan");
             context.GeoSpatial.GeoAdd(key, 0D, 0D, "Zero");
@@ -60,7 +60,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Geo_GeoPosMultiple(RedisContext context)
         {
-            var key = "UT_Geo_GeoPosMultiple";
+            var key = $"UT_Geo_GeoPosMultiple-{Common.GetUId()}";
             context.Cache.Remove(key);
             var cnt = context.GeoSpatial.GeoAdd(key, new[] { 
                 new GeoMember<string>(_coordZapopan, "Zapopan"),
@@ -80,7 +80,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Geo_GeoDistance(RedisContext context)
         {
-            var key = "UT_Geo_GeoDistance";
+            var key = $"UT_Geo_GeoDistance-{Common.GetUId()}";
             context.Cache.Remove(key);
             var cnt = context.GeoSpatial.GeoAdd(key, new[] { 
                 new GeoMember<string>(_coordZapopan, "Zapopan"),
@@ -100,7 +100,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Geo_GeoDistanceDirect(RedisContext context)
         {
-            var key = "UT_Geo_GeoDistanceDirect";
+            var key = $"UT_Geo_GeoDistanceDirect-{Common.GetUId()}";
             context.Cache.Remove(key);
             var mdq = new GeoCoordinate(38.0055, -57.5426);
             var bue = new GeoCoordinate(34.6037, -58.3816);
@@ -115,7 +115,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_Geo_GeoHash(RedisContext context)
         {
-            var key = "UT_Geo_GeoHash";
+            var key = $"UT_Geo_GeoHash-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.GeoSpatial.GeoAdd(key, _coordZapopan, "zapopan");
             var hash = context.GeoSpatial.GeoHash(key, "zapopan");
@@ -128,7 +128,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_Geo_GeoRadius(RedisContext context)
         {
-            var key = "UT_Geo_GeoRadius";
+            var key = $"UT_Geo_GeoRadius-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.GeoSpatial.GeoAdd(key, _coordZapopan, "zapopan");
             context.GeoSpatial.GeoAdd(key, _coordLondon, "london");

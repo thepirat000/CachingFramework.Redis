@@ -5,24 +5,4 @@
 		<CheckEolTargetFramework>false</CheckEolTargetFramework>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
-
-	<Choose>
-		<When Condition="$(MSBuildProjectName.Contains('UnitTest'))">
-			<PropertyGroup>
-				<IsTestProject>True</IsTestProject>
-
-				<!-- Enable coverage collection -->
-				<IsCollectCoverage>true</IsCollectCoverage>
-				<CollectCoverage>true</CollectCoverage>
-
-				<!-- TRX -->
-				<VSTestResultsDirectory>..\TestResult\$(MSBuildProjectName)</VSTestResultsDirectory>
-				<ResultsDirectory>..\TestResult\$(MSBuildProjectName)\</ResultsDirectory>
-
-				<!-- Output to ../TestResult/{ProjectName}.xml -->
-				<CoverletOutput>..\TestResult\$(MSBuildProjectName)\</CoverletOutput>
-				<CoverletOutputFormat>opencover,cobertura</CoverletOutputFormat>
-			</PropertyGroup>
-		</When>
-	</Choose>
 </Project>

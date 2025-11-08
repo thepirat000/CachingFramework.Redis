@@ -13,10 +13,11 @@ namespace CachingFramework.Redis.UnitTest
         [Test]
         public void TestSerialization()
         {
+            var key = Common.GetUId();
             SUTContext context = new SUTContext();
             var person = new Person { Age = 18, Name = "Joe" };
-            context.Cache.SetObject("JMem18", person, TimeSpan.FromSeconds(3));
-            var cachePerson = context.Cache.GetObject<Person>("JMem18");
+            context.Cache.SetObject(key, person, TimeSpan.FromSeconds(3));
+            var cachePerson = context.Cache.GetObject<Person>(key);
             Assert.AreEqual(person.Age, cachePerson.Age);
             Assert.AreEqual(person.Name, cachePerson.Name);
         }

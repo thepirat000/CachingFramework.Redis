@@ -23,11 +23,14 @@ namespace CachingFramework.Redis.UnitTest
                 TimeOnly = TimeOnly.FromDateTime(DateTime.Now.AddHours(1))
             };
 
-            ctx.Cache.SetObject("UT_MessagePack_DateOnly_DO", x.SomeDate);
-            ctx.Cache.SetObject("UT_MessagePack_DateOnly_TO", x.TimeOnly);
+            var key1 = Common.GetUId();
+            var key2 = Common.GetUId();
 
-            var dateOnly = ctx.Cache.GetObject<DateOnly>("UT_MessagePack_DateOnly_DO");
-            var timeOnly = ctx.Cache.GetObject<TimeOnly>("UT_MessagePack_DateOnly_TO");
+            ctx.Cache.SetObject(key1, x.SomeDate);
+            ctx.Cache.SetObject(key2, x.TimeOnly);
+
+            var dateOnly = ctx.Cache.GetObject<DateOnly>(key1);
+            var timeOnly = ctx.Cache.GetObject<TimeOnly>(key2);
 
             Assert.AreEqual(x.SomeDate, dateOnly);
             Assert.AreEqual(x.TimeOnly, timeOnly);
@@ -37,8 +40,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test]
         public void Test_KeyPrefix_Multiple()
         {
-            var key = nameof(Test_KeyPrefix_Multiple);
-            var tag = nameof(Test_KeyPrefix_Multiple) + "_TAG";
+            var key = nameof(Test_KeyPrefix_Multiple) + Common.GetUId();
+            var tag = nameof(Test_KeyPrefix_Multiple) + Common.GetUId() + "_TAG";
             var prefix1 = "P1";
             var prefix2 = "P2";
             using (var ctx1 = new RedisContext(Common.Config, new DatabaseOptions { KeyPrefix = prefix1 }))
@@ -64,7 +67,7 @@ namespace CachingFramework.Redis.UnitTest
         public void Test_KeyPrefix()
         {
             var key = nameof(Test_KeyPrefix);
-            var prefix = "TEST-PREFIX-";
+            var prefix = "TEST-PREFIX-" + "_" + Common.GetUId();
             using (var ctx = new RedisContext(Common.Config, new DatabaseOptions { KeyPrefix = prefix }))
             {
                 ctx.Cache.SetObject(key, "value");
@@ -81,7 +84,7 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.JsonAndRaw))]
         public void UT_CustomTagPostfix(RedisContext ctx)
         {
             // Arrange
@@ -90,7 +93,7 @@ namespace CachingFramework.Redis.UnitTest
             serializer.TagPrefix = null;
             serializer.TagPostfix = "{tag}";
             
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var tag = $"{key}-Tag1";
             ctx.Cache.Remove(key);
             ctx.Cache.InvalidateKeysByTag(tag);
@@ -103,7 +106,7 @@ namespace CachingFramework.Redis.UnitTest
             var locationByTag = ctx.Cache.GetObjectsByTag<Location>(tag).FirstOrDefault();
             var keyFromTag = ctx.Cache.GetKeysByTag(new[] { tag }).FirstOrDefault();
             var allTags = ctx.Cache.GetAllTags().ToList();
-            var tagSetMembers = ctx.GetConnectionMultiplexer().GetDatabase().SetMembers($"{serializer.TagPrefix}{tag}{serializer.TagPostfix}");
+            var tagSetMembers = ctx.GetConnectionMultiplexer().GetDatabase().SetMembers($"{ctx.GetDatabaseOptions().KeyPrefix}{serializer.TagPrefix}{tag}{serializer.TagPostfix}");
 
             serializer.TagPrefix = ori[0];
             serializer.TagPostfix = ori[1];
@@ -131,7 +134,7 @@ namespace CachingFramework.Redis.UnitTest
             serializer.TagPrefix = "{";
             serializer.TagPostfix = "}";
 
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var tag = $"{key}-Tag1";
             ctx.Cache.Remove(key);
             ctx.Cache.InvalidateKeysByTag(tag);
@@ -144,7 +147,7 @@ namespace CachingFramework.Redis.UnitTest
             var locationByTag = ctx.Cache.GetObjectsByTag<Location>(tag).FirstOrDefault();
             var keyFromTag = ctx.Cache.GetKeysByTag(new[] { tag }).FirstOrDefault();
             var allTags = ctx.Cache.GetAllTags().ToList();
-            var tagSetMembers = ctx.GetConnectionMultiplexer().GetDatabase().SetMembers($"{serializer.TagPrefix}{tag}{serializer.TagPostfix}");
+            var tagSetMembers = ctx.GetConnectionMultiplexer().GetDatabase().SetMembers($"{ctx.GetDatabaseOptions().KeyPrefix}{serializer.TagPrefix}{tag}{serializer.TagPostfix}");
 
             serializer.TagPrefix = ori[0];
             serializer.TagPostfix = ori[1];
@@ -166,7 +169,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_KeyTaggedTTL(RedisContext ctx)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var tag = $"{key}-Tag1";
             ctx.Cache.Remove(key);
             ctx.Cache.InvalidateKeysByTag(tag);
@@ -193,7 +196,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_MultipleAddHashedWithTags(RedisContext ctx)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var tags = new[] { $"{key}_TAG_1", $"{key}_TAG_2" };
             ctx.Cache.Remove(key);
             ctx.Cache.InvalidateKeysByTag(tags);
@@ -223,7 +226,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_HashedWithFieldTypes(RedisContext ctx)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var tag = $"{key}-tag";
             ctx.Cache.Remove(key);
             var users = GetUsers();
@@ -251,7 +254,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_SetGetHashedMultiple(RedisContext ctx)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
             ctx.Cache.Remove(key);
             ctx.Cache.SetHashed(key, Enumerable.Range(1, 20).ToDictionary(i => $"k{i}", i => i));
             var result = ctx.Cache.GetHashed<int>(key, "k1", "k5", "kXXX", "k10").ToList();
@@ -266,7 +269,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_SetGetHashedMultiple_Generic(RedisContext ctx)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{ctx.GetSerializer().GetType().Name}-{Common.GetUId()}";
             ctx.Cache.Remove(key);
             ctx.Cache.SetHashed<KeyValuePair<int, int>, int>(key, Enumerable.Range(1, 20).ToDictionary(i => new KeyValuePair<int, int>(1, i), i => i));
             var result = ctx.Cache.GetHashed<KeyValuePair<int, int>, int>(key, new KeyValuePair<int, int>(1, 1), new KeyValuePair<int, int>(1, 11), new KeyValuePair<int, int>(0, 0)).ToList();
@@ -280,7 +283,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_DefaultSerializer(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var prev = RedisContext.DefaultSerializer;
 
             RedisContext.DefaultSerializer = new RawSerializer().SetSerializerFor<string>(s => new byte[] { 1, 2, 3 }, b => "123");
@@ -305,7 +308,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_Cache_MembersByTag(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var keyHash = $"{key}_HASH";
             var keySet = $"{key}_SET";
             var keySortedset = $"{key}_SSET";
@@ -366,7 +369,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_Cache_IsOnTagMethods(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var keyHash = $"{key}_HASH";
             var keySet = $"{key}_SET";
             var keySortedset = $"{key}_SSET";
@@ -423,7 +426,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_Cache_SetHashed_TK_TV(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
 
@@ -440,7 +443,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_Cache_SetHashed_TK_TV_WithTags(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.Cache.InvalidateKeysByTag("tag 0->1", "tag 1->0", "tag S->0", "common");
             var users = GetUsers();
@@ -472,7 +475,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_Cache_Hash_Scan(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             int total = 10000;
             context.Cache.Remove(key);
             var fields = Enumerable.Range(1, total)
@@ -490,12 +493,10 @@ namespace CachingFramework.Redis.UnitTest
             stp = Stopwatch.StartNew();
             var some = context.Cache.ScanHashed<string>(key, "*", 5).Take(5).ToList();
             var someTime = stp.Elapsed.TotalMilliseconds;
-
-
+            
             var c1 = context.Cache.ScanHashed<string>(key, "", 20).Count();
             var c2 = context.Cache.ScanHashed<string>(key, null).Count();
-
-
+            
             // Assert the HSCAN lasted at most the 0.5 times of the time of the HGETALL
             Assert.IsTrue((someTime / (double)allTime) < 0.5);
             Assert.AreEqual(total, c1);
@@ -507,10 +508,11 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_Context_Dispose(RedisContext context)
         {
             var ctx = new RedisContext(context.GetConnectionMultiplexer().Configuration, context.GetSerializer());
-            ctx.Cache.SetObject("key", "value");
+            var key = Common.GetUId();
+            ctx.Cache.SetObject(key, "value");
             ctx.Dispose();
-            context.Cache.Remove("key");
-            Assert.Throws<ObjectDisposedException>(() => ctx.Cache.SetObject("key", "value2"));
+            context.Cache.Remove(key);
+            Assert.Throws<ObjectDisposedException>(() => ctx.Cache.SetObject(key, "value2"));
         }
 
         [Test, TestCaseSource(typeof (Common), nameof(Common.Raw))]
@@ -522,7 +524,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof (Common), nameof(Common.Raw))]
         public void UT_CacheSet_When(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.Cache.SetObject(key, "value", null, When.Exists);
             Assert.IsNull(context.Cache.GetObject<string>(key));
@@ -538,7 +540,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
         public void UT_CacheSetHashed_When(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var field = "F1";
             context.Cache.Remove(key);
             context.Cache.SetHashed(key, field, "value", null, When.NotExists);
@@ -553,17 +555,18 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof (Common), nameof(Common.Raw))]
         public void UT_CacheHackTag(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
-            context.Cache.InvalidateKeysByTag("tag1");
-            context.Cache.SetObject(key, "some value", new [] {"tag1"});
-            var keys = context.Cache.GetKeysByTag(new [] { "tag1" }).ToList();
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
+            var tag1 = $"tag1-{Common.GetUId()}";
+            context.Cache.InvalidateKeysByTag(tag1);
+            context.Cache.SetObject(key, "some value", new [] {tag1});
+            var keys = context.Cache.GetKeysByTag(new [] { tag1 }).ToList();
             Assert.AreEqual(1, keys.Count);
             Assert.AreEqual(key, keys[0]);
-            var tagset = context.Collections.GetRedisSet<string>(":$_tag_$:tag1");
+            var tagset = context.Collections.GetRedisSet<string>($":$_tag_$:{tag1}");
             tagset.Add("FakeKey:$_->_$:FakeValue");
-            var knc = context.Cache.GetKeysByTag(new [] { "tag1" }).ToList();
-            var k = context.Cache.GetKeysByTag(new [] { "tag1" }, true).ToList();
-            var v = context.Cache.GetObjectsByTag<string>("tag1").ToList();
+            var knc = context.Cache.GetKeysByTag(new [] { tag1 }).ToList();
+            var k = context.Cache.GetKeysByTag(new [] { tag1 }, true).ToList();
+            var v = context.Cache.GetObjectsByTag<string>(tag1).ToList();
             Assert.AreEqual(2, knc.Count);
             Assert.AreEqual(1, k.Count);
             Assert.AreEqual(1, v.Count);
@@ -572,26 +575,26 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.BinAndRawAndJson))]
         public void UT_CacheSerializer(RedisContext context)
         {
-            System.Diagnostics.Debug.WriteLine($"Using the {context.GetSerializer().GetType().Name} as serializer");
-
-            var kss = "short:string:sync";
-            var kch = "char";
-            var kds = "decimal";
-            var kls = "long:string";
-            var kpBool = "primitive:bool";
-            var kpInt = "primitive:int";
-            var kpLong = "primitive:long";
-            var kpSingle = "primitive:single";
-            var kpIntPtr = "primitive:intptr";
-            var kpUInt16 = "primitive:uint16";
-            var kpUInt32 = "primitive:uint32";
-            var kpUInt64 = "primitive:uint64";
-            var kby = "primitive:byte";
-            var ksby = "primitive:sbyte";
-            var ki16 = "primitive:int16";
-            var ki32 = "primitive:int32";
-            var kdbl = "primitive:double";
-            var kdt = "datetime";
+            Debug.WriteLine($"Using the {context.GetSerializer().GetType().Name} as serializer");
+            var uid = Common.GetUId();
+            var kss = "short:string:sync-" + uid;
+            var kch = "char-" + uid;
+            var kds = "decimal-" + uid;
+            var kls = "long:string-" + uid;
+            var kpBool = "primitive:bool-" + uid;
+            var kpInt = "primitive:int-" + uid;
+            var kpLong = "primitive:long-" + uid;
+            var kpSingle = "primitive:single-" + uid;
+            var kpIntPtr = "primitive:intptr-" + uid;
+            var kpUInt16 = "primitive:uint16-" + uid;
+            var kpUInt32 = "primitive:uint32-" + uid;
+            var kpUInt64 = "primitive:uint64-" + uid;
+            var kby = "primitive:byte-" + uid;
+            var ksby = "primitive:sbyte-" + uid;
+            var ki16 = "primitive:int16-" + uid;
+            var ki32 = "primitive:int32-" + uid;
+            var kdbl = "primitive:double-" + uid;
+            var kdt = "datetime-" + uid;
 
             context.Cache.Remove(new[] { kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64, 
                 kch, kds, kdt, kby, ksby, ki16, ki32, kdbl });
@@ -671,7 +674,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_Cache_GetAllTags(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.SetHashed(key, "1", "some value", new[] {"tag1", "tag2"});
             var tags = context.Cache.GetAllTags();
             Assert.IsTrue(tags.Contains("tag1"));
@@ -681,14 +684,13 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_Cache_GetKeysByPattern(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
-            var key2 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-2";
-            context.Cache.FlushAll();
-            context.Cache.SetObject(key, "some value", new[] { "tag3", "tag4" });
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
+            var key2 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-2-{Common.GetUId()}";
+            context.Cache.SetObject(key, "some value", new[] { $"tag3-{Common.GetUId()}", $"tag4-{Common.GetUId()}" });
             context.Cache.SetObject(key2, "some value2");
             var keyPrefix = context.GetDatabaseOptions().KeyPrefix;
-            var keys = context.Cache.GetKeysByPattern("*");
-            Assert.AreEqual(2, keys.Count());
+            var keys = context.Cache.GetKeysByPattern($"{keyPrefix}{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}*").ToList();
+            Assert.That(keys, Has.Count.GreaterThanOrEqualTo(2));
             Assert.IsTrue(keys.Contains(keyPrefix + key));
             Assert.IsTrue(keys.Contains(keyPrefix + key2));
         }
@@ -720,7 +722,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             context.Cache.SetObject("key", "jpeg");
             var o = context.Cache.GetObject<string>("key");
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             Jpeg jpeg = new Jpeg()
             {
                 Data = Enumerable.Range(0, 200000)
@@ -737,7 +739,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             // Test the Add and Get methods
             var users = GetUsers();
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.Cache.SetObject(key, users[1]);
             context.Cache.SetObject(key, users[0], new string[]{});
@@ -751,7 +753,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheFetch(RedisContext context)
         {
             // Test the Fetch method
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             int count = 0;
             context.Cache.Remove(key);
             var a = context.Cache.FetchObject(key, () => { count++; return GetUsers(); });
@@ -765,7 +767,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheFetch_TTL(RedisContext context)
         {
             // Test the Fetch method
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             int count = 0;
             context.Cache.Remove(key);
             context.Cache.FetchObject(key, () => { count++; return GetUsers(); }, TimeSpan.FromSeconds(2));
@@ -780,7 +782,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheFetchHashed(RedisContext context)
         {
             // Test the FetchHashed method
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             bool r = context.Cache.Remove(key);
             var users = GetUsers();
             var returnedUser1 = context.Cache.FetchHashed<User>(key, users[0].Id.ToString(), () => users[0]);
@@ -792,7 +794,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof (Common), nameof(Common.All))]
         public void UT_CacheFetch_Nulls(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             string str = context.Cache.FetchObject<string>(key, () => null);
             Assert.IsNull(str);
@@ -802,7 +804,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheFetchHashed_Nulls(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             string str = context.Cache.FetchHashed<string>(key, "1", () => null);
             Assert.IsNull(str);
@@ -813,7 +815,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheTryGetObject(RedisContext context)
         {
             // Test the TryGetObject method
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
             User u1;
@@ -830,7 +832,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheTryGetHashed(RedisContext context)
         {
             // Test the TryGetHashed method
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
             User u1;
@@ -847,7 +849,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheGetSetObject(RedisContext context)
         {
             // Test the GetSetObject method
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var str = context.Cache.GetSetObject<string>(key, "1");
             Assert.IsNull(str);
@@ -868,7 +870,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheGetHashAll(RedisContext context)
         {
             // Test the GetHashAll method
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             bool r = context.Cache.Remove(key);
             var users = GetUsers();
             foreach (var u in users)
@@ -886,7 +888,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheRemove(RedisContext context)
         {
             // Test the Remove method
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             bool r = context.Cache.Remove(key);
             var users = GetUsers();
             context.Cache.SetObject(key, users[0]);
@@ -903,7 +905,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheRemoveMultiple(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             for (int i = 0; i < 255; i++)
             {
                 context.Cache.SetObject(key + i, new User() { Id = i });
@@ -923,7 +925,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheRemoveHashed(RedisContext context)
         {
             // Test the Remove method for a complete hash set
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             bool r = context.Cache.Remove(key);
             var users = GetUsers();
             foreach (var u in users)
@@ -948,7 +950,7 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheRemove_PreviouslyHashed(RedisContext context)
         {
             // Test the Remove hashed method
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             bool r = context.Cache.Remove(key);
             var users = GetUsers();
             foreach (var u in users)
@@ -974,7 +976,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             // Test the expiration of the Add method
             var users = GetUsers();
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.Cache.SetObject(key, users[0], TimeSpan.FromMilliseconds(1000));
             var user = context.Cache.GetObject<User>(key);
@@ -991,7 +993,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             // Test the expiration of the AddHashed method (MAX ttl applies)
             var users = GetUsers();
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
 
             context.Cache.SetHashed(key, "2", users[1], TimeSpan.FromMilliseconds(10000));
@@ -1009,7 +1011,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             // Test the expiration of the Fetch method (last larger expiration applies)
             var users = GetUsers();
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
 
             context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(1000));
@@ -1027,7 +1029,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             // Test the expiration of the Fetch method (last no-expiration applies)
             var users = GetUsers();
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var ms = 1000;
             context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(ms));
@@ -1045,7 +1047,7 @@ namespace CachingFramework.Redis.UnitTest
         {
             // Test the expiration of the Fetch method (last no-expiration applies)
             var users = GetUsers();
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var ms = 10000;
             context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(ms));
@@ -1057,51 +1059,61 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheSetHashed_Tags(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var users = GetUsers();
             context.Cache.Remove(key);
-            context.Cache.InvalidateKeysByTag("common", "tagA", "tagB", "whole");
-            context.Cache.SetHashed(key, "A", users[0], new[] { "common", "tagA" });
-            context.Cache.SetHashed(key, "B", users[0], new[] { "tagB" });
-            context.Cache.AddTagsToHashField(key, "B", new[] {"common"});
-            context.Cache.SetHashed(key, "C", users[1], new[] { "common", "tagC" });        
-            context.Cache.AddTagsToKey(key, new [] { "whole" });
-            var kwhole = context.Cache.GetKeysByTag(new [] { "whole" });
-            var kcmn = context.Cache.GetKeysByTag(new [] { "common" });
-            var ka = context.Cache.GetKeysByTag(new [] { "tagA" });
-            var kb = context.Cache.GetKeysByTag(new[] { "tagB" });
-            var kc = context.Cache.GetKeysByTag(new[] { "tagC" });
-            var kab = context.Cache.GetKeysByTag(new[] { "tagA", "tagB" });
+            var tagA = $"tagA-{Common.GetUId()}";
+            var tagB = $"tagB-{Common.GetUId()}";
+            var tagC = $"tagC-{Common.GetUId()}";
+            var whole = $"whole-{Common.GetUId()}";
+            var common = $"common-{Common.GetUId()}";
+
+            context.Cache.InvalidateKeysByTag(common, tagA, tagB, whole);
+            context.Cache.SetHashed(key, "A", users[0], new[] { common, tagA });
+            context.Cache.SetHashed(key, "B", users[0], new[] { tagB });
+            context.Cache.AddTagsToHashField(key, "B", new[] {common});
+            context.Cache.SetHashed(key, "C", users[1], new[] { common, tagC });        
+            context.Cache.AddTagsToKey(key, new [] { whole });
+            var kwhole = context.Cache.GetKeysByTag(new [] { whole });
+            var kcmn = context.Cache.GetKeysByTag(new [] { common });
+            var ka = context.Cache.GetKeysByTag(new [] { tagA });
+            var kb = context.Cache.GetKeysByTag(new[] { tagB });
+            var kc = context.Cache.GetKeysByTag(new[] { tagC });
+            var kab = context.Cache.GetKeysByTag(new[] { tagA, tagB });
             Assert.AreEqual(3, kcmn.Count());
-            context.Cache.InvalidateKeysByTag("tagA");
-            ka = context.Cache.GetKeysByTag(new[] { "tagA" });
-            kcmn = context.Cache.GetKeysByTag(new[] { "common" }, true);
+            context.Cache.InvalidateKeysByTag(tagA);
+            ka = context.Cache.GetKeysByTag(new[] { tagA });
+            kcmn = context.Cache.GetKeysByTag(new[] { common }, true);
             Assert.IsFalse(ka.Any());
             Assert.AreEqual(2, kcmn.Count());
-            var objs = context.Cache.GetObjectsByTag<User>("common").ToList();
+            var objs = context.Cache.GetObjectsByTag<User>(common).ToList();
             Assert.AreEqual(2, objs.Count);
-            context.Cache.RemoveTagsFromHashField(key, "B", new [] { "common" });
-            objs = context.Cache.GetObjectsByTag<User>("common").ToList();
+            context.Cache.RemoveTagsFromHashField(key, "B", new [] { common });
+            objs = context.Cache.GetObjectsByTag<User>(common).ToList();
             Assert.AreEqual(1, objs.Count);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheFetchHashed_Tags(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var users = GetUsers();
-            context.Cache.InvalidateKeysByTag("common", "tag0", "tag1", "miss");
+            var tag0 = $"tag0-{Common.GetUId()}";
+            var tag1 = $"tag1-{Common.GetUId()}";
+            var tagMiss = $"miss-{Common.GetUId()}";
+            var tagCommon = $"common-{Common.GetUId()}";
+            context.Cache.InvalidateKeysByTag(tagCommon, tag0, tag1, tagMiss);
             context.Cache.Remove(key);
-            var u1 = context.Cache.FetchHashed(key, users[0].Id.ToString(), () => users[0], new[] { "common", "tag0"});
-            var u2 = context.Cache.FetchHashed(key, users[1].Id.ToString(), () => users[1], new[] { "common", "tag1" });
-            var u1t = context.Cache.GetObjectsByTag<User>("tag1").ToList();
-            var ust = context.Cache.GetObjectsByTag<User>("common").ToList();
+            var u1 = context.Cache.FetchHashed(key, users[0].Id.ToString(), () => users[0], new[] { tagCommon, tag0});
+            var u2 = context.Cache.FetchHashed(key, users[1].Id.ToString(), () => users[1], new[] { tagCommon, tag1 });
+            var u1t = context.Cache.GetObjectsByTag<User>(tag1).ToList();
+            var ust = context.Cache.GetObjectsByTag<User>(tagCommon).ToList();
             Assert.AreEqual(1, u1t.Count);
             Assert.AreEqual(2, ust.Count);
             Assert.AreEqual(users[1].Id, u1t[0].Id);
             int i = 0;
-            var u = context.Cache.FetchHashed(key, users[1].Id.ToString(), () => { i++; return new User(); }, new[] { "miss" });
-            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] {"miss"}).Count());
+            var u = context.Cache.FetchHashed(key, users[1].Id.ToString(), () => { i++; return new User(); }, new[] { tagMiss });
+            Assert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tagMiss }).Count());
             Assert.AreEqual(0, i);
             Assert.AreEqual(users[1].Id, u.Id);
         }
@@ -1109,7 +1121,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheSetWithTags_Default(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
             context.Cache.SetObject(key, users[0], new[] { $"{key}-user:" + users[0].Id });
@@ -1122,7 +1134,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheFetchWithTags(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             string tag1 = $"{key}-Tag1";
             string tag2 = $"{key}-Tag2";
@@ -1139,8 +1151,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheSetWithTags_PersistentOverridesExpiration(RedisContext context)
         {
-            var key1 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
-            var key2 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-2";
+            var key1 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
+            var key2 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-2-{Common.GetUId()}";
             string tag = $"{key1}-Tag1";
             context.Cache.InvalidateKeysByTag(tag);
             context.Cache.SetObject(key1, "test value 1", new[] { tag }, TimeSpan.FromSeconds(1));
@@ -1160,17 +1172,18 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheSetWithTags_Expiration(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Guid.NewGuid()}";
-            var key2 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-2-{Guid.NewGuid()}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
+            var key2 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-2-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.Cache.Remove(key2);
             var users = GetUsers();
-            context.Cache.InvalidateKeysByTag("user:" + users[0].Id, "user:" + users[1].Id, "user-info");
+            var prefix = $"user-{Common.GetUId()}:";
+            context.Cache.InvalidateKeysByTag("user:" + users[0].Id, "user:" + users[1].Id, prefix + "user-info");
 
-            context.Cache.SetObject(key, users[0], new[] { "user:" + users[0].Id, "user-info" }, TimeSpan.FromSeconds(1));
-            context.Cache.SetObject(key2, users[1], new[] { "user:" + users[1].Id, "user-info" }, TimeSpan.FromSeconds(60));
+            context.Cache.SetObject(key, users[0], new[] { prefix + users[0].Id, prefix + "user-info" }, TimeSpan.FromSeconds(1));
+            context.Cache.SetObject(key2, users[1], new[] { prefix + users[1].Id, prefix + "user-info" }, TimeSpan.FromSeconds(60));
 
-            var keys = context.Cache.GetKeysByTag(new[] { "user:" + users[0].Id }).ToList();
+            var keys = context.Cache.GetKeysByTag(new[] { prefix + users[0].Id }).ToList();
             Assert.IsTrue(keys.Contains(key));
 
             var value = context.Cache.GetObject<User>(keys.First());
@@ -1178,20 +1191,20 @@ namespace CachingFramework.Redis.UnitTest
 
             Thread.Sleep(2000);
 
-            var keys2 = context.Cache.GetKeysByTag(new[] { "user:" + users[0].Id });
+            var keys2 = context.Cache.GetKeysByTag(new[] { prefix + users[0].Id });
             Assert.IsFalse(keys2.Contains(key));
 
             value = context.Cache.GetObject<User>(key);
             Assert.IsNull(value);
 
-            var keys3 = context.Cache.GetKeysByTag(new[] { "user-info" });
+            var keys3 = context.Cache.GetKeysByTag(new[] { prefix + "user-info" });
             Assert.IsTrue(keys3.Contains(key2));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheSetWithTags_Removal(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
             context.Cache.InvalidateKeysByTag("user:" + users[0].Id);
@@ -1207,8 +1220,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheSetWithTags_Multiple(RedisContext context)
         {
-            var key0 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-0";
-            var key1 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-1";
+            var key0 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-0-{Common.GetUId()}";
+            var key1 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-1-{Common.GetUId()}";
             context.Cache.Remove(key0);
             context.Cache.Remove(key1);
             var users = GetUsers();
@@ -1227,13 +1240,13 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheRemoveByTags(RedisContext context)
         {
-            var key1 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-1";
-            var key2 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-2";
+            var key1 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-1-{Common.GetUId()}";
+            var key2 = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-2-{Common.GetUId()}";
             context.Cache.Remove(key1);
             context.Cache.Remove(key2);
             var users = GetUsers();
-            string tag1 = "user:" + users[0].Id;
-            string tag2 = "user:" + users[1].Id;
+            string tag1 = "user:" + users[0].Id + "-" + Common.GetUId();
+            string tag2 = "user:" + users[1].Id + "-" + Common.GetUId(); ;
             context.Cache.InvalidateKeysByTag(tag1, tag2);
             context.Cache.SetObject(key1, users[0], new[] { tag1 });
             context.Cache.SetObject(key2, users[1], new[] { tag2 });
@@ -1247,10 +1260,10 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheGetObjectsByTag(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}" + "{0}";
-            string tag1 = "UT_CacheGetObjectsByTag_Tag1";
-            string tag2 = "UT_CacheGetObjectsByTag_Tag2";
-            string tag3 = "UT_CacheGetObjectsByTag_Tag3";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}" + "{0}";
+            string tag1 = $"UT_CacheGetObjectsByTag_Tag1-{Common.GetUId()}";
+            string tag2 = $"UT_CacheGetObjectsByTag_Tag2-{Common.GetUId()}";
+            string tag3 = $"UT_CacheGetObjectsByTag_Tag3-{Common.GetUId()}";
             var users = new List<User>();
             for (int i = 0; i < 100; i++)
             {
@@ -1275,7 +1288,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheAddRemoveTagToKey(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             string tag = $"{key}_Tag";
             context.Cache.Remove(key);
             context.Cache.SetObject(key, "value");
@@ -1291,7 +1304,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_CacheSetHashedAll(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
             IDictionary<string, User> allUsers = users.ToDictionary(k => k.Id.ToString());
@@ -1304,7 +1317,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
         public void UT_Cache_HllAddCount(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.Cache.HyperLogLogAdd(key, new[] { 1, 2, 3, 4, 5, 6 });
             context.Cache.HyperLogLogAdd(key, new[] { 4, 5, 6, 7, 8, 9 });
@@ -1318,7 +1331,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public void UT_CacheSerialization(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             Exception exItem = null;
             try
@@ -1340,7 +1353,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public void UT_CacheSetHashed_MultipleFieldsDistinctTypes(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             var dict = new Dictionary<string, object>()
             {
@@ -1370,7 +1383,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public void UT_CacheFetch_TagsBuilder(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             var users = GetUsers();
             var user = users[0];
             context.Cache.Remove(key);
@@ -1386,7 +1399,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public void UT_CacheFetchHashed_TagsBuilder(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             string field = "field";
             var users = GetUsers();
             var user = users[0];
@@ -1402,7 +1415,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof (Common), nameof(Common.Bin))]
         public void UT_CacheTagRename(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
             string tag1 = $"{key}-Tag1";
             string tag2 = $"{key}-Tag2";
@@ -1422,7 +1435,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public void UT_CacheFieldTagRename(RedisContext context)
         {
-            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             string field = "field";
             context.Cache.Remove(key);
             string tag1 = $"{key}-Tag1";
@@ -1448,7 +1461,7 @@ namespace CachingFramework.Redis.UnitTest
                 b => int.Parse(Encoding.UTF8.GetString(b)));
             var ctx = new RedisContext(Common.Config, raw);
             Thread.Sleep(1000);
-            var key = $"{TestContext.CurrentContext.Test.MethodName}";
+            var key = $"{TestContext.CurrentContext.Test.MethodName}-{Common.GetUId()}";
             ctx.Cache.Remove(new[] { key });
             User usr = new User();
             ctx.Cache.SetObject<object>(key, usr);

@@ -1,13 +1,4 @@
 ﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using StackExchange.Redis;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
-using CachingFramework.Redis.Serializers;
-using CachingFramework.Redis.RedisObjects;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -17,21 +8,23 @@ namespace CachingFramework.Redis.UnitTest
         [Test]
         public void Test_CustomMultiplexer()
         {
+            var key = $"Test_CustomMultiplexer_obj-{Common.GetUId()}";
+            var hash = $"Test_CustomMultiplexer_hash-{Common.GetUId()}";
             var myMultiplexer = new PooledConnectionMultiplexer(Common.Config);
             using (var ctx = new RedisContext(myMultiplexer))
             {
-                ctx.Cache.SetObject("Test_CustomMultiplexer_obj", "Test_CustomMultiplexer_value");
-                var list = ctx.Collections.GetRedisDictionary<string, string>("Test_CustomMultiplexer_hash", 5);
+                ctx.Cache.SetObject(key, "Test_CustomMultiplexer_value");
+                var list = ctx.Collections.GetRedisDictionary<string, string>(hash, 5);
                 list.Add("test", "value");
             }
 
             using (var ctx = new RedisContext(myMultiplexer))
             {
-                Assert.AreEqual("Test_CustomMultiplexer_value", ctx.Cache.GetObject<string>("Test_CustomMultiplexer_obj"));
-                var dict = ctx.Collections.GetRedisDictionary<string, string>("Test_CustomMultiplexer_hash", 5);
+                Assert.AreEqual("Test_CustomMultiplexer_value", ctx.Cache.GetObject<string>(key));
+                var dict = ctx.Collections.GetRedisDictionary<string, string>(hash, 5);
                 Assert.AreEqual("value", dict["test"]);
-                ctx.Cache.Remove("Test_CustomMultiplexer_obj");
-                ctx.Cache.Remove("Test_CustomMultiplexer_hash");
+                ctx.Cache.Remove(key);
+                ctx.Cache.Remove(hash);
             }
         }
     }

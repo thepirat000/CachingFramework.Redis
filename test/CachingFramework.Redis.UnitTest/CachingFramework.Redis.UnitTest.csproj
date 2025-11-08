@@ -14,6 +14,22 @@
 		<UserSecretsId>24d7c230-0d1f-46a5-ad0b-dd322c108f4f</UserSecretsId>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<IsTestProject>True</IsTestProject>
+
+		<!-- Enable coverage collection -->
+		<IsCollectCoverage>true</IsCollectCoverage>
+		<CollectCoverage>true</CollectCoverage>
+
+		<!-- TRX -->
+		<VSTestResultsDirectory>..\TestResult\$(MSBuildProjectName)</VSTestResultsDirectory>
+		<ResultsDirectory>..\TestResult\$(MSBuildProjectName)\</ResultsDirectory>
+
+		<!-- Output to ../TestResult/{ProjectName}.xml -->
+		<CoverletOutput>..\TestResult\$(MSBuildProjectName)\</CoverletOutput>
+		<CoverletOutputFormat>opencover,cobertura</CoverletOutputFormat>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
@@ -21,9 +37,13 @@
 		<PackageReference Include="Moq" Version="4.18.4" />
 		<PackageReference Include="Nito.AsyncEx.Context" Version="5.1.2" />
 		<PackageReference Include="NUnit" Version="3.13.3" />
-		<PackageReference Include="NUnit.Analyzers" Version="3.6.1" />
+		<PackageReference Include="NUnit.Analyzers" Version="3.10.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
 		<PackageReference Include="coverlet.collector" Version="3.2.0" />
+		<PackageReference Include="coverlet.msbuild" Version="3.2.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' != 'net462' ">

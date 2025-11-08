@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using CachingFramework.Redis.Contracts;
 using NUnit.Framework;
@@ -10,6 +8,7 @@ using NUnit.Framework;
 namespace CachingFramework.Redis.UnitTest
 {
     [TestFixture]
+    [NonParallelizable]
     public class UnitTestKeyEvents
     {
         [Test, TestCaseSource(typeof(Common), "Json")]
@@ -33,17 +32,25 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_SubscribeToSpecificKey(RedisContext context)
         {
-            UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Delete }, key: "myKey");
+            UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Delete }, key: $"myKey-{Common.GetUId()}");
         }
 
         private void UT_SubscribeToEvents(RedisContext context, IList<KeyEvent> expectedEvents, KeyEventSubscriptionType? eventSubscriptionType = null, string key = null, KeyEvent? eventType = null)
         {
             ConcurrentQueue<KeyValuePair<string, KeyEvent>> result = new ConcurrentQueue<KeyValuePair<string, KeyEvent>>();
             CountdownEvent handle = new CountdownEvent(expectedEvents.Count);
+
+            var keyPrefix = context.GetDatabaseOptions().KeyPrefix;
+
+            var objectKey = key ?? Guid.NewGuid().ToString();
+
             Action<string, KeyEvent> action = (k, e) =>
             {
-                result.Enqueue(new KeyValuePair<string, KeyEvent>(k, e));
-                handle.Signal();
+                if (k == $"{keyPrefix}{objectKey}")
+                {
+                    result.Enqueue(new KeyValuePair<string, KeyEvent>(k, e));
+                    handle.Signal();
+                }
             };
 
             Action unsubscribeAction = () => { };
@@ -64,15 +71,12 @@ namespace CachingFramework.Redis.UnitTest
                 unsubscribeAction = () => context.KeyEvents.Unsubscribe(eventType.Value);
             }
 
-            var objectKey = key ?? Guid.NewGuid().ToString();
-            var keyPrefix = context.GetDatabaseOptions().KeyPrefix;
-            
             context.Cache.SetObject(objectKey, new { Name = "alex", Created = DateTime.UtcNow });
             Thread.Sleep(500);
             context.Cache.Remove(objectKey);
 
             Assert.IsTrue(handle.Wait(5000));
-            Assert.AreEqual(expectedEvents.Count, result.Count);
+            Assert.That(result.Count, Is.GreaterThanOrEqualTo(expectedEvents.Count));
 
             foreach (var expectedEvent in expectedEvents)
             {

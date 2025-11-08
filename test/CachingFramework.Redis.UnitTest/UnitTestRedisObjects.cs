@@ -22,7 +22,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_SetGetDictionaryFieldsMultiple(RedisContext ctx)
         {
-            var key = "UT_SetGetDictionaryFieldsMultiple";
+            var key = $"UT_SetGetDictionaryFieldsMultiple-{Common.GetUId()}";
             ctx.Cache.Remove(key);
 
             var dict = ctx.Collections.GetRedisDictionary<string, int>(key);
@@ -46,7 +46,7 @@ namespace CachingFramework.Redis.UnitTest
                 return;
             }
 
-            string key = "UT_CacheGeo_WithTags";
+            string key = $"UT_CacheGeo_WithTags-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.Cache.InvalidateKeysByTag("tag1", "tag2", "common");
 
@@ -77,21 +77,24 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSortedSet_WithTags(RedisContext context)
         {
-            string key = "UT_CacheSortedSet_WithTags";
+            string key = $"UT_CacheSortedSet_WithTags-{Common.GetUId()}";
+            var tag1 = $"tag1-{Common.GetUId()}";
+            var tag2 = $"tag2-{Common.GetUId()}";
+            var common = $"common-{Common.GetUId()}";
             context.Cache.Remove(key);
             var set = context.Collections.GetRedisSet<string>(key);
-            context.Cache.InvalidateKeysByTag("tag1", "tag2", "common");
+            context.Cache.InvalidateKeysByTag(tag1, tag2, common);
 
             var sset = context.Collections.GetRedisSortedSet<string>(key);
 
-            sset.Add(.1, "value1", new[] { "tag1", "common" });
-            sset.Add(.2, "value2", new[] { "tag2" });
+            sset.Add(.1, "value1", new[] { tag1, common });
+            sset.Add(.2, "value2", new[] { tag2 });
 
-            context.Cache.AddTagsToSetMemberAsync(key, "value2", new[] { "common" }).Wait();
+            context.Cache.AddTagsToSetMemberAsync(key, "value2", new[] { common }).Wait();
 
-            var t1 = context.Cache.GetObjectsByTag<string>("tag1").ToList();
-            var t2 = context.Cache.GetObjectsByTag<string>("tag2").ToList();
-            var x = context.Cache.GetObjectsByTag<string>("common").ToList();
+            var t1 = context.Cache.GetObjectsByTag<string>(tag1).ToList();
+            var t2 = context.Cache.GetObjectsByTag<string>(tag2).ToList();
+            var x = context.Cache.GetObjectsByTag<string>(common).ToList();
 
             Assert.AreEqual(2, x.Count);
             Assert.AreEqual(1, t1.Count);
@@ -101,7 +104,7 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(t1.Contains("value1"));
             Assert.IsTrue(t2.Contains("value2"));
 
-            context.Cache.InvalidateKeysByTag("common");
+            context.Cache.InvalidateKeysByTag(common);
 
             Assert.AreEqual(0, sset.Count);
         }
@@ -110,9 +113,9 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSet_Mix_WithTags(RedisContext context)
         {
-            string key = "UT_CacheSet_Mix_WithTags_Set";
-            string sskey = "UT_CacheSet_Mix_WithTags_SortedSet";
-            string geokey = "UT_CacheSet_Mix_WithTags_Geo";
+            string key = $"UT_CacheSet_Mix_WithTags_Set-{Common.GetUId()}";
+            string sskey = $"UT_CacheSet_Mix_WithTags_SortedSet-{Common.GetUId()}";
+            string geokey = $"UT_CacheSet_Mix_WithTags_Geo-{Common.GetUId()}";
             context.Cache.InvalidateKeysByTag("tag");
             context.Cache.Remove(key);
             context.Cache.Remove(sskey);
@@ -153,26 +156,31 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSet_WithTags(RedisContext context)
         {
-            string key = "UT_CacheSet_WithTags";
-            string otherKey = "UT_CacheSet_WithTags_Other";
+            string key = $"UT_CacheSet_WithTags-{Common.GetUId()}";
+            string otherKey = $"UT_CacheSet_WithTags_Other-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.Cache.Remove(otherKey);
             var set = context.Collections.GetRedisSet<string>(key);
-            context.Cache.InvalidateKeysByTag("tag1", "tag2", "tag3", "tagXXX", "common");
+            var tag1 = $"tag1-{Common.GetUId()}";
+            var tag2 = $"tag2-{Common.GetUId()}";
+            var tag3 = $"tag3-{Common.GetUId()}";
+            var tagX = $"tagX-{Common.GetUId()}";
+            var common = $"common-{Common.GetUId()}";
+            context.Cache.InvalidateKeysByTag(tag1, tag2, tag3, tagX, common);
 
-            set.Add("item1", new[] { "tag1", "common" });
-            set.Add("item2", new[] { "tag2", "common" });
-            set.Add("item222", new[] { "tag2", "common" });
-            set.Add("item3", new[] { "tagXXX" });
-            context.Cache.RenameTagForSetMember(key, "item3", "tagXXX", "tag3");
-            context.Cache.AddTagsToSetMember(key, "item3", new[] { "common" });
-            context.Cache.SetHashed(otherKey, "field", "other", new[] { "common" });
+            set.Add("item1", new[] { tag1, common });
+            set.Add("item2", new[] { tag2, common });
+            set.Add("item222", new[] { tag2, common });
+            set.Add("item3", new[] { tagX });
+            context.Cache.RenameTagForSetMember(key, "item3", tagX, tag3);
+            context.Cache.AddTagsToSetMember(key, "item3", new[] { common });
+            context.Cache.SetHashed(otherKey, "field", "other", new[] { common });
 
-            var commonValues = context.Cache.GetObjectsByTag<string>("common").ToList();
-            var xxx = context.Cache.GetObjectsByTag<string>("tagXXX").ToList();
-            var t1 = context.Cache.GetObjectsByTag<string>("tag1").ToList();
-            var t2 = context.Cache.GetObjectsByTag<string>("tag2").ToList();
-            var t3 = context.Cache.GetObjectsByTag<string>("tag3").ToList();
+            var commonValues = context.Cache.GetObjectsByTag<string>(common).ToList();
+            var xxx = context.Cache.GetObjectsByTag<string>(tagX).ToList();
+            var t1 = context.Cache.GetObjectsByTag<string>(tag1).ToList();
+            var t2 = context.Cache.GetObjectsByTag<string>(tag2).ToList();
+            var t3 = context.Cache.GetObjectsByTag<string>(tag3).ToList();
 
             Assert.AreEqual(0, xxx.Count);
             Assert.AreEqual(5, commonValues.Count);
@@ -185,9 +193,9 @@ namespace CachingFramework.Redis.UnitTest
             Assert.IsTrue(t2.Contains("item222"));
             Assert.AreEqual("item3", t3[0]);
 
-            context.Cache.RemoveTagsFromSetMember(key, "item222", new [] { "tag2", "common" });
-            commonValues = context.Cache.GetObjectsByTag<string>("common").ToList();
-            t2 = context.Cache.GetObjectsByTag<string>("tag2").ToList();
+            context.Cache.RemoveTagsFromSetMember(key, "item222", new [] { tag2, common });
+            commonValues = context.Cache.GetObjectsByTag<string>(common).ToList();
+            t2 = context.Cache.GetObjectsByTag<string>(tag2).ToList();
 
             Assert.AreEqual(4, commonValues.Count);
             Assert.AreEqual(1, t2.Count);
@@ -197,7 +205,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof (Common), "Raw")]
         public void UT_CacheSortedSet_When(RedisContext context)
         {
-            string key = "UT_CacheSortedSet_When";
+            string key = $"UT_CacheSortedSet_When-{Common.GetUId()}";
             context.Cache.Remove(key);
             var lst = context.Collections.GetRedisSortedSet<string>(key);
 
@@ -239,7 +247,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheList_Remove(RedisContext context)
         {
-            string key = "UT_CacheList_Remove";
+            string key = $"UT_CacheList_Remove-{Common.GetUId()}";
             context.Cache.Remove(key);
             var lst = context.Collections.GetRedisList<string>(key);
             lst.AddRange(new [] { "test", "test", "anothertest" });
@@ -253,7 +261,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheList_Insert(RedisContext context)
         {
-            string key = "UT_CacheList_Insert";
+            string key = $"UT_CacheList_Insert-{Common.GetUId()}";
             context.Cache.Remove(key);
             var rl = context.Collections.GetRedisList<string>(key);
             rl.Insert(0, "test");
@@ -275,7 +283,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheList_Trim(RedisContext context)
         {
-            string key = "UT_CacheList_Trim";
+            string key = $"UT_CacheList_Trim-{Common.GetUId()}";
             context.Cache.Remove(key);
             var rl = context.Collections.GetRedisList<int>(key);
             rl.AddRange(Enumerable.Range(1, 100));
@@ -289,7 +297,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheListObject(RedisContext context)
         {
-            string key1 = "UT_CacheListObject1";
+            string key1 = $"UT_CacheListObject1-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<int>(key1);
@@ -337,7 +345,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheListPushPop(RedisContext context)
         {
-            string key = "UT_CacheListPushPop";
+            string key = $"UT_CacheListPushPop-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<User>(key);
@@ -361,7 +369,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_CacheListRemoveAt(RedisContext context)
         {
-            string key = "UT_CacheListRemoveAt";
+            string key = $"UT_CacheListRemoveAt-{Common.GetUId()}";
             context.Cache.Remove(key);
             var rl = context.Collections.GetRedisList<string>(key);
             rl.RemoveAt(0);
@@ -388,7 +396,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheListObjectTTL(RedisContext context)
         {
-            string key1 = "UT_CacheListObject_TTL1";
+            string key1 = $"UT_CacheListObject_TTL1-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<User>(key1);
@@ -402,7 +410,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheListObject_GetRange(RedisContext context)
         {
-            string key = "UT_CacheListObject_GetRange";
+            string key = $"UT_CacheListObject_GetRange-{Common.GetUId()}";
             int total = 100;
             context.Cache.Remove(key);
             var rl = context.Collections.GetRedisList<User>(key);
@@ -424,7 +432,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheList_Remove_Async(RedisContext context)
         {
-            string key = "UT_CacheList_Remove_Async";
+            string key = $"UT_CacheList_Remove_Async-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var lst = context.Collections.GetRedisList<string>(key);
             await lst.AddRangeAsync(new[] { "test", "test", "anothertest" });
@@ -438,7 +446,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheList_Insert_Async(RedisContext context)
         {
-            string key = "UT_CacheList_Insert_Async";
+            string key = $"UT_CacheList_Insert_Async-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var rl = context.Collections.GetRedisList<string>(key);
             await rl.InsertAsync(0, "test");
@@ -460,7 +468,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheList_Trim_Async(RedisContext context)
         {
-            string key = "UT_CacheList_Trim_Async";
+            string key = $"UT_CacheList_Trim_Async-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var rl = context.Collections.GetRedisList<int>(key);
             await rl.AddRangeAsync(Enumerable.Range(1, 100));
@@ -474,7 +482,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListObject_Async(RedisContext context)
         {
-            string key1 = "UT_CacheListObject_Async";
+            string key1 = $"UT_CacheListObject_Async-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key1);
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<int>(key1);
@@ -524,7 +532,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListObject_Async_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheListObject_Async_NoDeadlocks";
+            string key1 = $"UT_CacheListObject_Async_NoDeadlocks-{Common.GetUId()}";
 
             await Common.TestDeadlock(() =>
             {
@@ -588,7 +596,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListPushPop_Async(RedisContext context)
         {
-            string key = "UT_CacheListPushPop_Async";
+            string key = $"UT_CacheListPushPop_Async-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<User>(key);
@@ -612,7 +620,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListPushPop_Async_NoDeadlock(RedisContext context)
         {
-            string key = "UT_CacheListPushPop_Async";
+            string key = $"UT_CacheListPushPop_Async-{Common.GetUId()}";
             await Common.TestDeadlock(() =>
             {
                 _ = context.Cache.RemoveAsync(key).Result;
@@ -649,7 +657,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Raw")]
         public async Task UT_CacheListRemoveAt_Async(RedisContext context)
         {
-            string key = "UT_CacheListRemoveAt_Async";
+            string key = $"UT_CacheListRemoveAt_Async-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var rl = context.Collections.GetRedisList<string>(key);
             await rl.RemoveAtAsync(0);
@@ -676,7 +684,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListObjectTTL_Async(RedisContext context)
         {
-            string key1 = "UT_CacheListObjectTTL_Async";
+            string key1 = $"UT_CacheListObjectTTL_Async-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key1);
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<User>(key1);
@@ -690,7 +698,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheListObject_GetRange_Async(RedisContext context)
         {
-            string key = "UT_CacheListObject_GetRange_Async";
+            string key = $"UT_CacheListObject_GetRange_Async-{Common.GetUId()}";
             int total = 100;
             await context.Cache.RemoveAsync(key);
             var rl = context.Collections.GetRedisList<User>(key);
@@ -716,7 +724,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheDictionaryObject(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObject1";
+            string key1 = $"UT_CacheDictionaryObject1-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -772,7 +780,7 @@ namespace CachingFramework.Redis.UnitTest
         public async Task UT_CacheDictionaryTryGetAsync(RedisContext context)
         {
             // Arrange
-            string key = "UT_CacheDictionaryTryGetAsync";
+            string key = $"UT_CacheDictionaryTryGetAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key);
@@ -796,7 +804,7 @@ namespace CachingFramework.Redis.UnitTest
         public async Task UT_CacheDictionaryTryGetAsync_NoDeadlocks(RedisContext context)
         {
             // Arrange
-            string key = "UT_CacheDictionaryTryGetAsync_NoDeadlocks";
+            string key = $"UT_CacheDictionaryTryGetAsync_NoDeadlocks-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key);
@@ -821,7 +829,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheDictionaryObject_TTL(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectTTL1";
+            string key1 = $"UT_CacheDictionaryObjectTTL1-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rl = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -835,7 +843,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
         public void UT_CacheDictionaryIncrement(RedisContext context)
         {
-            string key = "UT_CacheDictionaryIncrement";
+            string key = $"UT_CacheDictionaryIncrement-{Common.GetUId()}";
             context.Cache.Remove(key);
             var rl = context.Collections.GetRedisDictionary<string, int>(key);
             var r1 = rl.IncrementBy("h1", 1);
@@ -856,7 +864,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
         public void UT_CacheDictionaryIncrementFloat(RedisContext context)
         {
-            string key = "UT_CacheDictionaryIncrementFloat";
+            string key = $"UT_CacheDictionaryIncrementFloat-{Common.GetUId()}";
             context.Cache.Remove(key);
             var rl = context.Collections.GetRedisDictionary<string, double>(key);
             var r1 = rl.IncrementByFloat("h1", (double)1.23);
@@ -876,7 +884,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
         public async Task UT_CacheDictionaryIncrementAsync(RedisContext context)
         {
-            string key = "UT_CacheDictionaryIncrementAsync";
+            string key = $"UT_CacheDictionaryIncrementAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var rl = context.Collections.GetRedisDictionary<string, int>(key);
             var r1 = await rl.IncrementByAsync("h1", 1);
@@ -896,7 +904,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
         public async Task UT_CacheDictionaryIncrementFloatAsync(RedisContext context)
         {
-            string key = "UT_CacheDictionaryIncrementFloatAsync";
+            string key = $"UT_CacheDictionaryIncrementFloatAsync-{Common.GetUId()}";
             context.Cache.Remove(key);
             var rl = context.Collections.GetRedisDictionary<string, double>(key);
             var r1 = await rl.IncrementByFloatAsync("h1", (double)1.23);
@@ -916,7 +924,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObjectAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectAsync_NoDeadlocks";
+            string key1 = $"UT_CacheDictionaryObjectAsync_NoDeadlocks-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -966,7 +974,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryAddRangeAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryAddRangeAsync_NoDeadlocks";
+            string key1 = $"UT_CacheDictionaryAddRangeAsync_NoDeadlocks-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -982,7 +990,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryGetCountAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryGetCountAsync_NoDeadlocks";
+            string key1 = $"UT_CacheDictionaryGetCountAsync_NoDeadlocks-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -998,7 +1006,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryContainsKeyAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectAsync";
+            string key1 = $"UT_CacheDictionaryObjectAsync-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1014,7 +1022,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryContainsAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryContainsAsync_NoDeadlocks";
+            string key1 = $"UT_CacheDictionaryContainsAsync_NoDeadlocks-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1033,7 +1041,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryAddAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryAddAsync_NoDeadlocks";
+            string key1 = $"UT_CacheDictionaryAddAsync_NoDeadlocks-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1048,7 +1056,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryRemoveAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryRemoveAsync_NoDeadlocks";
+            string key1 = $"UT_CacheDictionaryRemoveAsync_NoDeadlocks-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1063,7 +1071,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryClearAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryClearAsync_NoDeadlocks";
+            string key1 = $"UT_CacheDictionaryClearAsync_NoDeadlocks-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1080,7 +1088,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObjectAsync(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObjectAsync";
+            string key1 = $"UT_CacheDictionaryObjectAsync-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rd = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1135,7 +1143,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObject_TTLAsync(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObject_TTLAsync";
+            string key1 = $"UT_CacheDictionaryObject_TTLAsync-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rl = context.Collections.GetRedisDictionary<int, User>(key1);
@@ -1149,8 +1157,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObject_AddAsyncWithTags(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObject_AddAsyncWithTags";
-            string tag1 = "UT_CacheDictionaryObject_AddAsyncWithTags_TAG1";
+            string key1 = $"UT_CacheDictionaryObject_AddAsyncWithTags-{Common.GetUId()}";
+            string tag1 = $"UT_CacheDictionaryObject_AddAsyncWithTags_TAG1-{Common.GetUId()}";
             context.Cache.Remove(key1);
             context.Cache.InvalidateKeysByTag(tag1);
             var users = GetUsers();
@@ -1159,14 +1167,14 @@ namespace CachingFramework.Redis.UnitTest
             var keys = context.Cache.GetKeysByTag(new[] { tag1 }, true).ToList();
             Assert.AreEqual(1, keys.Count);
             var val = Encoding.UTF8.GetString(context.GetSerializer().Serialize(1));
-            Assert.AreEqual("UT_CacheDictionaryObject_AddAsyncWithTags:$_->_$:" + val, keys[0]);
+            Assert.AreEqual($"{key1}:$_->_$:" + val, keys[0]);
         }
 
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObject_AddAsyncWithTags_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheDictionaryObject_AddAsyncWithTags_NoDeadlocks";
-            string tag1 = "UT_CacheDictionaryObject_AddAsyncWithTags_NoDeadlocks_TAG1";
+            string key1 = $"UT_CacheDictionaryObject_AddAsyncWithTags_NoDeadlocks-{Common.GetUId()}";
+            string tag1 = $"UT_CacheDictionaryObject_AddAsyncWithTags_NoDeadlocks_TAG1-{Common.GetUId()}";
             context.Cache.Remove(key1);
             context.Cache.InvalidateKeysByTag(tag1);
             var users = GetUsers();
@@ -1181,8 +1189,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheDictionaryObject_AddRangeWithTags(RedisContext context)
         {
-            var key = "UT_CacheDictionaryObject_AddRangeWithTags";
-            var tags = new[] { "UT_CacheDictionaryObject_AddRangeWithTags_TAG1" };
+            var key = $"UT_CacheDictionaryObject_AddRangeWithTags-{Common.GetUId()}";
+            var tags = new[] { $"UT_CacheDictionaryObject_AddRangeWithTags_TAG1-{Common.GetUId()}" };
             context.Cache.Remove(key);
             context.Cache.InvalidateKeysByTag(tags);
 
@@ -1203,8 +1211,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObject_AddRangeWithTags_Async(RedisContext context)
         {
-            var key = "UT_CacheDictionaryObject_AddRangeWithTags_Async";
-            var tags = new[] { "UT_CacheDictionaryObject_AddRangeWithTags_Async_TAG1" };
+            var key = $"UT_CacheDictionaryObject_AddRangeWithTags_Async-{Common.GetUId()}";
+            var tags = new[] { $"UT_CacheDictionaryObject_AddRangeWithTags_Async_TAG1-{Common.GetUId()}" };
             await context.Cache.RemoveAsync(key);
             await context.Cache.InvalidateKeysByTagAsync(tags);
 
@@ -1225,8 +1233,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheDictionaryObject_AddRangeWithTags_Async_NoDeadlocks(RedisContext context)
         {
-            var key = "UT_CacheDictionaryObject_AddRangeWithTags_Async_NoDeadlocks";
-            var tags = new[] { "UT_CacheDictionaryObject_AddRangeWithTags_Async_NoDeadlocksTAG1" };
+            var key = $"UT_CacheDictionaryObject_AddRangeWithTags_Async_NoDeadlocks-{Common.GetUId()}";
+            var tags = new[] { $"UT_CacheDictionaryObject_AddRangeWithTags_Async_NoDeadlocksTAG1-{Common.GetUId()}" };
             await Common.TestDeadlock(() =>
             {
                 _ = context.Cache.RemoveAsync(key).Result;
@@ -1248,7 +1256,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheList_EXP(RedisContext context)
         {
-            string key = "UT_CacheList_EXP";
+            string key = $"UT_CacheList_EXP-{Common.GetUId()}";
             context.Cache.Remove(key);
             var set = context.Collections.GetRedisSet<string>(key);
             set.AddRange(new [] { "test1", "test2", "test3" });
@@ -1272,7 +1280,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_CacheList_EXP_Expired(RedisContext context)
         {
-            string key = "UT_CacheList_EXP_Expired";
+            string key = $"UT_CacheList_EXP_Expired-{Common.GetUId()}";
             context.Cache.Remove(key);
             var set = context.Collections.GetRedisSet<string>(key);
             set.AddRange(new[] { "test1", "test2", "test3" });
@@ -1288,7 +1296,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Bin")]
         public void UT_CacheList_StrObj(RedisContext context)
         {
-            string key = "UT_CacheList_StrObj";
+            string key = $"UT_CacheList_StrObj-{Common.GetUId()}";
             context.Cache.Remove(key);
             context.Cache.SetObject<string>(key, "test value 1");
             var obj = context.Cache.GetObject<object>(key);
@@ -1302,7 +1310,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSetObject(RedisContext context)
         {
-            string key1 = "UT_CacheSetObject1";
+            string key1 = $"UT_CacheSetObject1-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rs = context.Collections.GetRedisSet<User>(key1);
@@ -1349,7 +1357,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSetObject_TTL(RedisContext context)
         {
-            string key1 = "UT_CacheSetObject_TTL";
+            string key1 = $"UT_CacheSetObject_TTL-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rl = context.Collections.GetRedisSet<User>(key1);
@@ -1363,8 +1371,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSetObject_SetModifiers(RedisContext context)
         {
-            string keyAbc = "UT_CacheSetObject_SetModifiers_ABC";
-            string keyCde = "UT_CacheSetObject_SetModifiers_CDE";
+            string keyAbc = $"UT_CacheSetObject_SetModifiers_ABC-{Common.GetUId()}";
+            string keyCde = $"UT_CacheSetObject_SetModifiers_CDE-{Common.GetUId()}";
 
             context.Cache.Remove(keyAbc);
             context.Cache.Remove(keyCde);
@@ -1385,7 +1393,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSortedSet_GetRange(RedisContext context)
         {
-            var key = "UT_CacheSortedSet_GetRange";
+            var key = $"UT_CacheSortedSet_GetRange-{Common.GetUId()}";
             context.Cache.Remove(key);
             var ss = context.Collections.GetRedisSortedSet<User>(key);
             var users = GetUsers();
@@ -1414,7 +1422,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Json")]
         public void UT_CacheSortedSet_SE_Issue287(RedisContext context)
         {
-            var key = "UT_CacheSortedSet_SE_Issue287";
+            var key = $"UT_CacheSortedSet_SE_Issue287-{Common.GetUId()}";
             context.Cache.Remove(key);
             var ss = context.Collections.GetRedisSortedSet<User>(key);
             var users = GetUsers();
@@ -1433,7 +1441,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSortedSet_GetRangeByRankNegative(RedisContext context)
         {
-            var key = "UT_CacheSortedSet_GetRangeByRankNegative";
+            var key = $"UT_CacheSortedSet_GetRangeByRankNegative-{Common.GetUId()}";
             context.Cache.Remove(key);
             var ss = context.Collections.GetRedisSortedSet<string>(key);
             ss.AddRange(new[] { new SortedMember<string>(33, "c"), new SortedMember<string>(0, "a"), new SortedMember<string>(22, "b") });
@@ -1451,7 +1459,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheSortedSet_etc(RedisContext context)
         {
-            var key = "UT_CacheSortedSet_etc";
+            var key = $"UT_CacheSortedSet_etc-{Common.GetUId()}";
             var ss = context.Collections.GetRedisSortedSet<string>(key);
             context.Cache.Remove(key);
             for (int i = 0; i < 255; i++)
@@ -1512,7 +1520,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSortedSet_GetRangeAsync(RedisContext context)
         {
-            var key = "UT_CacheSortedSet_GetRangeAsync";
+            var key = $"UT_CacheSortedSet_GetRangeAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var ss = context.Collections.GetRedisSortedSet<User>(key);
             var users = GetUsers();
@@ -1541,7 +1549,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSortedSet_GetRangeByRankNegativeAsync(RedisContext context)
         {
-            var key = "UT_CacheSortedSet_GetRangeByRankNegativeAsync";
+            var key = $"UT_CacheSortedSet_GetRangeByRankNegativeAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var ss = context.Collections.GetRedisSortedSet<string>(key);
             await ss.AddRangeAsync(new[] { new SortedMember<string>(33, "c"), new SortedMember<string>(0, "a"), new SortedMember<string>(22, "b") });
@@ -1559,7 +1567,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSortedSet_etcAsync(RedisContext context)
         {
-            var key = "UT_CacheSortedSet_etcAsync";
+            var key = $"UT_CacheSortedSet_etcAsync-{Common.GetUId()}";
             var ss = context.Collections.GetRedisSortedSet<string>(key);
             await context.Cache.RemoveAsync(key);
             for (int i = 0; i < 255; i++)
@@ -1620,7 +1628,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_CacheBitmap(RedisContext context)
         {
-            var key = "UT_CacheBitmap";
+            var key = $"UT_CacheBitmap-{Common.GetUId()}";
             context.Cache.Remove(key);
             var bm = context.Collections.GetRedisBitmap(key);
             bm.Add(0xff);           // 11111111 
@@ -1670,7 +1678,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheLexSet(RedisContext context)
         {
-            var key = "UT_CacheLexSet";
+            var key = $"UT_CacheLexSet-{Common.GetUId()}";
             context.Cache.Remove(key);
             var bm = context.Collections.GetRedisLexicographicSet(key);
             bm.Add("zero");
@@ -1709,7 +1717,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheLexSet_Match(RedisContext context)
         {
-            var key = "UT_CacheLexSet_Match";
+            var key = $"UT_CacheLexSet_Match-{Common.GetUId()}";
             context.Cache.Remove(key);
             var bm = context.Collections.GetRedisLexicographicSet(key);
             bm.AddRange(new[] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" });
@@ -1724,7 +1732,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheString(RedisContext context)
         {
-            var key = "UT_CacheString";
+            var key = $"UT_CacheString-{Common.GetUId()}";
             context.Cache.Remove(key);
             var cs = context.Collections.GetRedisString(key);
 
@@ -1768,7 +1776,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheStringAsync(RedisContext context)
         {
-            var key = "UT_CacheStringAsync";
+            var key = $"UT_CacheStringAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var cs = context.Collections.GetRedisString(key);
 
@@ -1812,7 +1820,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheStringGetSet(RedisContext context)
         {
-            var key = "UT_CacheStringGetSet";
+            var key = $"UT_CacheStringGetSet-{Common.GetUId()}";
             context.Cache.Remove(key);
             var cs = context.Collections.GetRedisString(key);
             var str = cs.GetSet("value");
@@ -1831,7 +1839,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheStringGetSetAsync(RedisContext context)
         {
-            var key = "UT_CacheStringGetSetAsync";
+            var key = $"UT_CacheStringGetSetAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var cs = context.Collections.GetRedisString(key);
             var str = await cs.GetSetAsync("value");
@@ -1850,7 +1858,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheString_Unicode(RedisContext context)
         {
-            var key = "UT_CacheString_Unicode";
+            var key = $"UT_CacheString_Unicode-{Common.GetUId()}";
             context.Cache.Remove(key);
             var cs = context.Collections.GetRedisString(key);
             Assert.AreEqual(0, cs.Length);
@@ -1871,7 +1879,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheString_UnicodeAsync(RedisContext context)
         {
-            var key = "UT_CacheString_UnicodeAsync";
+            var key = $"UT_CacheString_UnicodeAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var cs = context.Collections.GetRedisString(key);
             Assert.AreEqual(0, cs.Length);
@@ -1892,7 +1900,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheString_AsInteger(RedisContext context)
         {
-            var key = "UT_CacheString_AsInteger";
+            var key = $"UT_CacheString_AsInteger-{Common.GetUId()}";
             context.Cache.Remove(key);
             var str = context.Collections.GetRedisString(key);
             str.Set((long.MaxValue - 1).ToString());
@@ -1903,7 +1911,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheString_AsIntegerAsync(RedisContext context)
         {
-            var key = "UT_CacheString_AsIntegerAsync";
+            var key = $"UT_CacheString_AsIntegerAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var str = context.Collections.GetRedisString(key);
             await str.SetAsync((long.MaxValue - 1).ToString());
@@ -1914,7 +1922,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheString_AsFloat(RedisContext context)
         {
-            var key = "UT_CacheString_AsFloat";
+            var key = $"UT_CacheString_AsFloat-{Common.GetUId()}";
             context.Cache.Remove(key);
             var str = context.Collections.GetRedisString(key);
             str.Append(Math.PI.ToString(CultureInfo.InvariantCulture));
@@ -1926,7 +1934,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheString_AsFloatAsync(RedisContext context)
         {
-            var key = "UT_CacheString_AsFloatAsync";
+            var key = $"UT_CacheString_AsFloatAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var str = context.Collections.GetRedisString(key);
             await str.AppendAsync(Math.PI.ToString(CultureInfo.InvariantCulture));
@@ -1938,7 +1946,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_CacheHash_Mix(RedisContext context)
         {
-            var key = "UT_CacheHash_Mix";
+            var key = $"UT_CacheHash_Mix-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
             var redisDict = context.Collections.GetRedisDictionary<string, User>(key);
@@ -1953,8 +1961,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public void UT_CacheHash_Mix_WithType(RedisContext context)
         {
-            var key = "UT_CacheHash_Mix_WithType";
-            var tag = "tag1-UT_CacheHash_Mix_WithType";
+            var key = $"UT_CacheHash_Mix_WithType-{Common.GetUId()}";
+            var tag = $"tag1-UT_CacheHash_Mix_WithType-{Common.GetUId()}";
             context.Cache.Remove(key);
             var users = GetUsers();
             var redisDict = context.Collections.GetRedisDictionary<Location, User>(key);
@@ -2023,7 +2031,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSetObjectAsync(RedisContext context)
         {
-            string key1 = "UT_CacheSetObjectAsync";
+            string key1 = $"UT_CacheSetObjectAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key1);
             var users = GetUsers();
             var rs = context.Collections.GetRedisSet<User>(key1);
@@ -2070,7 +2078,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSetObjectAsync_NoDeadlocks(RedisContext context)
         {
-            string key1 = "UT_CacheSetObjectAsync_NoDeadlocks";
+            string key1 = $"UT_CacheSetObjectAsync_NoDeadlocks-{Common.GetUId()}";
             await Common.TestDeadlock(() =>
             {
                 _ = context.Cache.RemoveAsync(key1).Result;
@@ -2132,7 +2140,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSetObject_TTLAsync(RedisContext context)
         {
-            string key1 = "UT_CacheSetObject_TTLAsync";
+            string key1 = $"UT_CacheSetObject_TTLAsync-{Common.GetUId()}";
             context.Cache.Remove(key1);
             var users = GetUsers();
             var rl = context.Collections.GetRedisSet<User>(key1);
@@ -2146,8 +2154,8 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "All")]
         public async Task UT_CacheSetObject_SetModifiersAsync(RedisContext context)
         {
-            string keyAbc = "UT_CacheSetObject_SetModifiersAsync_ABC";
-            string keyCde = "UT_CacheSetObject_SetModifiersAsync_CDE";
+            string keyAbc = $"UT_CacheSetObject_SetModifiersAsync_ABC-{Common.GetUId()}";
+            string keyCde = $"UT_CacheSetObject_SetModifiersAsync_CDE-{Common.GetUId()}";
 
             context.Cache.Remove(keyAbc);
             context.Cache.Remove(keyCde);
@@ -2163,7 +2171,5 @@ namespace CachingFramework.Redis.UnitTest
             abcSet.Clear();
             cdeSet.Clear();
         }
-
-
     }
 }

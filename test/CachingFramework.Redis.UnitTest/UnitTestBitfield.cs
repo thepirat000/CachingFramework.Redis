@@ -19,7 +19,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_CacheBitmapBitField(RedisContext context)
         {
-            var key = "UT_CacheBitmapBitField";
+            var key = $"UT_CacheBitmapBitField-{Common.GetUId()}";
             context.Cache.Remove(key);
             var rb = context.Collections.GetRedisBitmap(key);
             var ex = rb.BitfieldSet(BitfieldType.u4, 0, 14, false, OverflowType.Fail);
@@ -38,7 +38,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_CacheBitmapBitField_Overflow(RedisContext context)
         {
-            var key = "UT_CacheBitmapBitField_Overflow";
+            var key = $"UT_CacheBitmapBitField_Overflow-{Common.GetUId()}";
             context.Cache.Remove(key);
             var rb = context.Collections.GetRedisBitmap(key);
             Assert.Throws<OverflowException>(() => rb.BitfieldSet(BitfieldType.u1, 0, -2, false, OverflowType.Fail));
@@ -49,7 +49,7 @@ namespace CachingFramework.Redis.UnitTest
         [Test, TestCaseSource(typeof(Common), "Raw")]
         public void UT_CacheBitmapBitField_WrapSaturation(RedisContext context)
         {
-            var key = "UT_CacheBitmapBitField_WrapSaturation";
+            var key = $"UT_CacheBitmapBitField_WrapSaturation-{Common.GetUId()}";
             context.Cache.Remove(key);
             var rb = context.Collections.GetRedisBitmap(key);
             rb.BitfieldSet(BitfieldType.u13, 10, 8191, true);

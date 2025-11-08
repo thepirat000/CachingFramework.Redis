@@ -78,8 +78,6 @@ namespace CachingFramework.Redis.UnitTest
             All = new[] { _rawContext, _jsonContext, _msgPackContext, _newtonsoftJsonContext, _jsonPrefixedContext, _memoryPackContext };
 #endif
 
-            Thread.Sleep(1500);
-            _rawContext.Cache.FlushAll();
             // Get the redis version
             var server = _rawContext.GetConnectionMultiplexer().GetServer(_rawContext.GetConnectionMultiplexer().GetEndPoints()[0]);
             VersionInfo = server.Info("Server")[0].First(x => x.Key == "redis_version").Value.Split('.').Take(2).Select(x => int.Parse(x)).ToArray();
@@ -103,6 +101,11 @@ namespace CachingFramework.Redis.UnitTest
             await Task.Delay(TimeSpan.FromSeconds(1));
             if (!t.IsCompleted)
                 throw new Exception("Code has deadlocked."); //usually means you have forgotten a ConfigureAwait(false)
+        }
+
+        public static string GetUId()
+        {
+            return Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5);
         }
     }
 }
