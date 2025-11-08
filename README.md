@@ -3,6 +3,9 @@
 [![issues-open](https://img.shields.io/github/issues-raw/thepirat000/CachingFramework.Redis.svg?label=issues%20open)](https://github.com/thepirat000/CachingFramework.Redis/issues)
 [![issues-closed](https://img.shields.io/github/issues-closed-raw/thepirat000/CachingFramework.Redis.svg?label=issues%20closed)](https://github.com/thepirat000/CachingFramework.Redis/issues)
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thepirat000_CachingFramework.Redis&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=thepirat000_CachingFramework.Redis)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=thepirat000_CachingFramework.Redis&metric=coverage)](https://sonarcloud.io/summary/new_code?id=thepirat000_CachingFramework.Redis)
+
 .NET Redis client library based on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis/) adding some interesting features like an **extensible serialization** strategy, a **tagging mechanism** to group keys, hash fields and set members, and a **fetching mechanism** to support atomic add/get operations, all being cluster-compatible.
 
 ## Features
