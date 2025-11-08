@@ -448,7 +448,7 @@ namespace CachingFramework.Redis.UnitTest
             var tag01 = $"tag 0->1-{Common.GetUId()}";
             var tag10 = $"tag 1->0-{Common.GetUId()}";
             var tagS0 = $"tag S->0-{Common.GetUId()}";
-            var common = $"common-{{Common.GetUId()}}\";
+            var common = $"common-{Common.GetUId()}";
 
             context.Cache.InvalidateKeysByTag(tag01, tag10, tagS0, common);
             var users = GetUsers();
