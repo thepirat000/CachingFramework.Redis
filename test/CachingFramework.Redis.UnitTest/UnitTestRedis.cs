@@ -775,7 +775,7 @@ namespace CachingFramework.Redis.UnitTest
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             int count = 0;
             context.Cache.Remove(key);
-            context.Cache.FetchObject(key, () => { count++; return GetUsers(); }, TimeSpan.FromSeconds(2));
+            context.Cache.FetchObject(key, () => { count++; return GetUsers(); }, TimeSpan.FromSeconds(1));
             context.Cache.FetchObject(key, () => { count++; return GetUsers(); });
             Assert.AreEqual(1, count);
             Thread.Sleep(2200);
@@ -1002,8 +1002,8 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
 
             context.Cache.SetHashed(key, "2", users[1], TimeSpan.FromMilliseconds(10000));
-            context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(1000));
-            Thread.Sleep(1200);
+            context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(100));
+            Thread.Sleep(2000);
 
             var user1 = context.Cache.GetHashed<User>(key, "1");
             var user2 = context.Cache.GetHashed<User>(key, "2");
@@ -1021,7 +1021,7 @@ namespace CachingFramework.Redis.UnitTest
 
             context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(1000));
             context.Cache.SetHashed(key, "2", users[1], TimeSpan.FromMilliseconds(10000));
-            Thread.Sleep(1200);
+            Thread.Sleep(2000);
 
             var user1 = context.Cache.GetHashed<User>(key, "1");
             var user2 = context.Cache.GetHashed<User>(key, "2");
@@ -1039,7 +1039,7 @@ namespace CachingFramework.Redis.UnitTest
             var ms = 1000;
             context.Cache.SetHashed(key, "1", users[0], TimeSpan.FromMilliseconds(ms));
             context.Cache.SetHashed(key, "2", users[1], TimeSpan.MaxValue);
-            Thread.Sleep(ms + 200);
+            Thread.Sleep(ms + 1200);
 
             var user1 = context.Cache.GetHashed<User>(key, "1");
             var user2 = context.Cache.GetHashed<User>(key, "2");

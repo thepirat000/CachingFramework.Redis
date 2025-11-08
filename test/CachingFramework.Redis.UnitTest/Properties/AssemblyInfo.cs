@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using NUnit.Framework;
+
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -17,3 +19,5 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("2239baf8-6392-46b0-a83b-228fe787a7f0")]
+
+[assembly: Parallelizable(ParallelScope.Fixtures)]
