@@ -924,7 +924,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.SetObjectAsync(key0, users[0], new[] { user0, userInfo });
             await context.Cache.SetObjectAsync(key1, users[1], new[] { user1, userInfo });
             var keys0 = await context.Cache.GetKeysByTagAsync(new[] { user0 });
-            var keys1 = await context.Cache.GetKeysByTagAsync(new[] { user0 });
+            var keys1 = await context.Cache.GetKeysByTagAsync(new[] { user1 });
             var keys = (await context.Cache.GetKeysByTagAsync(new[] { userInfo })).ToList();
             Assert.IsTrue(keys0.Contains(key0));
             Assert.IsTrue(keys1.Contains(key1));
