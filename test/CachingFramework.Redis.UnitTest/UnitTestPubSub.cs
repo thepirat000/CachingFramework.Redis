@@ -137,7 +137,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.PubSub.UnsubscribeAsync(ch);
         }
 
-        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.JsonKeyPrefix))]
         public async Task UT_PubSub_SingleUnsubscribeAsync(RedisContext context)
         {
             var ch = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
@@ -148,7 +148,7 @@ namespace CachingFramework.Redis.UnitTest
             {
                 await context.PubSub.PublishAsync(ch, t);
             }
-            await Task.Delay(2000);
+            await Task.Delay(4000);
             Assert.AreEqual(users.Count, usersList.Count);
             await context.PubSub.UnsubscribeAsync(ch);
             await context.PubSub.PublishAsync(ch, users[0]);
