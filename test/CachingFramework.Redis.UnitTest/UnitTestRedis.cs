@@ -445,21 +445,26 @@ namespace CachingFramework.Redis.UnitTest
         {
             var key = $"{TestContext.CurrentContext.Test.MethodName}-{context.GetSerializer().GetType().Name}-{Common.GetUId()}";
             context.Cache.Remove(key);
-            context.Cache.InvalidateKeysByTag("tag 0->1", "tag 1->0", "tag S->0", "common");
+            var tag01 = $"tag 0->1-{Common.GetUId()}";
+            var tag10 = $"tag 1->0-{Common.GetUId()}";
+            var tagS0 = $"tag S->0-{Common.GetUId()}";
+            var common = $"common-{{Common.GetUId()}}\";
+
+            context.Cache.InvalidateKeysByTag(tag01, tag10, tagS0, common);
             var users = GetUsers();
             var dict = context.Collections.GetRedisDictionary<User, User>(key, 4);
 
-            context.Cache.SetHashed<User, User>(key, users[0], users[1], new[] { "tag 0->1", "common" });
-            dict.Add(users[1], users[0], new[] { "tag 1->0", "common" });
-            context.Cache.SetHashed<User>(key, "string field", users[0], new[] { "tag S->0", "common" });
+            context.Cache.SetHashed<User, User>(key, users[0], users[1], new[] { tag01, common });
+            dict.Add(users[1], users[0], new[] { tag10, common });
+            context.Cache.SetHashed<User>(key, "string field", users[0], new[] { tagS0, common });
 
             var u1 = context.Cache.GetHashed<User, User>(key, users[0]);
             var u0 = context.Cache.GetHashed<User, User>(key, users[1]);
 
-            var all = context.Cache.GetObjectsByTag<User>("common").ToList();
-            var t01 = context.Cache.GetObjectsByTag<User>("tag 0->1").ToList();
-            var t10 = context.Cache.GetObjectsByTag<User>("tag 1->0").ToList();
-            var tS0 = context.Cache.GetObjectsByTag<User>("tag S->0").ToList();
+            var all = context.Cache.GetObjectsByTag<User>(common).ToList();
+            var t01 = context.Cache.GetObjectsByTag<User>(tag01).ToList();
+            var t10 = context.Cache.GetObjectsByTag<User>(tag10).ToList();
+            var tS0 = context.Cache.GetObjectsByTag<User>(tagS0).ToList();
 
             Assert.AreEqual(users[0].Id, u0.Id);
             Assert.AreEqual(users[1].Id, u1.Id);
