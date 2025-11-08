@@ -1951,14 +1951,16 @@ namespace CachingFramework.Redis.UnitTest
         public void UT_CacheHash_Mix(RedisContext context)
         {
             var key = $"UT_CacheHash_Mix-{Common.GetUId()}";
+            var tag = Common.GetUId();
             context.Cache.Remove(key);
             var users = GetUsers();
             var redisDict = context.Collections.GetRedisDictionary<string, User>(key);
             redisDict.AddRange(users.ToDictionary(k => k.Id.ToString()));
-            context.Cache.AddTagsToKey(redisDict.RedisKey, new[] { "tag1" });
+            context.Cache.AddTagsToKey(redisDict.RedisKey, new[] { tag });
             var returnedDict = context.Cache.GetHashedAll<User>(key);
             Assert.AreEqual(returnedDict["1"].Id, redisDict["1"].Id);
-            context.Cache.InvalidateKeysByTag("tag1");
+            context.Cache.InvalidateKeysByTag(tag);
+            Thread.Sleep(4000);
             Assert.AreEqual(0, redisDict.Count);
         }
 

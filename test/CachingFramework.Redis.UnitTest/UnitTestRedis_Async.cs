@@ -233,6 +233,8 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(1, set.Count);
             Assert.AreEqual("test", (await set.GetRandomMemberAsync()));
         }
+
+        [NonParallelizable]
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_Cache_AddToSetAsync_NoDeadlocks(RedisContext context)
         {
@@ -276,6 +278,8 @@ namespace CachingFramework.Redis.UnitTest
             Assert.AreEqual(users[0].Id, tS0[0].Id);
 
         }
+
+        [NonParallelizable]
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_Cache_SetHashed_TK_TV_WithTags_Async_NoDeadlocks(RedisContext context)
         {
