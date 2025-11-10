@@ -92,6 +92,7 @@ jobs:
           dotnet tool install --global dotnet-sonarscanner --version 10.1.2
           
       - name: SonarScanner Begin
+        if: github.event.pull_request.head.repo.full_name == github.repository
         shell: bash
         run: |
           dotnet sonarscanner begin \
@@ -115,6 +116,7 @@ jobs:
           dotnet test ./CachingFramework.slnx --no-build -c release --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=VSTest" --results-directory "./test/TestResult"
   
       - name: SonarScanner End
+        if: github.event.pull_request.head.repo.full_name == github.repository
         shell: bash
         run: |
           dotnet sonarscanner end \
@@ -139,6 +141,7 @@ jobs:
         run: mv -f "${{ github.workspace }}/Tests/coveragereport/Summary.md" "${{ github.workspace }}/CODE_COVERAGE.md"
   
       - name: Commit CODE_COVERAGE.md
+        if: github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
