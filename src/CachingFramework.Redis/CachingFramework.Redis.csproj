@@ -1,49 +1,48 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<Description>Redis client library based on StackExchange.Redis with features like an extensible serialization strategy, a tagging mechanism to group keys and hash fields, and more, all being cluster-compatible.</Description>
-		<Copyright>Copyright 2016</Copyright>
-		<AssemblyTitle>CachingFramework.Redis</AssemblyTitle>
-		<Authors>Federico Colombo</Authors>
-		<TargetFrameworks>net462;netstandard2.0;net6.0;net8.0;net9.0</TargetFrameworks>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<AssemblyName>CachingFramework.Redis</AssemblyName>
-		<SignAssembly>true</SignAssembly>
-		<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-		<AssemblyOriginatorKeyFile>../CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
-		<PackageId>CachingFramework.Redis</PackageId>
-		<PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis</PackageTags>
-		<PackageIcon>icon.png</PackageIcon>
-		<PackageProjectUrl>https://github.com/thepirat000/CachingFramework.Redis</PackageProjectUrl>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/thepirat000/CachingFramework.Redis</RepositoryUrl>
-		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-		<NoWarn>1701;1702;1573;1591</NoWarn>
-	</PropertyGroup>
+  <PropertyGroup>
+    <Description>Redis client library based on StackExchange.Redis with features like an extensible serialization strategy, a tagging mechanism to group keys and hash fields, and more, all being cluster-compatible.</Description>
+    <Copyright>Copyright 2016</Copyright>
+    <AssemblyTitle>CachingFramework.Redis</AssemblyTitle>
+    <Authors>Federico Colombo</Authors>
+    <TargetFrameworks>net462;netstandard2.0;net6.0;net8.0;net9.0</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>CachingFramework.Redis</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <AssemblyOriginatorKeyFile>../CachingFramework.Redis.snk</AssemblyOriginatorKeyFile>
+    <PackageId>CachingFramework.Redis</PackageId>
+    <PackageTags>Async;Redis;Cache;Tagging;StackExchange.Redis</PackageTags>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/thepirat000/CachingFramework.Redis</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/thepirat000/CachingFramework.Redis</RepositoryUrl>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <NoWarn>1701;1702;1573;1591</NoWarn>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="StackExchange.Redis" Version="2.9.32" />
-		<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'netstandard2.0' ">
-		<PackageReference Include="System.Text.Json" Version="9.0.10" />
-	</ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
-		<Reference Include="System" />
-		<Reference Include="Microsoft.CSharp" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="images\icon.png" Pack="true" PackagePath="\" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="images\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>

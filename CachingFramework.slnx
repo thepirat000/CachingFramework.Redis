@@ -2,6 +2,7 @@
   <Folder Name="/Solution Items/">
     <File Path="COLLECTIONS.md" />
     <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
     <File Path="docker/docker-compose.yml" />
     <File Path="README.md" />
   </Folder>

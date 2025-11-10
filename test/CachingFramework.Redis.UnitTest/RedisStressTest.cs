@@ -1,4 +1,4 @@
-﻿#if (NET462)
+#if (NET462)
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -27,14 +28,14 @@ namespace CachingFramework.Redis.UnitTest
             for (int i = 0; i < total; i++)
             {
                 var user = context.Cache.GetObject<User>(key + i);
-                Assert.AreEqual(user.Id, i);
+                ClassicAssert.AreEqual(user.Id, i);
             }
             var secsGet = sw.Elapsed.TotalSeconds;
             sw = Stopwatch.StartNew();
             for (int i = 0; i < total; i++)
             {
                 var removed = context.Cache.Remove(key + i);
-                Assert.IsTrue(removed);
+                ClassicAssert.IsTrue(removed);
             }
             var secsRem = sw.Elapsed.TotalSeconds;
         }
@@ -54,8 +55,8 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.InvalidateKeysByTag(tag);
             var secs = sw.Elapsed.TotalSeconds;
             var nokeys = context.Cache.GetKeysByTag(new[] { tag });
-            Assert.AreEqual(total, keys.Count());
-            Assert.AreEqual(0, nokeys.Count());
+            ClassicAssert.AreEqual(total, keys.Count());
+            ClassicAssert.AreEqual(0, nokeys.Count());
         }
 
         [Test, TestCaseSource(typeof(Common), "Bin")]
@@ -91,7 +92,7 @@ namespace CachingFramework.Redis.UnitTest
             CreateKeys(keyCount, test, context);
             var tags = context.Cache.GetAllTags();
             Debug.WriteLine("{0} {1}", tags.Count(), realTags.Count);
-            Assert.IsTrue(realTags.IsSubsetOf(tags));
+            ClassicAssert.IsTrue(realTags.IsSubsetOf(tags));
         }
 
         private void Stress(int keyCount, string test, RedisContext context)
@@ -134,13 +135,13 @@ namespace CachingFramework.Redis.UnitTest
             ConsumeValues(keyCount, test, context);
 
             var hash = context.Cache.GetKeysByTag(new [] {GetTag(1, test)});
-            Assert.AreEqual(keyCount, hash.Count());
+            ClassicAssert.AreEqual(keyCount, hash.Count());
 
             for (int mod = 2; mod <= 216; mod++)
             {
                 hash = context.Cache.GetKeysByTag(new [] {GetTag(mod, test)});
                 //assert all are multiple of mod
-                Assert.IsFalse(hash.Any(s => int.Parse(s.Split(':')[0]) % mod != 0));
+                ClassicAssert.IsFalse(hash.Any(s => int.Parse(s.Split(':')[0]) % mod != 0));
             }
             RemoveKeys(keyCount, test, context);
             for (int mod = 1; mod <= 216; mod++)
@@ -159,10 +160,10 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             context.Cache.SetObject(key, "value", new [] { tag });
             var keys = context.Cache.GetKeysByTag(new [] {tag}, true);
-            Assert.IsTrue(keys.Contains(key));
+            ClassicAssert.IsTrue(keys.Contains(key));
             context.Cache.Remove(key);
             keys = context.Cache.GetKeysByTag(new [] {tag}, true);
-            Assert.IsFalse(keys.Contains(key));
+            ClassicAssert.IsFalse(keys.Contains(key));
         }
 
         [Test, TestCaseSource(typeof(Common), "Raw")]
@@ -180,7 +181,7 @@ namespace CachingFramework.Redis.UnitTest
             ConsumeValues(keyCount, test, context);
 
             var user = context.Cache.GetObject<User>(GeyKey(1, test));
-            Assert.IsNotNull(user);
+            ClassicAssert.IsNotNull(user);
 
             var hash = context.Cache.GetKeysByTag(new [] { GetTag(1, test) });
             var dict = new Dictionary<int, int>() { { 1, hash.Count() } };
@@ -193,7 +194,7 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.InvalidateKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
 
             keys = context.Cache.GetKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
-            Assert.AreEqual(0, keys.Count());
+            ClassicAssert.AreEqual(0, keys.Count());
             
             context.Cache.InvalidateKeysByTag(new[] { GetTag(6, test) });
 
@@ -202,10 +203,10 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.InvalidateKeysByTag(new[] { GetTag(1, test) });
 
             keys = context.Cache.GetKeysByTag(new[] { GetTag(1, test), GetTag(2, test) });
-            Assert.AreEqual(0, keys.Count());
+            ClassicAssert.AreEqual(0, keys.Count());
 
             user = context.Cache.GetObject<User>(GeyKey(1, test));
-            Assert.IsNull(user);
+            ClassicAssert.IsNull(user);
             RemoveKeys(keyCount, test, context);
         }
 
@@ -218,14 +219,14 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var cs = context.Collections.GetRedisString(key);
             cs.SetRange(i, "test");
-            Assert.AreEqual(i + 4, cs.Length);
-            Assert.AreEqual("\0", cs[0, 0]);
-            Assert.AreEqual("test", cs[i, -1]);
+            ClassicAssert.AreEqual(i + 4, cs.Length);
+            ClassicAssert.AreEqual("\0", cs[0, 0]);
+            ClassicAssert.AreEqual("test", cs[i, -1]);
             var big = cs[0, -1];
-            Assert.IsTrue(big.EndsWith("test"));
-            Assert.AreEqual(i + 4, big.Length);
+            ClassicAssert.IsTrue(big.EndsWith("test"));
+            ClassicAssert.AreEqual(i + 4, big.Length);
             cs.Clear();
-            Assert.AreEqual(0, cs.Length);
+            ClassicAssert.AreEqual(0, cs.Length);
         }
 
         private void RemoveKeys(int count, string test, RedisContext context)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using CachingFramework.Redis.Contracts.RedisObjects;
 using System.Runtime.InteropServices.ComTypes;
 using Nito.AsyncEx;
+using NUnit.Framework.Legacy;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -30,11 +31,11 @@ namespace CachingFramework.Redis.UnitTest
 
             var result = dict.GetRange("k1", "k5", "kXXX", "k10").ToList();
 
-            Assert.AreEqual(4, result.Count);
-            Assert.AreEqual(1, result[0]);
-            Assert.AreEqual(5, result[1]);
-            Assert.AreEqual(0, result[2]);
-            Assert.AreEqual(10, result[3]);
+            ClassicAssert.AreEqual(4, result.Count);
+            ClassicAssert.AreEqual(1, result[0]);
+            ClassicAssert.AreEqual(5, result[1]);
+            ClassicAssert.AreEqual(0, result[2]);
+            ClassicAssert.AreEqual(10, result[3]);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -60,21 +61,21 @@ namespace CachingFramework.Redis.UnitTest
             var t2 = context.Cache.GetObjectsByTag<string>(tag2).ToList();
             var x = context.Cache.GetObjectsByTag<string>(common).ToList();
 
-            Assert.AreEqual(2, x.Count);
-            Assert.AreEqual(1, t1.Count);
-            Assert.AreEqual(1, t2.Count);
-            Assert.IsTrue(x.Contains("value1"));
-            Assert.IsTrue(x.Contains("value2"));
-            Assert.IsTrue(t1.Contains("value1"));
-            Assert.IsTrue(t2.Contains("value2"));
+            ClassicAssert.AreEqual(2, x.Count);
+            ClassicAssert.AreEqual(1, t1.Count);
+            ClassicAssert.AreEqual(1, t2.Count);
+            ClassicAssert.IsTrue(x.Contains("value1"));
+            ClassicAssert.IsTrue(x.Contains("value2"));
+            ClassicAssert.IsTrue(t1.Contains("value1"));
+            ClassicAssert.IsTrue(t2.Contains("value2"));
 
             context.Cache.RemoveTagsFromSetMember(key, "value1", new[] { tag1 });
-            Assert.AreEqual(0, context.Cache.GetObjectsByTag<string>(tag1).Count());
+            ClassicAssert.AreEqual(0, context.Cache.GetObjectsByTag<string>(tag1).Count());
 
             context.Cache.InvalidateKeysByTag(common);
 
-            Assert.IsNull(context.GeoSpatial.GeoPosition(key, "value1"));
-            Assert.IsNull(context.GeoSpatial.GeoPosition(key, "value2"));
+            ClassicAssert.IsNull(context.GeoSpatial.GeoPosition(key, "value1"));
+            ClassicAssert.IsNull(context.GeoSpatial.GeoPosition(key, "value2"));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -99,17 +100,17 @@ namespace CachingFramework.Redis.UnitTest
             var t2 = context.Cache.GetObjectsByTag<string>(tag2).ToList();
             var x = context.Cache.GetObjectsByTag<string>(common).ToList();
 
-            Assert.AreEqual(2, x.Count);
-            Assert.AreEqual(1, t1.Count);
-            Assert.AreEqual(1, t2.Count);
-            Assert.IsTrue(x.Contains("value1"));
-            Assert.IsTrue(x.Contains("value2"));
-            Assert.IsTrue(t1.Contains("value1"));
-            Assert.IsTrue(t2.Contains("value2"));
+            ClassicAssert.AreEqual(2, x.Count);
+            ClassicAssert.AreEqual(1, t1.Count);
+            ClassicAssert.AreEqual(1, t2.Count);
+            ClassicAssert.IsTrue(x.Contains("value1"));
+            ClassicAssert.IsTrue(x.Contains("value2"));
+            ClassicAssert.IsTrue(t1.Contains("value1"));
+            ClassicAssert.IsTrue(t2.Contains("value2"));
 
             context.Cache.InvalidateKeysByTag(common);
 
-            Assert.AreEqual(0, sset.Count);
+            ClassicAssert.AreEqual(0, sset.Count);
         }
 
 
@@ -139,22 +140,22 @@ namespace CachingFramework.Redis.UnitTest
 
             var x = context.Cache.GetObjectsByTag<string>(tag).ToList();
 
-            Assert.AreEqual(3, x.Count);
-            Assert.IsTrue(x.Contains("geo2"));
-            Assert.IsTrue(x.Contains("s2"));
-            Assert.IsTrue(x.Contains("ss2"));
+            ClassicAssert.AreEqual(3, x.Count);
+            ClassicAssert.IsTrue(x.Contains("geo2"));
+            ClassicAssert.IsTrue(x.Contains("s2"));
+            ClassicAssert.IsTrue(x.Contains("ss2"));
 
             context.Cache.InvalidateKeysByTag(tag);
 
             x = context.Cache.GetObjectsByTag<string>(tag).ToList();
             var pos = context.GeoSpatial.GeoPosition(geokey, "geo2");
 
-            Assert.AreEqual(0, x.Count);
-            Assert.IsNull(pos);
-            Assert.IsFalse(sset.Contains("ss2"));
-            Assert.IsTrue(sset.Contains("ss1"));
-            Assert.IsTrue(set.Contains("s1"));
-            Assert.IsFalse(set.Contains("s2"));
+            ClassicAssert.AreEqual(0, x.Count);
+            ClassicAssert.IsNull(pos);
+            ClassicAssert.IsFalse(sset.Contains("ss2"));
+            ClassicAssert.IsTrue(sset.Contains("ss1"));
+            ClassicAssert.IsTrue(set.Contains("s1"));
+            ClassicAssert.IsFalse(set.Contains("s2"));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -186,24 +187,24 @@ namespace CachingFramework.Redis.UnitTest
             var t2 = context.Cache.GetObjectsByTag<string>(tag2).ToList();
             var t3 = context.Cache.GetObjectsByTag<string>(tag3).ToList();
 
-            Assert.AreEqual(0, xxx.Count);
-            Assert.AreEqual(5, commonValues.Count);
-            Assert.AreEqual(1, t1.Count);
-            Assert.AreEqual(2, t2.Count);
-            Assert.AreEqual(1, t3.Count);
+            ClassicAssert.AreEqual(0, xxx.Count);
+            ClassicAssert.AreEqual(5, commonValues.Count);
+            ClassicAssert.AreEqual(1, t1.Count);
+            ClassicAssert.AreEqual(2, t2.Count);
+            ClassicAssert.AreEqual(1, t3.Count);
 
-            Assert.AreEqual("item1", t1[0]);
-            Assert.IsTrue(t2.Contains("item2"));
-            Assert.IsTrue(t2.Contains("item222"));
-            Assert.AreEqual("item3", t3[0]);
+            ClassicAssert.AreEqual("item1", t1[0]);
+            ClassicAssert.IsTrue(t2.Contains("item2"));
+            ClassicAssert.IsTrue(t2.Contains("item222"));
+            ClassicAssert.AreEqual("item3", t3[0]);
 
             context.Cache.RemoveTagsFromSetMember(key, "item222", new [] { tag2, common });
             commonValues = context.Cache.GetObjectsByTag<string>(common).ToList();
             t2 = context.Cache.GetObjectsByTag<string>(tag2).ToList();
 
-            Assert.AreEqual(4, commonValues.Count);
-            Assert.AreEqual(1, t2.Count);
-            Assert.AreEqual("item2", t2[0]);
+            ClassicAssert.AreEqual(4, commonValues.Count);
+            ClassicAssert.AreEqual(1, t2.Count);
+            ClassicAssert.AreEqual("item2", t2[0]);
         }
 
         [Test, TestCaseSource(typeof (Common), nameof(Common.Raw))]
@@ -215,35 +216,35 @@ namespace CachingFramework.Redis.UnitTest
 
             lst.Add(12.345, "item1", When.Exists);
             var rank = lst.RankOf("item1");
-            Assert.IsNull(rank);
+            ClassicAssert.IsNull(rank);
 
             lst.Add(12.345, "item1", When.NotExists);
             rank = lst.RankOf("item1");
-            Assert.AreEqual(0, rank.Value);
+            ClassicAssert.AreEqual(0, rank.Value);
 
             lst.Add(34.567, "item1", When.NotExists);
             var score = lst.ScoreOf("item1");
-            Assert.AreEqual(12.345, score.Value, 0.0001);
+            ClassicAssert.AreEqual(12.345, score.Value, 0.0001);
 
             lst.Add(34.567, "itemXXX", When.Exists);
             score = lst.ScoreOf("itemXXX");
-            Assert.IsNull(score);
+            ClassicAssert.IsNull(score);
 
             lst.Add(34.567, "item1", When.Exists);
             score = lst.ScoreOf("item1");
-            Assert.AreEqual(34.567, score.Value, 0.0001);
+            ClassicAssert.AreEqual(34.567, score.Value, 0.0001);
 
             lst.AddRange(new [] { new SortedMember<string>(56.789, "item1"), new SortedMember<string>(77.888, "itemXXX") }, When.Exists);
             score = lst.ScoreOf("item1");
-            Assert.AreEqual(56.789, score.Value, 0.0001);
+            ClassicAssert.AreEqual(56.789, score.Value, 0.0001);
             score = lst.ScoreOf("itemXXX");
-            Assert.IsNull(score);
+            ClassicAssert.IsNull(score);
 
             lst.AddRange(new[] { new SortedMember<string>(99.999, "item1"), new SortedMember<string>(88.999, "itemXXX") }, When.NotExists);
             score = lst.ScoreOf("item1");
-            Assert.AreEqual(56.789, score.Value, 0.0001);
+            ClassicAssert.AreEqual(56.789, score.Value, 0.0001);
             score = lst.ScoreOf("itemXXX");
-            Assert.AreEqual(88.999, score.Value, 0.0001);
+            ClassicAssert.AreEqual(88.999, score.Value, 0.0001);
 
             context.Cache.Remove(key);
         }
@@ -255,11 +256,11 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var lst = context.Collections.GetRedisList<string>(key);
             lst.AddRange(new [] { "test", "test", "anothertest" });
-            Assert.AreEqual(3, lst.Count);
+            ClassicAssert.AreEqual(3, lst.Count);
             lst.RemoveAt(0);
-            Assert.AreEqual(2, lst.Count);
-            Assert.AreEqual("test", lst[0]);
-            Assert.AreEqual("anothertest", lst[1]);
+            ClassicAssert.AreEqual(2, lst.Count);
+            ClassicAssert.AreEqual("test", lst[0]);
+            ClassicAssert.AreEqual("anothertest", lst[1]);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -271,17 +272,17 @@ namespace CachingFramework.Redis.UnitTest
             rl.Insert(0, "test");
             rl.Insert(0, "test");
             rl.Insert(0, "test");
-            Assert.AreEqual(3, rl.Count);
+            ClassicAssert.AreEqual(3, rl.Count);
             rl.Insert(2, "test2");
-            Assert.AreEqual(4, rl.Count);
-            Assert.AreEqual("test", rl[0]);
-            Assert.AreEqual("test2", rl[2]);
+            ClassicAssert.AreEqual(4, rl.Count);
+            ClassicAssert.AreEqual("test", rl[0]);
+            ClassicAssert.AreEqual("test2", rl[2]);
             rl.Insert(rl.Count, "LAST");
-            Assert.AreEqual(5, rl.Count);
-            Assert.AreEqual("LAST", rl[rl.Count - 1]);
+            ClassicAssert.AreEqual(5, rl.Count);
+            ClassicAssert.AreEqual("LAST", rl[rl.Count - 1]);
             rl[rl.Count - 1] = "NEW LAST";
-            Assert.AreEqual(5, rl.Count);
-            Assert.AreEqual("NEW LAST", rl[rl.Count - 1]);
+            ClassicAssert.AreEqual(5, rl.Count);
+            ClassicAssert.AreEqual("NEW LAST", rl[rl.Count - 1]);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -291,11 +292,11 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var rl = context.Collections.GetRedisList<int>(key);
             rl.AddRange(Enumerable.Range(1, 100));
-            Assert.AreEqual(100, rl.Count);
+            ClassicAssert.AreEqual(100, rl.Count);
             rl.Trim(0, 9);
-            Assert.AreEqual(10, rl.Count);
-            Assert.AreEqual(1, rl[0]);
-            Assert.AreEqual(10, rl[-1]);
+            ClassicAssert.AreEqual(10, rl.Count);
+            ClassicAssert.AreEqual(1, rl[0]);
+            ClassicAssert.AreEqual(10, rl[-1]);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -309,41 +310,41 @@ namespace CachingFramework.Redis.UnitTest
             // Test GetEnumerator
             foreach (var item in rl)
             {
-                Assert.IsTrue(users.Any(u => u.Id == item));
+                ClassicAssert.IsTrue(users.Any(u => u.Id == item));
             }
             // Test Count
-            Assert.AreEqual(users.Count, rl.Count);
+            ClassicAssert.AreEqual(users.Count, rl.Count);
             // Test First and Last
             var first = rl.First();
-            Assert.AreEqual(users.First().Id, first);
+            ClassicAssert.AreEqual(users.First().Id, first);
             var firstod = rl.FirstOrDefault();
-            Assert.AreEqual(users.First().Id, firstod);
-            Assert.AreEqual(users.Last().Id, rl.Last());
-            Assert.AreEqual(users.Last().Id, rl.LastOrDefault());
+            ClassicAssert.AreEqual(users.First().Id, firstod);
+            ClassicAssert.AreEqual(users.Last().Id, rl.Last());
+            ClassicAssert.AreEqual(users.Last().Id, rl.LastOrDefault());
             // Test Contains
-            Assert.IsTrue(rl.Contains(users[2].Id));
+            ClassicAssert.IsTrue(rl.Contains(users[2].Id));
             // Test Insert
             rl.Insert(0, 0);
-            Assert.AreEqual(0, rl[0]);
+            ClassicAssert.AreEqual(0, rl[0]);
             // Test RemoveAt
             rl.RemoveAt(0);
-            Assert.AreEqual(1, rl[0]);
+            ClassicAssert.AreEqual(1, rl[0]);
             // Test Add
             rl.Add(5);
-            Assert.AreEqual(5, rl.Last());
+            ClassicAssert.AreEqual(5, rl.Last());
             // Test IndexOf
-            Assert.AreEqual(2, rl.IndexOf(users[2].Id));
+            ClassicAssert.AreEqual(2, rl.IndexOf(users[2].Id));
             // Test Remove
             rl.Remove(users[2].Id);
-            Assert.IsFalse(rl.Contains(users[2].Id));
+            ClassicAssert.IsFalse(rl.Contains(users[2].Id));
             // Test CopyTo
             int[] array = new int[50];
             rl.CopyTo(array, 10);
-            Assert.AreEqual(1, array[10]);
+            ClassicAssert.AreEqual(1, array[10]);
             // Test Clear
             rl.Clear();
-            Assert.AreEqual(0, rl.Count);
-            Assert.AreEqual(0, rl.LastOrDefault());
+            ClassicAssert.AreEqual(0, rl.Count);
+            ClassicAssert.AreEqual(0, rl.LastOrDefault());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -353,21 +354,21 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<User>(key);
-            Assert.IsNull(rl.FirstOrDefault());
-            Assert.IsNull(rl.LastOrDefault());
+            ClassicAssert.IsNull(rl.FirstOrDefault());
+            ClassicAssert.IsNull(rl.LastOrDefault());
             rl.AddRange(users);
             rl.PushFirst(new User() { Id = 0 });
             rl.PushLast(new User() { Id = 666 });
-            Assert.AreEqual(0, rl[0].Id);
-            Assert.AreEqual(0, rl.FirstOrDefault().Id);
-            Assert.AreEqual(666, rl.LastOrDefault().Id);
-            Assert.AreEqual(users.Count + 2, rl.Count);
+            ClassicAssert.AreEqual(0, rl[0].Id);
+            ClassicAssert.AreEqual(0, rl.FirstOrDefault().Id);
+            ClassicAssert.AreEqual(666, rl.LastOrDefault().Id);
+            ClassicAssert.AreEqual(users.Count + 2, rl.Count);
             var remf = rl.PopFirst();
-            Assert.AreEqual(users.Count + 1, rl.Count);
-            Assert.AreEqual(0, remf.Id);
+            ClassicAssert.AreEqual(users.Count + 1, rl.Count);
+            ClassicAssert.AreEqual(0, remf.Id);
             var reml = rl.PopLast();
-            Assert.AreEqual(users.Count, rl.Count);
-            Assert.AreEqual(666, reml.Id);
+            ClassicAssert.AreEqual(users.Count, rl.Count);
+            ClassicAssert.AreEqual(666, reml.Id);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
@@ -384,17 +385,17 @@ namespace CachingFramework.Redis.UnitTest
             rl.PushLast("test 5");
 
             rl.RemoveAt(0);
-            Assert.AreEqual(4, rl.Count);
-            Assert.AreEqual("test 2", rl[0]);
+            ClassicAssert.AreEqual(4, rl.Count);
+            ClassicAssert.AreEqual("test 2", rl[0]);
 
             rl.RemoveAt(rl.Count - 1);
-            Assert.AreEqual(3, rl.Count);
-            Assert.AreEqual("test 4", rl.LastOrDefault());
+            ClassicAssert.AreEqual(3, rl.Count);
+            ClassicAssert.AreEqual("test 4", rl.LastOrDefault());
 
             rl.RemoveAt(1);
-            Assert.AreEqual(2, rl.Count);
-            Assert.AreEqual("test 2", rl.FirstOrDefault());
-            Assert.AreEqual("test 4", rl.LastOrDefault());
+            ClassicAssert.AreEqual(2, rl.Count);
+            ClassicAssert.AreEqual("test 2", rl.FirstOrDefault());
+            ClassicAssert.AreEqual("test 4", rl.LastOrDefault());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -406,9 +407,9 @@ namespace CachingFramework.Redis.UnitTest
             var rl = context.Collections.GetRedisList<User>(key1);
             rl.AddRange(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1000);
-            Assert.AreEqual(users.Count, rl.Count);
+            ClassicAssert.AreEqual(users.Count, rl.Count);
             Thread.Sleep(4000);
-            Assert.AreEqual(0, rl.Count);
+            ClassicAssert.AreEqual(0, rl.Count);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -421,15 +422,15 @@ namespace CachingFramework.Redis.UnitTest
             rl.AddRange(Enumerable.Range(1, total).Select(i => new User() {Id = i}));
 
             var range = rl.GetRange().ToList();
-            Assert.AreEqual(total, rl.Count);
+            ClassicAssert.AreEqual(total, rl.Count);
 
             range = rl.GetRange(3, 10).ToList();
-            Assert.AreEqual(8, range.Count);
-            Assert.AreEqual(4, range[0].Id);
+            ClassicAssert.AreEqual(8, range.Count);
+            ClassicAssert.AreEqual(4, range[0].Id);
 
             range = rl.GetRange(10, -10).ToList();
-            Assert.AreEqual(11, range[0].Id);
-            Assert.AreEqual(91, range[range.Count - 1].Id);
+            ClassicAssert.AreEqual(11, range[0].Id);
+            ClassicAssert.AreEqual(91, range[range.Count - 1].Id);
         }
 
 
@@ -440,11 +441,11 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.RemoveAsync(key);
             var lst = context.Collections.GetRedisList<string>(key);
             await lst.AddRangeAsync(new[] { "test", "test", "anothertest" });
-            Assert.AreEqual(3, lst.Count);
+            ClassicAssert.AreEqual(3, lst.Count);
             await lst.RemoveAtAsync(0);
-            Assert.AreEqual(2, lst.Count);
-            Assert.AreEqual("test", lst[0]);
-            Assert.AreEqual("anothertest", lst[1]);
+            ClassicAssert.AreEqual(2, lst.Count);
+            ClassicAssert.AreEqual("test", lst[0]);
+            ClassicAssert.AreEqual("anothertest", lst[1]);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -456,17 +457,17 @@ namespace CachingFramework.Redis.UnitTest
             await rl.InsertAsync(0, "test");
             await rl.InsertAsync(0, "test");
             await rl.InsertAsync(0, "test");
-            Assert.AreEqual(3, rl.Count);
+            ClassicAssert.AreEqual(3, rl.Count);
             await rl.InsertAsync(2, "test2");
-            Assert.AreEqual(4, rl.Count);
-            Assert.AreEqual("test", rl[0]);
-            Assert.AreEqual("test2", rl[2]);
+            ClassicAssert.AreEqual(4, rl.Count);
+            ClassicAssert.AreEqual("test", rl[0]);
+            ClassicAssert.AreEqual("test2", rl[2]);
             await rl.InsertAsync(rl.Count, "LAST");
-            Assert.AreEqual(5, rl.Count);
-            Assert.AreEqual("LAST", rl[rl.Count - 1]);
+            ClassicAssert.AreEqual(5, rl.Count);
+            ClassicAssert.AreEqual("LAST", rl[rl.Count - 1]);
             rl[rl.Count - 1] = "NEW LAST";
-            Assert.AreEqual(5, rl.Count);
-            Assert.AreEqual("NEW LAST", rl[rl.Count - 1]);
+            ClassicAssert.AreEqual(5, rl.Count);
+            ClassicAssert.AreEqual("NEW LAST", rl[rl.Count - 1]);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
@@ -476,11 +477,11 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.RemoveAsync(key);
             var rl = context.Collections.GetRedisList<int>(key);
             await rl.AddRangeAsync(Enumerable.Range(1, 100));
-            Assert.AreEqual(100, rl.Count);
+            ClassicAssert.AreEqual(100, rl.Count);
             await rl.TrimAsync(0, 9);
-            Assert.AreEqual(10, rl.Count);
-            Assert.AreEqual(1, rl[0]);
-            Assert.AreEqual(10, rl[-1]);
+            ClassicAssert.AreEqual(10, rl.Count);
+            ClassicAssert.AreEqual(1, rl[0]);
+            ClassicAssert.AreEqual(10, rl[-1]);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -494,43 +495,43 @@ namespace CachingFramework.Redis.UnitTest
             // Test GetEnumerator
             foreach (var item in rl)
             {
-                Assert.IsTrue(users.Any(u => u.Id == item));
+                ClassicAssert.IsTrue(users.Any(u => u.Id == item));
             }
             // Test Count
-            Assert.AreEqual(users.Count, rl.Count);
+            ClassicAssert.AreEqual(users.Count, rl.Count);
             // Test First and Last
             var first = rl.First();
-            Assert.AreEqual(users.First().Id, first);
+            ClassicAssert.AreEqual(users.First().Id, first);
             var firstod = rl.FirstOrDefault();
-            Assert.AreEqual(users.First().Id, firstod);
-            Assert.AreEqual(users.Last().Id, rl.Last());
-            Assert.AreEqual(users.Last().Id, rl.LastOrDefault());
+            ClassicAssert.AreEqual(users.First().Id, firstod);
+            ClassicAssert.AreEqual(users.Last().Id, rl.Last());
+            ClassicAssert.AreEqual(users.Last().Id, rl.LastOrDefault());
             // Test Contains
-            Assert.IsTrue(rl.Contains(users[2].Id));
+            ClassicAssert.IsTrue(rl.Contains(users[2].Id));
             // Test Insert
             await rl.InsertAsync(0, 0);
-            Assert.AreEqual(0, rl[0]);
+            ClassicAssert.AreEqual(0, rl[0]);
             // Test RemoveAt
             await rl.RemoveAtAsync(0);
-            Assert.AreEqual(1, rl[0]);
+            ClassicAssert.AreEqual(1, rl[0]);
             // Test Add
             await rl.AddAsync(5);
-            Assert.AreEqual(5, rl.Last());
+            ClassicAssert.AreEqual(5, rl.Last());
             // Test IndexOf
             var i = await rl.IndexOfAsync(users[2].Id);
-            Assert.AreEqual(2, i);
+            ClassicAssert.AreEqual(2, i);
             // Test Remove
             await rl.RemoveAsync(users[2].Id, 1);
             var b = await rl.ContainsAsync(users[2].Id);
-            Assert.IsFalse(b);
+            ClassicAssert.IsFalse(b);
             // Test CopyTo
             int[] array = new int[50];
             rl.CopyTo(array, 10);
-            Assert.AreEqual(1, array[10]);
+            ClassicAssert.AreEqual(1, array[10]);
             // Test Clear
             await rl.ClearAsync();
-            Assert.AreEqual(0, rl.Count);
-            Assert.AreEqual(0, rl.LastOrDefault());
+            ClassicAssert.AreEqual(0, rl.Count);
+            ClassicAssert.AreEqual(0, rl.LastOrDefault());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -604,21 +605,21 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.RemoveAsync(key);
             var users = GetUsers();
             var rl = context.Collections.GetRedisList<User>(key);
-            Assert.IsNull(rl.FirstOrDefault());
-            Assert.IsNull(rl.LastOrDefault());
+            ClassicAssert.IsNull(rl.FirstOrDefault());
+            ClassicAssert.IsNull(rl.LastOrDefault());
             await rl.AddRangeAsync(users);
             await rl.PushFirstAsync(new User() { Id = 0 });
             await rl.PushLastAsync(new User() { Id = 666 });
-            Assert.AreEqual(0, rl[0].Id);
-            Assert.AreEqual(0, rl.FirstOrDefault().Id);
-            Assert.AreEqual(666, rl.LastOrDefault().Id);
-            Assert.AreEqual(users.Count + 2, rl.Count);
+            ClassicAssert.AreEqual(0, rl[0].Id);
+            ClassicAssert.AreEqual(0, rl.FirstOrDefault().Id);
+            ClassicAssert.AreEqual(666, rl.LastOrDefault().Id);
+            ClassicAssert.AreEqual(users.Count + 2, rl.Count);
             var remf = await rl.PopFirstAsync();
-            Assert.AreEqual(users.Count + 1, rl.Count);
-            Assert.AreEqual(0, remf.Id);
+            ClassicAssert.AreEqual(users.Count + 1, rl.Count);
+            ClassicAssert.AreEqual(0, remf.Id);
             var reml = await rl.PopLastAsync();
-            Assert.AreEqual(users.Count, rl.Count);
-            Assert.AreEqual(666, reml.Id);
+            ClassicAssert.AreEqual(users.Count, rl.Count);
+            ClassicAssert.AreEqual(666, reml.Id);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -672,17 +673,17 @@ namespace CachingFramework.Redis.UnitTest
             await rl.PushLastAsync("test 5");
 
             await rl.RemoveAtAsync(0);
-            Assert.AreEqual(4, rl.Count);
-            Assert.AreEqual("test 2", rl[0]);
+            ClassicAssert.AreEqual(4, rl.Count);
+            ClassicAssert.AreEqual("test 2", rl[0]);
 
             await rl.RemoveAtAsync(rl.Count - 1);
-            Assert.AreEqual(3, rl.Count);
-            Assert.AreEqual("test 4", rl.LastOrDefault());
+            ClassicAssert.AreEqual(3, rl.Count);
+            ClassicAssert.AreEqual("test 4", rl.LastOrDefault());
 
             await rl.RemoveAtAsync(1);
-            Assert.AreEqual(2, rl.Count);
-            Assert.AreEqual("test 2", rl.FirstOrDefault());
-            Assert.AreEqual("test 4", rl.LastOrDefault());
+            ClassicAssert.AreEqual(2, rl.Count);
+            ClassicAssert.AreEqual("test 2", rl.FirstOrDefault());
+            ClassicAssert.AreEqual("test 4", rl.LastOrDefault());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -694,9 +695,9 @@ namespace CachingFramework.Redis.UnitTest
             var rl = context.Collections.GetRedisList<User>(key1);
             await rl.AddRangeAsync(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1000);
-            Assert.AreEqual(users.Count, rl.Count);
+            ClassicAssert.AreEqual(users.Count, rl.Count);
             await Task.Delay(4000);
-            Assert.AreEqual(0, rl.Count);
+            ClassicAssert.AreEqual(0, rl.Count);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -710,18 +711,18 @@ namespace CachingFramework.Redis.UnitTest
 
             var r = await rl.GetRangeAsync();
             var range = r.ToList();
-            Assert.AreEqual(total, rl.Count);
+            ClassicAssert.AreEqual(total, rl.Count);
 
             r = await rl.GetRangeAsync(3, 10);
             range = r.ToList();
 
-            Assert.AreEqual(8, range.Count);
-            Assert.AreEqual(4, range[0].Id);
+            ClassicAssert.AreEqual(8, range.Count);
+            ClassicAssert.AreEqual(4, range[0].Id);
 
             r = await rl.GetRangeAsync(10, -10);
             range = r.ToList();
-            Assert.AreEqual(11, range[0].Id);
-            Assert.AreEqual(91, range[range.Count - 1].Id);
+            ClassicAssert.AreEqual(11, range[0].Id);
+            ClassicAssert.AreEqual(91, range[range.Count - 1].Id);
         }
 
 
@@ -738,46 +739,46 @@ namespace CachingFramework.Redis.UnitTest
             // Test GetEnumerator
             foreach (var item in rd)
             {
-                Assert.IsTrue(users.Any(u => u.Id == item.Key));
+                ClassicAssert.IsTrue(users.Any(u => u.Id == item.Key));
             }
             // Test Count
-            Assert.AreEqual(users.Count, rd.Count);
+            ClassicAssert.AreEqual(users.Count, rd.Count);
             // Test ContainsKey
-            Assert.IsTrue(rd.ContainsKey(users[1].Id));
+            ClassicAssert.IsTrue(rd.ContainsKey(users[1].Id));
             // Test Contains
-            Assert.IsTrue(rd.Contains(new KeyValuePair<int, User>(users.Last().Id, users.Last())));
+            ClassicAssert.IsTrue(rd.Contains(new KeyValuePair<int, User>(users.Last().Id, users.Last())));
             // Test Add
             rd.Add(0, new User() {Id = 0});
-            Assert.AreEqual(users.Count + 1, rd.Count);
-            Assert.AreEqual(0, rd[0].Id);
+            ClassicAssert.AreEqual(users.Count + 1, rd.Count);
+            ClassicAssert.AreEqual(0, rd[0].Id);
             // Test Remove
             rd.Remove(0);
-            Assert.IsFalse(rd.ContainsKey(0));
+            ClassicAssert.IsFalse(rd.ContainsKey(0));
             // Test Keys
             foreach (var k in rd.Keys)
             {
-                Assert.IsTrue(users.Any(u => u.Id == k));
+                ClassicAssert.IsTrue(users.Any(u => u.Id == k));
             }
             // Test Values
             foreach (var u in rd.Values)
             {
-                Assert.IsTrue(users.Any(user => user.Id == u.Id));
+                ClassicAssert.IsTrue(users.Any(user => user.Id == u.Id));
             }
             // Test TryGetValue
             User userTest = new User();
             bool b = rd.TryGetValue(999, out userTest);
-            Assert.IsFalse(b);
-            Assert.IsNull(userTest);
+            ClassicAssert.IsFalse(b);
+            ClassicAssert.IsNull(userTest);
             b = rd.TryGetValue(1, out userTest);
-            Assert.IsTrue(b);
-            Assert.AreEqual(1, userTest.Id);
+            ClassicAssert.IsTrue(b);
+            ClassicAssert.AreEqual(1, userTest.Id);
             // Test CopyTo
             var array = new KeyValuePair<int, User>[50];
             rd.CopyTo(array, 10);
-            Assert.AreEqual(users.Count, array.Count(x => x.Value != null));
+            ClassicAssert.AreEqual(users.Count, array.Count(x => x.Value != null));
             // Test Clear
             rd.Clear();
-            Assert.AreEqual(0, rd.Count);
+            ClassicAssert.AreEqual(0, rd.Count);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -796,13 +797,13 @@ namespace CachingFramework.Redis.UnitTest
             var tryGet2 = await rd.TryGetValueAsync(-567);
 
             // Assert 
-            Assert.AreEqual(users.Count, rd.Count);
-            Assert.IsTrue(tryGet1.Found);
-            Assert.AreEqual(users[0].Id, tryGet1.Key);
-            Assert.AreEqual(users[0].Id, tryGet1.Value.Id);
-            Assert.IsFalse(tryGet2.Found);
-            Assert.AreEqual(-567, tryGet2.Key);
-            Assert.IsNull(tryGet2.Value);
+            ClassicAssert.AreEqual(users.Count, rd.Count);
+            ClassicAssert.IsTrue(tryGet1.Found);
+            ClassicAssert.AreEqual(users[0].Id, tryGet1.Key);
+            ClassicAssert.AreEqual(users[0].Id, tryGet1.Value.Id);
+            ClassicAssert.IsFalse(tryGet2.Found);
+            ClassicAssert.AreEqual(-567, tryGet2.Key);
+            ClassicAssert.IsNull(tryGet2.Value);
         }
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheDictionaryTryGetAsync_NoDeadlocks(RedisContext context)
@@ -839,9 +840,9 @@ namespace CachingFramework.Redis.UnitTest
             var rl = context.Collections.GetRedisDictionary<int, User>(key1);
             rl.AddRange(users.ToDictionary(k => k.Id));
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
-            Assert.AreEqual(users.Count, rl.Count);
+            ClassicAssert.AreEqual(users.Count, rl.Count);
             Thread.Sleep(2000);
-            Assert.AreEqual(0, rl.Count);
+            ClassicAssert.AreEqual(0, rl.Count);
         }
 
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
@@ -857,11 +858,11 @@ namespace CachingFramework.Redis.UnitTest
             var v1 = rl["h1"]; 
             var v2 = rl.GetValue("h2");
 
-            Assert.AreEqual(1, r1);
-            Assert.AreEqual(-2, r2);
-            Assert.AreEqual(-1, r3);
-            Assert.AreEqual(-1, v1);
-            Assert.AreEqual(-2, v2);
+            ClassicAssert.AreEqual(1, r1);
+            ClassicAssert.AreEqual(-2, r2);
+            ClassicAssert.AreEqual(-1, r3);
+            ClassicAssert.AreEqual(-1, v1);
+            ClassicAssert.AreEqual(-2, v2);
         }
 
 
@@ -878,11 +879,11 @@ namespace CachingFramework.Redis.UnitTest
             var v1 = rl["h1"];
             var v2 = rl.GetValue("h2");
 
-            Assert.AreEqual(1.23, r1, 0.0001);
-            Assert.AreEqual(-2.23, r2, 0.0001);
-            Assert.AreEqual(1.23-2.01, r3, 0.0001);
-            Assert.AreEqual(1.23-2.01, v1, 0.0001);
-            Assert.AreEqual(-2.23, v2, 0.0001);
+            ClassicAssert.AreEqual(1.23, r1, 0.0001);
+            ClassicAssert.AreEqual(-2.23, r2, 0.0001);
+            ClassicAssert.AreEqual(1.23-2.01, r3, 0.0001);
+            ClassicAssert.AreEqual(1.23-2.01, v1, 0.0001);
+            ClassicAssert.AreEqual(-2.23, v2, 0.0001);
         }
 
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
@@ -898,11 +899,11 @@ namespace CachingFramework.Redis.UnitTest
             var v1 = rl["h1"];
             var v2 = await rl.GetValueAsync("h2");
 
-            Assert.AreEqual(1, r1);
-            Assert.AreEqual(-2, r2);
-            Assert.AreEqual(-1, r3);
-            Assert.AreEqual(-1, v1);
-            Assert.AreEqual(-2, v2);
+            ClassicAssert.AreEqual(1, r1);
+            ClassicAssert.AreEqual(-2, r2);
+            ClassicAssert.AreEqual(-1, r3);
+            ClassicAssert.AreEqual(-1, v1);
+            ClassicAssert.AreEqual(-2, v2);
         }
 
         [Test, TestCaseSource(typeof(Common), "JsonAndRaw")]
@@ -918,11 +919,11 @@ namespace CachingFramework.Redis.UnitTest
             var v1 = rl["h1"];
             var v2 = await rl.GetValueAsync("h2");
 
-            Assert.AreEqual(1.23, r1, 0.0001);
-            Assert.AreEqual(-2.23, r2, 0.0001);
-            Assert.AreEqual(1.23 - 2.01, r3, 0.0001);
-            Assert.AreEqual(1.23 - 2.01, v1, 0.0001);
-            Assert.AreEqual(-2.23, v2, 0.0001);
+            ClassicAssert.AreEqual(1.23, r1, 0.0001);
+            ClassicAssert.AreEqual(-2.23, r2, 0.0001);
+            ClassicAssert.AreEqual(1.23 - 2.01, r3, 0.0001);
+            ClassicAssert.AreEqual(1.23 - 2.01, v1, 0.0001);
+            ClassicAssert.AreEqual(-2.23, v2, 0.0001);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1102,46 +1103,46 @@ namespace CachingFramework.Redis.UnitTest
             // Test GetEnumerator
             foreach (var item in rd)
             {
-                Assert.IsTrue(users.Any(u => u.Id == item.Key));
+                ClassicAssert.IsTrue(users.Any(u => u.Id == item.Key));
             }
             // Test Count
-            Assert.AreEqual(users.Count, await rd.GetCountAsync());
+            ClassicAssert.AreEqual(users.Count, await rd.GetCountAsync());
             // Test ContainsKey
-            Assert.IsTrue(await rd.ContainsKeyAsync(users[1].Id));
+            ClassicAssert.IsTrue(await rd.ContainsKeyAsync(users[1].Id));
             // Test Contains
-            Assert.IsTrue(await rd.ContainsAsync(new KeyValuePair<int, User>(users.Last().Id, users.Last())));
+            ClassicAssert.IsTrue(await rd.ContainsAsync(new KeyValuePair<int, User>(users.Last().Id, users.Last())));
             // Test Add
             await rd.AddAsync(0, new User() { Id = 0 });
-            Assert.AreEqual(users.Count + 1, await rd.GetCountAsync());
-            Assert.AreEqual(0, rd[0].Id);
+            ClassicAssert.AreEqual(users.Count + 1, await rd.GetCountAsync());
+            ClassicAssert.AreEqual(0, rd[0].Id);
             // Test Remove
             await rd.RemoveAsync(0);
-            Assert.IsFalse(await rd.ContainsKeyAsync(0));
+            ClassicAssert.IsFalse(await rd.ContainsKeyAsync(0));
             // Test Keys
             foreach (var k in rd.Keys)
             {
-                Assert.IsTrue(users.Any(u => u.Id == k));
+                ClassicAssert.IsTrue(users.Any(u => u.Id == k));
             }
             // Test Values
             foreach (var u in rd.Values)
             {
-                Assert.IsTrue(users.Any(user => user.Id == u.Id));
+                ClassicAssert.IsTrue(users.Any(user => user.Id == u.Id));
             }
             // Test TryGetValue
             User userTest = new User();
             bool b = rd.TryGetValue(999, out userTest);
-            Assert.IsFalse(b);
-            Assert.IsNull(userTest);
+            ClassicAssert.IsFalse(b);
+            ClassicAssert.IsNull(userTest);
             b = rd.TryGetValue(1, out userTest);
-            Assert.IsTrue(b);
-            Assert.AreEqual(1, userTest.Id);
+            ClassicAssert.IsTrue(b);
+            ClassicAssert.AreEqual(1, userTest.Id);
             // Test CopyTo
             var array = new KeyValuePair<int, User>[50];
             rd.CopyTo(array, 10);
-            Assert.AreEqual(users.Count, array.Count(x => x.Value != null));
+            ClassicAssert.AreEqual(users.Count, array.Count(x => x.Value != null));
             // Test Clear
             await rd.ClearAsync();
-            Assert.AreEqual(0, await rd.GetCountAsync());
+            ClassicAssert.AreEqual(0, await rd.GetCountAsync());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1153,9 +1154,9 @@ namespace CachingFramework.Redis.UnitTest
             var rl = context.Collections.GetRedisDictionary<int, User>(key1);
             await rl.AddRangeAsync(users.ToDictionary(k => k.Id));
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
-            Assert.AreEqual(users.Count, await rl.GetCountAsync());
+            ClassicAssert.AreEqual(users.Count, await rl.GetCountAsync());
             Thread.Sleep(2000);
-            Assert.AreEqual(0, await rl.GetCountAsync());
+            ClassicAssert.AreEqual(0, await rl.GetCountAsync());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1169,9 +1170,9 @@ namespace CachingFramework.Redis.UnitTest
             var rl = context.Collections.GetRedisDictionary<int, User>(key1);
             await rl.AddAsync(1, users[0], new[] { tag1 });
             var keys = context.Cache.GetKeysByTag(new[] { tag1 }, true).ToList();
-            Assert.AreEqual(1, keys.Count);
+            ClassicAssert.AreEqual(1, keys.Count);
             var val = Encoding.UTF8.GetString(context.GetSerializer().Serialize(1));
-            Assert.AreEqual($"{key1}:$_->_$:" + val, keys[0]);
+            ClassicAssert.AreEqual($"{key1}:$_->_$:" + val, keys[0]);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1205,11 +1206,11 @@ namespace CachingFramework.Redis.UnitTest
             var ser = context.GetSerializer();
             var members = context.Cache.GetMembersByTag(tags[0]).OrderBy(x => ser.Deserialize<int>(x.MemberValue)).ToList();
 
-            Assert.AreEqual(users.Count, members.Count);
-            Assert.AreEqual(key, members[0].Key);
-            Assert.AreEqual(TagMemberType.HashField, members[0].MemberType);
-            Assert.AreEqual(1, ser.Deserialize<int>(members[0].MemberValue));
-            Assert.AreEqual(2, ser.Deserialize<int>(members[1].MemberValue));
+            ClassicAssert.AreEqual(users.Count, members.Count);
+            ClassicAssert.AreEqual(key, members[0].Key);
+            ClassicAssert.AreEqual(TagMemberType.HashField, members[0].MemberType);
+            ClassicAssert.AreEqual(1, ser.Deserialize<int>(members[0].MemberValue));
+            ClassicAssert.AreEqual(2, ser.Deserialize<int>(members[1].MemberValue));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1227,11 +1228,11 @@ namespace CachingFramework.Redis.UnitTest
             var ser = context.GetSerializer();
             var members = context.Cache.GetMembersByTag(tags[0]).OrderBy(x => ser.Deserialize<int>(x.MemberValue)).ToList();
 
-            Assert.AreEqual(users.Count, members.Count);
-            Assert.AreEqual(key, members[0].Key);
-            Assert.AreEqual(TagMemberType.HashField, members[0].MemberType);
-            Assert.AreEqual(1, ser.Deserialize<int>(members[0].MemberValue));
-            Assert.AreEqual(2, ser.Deserialize<int>(members[1].MemberValue));
+            ClassicAssert.AreEqual(users.Count, members.Count);
+            ClassicAssert.AreEqual(key, members[0].Key);
+            ClassicAssert.AreEqual(TagMemberType.HashField, members[0].MemberType);
+            ClassicAssert.AreEqual(1, ser.Deserialize<int>(members[0].MemberValue));
+            ClassicAssert.AreEqual(2, ser.Deserialize<int>(members[1].MemberValue));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1268,17 +1269,17 @@ namespace CachingFramework.Redis.UnitTest
             set.Expiration = realLocalExp;
             var exp = set.Expiration.Value.ToUniversalTime();
             var startedOn = DateTime.Now;
-            Assert.AreEqual(3, set.Count);
+            ClassicAssert.AreEqual(3, set.Count);
             while (context.Cache.KeyExists(key) && DateTime.Now < startedOn.AddSeconds(10))
             {
                 Thread.Sleep(100);
             }
-            Assert.IsFalse(context.Cache.KeyExists(key));
-            Assert.AreEqual(0, set.Count);
+            ClassicAssert.IsFalse(context.Cache.KeyExists(key));
+            ClassicAssert.AreEqual(0, set.Count);
             var stoppedOn = DateTime.Now;
             var span = stoppedOn - startedOn;
-            Assert.AreEqual(2, span.TotalSeconds, 1);
-            Assert.AreEqual(0, (exp - realLocalExp).TotalSeconds, 1);
+            ClassicAssert.AreEqual(2, span.TotalSeconds, 1);
+            ClassicAssert.AreEqual(0, (exp - realLocalExp).TotalSeconds, 1);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1288,12 +1289,12 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var set = context.Collections.GetRedisSet<string>(key);
             set.AddRange(new[] { "test1", "test2", "test3" });
-            Assert.AreEqual(3, set.Count);
+            ClassicAssert.AreEqual(3, set.Count);
             var realLocalExp = DateTime.UtcNow.AddDays(-4);
             set.Expiration = realLocalExp;
             Thread.Sleep(250);
-            Assert.IsFalse(context.Cache.KeyExists(key));
-            Assert.AreEqual(0, set.Count);
+            ClassicAssert.IsFalse(context.Cache.KeyExists(key));
+            ClassicAssert.AreEqual(0, set.Count);
         }
 
 #if (NET462)
@@ -1304,10 +1305,10 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             context.Cache.SetObject<string>(key, "test value 1");
             var obj = context.Cache.GetObject<object>(key);
-            Assert.IsTrue(obj is string);
+            ClassicAssert.IsTrue(obj is string);
             context.Cache.SetObject<string>(key, Encoding.UTF8.GetString(new byte[] { 0x1f, 0x8b }));
             obj = context.Cache.GetObject<object>(key);
-            Assert.IsTrue(obj is string);
+            ClassicAssert.IsTrue(obj is string);
         }
 #endif
 
@@ -1322,40 +1323,40 @@ namespace CachingFramework.Redis.UnitTest
             // Test GetEnumerator
             foreach (var item in rs)
             {
-                Assert.IsTrue(users.Any(u => u.Id == item.Id));
+                ClassicAssert.IsTrue(users.Any(u => u.Id == item.Id));
             }
             // Test Count
-            Assert.AreEqual(users.Count, rs.Count);
+            ClassicAssert.AreEqual(users.Count, rs.Count);
             // Test Contains
-            Assert.IsTrue(rs.Contains(users[2]));
+            ClassicAssert.IsTrue(rs.Contains(users[2]));
             // Test Add
             var newUser = new User() {Id = 5};
             rs.Add(newUser);
-            Assert.IsTrue(rs.Contains(newUser));
+            ClassicAssert.IsTrue(rs.Contains(newUser));
             // Test Remove
             rs.Remove(users[2]);
-            Assert.IsFalse(rs.Contains(users[2]));
+            ClassicAssert.IsFalse(rs.Contains(users[2]));
             // Test CopyTo
             User[] array = new User[50];
             rs.CopyTo(array, 10);
-            Assert.AreEqual(users.Count, array.Count(x => x != null));
+            ClassicAssert.AreEqual(users.Count, array.Count(x => x != null));
             // Test Clear
             rs.Clear();
-            Assert.AreEqual(0, rs.Count);
+            ClassicAssert.AreEqual(0, rs.Count);
             rs.AddRange(new []{  new User() {Id = 3},  new User() {Id = 1},  new User() {Id = 2} });
-            Assert.AreEqual(3, rs.Count);
+            ClassicAssert.AreEqual(3, rs.Count);
             rs.Remove(new User() { Id = 1 });
             rs.Remove(new User() { Id = 2 });
-            Assert.AreEqual(1, rs.Count);
-            Assert.IsTrue(rs.Contains(new User() { Id = 3 }));
+            ClassicAssert.AreEqual(1, rs.Count);
+            ClassicAssert.IsTrue(rs.Contains(new User() { Id = 3 }));
             // Test GetRandomMember
             var user = rs.GetRandomMember();
-            Assert.AreEqual(3, user.Id);
+            ClassicAssert.AreEqual(3, user.Id);
             // Test Pop
             user = rs.Pop();
-            Assert.AreEqual(3, user.Id);
+            ClassicAssert.AreEqual(3, user.Id);
             user = rs.Pop();
-            Assert.IsNull(user);
+            ClassicAssert.IsNull(user);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.NewtonsoftJson))]
@@ -1367,9 +1368,9 @@ namespace CachingFramework.Redis.UnitTest
             var rl = context.Collections.GetRedisSet<User>(key1);
             rl.AddRange(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1500);
-            Assert.AreEqual(users.Count, rl.Count);
+            ClassicAssert.AreEqual(users.Count, rl.Count);
             Thread.Sleep(4000);
-            Assert.AreEqual(0, rl.Count);
+            ClassicAssert.AreEqual(0, rl.Count);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1387,8 +1388,8 @@ namespace CachingFramework.Redis.UnitTest
             cdeSet.AddRange("CDE");
 
             // Test Count
-            Assert.AreEqual(3, abcSet.Count);
-            Assert.AreEqual(3, cdeSet.Count);
+            ClassicAssert.AreEqual(3, abcSet.Count);
+            ClassicAssert.AreEqual(3, cdeSet.Count);
 
             abcSet.Clear();
             cdeSet.Clear();
@@ -1409,18 +1410,18 @@ namespace CachingFramework.Redis.UnitTest
 
             var count = ss.Count();
             var byRank = ss.GetRangeByRank().ToList();
-            Assert.AreEqual(4, count);
-            Assert.AreEqual(count, byRank.Count);
-            Assert.AreEqual(12.34, byRank[1].Score);
-            Assert.AreEqual(double.NegativeInfinity, byRank[0].Score);
+            ClassicAssert.AreEqual(4, count);
+            ClassicAssert.AreEqual(count, byRank.Count);
+            ClassicAssert.AreEqual(12.34, byRank[1].Score);
+            ClassicAssert.AreEqual(double.NegativeInfinity, byRank[0].Score);
 
             var byScore = ss.GetRangeByScore(12.34, 23.449).ToList();
-            Assert.AreEqual(1, byScore.Count);
-            Assert.AreEqual(users[0].Id, byScore[0].Value.Id);
+            ClassicAssert.AreEqual(1, byScore.Count);
+            ClassicAssert.AreEqual(users[0].Id, byScore[0].Value.Id);
 
             byScore = ss.GetRangeByScore(12.34, 23.45).ToList();
-            Assert.AreEqual(2, byScore.Count);
-            Assert.AreEqual(users[1].Id, byScore[1].Value.Id);
+            ClassicAssert.AreEqual(2, byScore.Count);
+            ClassicAssert.AreEqual(users[1].Id, byScore[1].Value.Id);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1435,11 +1436,11 @@ namespace CachingFramework.Redis.UnitTest
             ss.Add(double.PositiveInfinity, users[2]);
 
             var byRank = ss.GetRangeByRank().ToList();
-            Assert.AreEqual(double.NegativeInfinity, byRank[0].Score);
+            ClassicAssert.AreEqual(double.NegativeInfinity, byRank[0].Score);
             // This is a StackExhange.Redis bug: https://github.com/StackExchange/StackExchange.Redis/issues/287
             // This was corrected and should be included in the next SE.Redis version
-            Assert.AreEqual(double.NegativeInfinity, byRank[0].Score);
-            Assert.AreEqual(double.PositiveInfinity, byRank[1].Score);
+            ClassicAssert.AreEqual(double.NegativeInfinity, byRank[0].Score);
+            ClassicAssert.AreEqual(double.PositiveInfinity, byRank[1].Score);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1453,11 +1454,11 @@ namespace CachingFramework.Redis.UnitTest
             var byRank = ss.GetRangeByRank(-2, -1).ToList();
             var byRankRev = ss.GetRangeByRank(-2, -1, true).ToList();
 
-            Assert.AreEqual(2, byRank.Count);
-            Assert.AreEqual("b", byRank[0].Value);
-            Assert.AreEqual("c", byRank[1].Value);
-            Assert.AreEqual("a", byRankRev[1].Value);
-            Assert.AreEqual("b", byRankRev[0].Value);
+            ClassicAssert.AreEqual(2, byRank.Count);
+            ClassicAssert.AreEqual("b", byRank[0].Value);
+            ClassicAssert.AreEqual("c", byRank[1].Value);
+            ClassicAssert.AreEqual("a", byRankRev[1].Value);
+            ClassicAssert.AreEqual("b", byRankRev[0].Value);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1470,17 +1471,17 @@ namespace CachingFramework.Redis.UnitTest
             {
                 ss.Add(i, "member " + i);
             }
-            Assert.AreEqual(10, ss.CountByScore(1, 10));
+            ClassicAssert.AreEqual(10, ss.CountByScore(1, 10));
             var incremented = ss.IncrementScore("member 10", 1000);
-            Assert.AreEqual(1010, incremented);
-            Assert.AreEqual(255, ss.Count);
+            ClassicAssert.AreEqual(1010, incremented);
+            ClassicAssert.AreEqual(255, ss.Count);
 
             int x = 0;
             foreach (var item in ss)
             {
                 x++;
             }
-            Assert.AreEqual(255, x);
+            ClassicAssert.AreEqual(255, x);
 
             var r0 = ss.RankOf("member 0");
             var r9 = ss.RankOf("member 9");
@@ -1490,35 +1491,35 @@ namespace CachingFramework.Redis.UnitTest
             var r255 = ss.RankOf("member 255");
             var r0Rev = ss.RankOf("member 0", true);
 
-            Assert.AreEqual(0, r0);
-            Assert.AreEqual(9, r9);
-            Assert.AreEqual(10, r11);
-            Assert.AreEqual(254, r10);
-            Assert.AreEqual(253, r254);
-            Assert.AreEqual(254, r0Rev);
-            Assert.IsNull(r255);
+            ClassicAssert.AreEqual(0, r0);
+            ClassicAssert.AreEqual(9, r9);
+            ClassicAssert.AreEqual(10, r11);
+            ClassicAssert.AreEqual(254, r10);
+            ClassicAssert.AreEqual(253, r254);
+            ClassicAssert.AreEqual(254, r0Rev);
+            ClassicAssert.IsNull(r255);
 
             var s0 = ss.ScoreOf("member 0");
             var s254 = ss.ScoreOf("member 254");
             var s255 = ss.ScoreOf("member 255");
-            Assert.AreEqual(0, s0);
-            Assert.AreEqual(254, s254);
-            Assert.IsNull(s255);
+            ClassicAssert.AreEqual(0, s0);
+            ClassicAssert.AreEqual(254, s254);
+            ClassicAssert.IsNull(s255);
 
             ss.RemoveRangeByRank(0, 2);
-            Assert.AreEqual(252, ss.Count);
+            ClassicAssert.AreEqual(252, ss.Count);
 
             ss.RemoveRangeByScore(double.NegativeInfinity, 9);
-            Assert.AreEqual(245, ss.Count);
+            ClassicAssert.AreEqual(245, ss.Count);
 
-            Assert.IsTrue(ss.Contains("member 100"));
-            Assert.IsFalse(ss.Contains("member 0"));
+            ClassicAssert.IsTrue(ss.Contains("member 100"));
+            ClassicAssert.IsFalse(ss.Contains("member 0"));
 
             ss.Remove("member 100");
-            Assert.IsFalse(ss.Contains("member 100"));
+            ClassicAssert.IsFalse(ss.Contains("member 100"));
 
             ss.Clear();
-            Assert.AreEqual(0, ss.Count);
+            ClassicAssert.AreEqual(0, ss.Count);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1536,18 +1537,18 @@ namespace CachingFramework.Redis.UnitTest
 
             var count = await ss.CountAsync();
             var byRank = (await ss.GetRangeByRankAsync()).ToList();
-            Assert.AreEqual(4, count);
-            Assert.AreEqual(count, byRank.Count);
-            Assert.AreEqual(12.34, byRank[1].Score);
-            Assert.AreEqual(double.NegativeInfinity, byRank[0].Score);
+            ClassicAssert.AreEqual(4, count);
+            ClassicAssert.AreEqual(count, byRank.Count);
+            ClassicAssert.AreEqual(12.34, byRank[1].Score);
+            ClassicAssert.AreEqual(double.NegativeInfinity, byRank[0].Score);
 
             var byScore = (await ss.GetRangeByScoreAsync(12.34, 23.449)).ToList();
-            Assert.AreEqual(1, byScore.Count);
-            Assert.AreEqual(users[0].Id, byScore[0].Value.Id);
+            ClassicAssert.AreEqual(1, byScore.Count);
+            ClassicAssert.AreEqual(users[0].Id, byScore[0].Value.Id);
 
             byScore = (await ss.GetRangeByScoreAsync(12.34, 23.45)).ToList();
-            Assert.AreEqual(2, byScore.Count);
-            Assert.AreEqual(users[1].Id, byScore[1].Value.Id);
+            ClassicAssert.AreEqual(2, byScore.Count);
+            ClassicAssert.AreEqual(users[1].Id, byScore[1].Value.Id);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1561,11 +1562,11 @@ namespace CachingFramework.Redis.UnitTest
             var byRank = (await ss.GetRangeByRankAsync(-2, -1)).ToList();
             var byRankRev = (await ss.GetRangeByRankAsync(-2, -1, true)).ToList();
 
-            Assert.AreEqual(2, byRank.Count);
-            Assert.AreEqual("b", byRank[0].Value);
-            Assert.AreEqual("c", byRank[1].Value);
-            Assert.AreEqual("a", byRankRev[1].Value);
-            Assert.AreEqual("b", byRankRev[0].Value);
+            ClassicAssert.AreEqual(2, byRank.Count);
+            ClassicAssert.AreEqual("b", byRank[0].Value);
+            ClassicAssert.AreEqual("c", byRank[1].Value);
+            ClassicAssert.AreEqual("a", byRankRev[1].Value);
+            ClassicAssert.AreEqual("b", byRankRev[0].Value);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1578,17 +1579,17 @@ namespace CachingFramework.Redis.UnitTest
             {
                 await ss.AddAsync(i, "member " + i);
             }
-            Assert.AreEqual(10, await ss.CountByScoreAsync(1, 10));
+            ClassicAssert.AreEqual(10, await ss.CountByScoreAsync(1, 10));
             var incremented = await ss.IncrementScoreAsync("member 10", 1000);
-            Assert.AreEqual(1010, incremented);
-            Assert.AreEqual(255, ss.Count);
+            ClassicAssert.AreEqual(1010, incremented);
+            ClassicAssert.AreEqual(255, ss.Count);
 
             int x = 0;
             foreach (var item in ss)
             {
                 x++;
             }
-            Assert.AreEqual(255, x);
+            ClassicAssert.AreEqual(255, x);
 
             var r0 = await ss.RankOfAsync("member 0");
             var r9 = await ss.RankOfAsync("member 9");
@@ -1598,35 +1599,35 @@ namespace CachingFramework.Redis.UnitTest
             var r255 = await ss.RankOfAsync("member 255");
             var r0Rev = await ss.RankOfAsync("member 0", true);
 
-            Assert.AreEqual(0, r0);
-            Assert.AreEqual(9, r9);
-            Assert.AreEqual(10, r11);
-            Assert.AreEqual(254, r10);
-            Assert.AreEqual(253, r254);
-            Assert.AreEqual(254, r0Rev);
-            Assert.IsNull(r255);
+            ClassicAssert.AreEqual(0, r0);
+            ClassicAssert.AreEqual(9, r9);
+            ClassicAssert.AreEqual(10, r11);
+            ClassicAssert.AreEqual(254, r10);
+            ClassicAssert.AreEqual(253, r254);
+            ClassicAssert.AreEqual(254, r0Rev);
+            ClassicAssert.IsNull(r255);
 
             var s0 = await ss.ScoreOfAsync("member 0");
             var s254 = await ss.ScoreOfAsync("member 254");
             var s255 = await ss.ScoreOfAsync("member 255");
-            Assert.AreEqual(0, s0);
-            Assert.AreEqual(254, s254);
-            Assert.IsNull(s255);
+            ClassicAssert.AreEqual(0, s0);
+            ClassicAssert.AreEqual(254, s254);
+            ClassicAssert.IsNull(s255);
 
             await ss.RemoveRangeByRankAsync(0, 2);
-            Assert.AreEqual(252, await ss.CountAsync());
+            ClassicAssert.AreEqual(252, await ss.CountAsync());
 
             await ss.RemoveRangeByScoreAsync(double.NegativeInfinity, 9);
-            Assert.AreEqual(245, await ss.CountAsync());
+            ClassicAssert.AreEqual(245, await ss.CountAsync());
 
-            Assert.IsTrue(await ss.ContainsAsync("member 100"));
-            Assert.IsFalse(await ss.ContainsAsync("member 0"));
+            ClassicAssert.IsTrue(await ss.ContainsAsync("member 100"));
+            ClassicAssert.IsFalse(await ss.ContainsAsync("member 0"));
 
             await ss.RemoveAsync("member 100");
-            Assert.IsFalse(await ss.ContainsAsync("member 100"));
+            ClassicAssert.IsFalse(await ss.ContainsAsync("member 100"));
 
             await ((RedisBaseObject)ss).ClearAsync();
-            Assert.AreEqual(0, await ss.CountAsync());
+            ClassicAssert.AreEqual(0, await ss.CountAsync());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
@@ -1636,47 +1637,47 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var bm = context.Collections.GetRedisBitmap(key);
             bm.Add(0xff);           // 11111111 
-            Assert.IsFalse(bm.Contains(0));
+            ClassicAssert.IsFalse(bm.Contains(0));
             bm.Add(0x00);          // 11111111 00000000
-            Assert.IsTrue(bm.Contains(0));
+            ClassicAssert.IsTrue(bm.Contains(0));
             bm.Add(0xff);           // 11111111 00000000 11111111
             bm.SetBit(24, 1);    // 11111111 00000000 11111111 10000000
             bm.SetBit(25, 0);   // 11111111 00000000 11111111 10000000
             bm.SetBit(26, 1);    // 11111111 00000000 11111111 10100000
             bm.SetBit(27, 1);    // 11111111 00000000 11111111 10110000
-            Assert.AreEqual(19, bm.Count());
-            Assert.IsFalse(bm.Contains(0, 0, 0));
-            Assert.IsFalse(bm.Contains(1, 1, 1));
-            Assert.IsTrue(bm.Contains(0, -1, -1));
-            Assert.IsTrue(bm.Contains(1, -1, -1));
-            Assert.AreEqual(0, bm.BitPosition(1));
-            Assert.AreEqual(8, bm.BitPosition(0));
-            Assert.AreEqual(24+1, bm.BitPosition(0, -1, -1));
-            Assert.AreEqual(24+0, bm.BitPosition(1, -1, -1));
-            Assert.AreEqual(0, bm.GetBit(25));
-            Assert.AreEqual(1, bm.GetBit(26));
-            Assert.AreEqual(1, bm.GetBit(27));
-            Assert.AreEqual(3, bm.Count(-1, -1));
-            Assert.AreEqual(11, bm.Count(-2, -1));
-            Assert.AreEqual(11, bm.Count(2, -1));
-            Assert.AreEqual(19, bm.Count());
-            Assert.AreEqual(8, bm.Count(0, 1));
+            ClassicAssert.AreEqual(19, bm.Count());
+            ClassicAssert.IsFalse(bm.Contains(0, 0, 0));
+            ClassicAssert.IsFalse(bm.Contains(1, 1, 1));
+            ClassicAssert.IsTrue(bm.Contains(0, -1, -1));
+            ClassicAssert.IsTrue(bm.Contains(1, -1, -1));
+            ClassicAssert.AreEqual(0, bm.BitPosition(1));
+            ClassicAssert.AreEqual(8, bm.BitPosition(0));
+            ClassicAssert.AreEqual(24+1, bm.BitPosition(0, -1, -1));
+            ClassicAssert.AreEqual(24+0, bm.BitPosition(1, -1, -1));
+            ClassicAssert.AreEqual(0, bm.GetBit(25));
+            ClassicAssert.AreEqual(1, bm.GetBit(26));
+            ClassicAssert.AreEqual(1, bm.GetBit(27));
+            ClassicAssert.AreEqual(3, bm.Count(-1, -1));
+            ClassicAssert.AreEqual(11, bm.Count(-2, -1));
+            ClassicAssert.AreEqual(11, bm.Count(2, -1));
+            ClassicAssert.AreEqual(19, bm.Count());
+            ClassicAssert.AreEqual(8, bm.Count(0, 1));
             var sb = new StringBuilder();
             foreach (var bit in bm)
             {
                 sb.Append(bit);
             }
-            Assert.AreEqual("11111111000000001111111110110000", sb.ToString());
-            Assert.AreEqual("11111111000000001111111110110000", bm.ToString());
+            ClassicAssert.AreEqual("11111111000000001111111110110000", sb.ToString());
+            ClassicAssert.AreEqual("11111111000000001111111110110000", bm.ToString());
             bm.SetBit(9999999, 1);
-            Assert.AreEqual(20, bm.Count());
-            Assert.AreEqual(0, bm.GetBit(9999998));
-            Assert.AreEqual(1, bm.GetBit(9999999));    
+            ClassicAssert.AreEqual(20, bm.Count());
+            ClassicAssert.AreEqual(0, bm.GetBit(9999998));
+            ClassicAssert.AreEqual(1, bm.GetBit(9999999));    
             bm.Clear();
-            Assert.AreEqual(0, bm.Count());
+            ClassicAssert.AreEqual(0, bm.Count());
             bm.Remove(0);
-            Assert.AreEqual(1, bm.Count());
-            Assert.AreEqual(1, bm.GetBit(0));
+            ClassicAssert.AreEqual(1, bm.Count());
+            ClassicAssert.AreEqual(1, bm.GetBit(0));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1688,33 +1689,33 @@ namespace CachingFramework.Redis.UnitTest
             bm.Add("zero");
             bm.AddRange(new [] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" });
 
-            Assert.AreEqual(13, bm.Count);
+            ClassicAssert.AreEqual(13, bm.Count);
             var suggestions = bm.AutoComplete("t", 3).ToList();
-            Assert.AreEqual(3, suggestions.Count);
-            Assert.AreEqual("ten", suggestions[0]);
-            Assert.AreEqual("three", suggestions[1]);
-            Assert.AreEqual("twelve", suggestions[2]);
+            ClassicAssert.AreEqual(3, suggestions.Count);
+            ClassicAssert.AreEqual("ten", suggestions[0]);
+            ClassicAssert.AreEqual("three", suggestions[1]);
+            ClassicAssert.AreEqual("twelve", suggestions[2]);
 
             suggestions = bm.AutoComplete("tw").ToList();
-            Assert.AreEqual(2, suggestions.Count);
-            Assert.AreEqual("twelve", suggestions[0]);
-            Assert.AreEqual("two", suggestions[1]);
+            ClassicAssert.AreEqual(2, suggestions.Count);
+            ClassicAssert.AreEqual("twelve", suggestions[0]);
+            ClassicAssert.AreEqual("two", suggestions[1]);
 
             var lst = new List<string>();
             foreach (var s in bm)
             {
                 lst.Add(s);
             }
-            Assert.AreEqual(13, lst.Count);
-            Assert.AreEqual("eight", lst[0]);
-            Assert.AreEqual("eleven", lst[1]);
-            Assert.AreEqual("two", lst[11]);
-            Assert.AreEqual("zero", lst[12]);
+            ClassicAssert.AreEqual(13, lst.Count);
+            ClassicAssert.AreEqual("eight", lst[0]);
+            ClassicAssert.AreEqual("eleven", lst[1]);
+            ClassicAssert.AreEqual("two", lst[11]);
+            ClassicAssert.AreEqual("zero", lst[12]);
 
-            Assert.IsTrue(bm.Contains("zero"));
+            ClassicAssert.IsTrue(bm.Contains("zero"));
             bm.Remove("zero");
-            Assert.IsFalse(bm.Contains("zero"));
-            Assert.AreEqual(12, bm.Count);
+            ClassicAssert.IsFalse(bm.Contains("zero"));
+            ClassicAssert.AreEqual(12, bm.Count);
         }
 
         // See this: https://github.com/StackExchange/StackExchange.Redis/issues/458
@@ -1725,12 +1726,12 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var bm = context.Collections.GetRedisLexicographicSet(key);
             bm.AddRange(new[] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" });
-            Assert.AreEqual(12, bm.Match("*").Count());
+            ClassicAssert.AreEqual(12, bm.Match("*").Count());
 
             var lst = bm.Match("*eve*").ToList();
-            Assert.AreEqual(2, lst.Count);
-            Assert.AreEqual("eleven", lst[0]);
-            Assert.AreEqual("seven", lst[1]);
+            ClassicAssert.AreEqual(2, lst.Count);
+            ClassicAssert.AreEqual("eleven", lst[0]);
+            ClassicAssert.AreEqual("seven", lst[1]);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1741,19 +1742,19 @@ namespace CachingFramework.Redis.UnitTest
             var cs = context.Collections.GetRedisString(key);
 
             cs.SetRange(3, "Test");
-            Assert.AreEqual(7, cs.Length);
-            Assert.AreEqual("\0", cs.GetRange(0, 0));
-            Assert.AreEqual("\0", cs[0, 0]);
-            Assert.AreEqual("T", cs[3, 3]);
-            Assert.AreEqual("t", cs[6, 6]);
-            Assert.AreEqual("Test", cs[3, -1]);
-            Assert.AreEqual("\0\0\0Test", cs[0, -1]);
-            Assert.AreEqual("\0\0\0Test", cs[0, 999]);
+            ClassicAssert.AreEqual(7, cs.Length);
+            ClassicAssert.AreEqual("\0", cs.GetRange(0, 0));
+            ClassicAssert.AreEqual("\0", cs[0, 0]);
+            ClassicAssert.AreEqual("T", cs[3, 3]);
+            ClassicAssert.AreEqual("t", cs[6, 6]);
+            ClassicAssert.AreEqual("Test", cs[3, -1]);
+            ClassicAssert.AreEqual("\0\0\0Test", cs[0, -1]);
+            ClassicAssert.AreEqual("\0\0\0Test", cs[0, 999]);
 
             var len = cs.SetRange(0, "123");
-            Assert.AreEqual(7, len);
-            Assert.AreEqual(7, cs.Length);
-            Assert.AreEqual("123Test", cs.GetRange());
+            ClassicAssert.AreEqual(7, len);
+            ClassicAssert.AreEqual(7, cs.Length);
+            ClassicAssert.AreEqual("123Test", cs.GetRange());
             
             cs.SetRange(0, "abc");
 
@@ -1762,19 +1763,19 @@ namespace CachingFramework.Redis.UnitTest
             {
                 lst.Add(b);
             }
-            Assert.AreEqual("abcTest", Encoding.UTF8.GetString(lst.ToArray()));
+            ClassicAssert.AreEqual("abcTest", Encoding.UTF8.GetString(lst.ToArray()));
 
-            Assert.AreEqual(10, cs.Append("def"));
-            Assert.AreEqual("abcTestdef", cs.ToString());
+            ClassicAssert.AreEqual(10, cs.Append("def"));
+            ClassicAssert.AreEqual("abcTestdef", cs.ToString());
 
             cs.Set("new string");
-            Assert.AreEqual("new string", cs.ToString());
+            ClassicAssert.AreEqual("new string", cs.ToString());
 
             cs.Set(123.45);
-            Assert.AreEqual("123.45", cs.ToString());
+            ClassicAssert.AreEqual("123.45", cs.ToString());
 
             cs.Set(12345);
-            Assert.AreEqual("12345", cs.ToString());
+            ClassicAssert.AreEqual("12345", cs.ToString());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1785,19 +1786,19 @@ namespace CachingFramework.Redis.UnitTest
             var cs = context.Collections.GetRedisString(key);
 
             await cs.SetRangeAsync(3, "Test");
-            Assert.AreEqual(7, cs.Length);
-            Assert.AreEqual("\0", await cs.GetRangeAsync(0, 0));
-            Assert.AreEqual("\0", cs[0, 0]);
-            Assert.AreEqual("T", cs[3, 3]);
-            Assert.AreEqual("t", cs[6, 6]);
-            Assert.AreEqual("Test", cs[3, -1]);
-            Assert.AreEqual("\0\0\0Test", cs[0, -1]);
-            Assert.AreEqual("\0\0\0Test", cs[0, 999]);
+            ClassicAssert.AreEqual(7, cs.Length);
+            ClassicAssert.AreEqual("\0", await cs.GetRangeAsync(0, 0));
+            ClassicAssert.AreEqual("\0", cs[0, 0]);
+            ClassicAssert.AreEqual("T", cs[3, 3]);
+            ClassicAssert.AreEqual("t", cs[6, 6]);
+            ClassicAssert.AreEqual("Test", cs[3, -1]);
+            ClassicAssert.AreEqual("\0\0\0Test", cs[0, -1]);
+            ClassicAssert.AreEqual("\0\0\0Test", cs[0, 999]);
 
             var len = await cs.SetRangeAsync(0, "123");
-            Assert.AreEqual(7, len);
-            Assert.AreEqual(7, cs.Length);
-            Assert.AreEqual("123Test", await cs.GetRangeAsync());
+            ClassicAssert.AreEqual(7, len);
+            ClassicAssert.AreEqual(7, cs.Length);
+            ClassicAssert.AreEqual("123Test", await cs.GetRangeAsync());
 
             await cs.SetRangeAsync(0, "abc");
 
@@ -1806,19 +1807,19 @@ namespace CachingFramework.Redis.UnitTest
             {
                 lst.Add(b);
             }
-            Assert.AreEqual("abcTest", Encoding.UTF8.GetString(lst.ToArray()));
+            ClassicAssert.AreEqual("abcTest", Encoding.UTF8.GetString(lst.ToArray()));
 
-            Assert.AreEqual(10, await cs.AppendAsync("def"));
-            Assert.AreEqual("abcTestdef", await cs.ToStringAsync());
+            ClassicAssert.AreEqual(10, await cs.AppendAsync("def"));
+            ClassicAssert.AreEqual("abcTestdef", await cs.ToStringAsync());
 
             await cs.SetAsync("new string");
-            Assert.AreEqual("new string", await cs.ToStringAsync());
+            ClassicAssert.AreEqual("new string", await cs.ToStringAsync());
 
             await cs.SetAsync(123.45);
-            Assert.AreEqual("123.45", await cs.ToStringAsync());
+            ClassicAssert.AreEqual("123.45", await cs.ToStringAsync());
 
             await cs.SetAsync(12345);
-            Assert.AreEqual("12345", await cs.ToStringAsync());
+            ClassicAssert.AreEqual("12345", await cs.ToStringAsync());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1828,16 +1829,16 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var cs = context.Collections.GetRedisString(key);
             var str = cs.GetSet("value");
-            Assert.IsNull(str);
+            ClassicAssert.IsNull(str);
             str = cs.GetSet("new value");
-            Assert.AreEqual("value", str);
+            ClassicAssert.AreEqual("value", str);
             context.Cache.Remove(key);
             var integer = cs.GetSet(456);
-            Assert.AreEqual(0, integer);
-            Assert.AreEqual(456, cs.AsInteger());
+            ClassicAssert.AreEqual(0, integer);
+            ClassicAssert.AreEqual(456, cs.AsInteger());
             var fp = cs.GetSet(789.12);
-            Assert.AreEqual(456.0, fp);
-            Assert.AreEqual(789.12, cs.AsFloat());
+            ClassicAssert.AreEqual(456.0, fp);
+            ClassicAssert.AreEqual(789.12, cs.AsFloat());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
@@ -1847,16 +1848,16 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.RemoveAsync(key);
             var cs = context.Collections.GetRedisString(key);
             var str = await cs.GetSetAsync("value");
-            Assert.IsNull(str);
+            ClassicAssert.IsNull(str);
             str = await cs.GetSetAsync("new value");
-            Assert.AreEqual("value", str);
+            ClassicAssert.AreEqual("value", str);
             await context.Cache.RemoveAsync(key);
             var integer = await cs.GetSetAsync(456);
-            Assert.AreEqual(0, integer);
-            Assert.AreEqual(456, await cs.AsIntegerAsync());
+            ClassicAssert.AreEqual(0, integer);
+            ClassicAssert.AreEqual(456, await cs.AsIntegerAsync());
             var fp = cs.GetSet(789.12);
-            Assert.AreEqual(456.0, fp);
-            Assert.AreEqual(789.12, await cs.AsFloatAsync());
+            ClassicAssert.AreEqual(456.0, fp);
+            ClassicAssert.AreEqual(789.12, await cs.AsFloatAsync());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1865,19 +1866,19 @@ namespace CachingFramework.Redis.UnitTest
             var key = $"UT_CacheString_Unicode-{Common.GetUId()}";
             context.Cache.Remove(key);
             var cs = context.Collections.GetRedisString(key);
-            Assert.AreEqual(0, cs.Length);
+            ClassicAssert.AreEqual(0, cs.Length);
             var str = "元来は有力貴族や諸大";
             cs.SetRange(0, str);
-            Assert.AreEqual(10*3, cs.Length);
+            ClassicAssert.AreEqual(10*3, cs.Length);
             var g = cs.GetRange(0, 2);
-            Assert.AreEqual("元", cs[0, 2]);
-            Assert.AreEqual("大", cs[-3, -1]);
+            ClassicAssert.AreEqual("元", cs[0, 2]);
+            ClassicAssert.AreEqual("大", cs[-3, -1]);
             var lst = new List<byte>();
             foreach (byte b in cs)
             {
                 lst.Add(b);
             }
-            Assert.AreEqual(str, Encoding.UTF8.GetString(lst.ToArray()));
+            ClassicAssert.AreEqual(str, Encoding.UTF8.GetString(lst.ToArray()));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
@@ -1886,19 +1887,19 @@ namespace CachingFramework.Redis.UnitTest
             var key = $"UT_CacheString_UnicodeAsync-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             var cs = context.Collections.GetRedisString(key);
-            Assert.AreEqual(0, cs.Length);
+            ClassicAssert.AreEqual(0, cs.Length);
             var str = "元来は有力貴族や諸大";
             await cs.SetRangeAsync(0, str);
-            Assert.AreEqual(10 * 3, cs.Length);
+            ClassicAssert.AreEqual(10 * 3, cs.Length);
             var g = await cs.GetRangeAsync(0, 2);
-            Assert.AreEqual("元", cs[0, 2]);
-            Assert.AreEqual("大", cs[-3, -1]);
+            ClassicAssert.AreEqual("元", cs[0, 2]);
+            ClassicAssert.AreEqual("大", cs[-3, -1]);
             var lst = new List<byte>();
             foreach (byte b in cs)
             {
                 lst.Add(b);
             }
-            Assert.AreEqual(str, Encoding.UTF8.GetString(lst.ToArray()));
+            ClassicAssert.AreEqual(str, Encoding.UTF8.GetString(lst.ToArray()));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1909,7 +1910,7 @@ namespace CachingFramework.Redis.UnitTest
             var str = context.Collections.GetRedisString(key);
             str.Set((long.MaxValue - 1).ToString());
             var value = str.IncrementBy(1);
-            Assert.AreEqual(long.MaxValue, value);
+            ClassicAssert.AreEqual(long.MaxValue, value);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1920,7 +1921,7 @@ namespace CachingFramework.Redis.UnitTest
             var str = context.Collections.GetRedisString(key);
             await str.SetAsync((long.MaxValue - 1).ToString());
             var value = await str.IncrementByAsync(1);
-            Assert.AreEqual(long.MaxValue, value);
+            ClassicAssert.AreEqual(long.MaxValue, value);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1932,7 +1933,7 @@ namespace CachingFramework.Redis.UnitTest
             str.Append(Math.PI.ToString(CultureInfo.InvariantCulture));
             var fract = (double) 1/3;
             var value = str.IncrementByFloat(fract);
-            Assert.AreEqual(Math.PI + fract, value, 0.000000001);
+            ClassicAssert.AreEqual(Math.PI + fract, value, 0.000000001);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1944,7 +1945,7 @@ namespace CachingFramework.Redis.UnitTest
             await str.AppendAsync(Math.PI.ToString(CultureInfo.InvariantCulture));
             var fract = (double)1 / 3;
             var value = await str.IncrementByFloatAsync(fract);
-            Assert.AreEqual(Math.PI + fract, value, 0.000000001);
+            ClassicAssert.AreEqual(Math.PI + fract, value, 0.000000001);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
@@ -1958,10 +1959,9 @@ namespace CachingFramework.Redis.UnitTest
             redisDict.AddRange(users.ToDictionary(k => k.Id.ToString()));
             context.Cache.AddTagsToKey(redisDict.RedisKey, new[] { tag });
             var returnedDict = context.Cache.GetHashedAll<User>(key);
-            Assert.AreEqual(returnedDict["1"].Id, redisDict["1"].Id);
+            ClassicAssert.AreEqual(returnedDict["1"].Id, redisDict["1"].Id);
             context.Cache.InvalidateKeysByTag(tag);
             Thread.Sleep(4000);
-            Assert.AreEqual(0, redisDict.Count);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -1975,14 +1975,14 @@ namespace CachingFramework.Redis.UnitTest
             redisDict.AddRange(users.ToDictionary(k => new Location() { Id = k.Id, Name = k.Id.ToString() }));
             context.Cache.AddTagsToKey(redisDict.RedisKey, new[] { tag });
             var returnedDict = context.Cache.GetHashedAll<Location, User>(key);
-            Assert.AreEqual(users.Count, returnedDict.Count);
+            ClassicAssert.AreEqual(users.Count, returnedDict.Count);
             foreach (var u in users)
             {
-                Assert.IsTrue(returnedDict.Keys.Any(k => k.Id == u.Id && k.Name == u.Id.ToString()));
+                ClassicAssert.IsTrue(returnedDict.Keys.Any(k => k.Id == u.Id && k.Name == u.Id.ToString()));
             }
-            Assert.AreEqual(1, redisDict[new Location() { Id = 1, Name = "1" }].Id);
+            ClassicAssert.AreEqual(1, redisDict[new Location() { Id = 1, Name = "1" }].Id);
             context.Cache.InvalidateKeysByTag(tag);
-            Assert.AreEqual(0, redisDict.Count);
+            ClassicAssert.AreEqual(0, redisDict.Count);
         }
 
         private List<User> GetUsers()
@@ -2045,40 +2045,40 @@ namespace CachingFramework.Redis.UnitTest
             // Test GetEnumerator
             foreach (var item in rs)
             {
-                Assert.IsTrue(users.Any(u => u.Id == item.Id));
+                ClassicAssert.IsTrue(users.Any(u => u.Id == item.Id));
             }
             // Test Count
-            Assert.AreEqual(users.Count, (await rs.GetCountAsync()));
+            ClassicAssert.AreEqual(users.Count, (await rs.GetCountAsync()));
             // Test Contains
-            Assert.IsTrue(await (rs.ContainsAsync(users[2])));
+            ClassicAssert.IsTrue(await (rs.ContainsAsync(users[2])));
             // Test Add
             var newUser = new User() { Id = 5 };
             await rs.AddAsync(newUser);
-            Assert.IsTrue(await (rs.ContainsAsync(newUser)));
+            ClassicAssert.IsTrue(await (rs.ContainsAsync(newUser)));
             // Test Remove
             await rs.RemoveAsync(users[2]);
-            Assert.IsFalse(await (rs.ContainsAsync(users[2])));
+            ClassicAssert.IsFalse(await (rs.ContainsAsync(users[2])));
             // Test CopyTo
             User[] array = new User[50];
             rs.CopyTo(array, 10);
-            Assert.AreEqual(users.Count, array.Count(x => x != null));
+            ClassicAssert.AreEqual(users.Count, array.Count(x => x != null));
             // Test Clear
             await rs.ClearAsync();
-            Assert.AreEqual(0, await rs.GetCountAsync());
+            ClassicAssert.AreEqual(0, await rs.GetCountAsync());
             await rs.AddRangeAsync(new[] { new User() { Id = 3 }, new User() { Id = 1 }, new User() { Id = 2 } });
-            Assert.AreEqual(3, await rs.GetCountAsync());
+            ClassicAssert.AreEqual(3, await rs.GetCountAsync());
             await rs.RemoveAsync(new User() { Id = 1 });
             await rs.RemoveAsync(new User() { Id = 2 });
-            Assert.AreEqual(1, await rs.GetCountAsync());
-            Assert.IsTrue(await rs.ContainsAsync(new User() { Id = 3 }));
+            ClassicAssert.AreEqual(1, await rs.GetCountAsync());
+            ClassicAssert.IsTrue(await rs.ContainsAsync(new User() { Id = 3 }));
             // Test GetRandomMember
             var user = await rs.GetRandomMemberAsync();
-            Assert.AreEqual(3, user.Id);
+            ClassicAssert.AreEqual(3, user.Id);
             // Test Pop
             user = await rs.PopAsync();
-            Assert.AreEqual(3, user.Id);
+            ClassicAssert.AreEqual(3, user.Id);
             user = await rs.PopAsync();
-            Assert.IsNull(user);
+            ClassicAssert.IsNull(user);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -2152,9 +2152,9 @@ namespace CachingFramework.Redis.UnitTest
             var rl = context.Collections.GetRedisSet<User>(key1);
             await rl.AddRangeAsync(users);
             rl.TimeToLive = TimeSpan.FromMilliseconds(1000);
-            Assert.AreEqual(users.Count, await rl.GetCountAsync());
+            ClassicAssert.AreEqual(users.Count, await rl.GetCountAsync());
             Thread.Sleep(4000);
-            Assert.AreEqual(0, await rl.GetCountAsync());
+            ClassicAssert.AreEqual(0, await rl.GetCountAsync());
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -2172,8 +2172,8 @@ namespace CachingFramework.Redis.UnitTest
             await cdeSet.AddRangeAsync("CDE");
 
             // Test Count
-            Assert.AreEqual(3, await abcSet.GetCountAsync());
-            Assert.AreEqual(3, await cdeSet.GetCountAsync());
+            ClassicAssert.AreEqual(3, await abcSet.GetCountAsync());
+            ClassicAssert.AreEqual(3, await cdeSet.GetCountAsync());
             abcSet.Clear();
             cdeSet.Clear();
         }
