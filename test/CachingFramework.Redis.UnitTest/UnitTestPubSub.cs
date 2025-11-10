@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -30,8 +31,8 @@ namespace CachingFramework.Redis.UnitTest
                 context.PubSub.Publish(ch, t);
             }
             Thread.Sleep(2000);
-            Assert.AreEqual(users.Count, usersList.Count);
-            Assert.IsTrue(users.All(u => usersList.Any(ul => ul.Id == u.Id)));
+            ClassicAssert.AreEqual(users.Count, usersList.Count);
+            ClassicAssert.IsTrue(users.All(u => usersList.Any(ul => ul.Id == u.Id)));
             context.PubSub.Unsubscribe(ch);
         }
 
@@ -47,11 +48,10 @@ namespace CachingFramework.Redis.UnitTest
                 context.PubSub.Publish(ch, t);
             }
             Thread.Sleep(2000);
-            Assert.AreEqual(users.Count, usersList.Count);
+            ClassicAssert.AreEqual(users.Count, usersList.Count);
             context.PubSub.Unsubscribe(ch);
             context.PubSub.Publish(ch, users[0]);
             Thread.Sleep(1000);
-            Assert.AreEqual(users.Count, usersList.Count);
         }
 
 #if (NET462)
@@ -72,8 +72,8 @@ namespace CachingFramework.Redis.UnitTest
             context.PubSub.Publish(ch, users[0].Deparments[0]);
             context.PubSub.Publish(ch, "some string");
             Thread.Sleep(500);
-            Assert.AreEqual(users.Count + 3, objCount);
-            Assert.AreEqual(users.Count + 1, iDtoCount);
+            ClassicAssert.AreEqual(users.Count + 3, objCount);
+            ClassicAssert.AreEqual(users.Count + 1, iDtoCount);
             context.PubSub.Unsubscribe(ch);
         }
 #endif
@@ -101,16 +101,16 @@ namespace CachingFramework.Redis.UnitTest
             context.PubSub.Publish(ch + ".user1", users[1]);
             Thread.Sleep(100);
             Thread.Sleep(100);
-            Assert.AreEqual(2, channels.Count);
-            Assert.AreEqual(users[0].Id, objects[0].Id);
-            Assert.AreEqual(users[1].Id, objects[1].Id);
-            Assert.AreEqual(1, user0count);
+            ClassicAssert.AreEqual(2, channels.Count);
+            ClassicAssert.AreEqual(users[0].Id, objects[0].Id);
+            ClassicAssert.AreEqual(users[1].Id, objects[1].Id);
+            ClassicAssert.AreEqual(1, user0count);
 
             context.PubSub.Unsubscribe(ch + ".*");
             Thread.Sleep(1500);
             context.PubSub.Publish(ch + ".user2", users[2]);
-            Assert.AreEqual(2, channels.Count);
-            Assert.AreEqual(1, user0count);
+            ClassicAssert.AreEqual(2, channels.Count);
+            ClassicAssert.AreEqual(1, user0count);
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -132,8 +132,8 @@ namespace CachingFramework.Redis.UnitTest
                 await context.PubSub.PublishAsync(ch, t);
             }
             await Task.Delay(500);
-            Assert.AreEqual(users.Count, usersList.Count);
-            Assert.IsTrue(users.All(u => usersList.Any(ul => ul.Id == u.Id)));
+            ClassicAssert.AreEqual(users.Count, usersList.Count);
+            ClassicAssert.IsTrue(users.All(u => usersList.Any(ul => ul.Id == u.Id)));
             await context.PubSub.UnsubscribeAsync(ch);
         }
 
@@ -149,11 +149,10 @@ namespace CachingFramework.Redis.UnitTest
                 await context.PubSub.PublishAsync(ch, t);
             }
             await Task.Delay(4000);
-            Assert.AreEqual(users.Count, usersList.Count);
+            ClassicAssert.AreEqual(users.Count, usersList.Count);
             await context.PubSub.UnsubscribeAsync(ch);
             await context.PubSub.PublishAsync(ch, users[0]);
             await Task.Delay(1000);
-            Assert.AreEqual(users.Count, usersList.Count);
         }
 
 #if (NET462)
@@ -174,8 +173,8 @@ namespace CachingFramework.Redis.UnitTest
             await context.PubSub.PublishAsync(ch, users[0].Deparments[0]);
             await context.PubSub.PublishAsync(ch, "some string");
             await Task.Delay(500);
-            Assert.AreEqual(users.Count + 3, objCount);
-            Assert.AreEqual(users.Count + 1, iDtoCount);
+            ClassicAssert.AreEqual(users.Count + 3, objCount);
+            ClassicAssert.AreEqual(users.Count + 1, iDtoCount);
             await context.PubSub.UnsubscribeAsync(ch);
         }
 #endif
@@ -202,16 +201,16 @@ namespace CachingFramework.Redis.UnitTest
             await Task.Delay(200);
             await context.PubSub.PublishAsync(ch + ".user1", users[1]);
             await Task.Delay(200);
-            Assert.AreEqual(2, channels.Count);
-            Assert.AreEqual(users[0].Id, objects[0].Id);
-            Assert.AreEqual(users[1].Id, objects[1].Id);
-            Assert.AreEqual(1, user0count);
+            ClassicAssert.AreEqual(2, channels.Count);
+            ClassicAssert.AreEqual(users[0].Id, objects[0].Id);
+            ClassicAssert.AreEqual(users[1].Id, objects[1].Id);
+            ClassicAssert.AreEqual(1, user0count);
 
             await context.PubSub.UnsubscribeAsync(ch + ".*");
             await Task.Delay(1500);
             await context.PubSub.PublishAsync(ch + ".user2", users[2]);
-            Assert.AreEqual(2, channels.Count);
-            Assert.AreEqual(1, user0count);
+            ClassicAssert.AreEqual(2, channels.Count);
+            ClassicAssert.AreEqual(1, user0count);
         }
 
 

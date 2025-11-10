@@ -1,4 +1,4 @@
-﻿using MemoryPack;
+using MemoryPack;
 
 using StackExchange.Redis;
 
@@ -7,7 +7,7 @@ using System;
 namespace CachingFramework.Redis.MemoryPack
 {
     /// <summary>
-    /// Class MsgPackSerializer.
+    /// Class MemoryPackSerializer.
     /// </summary>
     public class MemoryPackSerializer : Contracts.SerializerBase
     {
@@ -32,7 +32,7 @@ namespace CachingFramework.Redis.MemoryPack
             {
                 return RedisValue.Null;
             }
-            
+
             return global::MemoryPack.MemoryPackSerializer.Serialize(value);
         }
 
@@ -48,7 +48,7 @@ namespace CachingFramework.Redis.MemoryPack
             {
                 return default;
             }
-            
+
             var rom = (ReadOnlyMemory<byte>)value;
 
             return global::MemoryPack.MemoryPackSerializer.Deserialize<T>(rom.Span, _options);
