@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using StackExchange.Redis;
 
 namespace CachingFramework.Redis.Serializers
@@ -53,7 +53,7 @@ namespace CachingFramework.Redis.Serializers
         /// <returns>T.</returns>
         public override T Deserialize<T>(RedisValue value)
         {
-            return System.Text.Json.JsonSerializer.Deserialize<T>(value, _settings);
+            return System.Text.Json.JsonSerializer.Deserialize<T>(((ReadOnlyMemory<byte>)value).Span, _settings);
         }
     }
 }
