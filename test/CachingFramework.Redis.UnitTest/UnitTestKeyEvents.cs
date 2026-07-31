@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Collections.Concurrent;
 using CachingFramework.Redis.Contracts;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -12,25 +9,25 @@ namespace CachingFramework.Redis.UnitTest
     [NonParallelizable]
     public class UnitTestKeyEvents
     {
-        [Test, TestCaseSource(typeof(Common), "Json")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_SubscribeToSpaceEvents(RedisContext context)
         {
             UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Delete }, KeyEventSubscriptionType.KeySpace);
         }
 
-        [Test, TestCaseSource(typeof(Common), "Json")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_SubscribeToKeyEvents(RedisContext context)
         {
             UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Delete }, KeyEventSubscriptionType.KeyEvent);
         }
 
-        [Test, TestCaseSource(typeof(Common), "Json")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_SubscribeToSpecificEvent(RedisContext context)
         {
             UT_SubscribeToEvents(context, new[] { KeyEvent.Delete }, eventType: KeyEvent.Delete);
         }
 
-        [Test, TestCaseSource(typeof(Common), "Json")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_SubscribeToSpecificKey(RedisContext context)
         {
             UT_SubscribeToEvents(context, new[] { KeyEvent.Set, KeyEvent.Delete }, key: $"myKey-{Common.GetUId()}");
@@ -83,8 +80,8 @@ namespace CachingFramework.Redis.UnitTest
             {
                 KeyValuePair<string, KeyEvent> e;
                 ClassicAssert.IsTrue(result.TryDequeue(out e));
-                ClassicAssert.AreEqual(expectedEvent, e.Value);
-                ClassicAssert.AreEqual(e.Key, keyPrefix + objectKey);
+                Assert.That(e.Value, Is.EqualTo(expectedEvent));
+                Assert.That(keyPrefix + objectKey, Is.EqualTo(e.Key));
             }
 
             //Now test Unsubscribe. No more events should be received in queue and handle will timeout.

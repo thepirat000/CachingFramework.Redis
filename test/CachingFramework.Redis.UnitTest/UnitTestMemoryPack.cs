@@ -1,8 +1,5 @@
-#if !NET462
-using System;
-
+﻿#if !NET462
 using MemoryPack;
-
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
@@ -19,8 +16,8 @@ namespace CachingFramework.Redis.UnitTest
             var person = new Person { Age = 18, Name = "Joe" };
             context.Cache.SetObject(key, person, TimeSpan.FromSeconds(3));
             var cachePerson = context.Cache.GetObject<Person>(key);
-            ClassicAssert.AreEqual(person.Age, cachePerson.Age);
-            ClassicAssert.AreEqual(person.Name, cachePerson.Name);
+            Assert.That(cachePerson.Age, Is.EqualTo(person.Age));
+            Assert.That(cachePerson.Name, Is.EqualTo(person.Name));
         }
     }
     [MemoryPackable(SerializeLayout.Explicit)]

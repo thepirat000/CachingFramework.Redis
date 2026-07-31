@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using System.Text;
 using CachingFramework.Redis.Contracts;
 using CachingFramework.Redis.Serializers;
 using NUnit.Framework;
-using System.Threading.Tasks;
-using StackExchange.Redis.KeyspaceIsolation;
 using NUnit.Framework.Legacy;
 
 namespace CachingFramework.Redis.UnitTest
@@ -28,16 +22,16 @@ namespace CachingFramework.Redis.UnitTest
                 await ctx1.Cache.SetObjectAsync(key, "ctx1", new[] { tag });
                 await ctx2.Cache.SetObjectAsync(key, "ctx2", new[] { tag });
 
-                ClassicAssert.AreEqual("ctx1", await ctx1.Cache.GetObjectAsync<string>(key));
-                ClassicAssert.AreEqual("ctx2", await ctx2.Cache.GetObjectAsync<string>(key));
+                Assert.That(await ctx1.Cache.GetObjectAsync<string>(key), Is.EqualTo("ctx1"));
+                Assert.That(await ctx2.Cache.GetObjectAsync<string>(key), Is.EqualTo("ctx2"));
 
                 var byTag1 = ctx1.Cache.GetObjectsByTag<string>(tag).ToList();
                 var byTag2 = ctx2.Cache.GetObjectsByTag<string>(tag).ToList();
 
-                ClassicAssert.AreEqual(1, byTag1.Count);
-                ClassicAssert.AreEqual(1, byTag2.Count);
-                ClassicAssert.AreEqual("ctx1", byTag1[0]);
-                ClassicAssert.AreEqual("ctx2", byTag2[0]);
+                Assert.That(byTag1.Count, Is.EqualTo(1));
+                Assert.That(byTag2.Count, Is.EqualTo(1));
+                Assert.That(byTag1[0], Is.EqualTo("ctx1"));
+                Assert.That(byTag2[0], Is.EqualTo("ctx2"));
             }
         }
 
@@ -52,16 +46,16 @@ namespace CachingFramework.Redis.UnitTest
 
                 var x = await ctx.Cache.GetObjectAsync<string>(key);
 
-                ClassicAssert.AreEqual("value", x);
+                Assert.That(x, Is.EqualTo("value"));
             }
             using (var ctx = new RedisContext("localhost:6379"))
             {
                 var y = await ctx.Cache.GetObjectAsync<string>(prefix + key);
 
-                ClassicAssert.AreEqual("value", y);
+                Assert.That(y, Is.EqualTo("value"));
             }
         }
-        
+
         [Test, TestCaseSource(typeof(Common), nameof(Common.JsonKeyPrefix))]
         public async Task UT_KeyTaggedTTL_Async(RedisContext ctx)
         {
@@ -84,7 +78,7 @@ namespace CachingFramework.Redis.UnitTest
             ClassicAssert.IsTrue(ttlTag.Value.TotalHours > 23 && ttlTag.Value.TotalHours < 25);
 
             ClassicAssert.IsTrue(keys.Contains(key));
-            ClassicAssert.AreEqual("the value", value);
+            Assert.That(value, Is.EqualTo("the value"));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -108,13 +102,13 @@ namespace CachingFramework.Redis.UnitTest
             var members0 = ctx.Cache.GetMembersByTag(tags[0]).OrderBy(x => ser.Deserialize<string>(x.MemberValue)).ToList();
             var members1 = ctx.Cache.GetMembersByTag(tags[1]).OrderBy(x => ser.Deserialize<string>(x.MemberValue)).ToList();
 
-            ClassicAssert.AreEqual(members0.Count, members1.Count);
-            ClassicAssert.AreEqual(3, members1.Count);
-            ClassicAssert.AreEqual(key, members0[0].Key);
-            ClassicAssert.AreEqual(TagMemberType.HashField, members0[1].MemberType);
-            ClassicAssert.AreEqual("1one", ser.Deserialize<string>(members0[0].MemberValue));
-            ClassicAssert.AreEqual("2two", ser.Deserialize<string>(members0[1].MemberValue));
-            ClassicAssert.AreEqual("3three", ser.Deserialize<string>(members0[2].MemberValue));
+            Assert.That(members1.Count, Is.EqualTo(members0.Count));
+            Assert.That(members1.Count, Is.EqualTo(3));
+            Assert.That(members0[0].Key, Is.EqualTo(key));
+            Assert.That(members0[1].MemberType, Is.EqualTo(TagMemberType.HashField));
+            Assert.That(ser.Deserialize<string>(members0[0].MemberValue), Is.EqualTo("1one"));
+            Assert.That(ser.Deserialize<string>(members0[1].MemberValue), Is.EqualTo("2two"));
+            Assert.That(ser.Deserialize<string>(members0[2].MemberValue), Is.EqualTo("3three"));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -132,7 +126,7 @@ namespace CachingFramework.Redis.UnitTest
 
             var all = await ctx.Cache.GetHashedAllAsync<Location, User>(key);
 
-            ClassicAssert.AreEqual(2, all.Count);
+            Assert.That(all.Count, Is.EqualTo(2));
             ClassicAssert.IsTrue(all.Any(_ => _.Key.Id == 1 && _.Key.Name == "One" && _.Value.Id == users[0].Id));
             ClassicAssert.IsTrue(all.Any(_ => _.Key.Id == 2 && _.Key.Name == "Two" && _.Value.Id == users[1].Id));
         }
@@ -145,11 +139,11 @@ namespace CachingFramework.Redis.UnitTest
             await ctx.Cache.SetHashedAsync(key, Enumerable.Range(1, 20).ToDictionary(i => $"k{i}", i => i));
             var result = (await ctx.Cache.GetHashedAsync<int>(key, "k1", "k5", "kXXX", "k10")).ToList();
 
-            ClassicAssert.AreEqual(4, result.Count);
-            ClassicAssert.AreEqual(1, result[0]);
-            ClassicAssert.AreEqual(5, result[1]);
-            ClassicAssert.AreEqual(0, result[2]);
-            ClassicAssert.AreEqual(10, result[3]);
+            Assert.That(result.Count, Is.EqualTo(4));
+            Assert.That(result[0], Is.EqualTo(1));
+            Assert.That(result[1], Is.EqualTo(5));
+            Assert.That(result[2], Is.EqualTo(0));
+            Assert.That(result[3], Is.EqualTo(10));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.All))]
@@ -160,10 +154,10 @@ namespace CachingFramework.Redis.UnitTest
             await ctx.Cache.SetHashedAsync<KeyValuePair<int, int>, int>(key, Enumerable.Range(1, 20).ToDictionary(i => new KeyValuePair<int, int>(1, i), i => i));
             var result = (await ctx.Cache.GetHashedAsync<KeyValuePair<int, int>, int>(key, new KeyValuePair<int, int>(1, 1), new KeyValuePair<int, int>(1, 11), new KeyValuePair<int, int>(0, 0))).ToList();
 
-            ClassicAssert.AreEqual(3, result.Count);
-            ClassicAssert.AreEqual(1, result[0]);
-            ClassicAssert.AreEqual(11, result[1]);
-            ClassicAssert.AreEqual(0, result[2]);
+            Assert.That(result.Count, Is.EqualTo(3));
+            Assert.That(result[0], Is.EqualTo(1));
+            Assert.That(result[1], Is.EqualTo(11));
+            Assert.That(result[2], Is.EqualTo(0));
         }
 
 
@@ -196,30 +190,30 @@ namespace CachingFramework.Redis.UnitTest
             sortedSet.Add(2, "ssy", new[] { tag1, tag2 });
             sortedSet.Add(3, "ssz", new[] { tag2 });
 
-            ClassicAssert.AreEqual(true, context.Cache.IsStringKeyInTag(key, tag1));
-            ClassicAssert.AreEqual(false, context.Cache.IsStringKeyInTag(key, tag2));
-            ClassicAssert.AreEqual(true, context.Cache.IsStringKeyInTag(key, "xyyxx", tag1));
-            ClassicAssert.AreEqual(false, context.Cache.IsStringKeyInTag("does not exists", tag1));
+            Assert.That(context.Cache.IsStringKeyInTag(key, tag1), Is.EqualTo(true));
+            Assert.That(context.Cache.IsStringKeyInTag(key, tag2), Is.EqualTo(false));
+            Assert.That(context.Cache.IsStringKeyInTag(key, "xyyxx", tag1), Is.EqualTo(true));
+            Assert.That(context.Cache.IsStringKeyInTag("does not exists", tag1), Is.EqualTo(false));
 
-            ClassicAssert.AreEqual(true, context.Cache.IsHashFieldInTag(keyHash, "hx", tag1));
-            ClassicAssert.AreEqual(false, context.Cache.IsHashFieldInTag(keyHash, "hx", tag2));
-            ClassicAssert.AreEqual(true, context.Cache.IsHashFieldInTag(keyHash, "hy", tag1, tag2));
-            ClassicAssert.AreEqual(true, context.Cache.IsHashFieldInTag(keyHash, "hz", tag1, tag2));
-            ClassicAssert.AreEqual(false, context.Cache.IsHashFieldInTag(keyHash, "does not exists", tag1, tag2));
+            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hx", tag1), Is.EqualTo(true));
+            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hx", tag2), Is.EqualTo(false));
+            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hy", tag1, tag2), Is.EqualTo(true));
+            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hz", tag1, tag2), Is.EqualTo(true));
+            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "does not exists", tag1, tag2), Is.EqualTo(false));
 
-            ClassicAssert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sx", tag1));
-            ClassicAssert.AreEqual(false, context.Cache.IsSetMemberInTag(keySet, "sx", tag2));
-            ClassicAssert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sy", tag1));
-            ClassicAssert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sy", tag2));
-            ClassicAssert.AreEqual(false, context.Cache.IsSetMemberInTag(keySet, "sz", tag1));
-            ClassicAssert.AreEqual(true, context.Cache.IsSetMemberInTag(keySet, "sz", tag2));
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sx", tag1), Is.EqualTo(true));
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sx", tag2), Is.EqualTo(false));
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sy", tag1), Is.EqualTo(true));
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sy", tag2), Is.EqualTo(true));
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sz", tag1), Is.EqualTo(false));
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sz", tag2), Is.EqualTo(true));
 
-            ClassicAssert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag1));
-            ClassicAssert.AreEqual(false, context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag2));
-            ClassicAssert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag1));
-            ClassicAssert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag2));
-            ClassicAssert.AreEqual(false, context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag1));
-            ClassicAssert.AreEqual(true, context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag2));
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag1), Is.EqualTo(true));
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag2), Is.EqualTo(false));
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag1), Is.EqualTo(true));
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag2), Is.EqualTo(true));
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag1), Is.EqualTo(false));
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag2), Is.EqualTo(true));
 
             await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
         }
@@ -231,8 +225,8 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             await context.Cache.AddToSetAsync(key, "test");
             var set = context.Collections.GetRedisSet<string>(key);
-            ClassicAssert.AreEqual(1, set.Count);
-            ClassicAssert.AreEqual("test", (await set.GetRandomMemberAsync()));
+            Assert.That(set.Count, Is.EqualTo(1));
+            Assert.That((await set.GetRandomMemberAsync()), Is.EqualTo("test"));
         }
 
         [NonParallelizable]
@@ -270,13 +264,13 @@ namespace CachingFramework.Redis.UnitTest
             var t10 = context.Cache.GetObjectsByTag<User>(tag10).ToList();
             var tS0 = context.Cache.GetObjectsByTag<User>(tagS0).ToList();
 
-            ClassicAssert.AreEqual(users[0].Id, u0.Id);
-            ClassicAssert.AreEqual(users[1].Id, u1.Id);
+            Assert.That(u0.Id, Is.EqualTo(users[0].Id));
+            Assert.That(u1.Id, Is.EqualTo(users[1].Id));
 
-            ClassicAssert.AreEqual(3, all.Count);
-            ClassicAssert.AreEqual(users[1].Id, t01[0].Id);
-            ClassicAssert.AreEqual(users[0].Id, t10[0].Id);
-            ClassicAssert.AreEqual(users[0].Id, tS0[0].Id);
+            Assert.That(all.Count, Is.EqualTo(3));
+            Assert.That(t01[0].Id, Is.EqualTo(users[1].Id));
+            Assert.That(t10[0].Id, Is.EqualTo(users[0].Id));
+            Assert.That(tS0[0].Id, Is.EqualTo(users[0].Id));
 
         }
 
@@ -308,14 +302,14 @@ namespace CachingFramework.Redis.UnitTest
             Assert.ThrowsAsync<ObjectDisposedException>(async () => await ctx.Cache.SetObjectAsync("key", "value2"));
         }
 
-        [Test, TestCaseSource(typeof (Common), nameof(Common.Raw))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
         public async Task UT_CacheNull_Async(RedisContext context)
         {
             await Task.Delay(1);
             Assert.ThrowsAsync<ArgumentException>(async () => await context.Cache.SetObjectAsync(null, "this should fail"));
         }
 
-        [Test, TestCaseSource(typeof (Common), nameof(Common.Raw))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
         public async Task UT_CacheSet_When_Async(RedisContext context)
         {
             var key = $"UT_CacheSet_When_Async-{Common.GetUId()}";
@@ -323,11 +317,11 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.SetObjectAsync(key, "value", null, When.Exists);
             ClassicAssert.IsNull(context.Cache.GetObject<string>(key));
             await context.Cache.SetObjectAsync(key, "value", null, When.NotExists);
-            ClassicAssert.AreEqual("value", context.Cache.GetObject<string>(key));
+            Assert.That(context.Cache.GetObject<string>(key), Is.EqualTo("value"));
             await context.Cache.SetObjectAsync(key, "new", null, When.NotExists);
-            ClassicAssert.AreEqual("value", context.Cache.GetObject<string>(key));
+            Assert.That(context.Cache.GetObject<string>(key), Is.EqualTo("value"));
             await context.Cache.SetObjectAsync(key, "new", null, When.Exists);
-            ClassicAssert.AreEqual("new", context.Cache.GetObject<string>(key));
+            Assert.That(context.Cache.GetObject<string>(key), Is.EqualTo("new"));
             await context.Cache.RemoveAsync(key);
         }
 
@@ -338,34 +332,34 @@ namespace CachingFramework.Redis.UnitTest
             var field = "F1";
             await context.Cache.RemoveAsync(key);
             await context.Cache.SetHashedAsync(key, field, "value", null, When.NotExists);
-            ClassicAssert.AreEqual("value", await context.Cache.GetHashedAsync<string>(key, field));
+            Assert.That(await context.Cache.GetHashedAsync<string>(key, field), Is.EqualTo("value"));
             await context.Cache.SetHashedAsync(key, field, "new", null, When.NotExists);
-            ClassicAssert.AreEqual("value", await context.Cache.GetHashedAsync<string>(key, field));
+            Assert.That(await context.Cache.GetHashedAsync<string>(key, field), Is.EqualTo("value"));
             await context.Cache.SetHashedAsync(key, field, "new", null, When.Always);
-            ClassicAssert.AreEqual("new", await context.Cache.GetHashedAsync<string>(key, field));
+            Assert.That(await context.Cache.GetHashedAsync<string>(key, field), Is.EqualTo("new"));
             await context.Cache.RemoveAsync(key);
         }
 
-        [Test, TestCaseSource(typeof (Common), nameof(Common.Raw))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
         public async Task UT_CacheHackTag_Async(RedisContext context)
         {
             var key = $"UT_CacheHackTag_Async-{Common.GetUId()}";
             var tag1 = $"tag1-{Common.GetUId()}";
             await context.Cache.InvalidateKeysByTagAsync(tag1);
-            await context.Cache.SetObjectAsync(key, "some value", new [] {tag1});
-            var keys = (await context.Cache.GetKeysByTagAsync(new [] { tag1 })).ToList();
-            ClassicAssert.AreEqual(key, keys[0]);
+            await context.Cache.SetObjectAsync(key, "some value", new[] { tag1 });
+            var keys = (await context.Cache.GetKeysByTagAsync(new[] { tag1 })).ToList();
+            Assert.That(keys[0], Is.EqualTo(key));
             var tagset = context.Collections.GetRedisSet<string>($":$_tag_$:{tag1}");
             tagset.Add("FakeKey:$_->_$:FakeValue");
-            var knc = (await context.Cache.GetKeysByTagAsync(new [] { tag1 })).ToList();
-            var k = (await context.Cache.GetKeysByTagAsync(new [] { tag1 }, true)).ToList();
+            var knc = (await context.Cache.GetKeysByTagAsync(new[] { tag1 })).ToList();
+            var k = (await context.Cache.GetKeysByTagAsync(new[] { tag1 }, true)).ToList();
             var v = context.Cache.GetObjectsByTag<string>(tag1).ToList();
-            ClassicAssert.AreEqual(2, knc.Count);
-            ClassicAssert.AreEqual(1, k.Count);
-            ClassicAssert.AreEqual(1, v.Count);
+            Assert.That(knc.Count, Is.EqualTo(2));
+            Assert.That(k.Count, Is.EqualTo(1));
+            Assert.That(v.Count, Is.EqualTo(1));
         }
 
-        [Test, TestCaseSource(typeof(Common), "BinAndRawAndJson")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.BinAndRawAndJson))]
         public async Task UT_CacheSerializer_Async(RedisContext context)
         {
             var kss = $"short:string:async-{Common.GetUId()}";
@@ -432,27 +426,27 @@ namespace CachingFramework.Redis.UnitTest
             var kdbl_ = context.Cache.GetObject<Double>(kdbl);
             var kpBool_ = context.Cache.GetObject<bool>(kpBool);
 
-            ClassicAssert.AreEqual(ss, ss_);
-            ClassicAssert.AreEqual(ls, ls_);
-            ClassicAssert.AreEqual('c', kch_);
+            Assert.That(ss_, Is.EqualTo(ss));
+            Assert.That(ls_, Is.EqualTo(ls));
+            Assert.That(kch_, Is.EqualTo('c'));
             ClassicAssert.IsTrue((now - kdt_).TotalMilliseconds < 0.001);
-            ClassicAssert.AreEqual(decimal.MaxValue, kds_);
-            ClassicAssert.AreEqual(Byte.MaxValue, kby_);
-            ClassicAssert.AreEqual(SByte.MaxValue, ksby_);
-            ClassicAssert.AreEqual(Int16.MaxValue, ki16_);
-            ClassicAssert.AreEqual(Int32.MaxValue, ki32_);
-            ClassicAssert.AreEqual(Double.NegativeInfinity, kdbl_);
-            ClassicAssert.AreEqual(int.MaxValue, pInt_);
-            ClassicAssert.AreEqual(long.MaxValue, pLong_);
-            ClassicAssert.AreEqual(Single.Parse(Single.MaxValue.ToString("F")), Single.Parse(pSingle_.ToString("F")));
-            ClassicAssert.AreEqual(UInt16.MaxValue, pUint16_);
-            ClassicAssert.AreEqual(UInt32.MaxValue, pUint32_);
+            Assert.That(kds_, Is.EqualTo(decimal.MaxValue));
+            Assert.That(kby_, Is.EqualTo(Byte.MaxValue));
+            Assert.That(ksby_, Is.EqualTo(SByte.MaxValue));
+            Assert.That(ki16_, Is.EqualTo(Int16.MaxValue));
+            Assert.That(ki32_, Is.EqualTo(Int32.MaxValue));
+            Assert.That(kdbl_, Is.EqualTo(Double.NegativeInfinity));
+            Assert.That(pInt_, Is.EqualTo(int.MaxValue));
+            Assert.That(pLong_, Is.EqualTo(long.MaxValue));
+            Assert.That(Single.Parse(pSingle_.ToString("F")), Is.EqualTo(Single.Parse(Single.MaxValue.ToString("F"))));
+            Assert.That(pUint16_, Is.EqualTo(UInt16.MaxValue));
+            Assert.That(pUint32_, Is.EqualTo(UInt32.MaxValue));
             if (context.GetSerializer().GetType() != typeof(JsonSerializer))
             {
-                ClassicAssert.AreEqual(UInt64.MaxValue, pUint64_);
+                Assert.That(pUint64_, Is.EqualTo(UInt64.MaxValue));
             }
-            ClassicAssert.AreEqual(true, kpBool_);
-            context.Cache.Remove(new[] { kss, kls, kpBool, kpInt, kpLong, kpSingle, kpUInt16, kpUInt32, kpUInt64, 
+            Assert.That(kpBool_, Is.EqualTo(true));
+            context.Cache.Remove(new[] { kss, kls, kpBool, kpInt, kpLong, kpSingle, kpUInt16, kpUInt32, kpUInt64,
                 kch, kds, kdt, kby, ksby, ki16, ki32, kdbl });
         }
 
@@ -461,21 +455,21 @@ namespace CachingFramework.Redis.UnitTest
         {
             var raw = new RawSerializer();
             raw.SetSerializerFor<User>(u => Encoding.UTF8.GetBytes(u.Id.ToString()),
-                b => new User() {Id = int.Parse(Encoding.UTF8.GetString(b))});
+                b => new User() { Id = int.Parse(Encoding.UTF8.GetString(b)) });
             var ctx = new RedisContext(Common.Config, raw);
             Thread.Sleep(100);
             var users = await GetUsersAsync();
             string key = $"UT_Cache_RawOverrideSerializer_Async-{Common.GetUId()}";
             string key2 = $"UT_Cache_RawOverrideSerializer_Async2-{Common.GetUId()}";
-            ctx.Cache.Remove(new[] {key, key2});
+            ctx.Cache.Remove(new[] { key, key2 });
             await ctx.Cache.SetObjectAsync(key, users[0]);
             await ctx.Cache.SetHashedAsync(key2, "X", users[1]);
             var v = await ctx.Cache.GetObjectAsync<User>(key);
             var v2 = await ctx.Cache.GetHashedAsync<User>(key2, "X");
             var v3 = await ctx.Cache.GetObjectAsync<int>(key);
-            ClassicAssert.AreEqual(users[0].Id, v.Id);
-            ClassicAssert.AreEqual(users[1].Id, v2.Id);
-            ClassicAssert.AreEqual(users[0].Id, v3);
+            Assert.That(v.Id, Is.EqualTo(users[0].Id));
+            Assert.That(v2.Id, Is.EqualTo(users[1].Id));
+            Assert.That(v3, Is.EqualTo(users[0].Id));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -485,7 +479,7 @@ namespace CachingFramework.Redis.UnitTest
 
             context.Cache.SetObject(key, "jpeg");
             var o = await context.Cache.GetObjectAsync<string>(key);
-            
+
             Jpeg jpeg = new Jpeg()
             {
                 Data = Enumerable.Range(0, 200000)
@@ -505,11 +499,11 @@ namespace CachingFramework.Redis.UnitTest
             string key = $"UT_CacheAddGet_Async-{Common.GetUId()}";
             await context.Cache.RemoveAsync(key);
             await context.Cache.SetObjectAsync(key, users[1]);
-            await context.Cache.SetObjectAsync(key, users[0], new string[]{});
+            await context.Cache.SetObjectAsync(key, users[0], new string[] { });
             var user = await context.Cache.GetObjectAsync<User>(key);
-            ClassicAssert.AreEqual(1, user.Id);
-            ClassicAssert.AreEqual(2, user.Deparments[0].Size);
-            ClassicAssert.AreEqual("one", user.Deparments[0].Location.Name);
+            Assert.That(user.Id, Is.EqualTo(1));
+            Assert.That(user.Deparments[0].Size, Is.EqualTo(2));
+            Assert.That(user.Deparments[0].Location.Name, Is.EqualTo("one"));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -521,9 +515,9 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var a = await context.Cache.FetchObjectAsync(key, async () => { count++; return await GetUsersAsync(); });
             var b = await context.Cache.FetchObjectAsync(key, async () => { count++; return await GetUsersAsync(); });
-            await context.Cache.FetchObjectAsync(key, async  () => { count++; return await GetUsersAsync(); });
-            ClassicAssert.AreEqual(1, count);
-            ClassicAssert.AreEqual(a[0].Id, b[0].Id);
+            await context.Cache.FetchObjectAsync(key, async () => { count++; return await GetUsersAsync(); });
+            Assert.That(count, Is.EqualTo(1));
+            Assert.That(b[0].Id, Is.EqualTo(a[0].Id));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -535,10 +529,10 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             await context.Cache.FetchObjectAsync(key, async () => { count++; return await GetUsersAsync(); }, TimeSpan.FromSeconds(2));
             await context.Cache.FetchObjectAsync(key, async () => { count++; return await GetUsersAsync(); });
-            ClassicAssert.AreEqual(1, count);
+            Assert.That(count, Is.EqualTo(1));
             Thread.Sleep(2200);
             await context.Cache.FetchObjectAsync(key, async () => { count++; return await GetUsersAsync(); });
-            ClassicAssert.AreEqual(2, count);
+            Assert.That(count, Is.EqualTo(2));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -550,11 +544,11 @@ namespace CachingFramework.Redis.UnitTest
             var users = await GetUsersAsync();
             var returnedUser1 = await context.Cache.FetchHashedAsync<User>(key, users[0].Id.ToString(), async () => await Task.FromResult(users[0]));
             var returnedUser2 = await context.Cache.FetchHashedAsync<User>(key, users[0].Id.ToString(), () => null);
-            ClassicAssert.AreEqual(users[0].Id, returnedUser1.Id);
-            ClassicAssert.AreEqual(users[0].Id, returnedUser2.Id);
+            Assert.That(returnedUser1.Id, Is.EqualTo(users[0].Id));
+            Assert.That(returnedUser2.Id, Is.EqualTo(users[0].Id));
         }
 
-        [Test, TestCaseSource(typeof (Common), nameof(Common.Json))]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public async Task UT_CacheFetch_Nulls_Async(RedisContext context)
         {
             string key = $"UT_CacheFetch_Nulls_Async-{Common.GetUId()}";
@@ -583,16 +577,16 @@ namespace CachingFramework.Redis.UnitTest
             var str = await context.Cache.GetSetObjectAsync<string>(key, "1");
             ClassicAssert.IsNull(str);
             str = await context.Cache.GetSetObjectAsync<string>(key, "2");
-            ClassicAssert.AreEqual("1", str);
+            Assert.That(str, Is.EqualTo("1"));
             str = await context.Cache.GetObjectAsync<string>(key);
-            ClassicAssert.AreEqual("2", str);
+            Assert.That(str, Is.EqualTo("2"));
             context.Cache.Remove(key);
             var integer = await context.Cache.GetSetObjectAsync<int>(key, 1);
-            ClassicAssert.AreEqual(0, integer);
+            Assert.That(integer, Is.EqualTo(0));
             integer = await context.Cache.GetSetObjectAsync<int>(key, 2);
-            ClassicAssert.AreEqual(1, integer);
+            Assert.That(integer, Is.EqualTo(1));
             integer = await context.Cache.GetObjectAsync<int>(key);
-            ClassicAssert.AreEqual(2, integer);
+            Assert.That(integer, Is.EqualTo(2));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -608,9 +602,9 @@ namespace CachingFramework.Redis.UnitTest
                 await context.Cache.SetHashedAsync(key, user.Id.ToString(), user);
             }
             var dict = await context.Cache.GetHashedAllAsync<User>(key);
-            ClassicAssert.AreEqual(users.Count, dict.Count);
-            ClassicAssert.AreEqual(1, dict["1"].Id);
-            ClassicAssert.AreEqual(2, dict["2"].Id);
+            Assert.That(dict.Count, Is.EqualTo(users.Count));
+            Assert.That(dict["1"].Id, Is.EqualTo(1));
+            Assert.That(dict["2"].Id, Is.EqualTo(2));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -672,7 +666,7 @@ namespace CachingFramework.Redis.UnitTest
             var returnedUser2 = await context.Cache.GetHashedAsync<User>(key, 2.ToString());
 
             ClassicAssert.IsNull(returnedUser1);
-            ClassicAssert.AreEqual(2, returnedUser2.Id);
+            Assert.That(returnedUser2.Id, Is.EqualTo(2));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -709,9 +703,9 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             await context.Cache.SetObjectAsync(key, users[0], TimeSpan.FromMilliseconds(1000));
             var user = await context.Cache.GetObjectAsync<User>(key);
-            ClassicAssert.AreEqual(1, user.Id);
-            ClassicAssert.AreEqual(2, user.Deparments[0].Size);
-            ClassicAssert.AreEqual("one", user.Deparments[0].Location.Name);
+            Assert.That(user.Id, Is.EqualTo(1));
+            Assert.That(user.Deparments[0].Size, Is.EqualTo(2));
+            Assert.That(user.Deparments[0].Location.Name, Is.EqualTo("one"));
             Thread.Sleep(1500);
             user = await context.Cache.GetObjectAsync<User>(key);
             ClassicAssert.IsNull(user);
@@ -746,12 +740,12 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync(common1, tagA1, tagB1, whole1);
             await context.Cache.SetHashedAsync(key, "A", users[0], new[] { common1, tagA1 });
             await context.Cache.SetHashedAsync(key, "B", users[0], new[] { tagB1 });
-            await context.Cache.AddTagsToHashFieldAsync(key, "B", new[] {common1});
-            await context.Cache.SetHashedAsync(key, "C", users[1], new[] { common1, tagC });        
-            await context.Cache.AddTagsToKeyAsync(key, new [] { whole1 });
-            var kwhole = await context.Cache.GetKeysByTagAsync(new [] { whole1 });
-            var kcmn = await context.Cache.GetKeysByTagAsync(new [] { common1 });
-            var ka = await context.Cache.GetKeysByTagAsync(new [] { tagA1 });
+            await context.Cache.AddTagsToHashFieldAsync(key, "B", new[] { common1 });
+            await context.Cache.SetHashedAsync(key, "C", users[1], new[] { common1, tagC });
+            await context.Cache.AddTagsToKeyAsync(key, new[] { whole1 });
+            var kwhole = await context.Cache.GetKeysByTagAsync(new[] { whole1 });
+            var kcmn = await context.Cache.GetKeysByTagAsync(new[] { common1 });
+            var ka = await context.Cache.GetKeysByTagAsync(new[] { tagA1 });
             var kb = await context.Cache.GetKeysByTagAsync(new[] { tagB1 });
             var kc = await context.Cache.GetKeysByTagAsync(new[] { tagC });
             var kab = await context.Cache.GetKeysByTagAsync(new[] { tagA1, tagB1 });
@@ -759,12 +753,12 @@ namespace CachingFramework.Redis.UnitTest
             ka = await context.Cache.GetKeysByTagAsync(new[] { tagA1 });
             kcmn = await context.Cache.GetKeysByTagAsync(new[] { common1 }, true);
             ClassicAssert.IsFalse(ka.Any());
-            ClassicAssert.AreEqual(2, kcmn.Count());
+            Assert.That(kcmn.Count(), Is.EqualTo(2));
             var objs = context.Cache.GetObjectsByTag<User>(common1).ToList();
-            ClassicAssert.AreEqual(2, objs.Count);
-            await context.Cache.RemoveTagsFromHashFieldAsync(key, "B", new [] { common1 });
+            Assert.That(objs.Count, Is.EqualTo(2));
+            await context.Cache.RemoveTagsFromHashFieldAsync(key, "B", new[] { common1 });
             objs = context.Cache.GetObjectsByTag<User>(common1).ToList();
-            ClassicAssert.AreEqual(1, objs.Count);
+            Assert.That(objs.Count, Is.EqualTo(1));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -778,18 +772,18 @@ namespace CachingFramework.Redis.UnitTest
             var common = $"common-{Common.GetUId()}";
             await context.Cache.InvalidateKeysByTagAsync(common, tag0, tag1, miss);
             context.Cache.Remove(key);
-            var u1 = await context.Cache.FetchHashedAsync(key, users[0].Id.ToString(), async () => await Task.FromResult(users[0]), new[] { common, tag0});
+            var u1 = await context.Cache.FetchHashedAsync(key, users[0].Id.ToString(), async () => await Task.FromResult(users[0]), new[] { common, tag0 });
             var u2 = await context.Cache.FetchHashedAsync(key, users[1].Id.ToString(), async () => await Task.FromResult(users[1]), new[] { common, tag1 });
             var u1t = context.Cache.GetObjectsByTag<User>(tag1).ToList();
             var ust = context.Cache.GetObjectsByTag<User>(common).ToList();
-            ClassicAssert.AreEqual(1, u1t.Count);
-            ClassicAssert.AreEqual(2, ust.Count);
-            ClassicAssert.AreEqual(users[1].Id, u1t[0].Id);
+            Assert.That(u1t.Count, Is.EqualTo(1));
+            Assert.That(ust.Count, Is.EqualTo(2));
+            Assert.That(u1t[0].Id, Is.EqualTo(users[1].Id));
             int i = 0;
             var u = await context.Cache.FetchHashedAsync(key, users[1].Id.ToString(), async () => { i++; return await Task.FromResult(new User()); }, new[] { miss });
-            ClassicAssert.AreEqual(0, context.Cache.GetKeysByTag(new[] {miss}).Count());
-            ClassicAssert.AreEqual(0, i);
-            ClassicAssert.AreEqual(users[1].Id, u.Id);
+            Assert.That(context.Cache.GetKeysByTag(new[] { miss }).Count(), Is.EqualTo(0));
+            Assert.That(i, Is.EqualTo(0));
+            Assert.That(u.Id, Is.EqualTo(users[1].Id));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -813,13 +807,13 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             string tag1 = $"UT_CacheFetchWithTags_Async-Tag1-{Common.GetUId()}";
             string tag2 = $"UT_CacheFetchWithTags_Async-Tag2-{Common.GetUId()}";
-            await context.Cache.FetchObjectAsync(key, async () => await Task.FromResult("test value 1"), new[] {tag1});
+            await context.Cache.FetchObjectAsync(key, async () => await Task.FromResult("test value 1"), new[] { tag1 });
             await context.Cache.FetchObjectAsync(key, async () => await Task.FromResult("should not be updated"), new[] { tag2 });
-            var keys = (await context.Cache.GetKeysByTagAsync(new [] {tag1})).ToList();
+            var keys = (await context.Cache.GetKeysByTagAsync(new[] { tag1 })).ToList();
             var value = (await context.Cache.GetObjectAsync<string>(keys.First())).ToList();
             ClassicAssert.IsTrue(keys.Contains(key));
             ClassicAssert.IsNotNull(value);
-            keys = (await context.Cache.GetKeysByTagAsync(new [] {tag2})).ToList();
+            keys = (await context.Cache.GetKeysByTagAsync(new[] { tag2 })).ToList();
             ClassicAssert.IsFalse(keys.Contains(key));
         }
 
@@ -835,8 +829,8 @@ namespace CachingFramework.Redis.UnitTest
             Thread.Sleep(4000);
             var keys = (await context.Cache.GetKeysByTagAsync(new[] { tag })).ToList();
             var keysCleaned = (await context.Cache.GetKeysByTagAsync(new[] { tag }, true)).ToList();
-            ClassicAssert.AreEqual(2, keys.Count);
-            ClassicAssert.AreEqual(1, keysCleaned.Count);
+            Assert.That(keys.Count, Is.EqualTo(2));
+            Assert.That(keysCleaned.Count, Is.EqualTo(1));
             ClassicAssert.IsTrue(keys.Contains(key1));
             ClassicAssert.IsTrue(keys.Contains(key2));
             ClassicAssert.IsTrue(keysCleaned.Contains(key2));
@@ -949,10 +943,10 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.SetObjectAsync(key2, users[1], new[] { tag2 });
             await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
             await Task.Delay(4000);
-            var keys = await context.Cache.GetKeysByTagAsync(new [] {tag1, tag2});
+            var keys = await context.Cache.GetKeysByTagAsync(new[] { tag1, tag2 });
             var user = await context.Cache.GetObjectAsync<User>(key1);
             ClassicAssert.IsNull(user);
-            ClassicAssert.AreEqual(0, keys.Count());
+            Assert.That(keys.Count(), Is.EqualTo(0));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -964,7 +958,7 @@ namespace CachingFramework.Redis.UnitTest
             IDictionary<string, User> allUsers = users.ToDictionary(k => k.Id.ToString());
             await context.Cache.SetHashedAsync(key, allUsers);
             var response = await context.Cache.GetHashedAllAsync<User>(key);
-            ClassicAssert.AreEqual(users.Count, response.Count);
+            Assert.That(response.Count, Is.EqualTo(users.Count));
             ClassicAssert.IsTrue(users.All(x => response.ContainsKey(x.Id.ToString())));
         }
 
@@ -978,7 +972,7 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.HyperLogLogAddAsync(key, 10);
 
             var cnt = await context.Cache.HyperLogLogCountAsync(key);
-            ClassicAssert.AreEqual(10, cnt);
+            Assert.That(cnt, Is.EqualTo(10));
         }
 
 #if (NET462)
@@ -1001,15 +995,15 @@ namespace CachingFramework.Redis.UnitTest
             var loc = await context.Cache.GetHashedAsync<Location>(key, "D");
             var all = await context.Cache.GetHashedAllAsync<object>(key);
 
-            ClassicAssert.AreEqual(222, user.Id);
-            ClassicAssert.AreEqual(3, dept.Id);
-            ClassicAssert.AreEqual(444, loc.Id);
+            Assert.That(user.Id, Is.EqualTo(222));
+            Assert.That(dept.Id, Is.EqualTo(3));
+            Assert.That(loc.Id, Is.EqualTo(444));
 
-            ClassicAssert.AreEqual(3, all.Count);
+            Assert.That(all.Count, Is.EqualTo(3));
 
-            ClassicAssert.AreEqual(222, ((User)all["a"]).Id);
-            ClassicAssert.AreEqual(3, ((Department)all["2"]).Id);
-            ClassicAssert.AreEqual(444, ((Location)all["D"]).Id);
+            Assert.That(((User)all["a"]).Id, Is.EqualTo(222));
+            Assert.That(((Department)all["2"]).Id, Is.EqualTo(3));
+            Assert.That(((Location)all["D"]).Id, Is.EqualTo(444));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
@@ -1029,9 +1023,9 @@ namespace CachingFramework.Redis.UnitTest
             }
             await context.Cache.SetObjectAsync(key, exItem);
             var exFinal = await context.Cache.GetObjectAsync<Exception>(key);
-            ClassicAssert.AreEqual(exItem.Data.Count, exFinal.Data.Count);
-            ClassicAssert.AreEqual(exItem.InnerException.Message, exFinal.InnerException.Message);
-            ClassicAssert.AreEqual(exItem.StackTrace, exFinal.StackTrace);
+            Assert.That(exFinal.Data.Count, Is.EqualTo(exItem.Data.Count));
+            Assert.That(exFinal.InnerException.Message, Is.EqualTo(exItem.InnerException.Message));
+            Assert.That(exFinal.StackTrace, Is.EqualTo(exItem.StackTrace));
         }
 
         [Test]
@@ -1047,7 +1041,7 @@ namespace CachingFramework.Redis.UnitTest
             User usr = new User();
             await ctx.Cache.SetObjectAsync<object>(key, usr);
             var v = await ctx.Cache.GetObjectAsync<object>(key);
-            ClassicAssert.AreEqual(usr.GetHashCode(), v);
+            Assert.That(v, Is.EqualTo(usr.GetHashCode()));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
@@ -1060,10 +1054,10 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync("user-id-tag:" + user.Id);
             await context.Cache.FetchObjectAsync(key, async () => await Task.FromResult(user), u => new[] { "user-id-tag:" + u.Id });
             await context.Cache.FetchObjectAsync(key, async () => await Task.FromResult((User)null), u => new[] { "wrong" });
-            ClassicAssert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count());
+            Assert.That((await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count(), Is.EqualTo(0));
             var result = context.Cache.GetObjectsByTag<User>("user-id-tag:" + user.Id).First();
-            ClassicAssert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count());
-            ClassicAssert.AreEqual(user.Id, result.Id);
+            Assert.That((await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count(), Is.EqualTo(0));
+            Assert.That(result.Id, Is.EqualTo(user.Id));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
@@ -1077,10 +1071,10 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync("user-id-tag:" + user.Id);
             await context.Cache.FetchHashedAsync(key, field, async () => await Task.FromResult(user), u => new[] { "user-id-tag:" + u.Id });
             await context.Cache.FetchHashedAsync(key, field, async () => await Task.FromResult((User)null), u => new[] { "wrong" });
-            ClassicAssert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count());
+            Assert.That((await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count(), Is.EqualTo(0));
             var result = context.Cache.GetObjectsByTag<User>(new[] { "user-id-tag:" + user.Id }).First();
-            ClassicAssert.AreEqual(0, (await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count());
-            ClassicAssert.AreEqual(user.Id, result.Id);
+            Assert.That((await context.Cache.GetKeysByTagAsync(new[] { "wrong" })).Count(), Is.EqualTo(0));
+            Assert.That(result.Id, Is.EqualTo(user.Id));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
@@ -1093,14 +1087,14 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
             var user = (await GetUsersAsync())[0];
             await context.Cache.SetObjectAsync(key, user, new[] { tag1 });
-            ClassicAssert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
+            Assert.That(context.Cache.GetKeysByTag(new[] { tag1 }).Count(), Is.EqualTo(1));
             await context.Cache.RenameTagForKeyAsync(key, tag1, tag2);
-            ClassicAssert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
-            ClassicAssert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
+            Assert.That(context.Cache.GetKeysByTag(new[] { tag1 }).Count(), Is.EqualTo(0));
+            Assert.That(context.Cache.GetKeysByTag(new[] { tag2 }).Count(), Is.EqualTo(1));
             await context.Cache.RemoveTagsFromKeyAsync(key, new[] { tag2 });
             await context.Cache.RenameTagForKeyAsync(key, tag2, tag1);
-            ClassicAssert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
-            ClassicAssert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
+            Assert.That(context.Cache.GetKeysByTag(new[] { tag1 }).Count(), Is.EqualTo(0));
+            Assert.That(context.Cache.GetKeysByTag(new[] { tag2 }).Count(), Is.EqualTo(0));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
@@ -1114,14 +1108,14 @@ namespace CachingFramework.Redis.UnitTest
             await context.Cache.InvalidateKeysByTagAsync(tag1, tag2);
             var user = (await GetUsersAsync())[0];
             await context.Cache.SetHashedAsync(key, field, user, new[] { tag1 });
-            ClassicAssert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
+            Assert.That(context.Cache.GetKeysByTag(new[] { tag1 }).Count(), Is.EqualTo(1));
             await context.Cache.RenameTagForHashFieldAsync(key, field, tag1, tag2);
-            ClassicAssert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
-            ClassicAssert.AreEqual(1, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
+            Assert.That(context.Cache.GetKeysByTag(new[] { tag1 }).Count(), Is.EqualTo(0));
+            Assert.That(context.Cache.GetKeysByTag(new[] { tag2 }).Count(), Is.EqualTo(1));
             await context.Cache.RemoveTagsFromHashFieldAsync(key, field, new[] { tag2 });
             await context.Cache.RemoveTagsFromHashFieldAsync(key, field, new[] { tag2, tag1 });
-            ClassicAssert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag1 }).Count());
-            ClassicAssert.AreEqual(0, context.Cache.GetKeysByTag(new[] { tag2 }).Count());
+            Assert.That(context.Cache.GetKeysByTag(new[] { tag1 }).Count(), Is.EqualTo(0));
+            Assert.That(context.Cache.GetKeysByTag(new[] { tag2 }).Count(), Is.EqualTo(0));
         }
 #endif
 

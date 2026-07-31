@@ -1,12 +1,6 @@
-﻿using System;
-using System.Configuration;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using CachingFramework.Redis.Serializers;
+﻿using CachingFramework.Redis.Serializers;
 using Microsoft.Extensions.Configuration;
 using Nito.AsyncEx;
-using StackExchange.Redis.KeyspaceIsolation;
 
 namespace CachingFramework.Redis.UnitTest
 {
@@ -51,7 +45,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
         public static int[] VersionInfo { get; set; }
-        public static string Config = "localhost:6379, allowAdmin=true, connectTimeout=10000, syncTimeout=30000, asyncTimeout=30000"; 
+        public static string Config = "localhost:6379, allowAdmin=true, connectTimeout=10000, syncTimeout=30000, asyncTimeout=30000";
 
         static Common()
         {
@@ -87,7 +81,7 @@ namespace CachingFramework.Redis.UnitTest
             {
                 server.ConfigSet("notify-keyspace-events", "KEA");
             }
-            
+
         }
         public static async Task TestDeadlock(Action action)
         {

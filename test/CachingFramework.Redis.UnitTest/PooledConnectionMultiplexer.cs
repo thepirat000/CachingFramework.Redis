@@ -1,8 +1,5 @@
-﻿using System;
+﻿using System.Net;
 using StackExchange.Redis;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
 using StackExchange.Redis.Maintenance;
 using StackExchange.Redis.Profiling;
 
@@ -175,6 +172,7 @@ namespace CachingFramework.Redis.UnitTest
 
         public long OperationCount => this._connectionMultiplexer.OperationCount;
 
+        [Obsolete("Not supported; if you require ordered pub/sub, please see ChannelMessageQueue, will be removed in 3.0", false)]
         public bool PreserveAsyncOrder
         {
             get => this._connectionMultiplexer.PreserveAsyncOrder;
@@ -183,7 +181,7 @@ namespace CachingFramework.Redis.UnitTest
 
         /// <summary>Indicates whether any servers are connected</summary>
         public bool IsConnected => this._connectionMultiplexer.IsConnected;
-
+        [Obsolete("Please use ConfigurationOptions.IncludeDetailInExceptions instead - this will be removed in 3.0.")]
         public bool IncludeDetailInExceptions
         {
             get => this._connectionMultiplexer.IncludeDetailInExceptions;

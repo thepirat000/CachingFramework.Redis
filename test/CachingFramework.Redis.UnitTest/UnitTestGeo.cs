@@ -1,7 +1,4 @@
-
-using System.Collections.Generic;
-using System.Linq;
-using CachingFramework.Redis.Contracts;
+﻿using CachingFramework.Redis.Contracts;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
@@ -33,9 +30,9 @@ namespace CachingFramework.Redis.UnitTest
             var cnt = context.GeoSpatial.GeoAdd(key, _coordZapopan, users[0]);
             cnt += context.GeoSpatial.GeoAdd(key, _coordLondon.Latitude, _coordLondon.Longitude, users[1]);
             var coord = context.GeoSpatial.GeoPosition(key, users[0]);
-            ClassicAssert.AreEqual(2, cnt);
-            ClassicAssert.AreEqual(_coordZapopan.Latitude, coord.Latitude, 0.00001);
-            ClassicAssert.AreEqual(_coordZapopan.Longitude, coord.Longitude, 0.00001);
+            Assert.That(cnt, Is.EqualTo(2));
+            Assert.That(coord.Latitude, Is.EqualTo(_coordZapopan.Latitude).Within(0.00001));
+            Assert.That(coord.Longitude, Is.EqualTo(_coordZapopan.Longitude).Within(0.00001));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -48,14 +45,14 @@ namespace CachingFramework.Redis.UnitTest
             var coordGet = context.GeoSpatial.GeoPosition(key, "Zapopan");
             var coordGetZero = context.GeoSpatial.GeoPosition(key, "Zero");
             var coordErr = context.GeoSpatial.GeoPosition(key, "not exists");
-            
+
             ClassicAssert.IsNull(coordErr);
             ClassicAssert.IsNotNull(coordGetZero);
-            ClassicAssert.AreEqual(1, cnt);
-            ClassicAssert.AreEqual(_coordZapopan.Latitude, coordGet.Latitude, 0.00001);
-            ClassicAssert.AreEqual(_coordZapopan.Longitude, coordGet.Longitude, 0.00001);
-            ClassicAssert.AreEqual(0, coordGetZero.Latitude, 0.00001);
-            ClassicAssert.AreEqual(0, coordGetZero.Longitude, 0.00001);
+            Assert.That(cnt, Is.EqualTo(1));
+            Assert.That(coordGet.Latitude, Is.EqualTo(_coordZapopan.Latitude).Within(0.00001));
+            Assert.That(coordGet.Longitude, Is.EqualTo(_coordZapopan.Longitude).Within(0.00001));
+            Assert.That(coordGetZero.Latitude, Is.EqualTo(0).Within(0.00001));
+            Assert.That(coordGetZero.Longitude, Is.EqualTo(0).Within(0.00001));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -63,19 +60,19 @@ namespace CachingFramework.Redis.UnitTest
         {
             var key = $"UT_Geo_GeoPosMultiple-{Common.GetUId()}";
             context.Cache.Remove(key);
-            var cnt = context.GeoSpatial.GeoAdd(key, new[] { 
+            var cnt = context.GeoSpatial.GeoAdd(key, new[] {
                 new GeoMember<string>(_coordZapopan, "Zapopan"),
                 new GeoMember<string>(_coordLondon, "London") });
             var coords = context.GeoSpatial.GeoPosition(key, new[] { "London", "not exists", "Zapopan" }).ToArray();
-            ClassicAssert.AreEqual(2, cnt);
-            ClassicAssert.AreEqual(3, coords.Length);
-            ClassicAssert.AreEqual("London", coords[0].Value);
-            ClassicAssert.AreEqual("Zapopan", coords[2].Value);
-            ClassicAssert.AreEqual(_coordLondon.Latitude, coords[0].Position.Latitude, 0.00001);
-            ClassicAssert.AreEqual(_coordLondon.Longitude, coords[0].Position.Longitude, 0.00001);
-            ClassicAssert.AreEqual(_coordZapopan.Latitude, coords[2].Position.Latitude, 0.00001);
-            ClassicAssert.AreEqual(_coordZapopan.Longitude, coords[2].Position.Longitude, 0.00001);
-            ClassicAssert.AreEqual(null, coords[1]);
+            Assert.That(cnt, Is.EqualTo(2));
+            Assert.That(coords.Length, Is.EqualTo(3));
+            Assert.That(coords[0].Value, Is.EqualTo("London"));
+            Assert.That(coords[2].Value, Is.EqualTo("Zapopan"));
+            Assert.That(coords[0].Position.Latitude, Is.EqualTo(_coordLondon.Latitude).Within(0.00001));
+            Assert.That(coords[0].Position.Longitude, Is.EqualTo(_coordLondon.Longitude).Within(0.00001));
+            Assert.That(coords[2].Position.Latitude, Is.EqualTo(_coordZapopan.Latitude).Within(0.00001));
+            Assert.That(coords[2].Position.Longitude, Is.EqualTo(_coordZapopan.Longitude).Within(0.00001));
+            Assert.That(coords[1], Is.EqualTo(null));
         }
 
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -83,18 +80,18 @@ namespace CachingFramework.Redis.UnitTest
         {
             var key = $"UT_Geo_GeoDistance-{Common.GetUId()}";
             context.Cache.Remove(key);
-            var cnt = context.GeoSpatial.GeoAdd(key, new[] { 
+            var cnt = context.GeoSpatial.GeoAdd(key, new[] {
                 new GeoMember<string>(_coordZapopan, "Zapopan"),
                 new GeoMember<string>(_coordLondon, "London") });
             var kmzz = context.GeoSpatial.GeoDistance(key, "Zapopan", "Zapopan", Unit.Kilometers);
             var kmzl = context.GeoSpatial.GeoDistance(key, "Zapopan", "London", Unit.Kilometers);
             var kmlz = context.GeoSpatial.GeoDistance(key, "London", "Zapopan", Unit.Kilometers);
             var err = context.GeoSpatial.GeoDistance(key, "London", "not exists", Unit.Kilometers);
-            ClassicAssert.AreEqual(-1, err);
-            ClassicAssert.AreEqual(2, cnt);
-            ClassicAssert.AreEqual(0, kmzz, 0.00001);
-            ClassicAssert.AreEqual(kmlz, kmzl, 0.00001);
-            ClassicAssert.AreEqual(9100, kmlz, 100);
+            Assert.That(err, Is.EqualTo(-1));
+            Assert.That(cnt, Is.EqualTo(2));
+            Assert.That(kmzz, Is.EqualTo(0).Within(0.00001));
+            Assert.That(kmzl, Is.EqualTo(kmlz).Within(0.00001));
+            Assert.That(kmlz, Is.EqualTo(9100).Within(100));
         }
 
 #if (NET462)
@@ -106,11 +103,11 @@ namespace CachingFramework.Redis.UnitTest
             var mdq = new GeoCoordinate(38.0055, -57.5426);
             var bue = new GeoCoordinate(34.6037, -58.3816);
 
-            context.GeoSpatial.GeoAdd(key, new[] { 
+            context.GeoSpatial.GeoAdd(key, new[] {
                 new GeoMember<string>(mdq, "mdq"),
                 new GeoMember<string>(bue, "bue") });
             var km = context.GeoSpatial.GeoDistance(key, "mdq", "bue", Unit.Kilometers);
-            ClassicAssert.AreEqual(385, km, 15);
+            Assert.That(km, Is.EqualTo(385).Within(15));
         }
 #endif
         [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
@@ -126,7 +123,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 #if (NET462)
-        [Test, TestCaseSource(typeof(Common), "Json")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_Geo_GeoRadius(RedisContext context)
         {
             var key = $"UT_Geo_GeoRadius-{Common.GetUId()}";
@@ -142,18 +139,18 @@ namespace CachingFramework.Redis.UnitTest
             var results200 = context.GeoSpatial.GeoRadius<string>(key, coordMor, 200, Unit.Kilometers).ToList();
             var results500_count1 = context.GeoSpatial.GeoRadius<string>(key, coordMor, 500, Unit.Kilometers, 1).ToList();
             var results0 = context.GeoSpatial.GeoRadius<string>(key, coordMor, 1, Unit.Kilometers).ToList();
-            ClassicAssert.AreEqual(0, results0.Count);
-            ClassicAssert.AreEqual(3, results500.Count);
-            ClassicAssert.AreEqual(1, results200.Count);
-            ClassicAssert.AreEqual(1, results500_count1.Count);
-            ClassicAssert.AreEqual("zamora", results500_count1[0].Value);
-            ClassicAssert.AreEqual("zamora", results200[0].Value);
-            ClassicAssert.AreEqual("zamora", results500[0].Value);
-            ClassicAssert.AreEqual(118, results500[0].DistanceToCenter, 2);
-            ClassicAssert.AreEqual(coordZam.Latitude, results500[0].Position.Latitude, 0.00001);
-            ClassicAssert.AreEqual(coordZam.Longitude, results500[0].Position.Longitude, 0.00001);
-            ClassicAssert.AreEqual("mexico", results500[1].Value);
-            ClassicAssert.AreEqual("zapopan", results500[2].Value);
+            Assert.That(results0.Count, Is.EqualTo(0));
+            Assert.That(results500.Count, Is.EqualTo(3));
+            Assert.That(results200.Count, Is.EqualTo(1));
+            Assert.That(results500_count1.Count, Is.EqualTo(1));
+            Assert.That(results500_count1[0].Value, Is.EqualTo("zamora"));
+            Assert.That(results200[0].Value, Is.EqualTo("zamora"));
+            Assert.That(results500[0].Value, Is.EqualTo("zamora"));
+            Assert.That(results500[0].DistanceToCenter, Is.EqualTo(118).Within(2));
+            Assert.That(results500[0].Position.Latitude, Is.EqualTo(coordZam.Latitude).Within(0.00001));
+            Assert.That(results500[0].Position.Longitude, Is.EqualTo(coordZam.Longitude).Within(0.00001));
+            Assert.That(results500[1].Value, Is.EqualTo("mexico"));
+            Assert.That(results500[2].Value, Is.EqualTo("zapopan"));
         }
 #endif
 

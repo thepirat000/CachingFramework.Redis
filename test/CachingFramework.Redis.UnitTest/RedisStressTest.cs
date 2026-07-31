@@ -1,10 +1,5 @@
-#if (NET462)
-using System;
-using System.Collections.Generic;
+﻿#if (NET462)
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
@@ -13,7 +8,7 @@ namespace CachingFramework.Redis.UnitTest
     [TestFixture]
     public class RedisStressTest
     {
-        [Test, TestCaseSource(typeof(Common), "Raw")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
         public void UT_RedisStress_BigAddDelete(RedisContext context)
         {
             string key = "UT_RedisStress_BigAddDelete";
@@ -28,7 +23,7 @@ namespace CachingFramework.Redis.UnitTest
             for (int i = 0; i < total; i++)
             {
                 var user = context.Cache.GetObject<User>(key + i);
-                ClassicAssert.AreEqual(user.Id, i);
+                Assert.That(i, Is.EqualTo(user.Id));
             }
             var secsGet = sw.Elapsed.TotalSeconds;
             sw = Stopwatch.StartNew();
@@ -40,7 +35,7 @@ namespace CachingFramework.Redis.UnitTest
             var secsRem = sw.Elapsed.TotalSeconds;
         }
 
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public void UT_CacheBigRemoveByTag(RedisContext context)
         {
             string key = "UT_CacheBigRemoveByTag";
@@ -50,16 +45,16 @@ namespace CachingFramework.Redis.UnitTest
             {
                 context.Cache.SetObject(key + i, new User() { Id = i }, new[] { tag });
             }
-            var keys = context.Cache.GetKeysByTag(new [] {tag});
+            var keys = context.Cache.GetKeysByTag(new[] { tag });
             var sw = Stopwatch.StartNew();
             context.Cache.InvalidateKeysByTag(tag);
             var secs = sw.Elapsed.TotalSeconds;
             var nokeys = context.Cache.GetKeysByTag(new[] { tag });
-            ClassicAssert.AreEqual(total, keys.Count());
-            ClassicAssert.AreEqual(0, nokeys.Count());
+            Assert.That(keys.Count(), Is.EqualTo(total));
+            Assert.That(nokeys.Count(), Is.EqualTo(0));
         }
 
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public void UT_RedisBomb(RedisContext context)
         {
             const string test = "UT_RedisBomb";
@@ -76,7 +71,7 @@ namespace CachingFramework.Redis.UnitTest
             */
         }
 
-        [Test, TestCaseSource(typeof(Common), "Bin")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Bin))]
         public void UT_RedisStress_GetAllTags(RedisContext context)
         {
             const string test = "UT_RedisStress_GetAllTags";
@@ -121,7 +116,7 @@ namespace CachingFramework.Redis.UnitTest
                 keyCount, createAndConsumeSeconds, consumeSeconds, removeSeconds, timeouts);
         }
 
-        [Test, TestCaseSource(typeof(Common), "MsgPack")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.MsgPack))]
         public void UT_RedisStress_GetKeysByTag(RedisContext context)
         {
             const string test = "UT_RedisStress_GetKeysByTag";
@@ -134,12 +129,12 @@ namespace CachingFramework.Redis.UnitTest
             CreateKeys(keyCount, test, context);
             ConsumeValues(keyCount, test, context);
 
-            var hash = context.Cache.GetKeysByTag(new [] {GetTag(1, test)});
-            ClassicAssert.AreEqual(keyCount, hash.Count());
+            var hash = context.Cache.GetKeysByTag(new[] { GetTag(1, test) });
+            Assert.That(hash.Count(), Is.EqualTo(keyCount));
 
             for (int mod = 2; mod <= 216; mod++)
             {
-                hash = context.Cache.GetKeysByTag(new [] {GetTag(mod, test)});
+                hash = context.Cache.GetKeysByTag(new[] { GetTag(mod, test) });
                 //assert all are multiple of mod
                 ClassicAssert.IsFalse(hash.Any(s => int.Parse(s.Split(':')[0]) % mod != 0));
             }
@@ -150,7 +145,7 @@ namespace CachingFramework.Redis.UnitTest
             }
         }
 
-        [Test, TestCaseSource(typeof(Common), "Json")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Json))]
         public void UT_CleanupTags(RedisContext context)
         {
             // using the cleanup option
@@ -158,15 +153,15 @@ namespace CachingFramework.Redis.UnitTest
             const string tag = "UT_CleanupTags-Tag";
             context.Cache.InvalidateKeysByTag(tag);
             context.Cache.Remove(key);
-            context.Cache.SetObject(key, "value", new [] { tag });
-            var keys = context.Cache.GetKeysByTag(new [] {tag}, true);
+            context.Cache.SetObject(key, "value", new[] { tag });
+            var keys = context.Cache.GetKeysByTag(new[] { tag }, true);
             ClassicAssert.IsTrue(keys.Contains(key));
             context.Cache.Remove(key);
-            keys = context.Cache.GetKeysByTag(new [] {tag}, true);
+            keys = context.Cache.GetKeysByTag(new[] { tag }, true);
             ClassicAssert.IsFalse(keys.Contains(key));
         }
 
-        [Test, TestCaseSource(typeof(Common), "Raw")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
         public void UT_RedisStress_RemoveKeysByTags(RedisContext context)
         {
             const string test = "UT_RedisStress_RemoveKeysByTags";
@@ -183,19 +178,19 @@ namespace CachingFramework.Redis.UnitTest
             var user = context.Cache.GetObject<User>(GeyKey(1, test));
             ClassicAssert.IsNotNull(user);
 
-            var hash = context.Cache.GetKeysByTag(new [] { GetTag(1, test) });
+            var hash = context.Cache.GetKeysByTag(new[] { GetTag(1, test) });
             var dict = new Dictionary<int, int>() { { 1, hash.Count() } };
             for (int mod = 2; mod <= 36; mod++)
             {
-                hash = context.Cache.GetKeysByTag(new [] { GetTag(mod, test) });
+                hash = context.Cache.GetKeysByTag(new[] { GetTag(mod, test) });
                 dict.Add(mod, hash.Count());
             }
             var keys = context.Cache.GetKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
             context.Cache.InvalidateKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
 
             keys = context.Cache.GetKeysByTag(new[] { GetTag(2, test), GetTag(3, test) });
-            ClassicAssert.AreEqual(0, keys.Count());
-            
+            Assert.That(keys.Count(), Is.EqualTo(0));
+
             context.Cache.InvalidateKeysByTag(new[] { GetTag(6, test) });
 
             context.Cache.InvalidateKeysByTag(new[] { GetTag(5, test), GetTag(7, test) });
@@ -203,7 +198,7 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.InvalidateKeysByTag(new[] { GetTag(1, test) });
 
             keys = context.Cache.GetKeysByTag(new[] { GetTag(1, test), GetTag(2, test) });
-            ClassicAssert.AreEqual(0, keys.Count());
+            Assert.That(keys.Count(), Is.EqualTo(0));
 
             user = context.Cache.GetObject<User>(GeyKey(1, test));
             ClassicAssert.IsNull(user);
@@ -211,7 +206,7 @@ namespace CachingFramework.Redis.UnitTest
         }
 
 
-        [Test, TestCaseSource(typeof(Common), "Raw")]
+        [Test, TestCaseSource(typeof(Common), nameof(Common.Raw))]
         public void UT_CacheString_BigString(RedisContext context)
         {
             var key = "UT_CacheString_BigString";
@@ -219,22 +214,22 @@ namespace CachingFramework.Redis.UnitTest
             context.Cache.Remove(key);
             var cs = context.Collections.GetRedisString(key);
             cs.SetRange(i, "test");
-            ClassicAssert.AreEqual(i + 4, cs.Length);
-            ClassicAssert.AreEqual("\0", cs[0, 0]);
-            ClassicAssert.AreEqual("test", cs[i, -1]);
+            Assert.That(cs.Length, Is.EqualTo(i + 4));
+            Assert.That(cs[0, 0], Is.EqualTo("\0"));
+            Assert.That(cs[i, -1], Is.EqualTo("test"));
             var big = cs[0, -1];
             ClassicAssert.IsTrue(big.EndsWith("test"));
-            ClassicAssert.AreEqual(i + 4, big.Length);
+            Assert.That(big.Length, Is.EqualTo(i + 4));
             cs.Clear();
-            ClassicAssert.AreEqual(0, cs.Length);
+            Assert.That(cs.Length, Is.EqualTo(0));
         }
 
         private void RemoveKeys(int count, string test, RedisContext context)
         {
-            foreach(int i in Enumerable.Range(1, count))
+            foreach (int i in Enumerable.Range(1, count))
             {
                 context.Cache.Remove(GeyKey(i, test));
-            };
+            }
         }
         private int CreateKeys(int count, string test, RedisContext context)
         {
