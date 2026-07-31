@@ -392,10 +392,10 @@ namespace CachingFramework.Redis.UnitTest
             sortedSet.Add(2, "ssy", new[] { tag1, tag2 });
             sortedSet.Add(3, "ssz", new[] { tag2 });
 
-            Assert.That(context.Cache.IsStringKeyInTag(key, tag1), Is.EqualTo(true));
-            Assert.That(context.Cache.IsStringKeyInTag(key, tag2), Is.EqualTo(false));
-            Assert.That(context.Cache.IsStringKeyInTag(key, "xyyxx", tag1), Is.EqualTo(true));
-            Assert.That(context.Cache.IsStringKeyInTag("does not exists", tag1), Is.EqualTo(false));
+            Assert.That(context.Cache.IsStringKeyInTag(key, tag1), Is.True);
+            Assert.That(context.Cache.IsStringKeyInTag(key, tag2), Is.False);
+            Assert.That(context.Cache.IsStringKeyInTag(key, "xyyxx", tag1), Is.True);
+            Assert.That(context.Cache.IsStringKeyInTag("does not exists", tag1), Is.False);
 
             Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hx", tag1), Is.EqualTo(true));
             Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hx", tag2), Is.EqualTo(false));
