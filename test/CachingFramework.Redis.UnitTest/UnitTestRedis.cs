@@ -397,25 +397,25 @@ namespace CachingFramework.Redis.UnitTest
             Assert.That(context.Cache.IsStringKeyInTag(key, "xyyxx", tag1), Is.True);
             Assert.That(context.Cache.IsStringKeyInTag("does not exists", tag1), Is.False);
 
-            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hx", tag1), Is.EqualTo(true));
-            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hx", tag2), Is.EqualTo(false));
-            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hy", tag1, tag2), Is.EqualTo(true));
-            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hz", tag1, tag2), Is.EqualTo(true));
-            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "does not exists", tag1, tag2), Is.EqualTo(false));
+            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hx", tag1), Is.True);
+            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hx", tag2), Is.False);
+            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hy", tag1, tag2), Is.True);
+            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "hz", tag1, tag2), Is.True);
+            Assert.That(context.Cache.IsHashFieldInTag(keyHash, "does not exists", tag1, tag2), Is.False);
 
-            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sx", tag1), Is.EqualTo(true));
-            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sx", tag2), Is.EqualTo(false));
-            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sy", tag1), Is.EqualTo(true));
-            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sy", tag2), Is.EqualTo(true));
-            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sz", tag1), Is.EqualTo(false));
-            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sz", tag2), Is.EqualTo(true));
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sx", tag1), Is.True);
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sx", tag2), Is.False);
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sy", tag1), Is.True);
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sy", tag2), Is.True);
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sz", tag1), Is.False);
+            Assert.That(context.Cache.IsSetMemberInTag(keySet, "sz", tag2), Is.True);
 
-            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag1), Is.EqualTo(true));
-            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag2), Is.EqualTo(false));
-            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag1), Is.EqualTo(true));
-            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag2), Is.EqualTo(true));
-            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag1), Is.EqualTo(false));
-            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag2), Is.EqualTo(true));
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag1), Is.True);
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssx", tag2), Is.False);
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag1), Is.True);
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssy", tag2), Is.True);
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag1), Is.False);
+            Assert.That(context.Cache.IsSetMemberInTag(keySortedset, "ssz", tag2), Is.True);
 
             context.Cache.InvalidateKeysByTag(tag1, tag2);
         }
@@ -657,7 +657,7 @@ namespace CachingFramework.Redis.UnitTest
             {
                 Assert.That(pUint64_, Is.EqualTo(UInt64.MaxValue));
             }
-            Assert.That(kpBool_, Is.EqualTo(true));
+            Assert.That(kpBool_, Is.True);
             context.Cache.Remove(new[] { kss, kls, kpBool, kpInt, kpLong, kpSingle, kpIntPtr, kpUInt16, kpUInt32, kpUInt64,
                 kch, kds, kdt, kby, ksby, ki16, ki32, kdbl });
         }
