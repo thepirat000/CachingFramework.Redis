@@ -21,9 +21,9 @@ namespace CachingFramework.Redis.UnitTest
 
             using (var ctx = new RedisContext(myMultiplexer))
             {
-                ClassicAssert.AreEqual("Test_CustomMultiplexer_value", ctx.Cache.GetObject<string>(key));
+                Assert.That(ctx.Cache.GetObject<string>(key), Is.EqualTo("Test_CustomMultiplexer_value"));
                 var dict = ctx.Collections.GetRedisDictionary<string, string>(hash, 5);
-                ClassicAssert.AreEqual("value", dict["test"]);
+                Assert.That(dict["test"], Is.EqualTo("value"));
                 ctx.Cache.Remove(key);
                 ctx.Cache.Remove(hash);
             }

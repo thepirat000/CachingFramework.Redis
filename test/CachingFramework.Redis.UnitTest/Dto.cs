@@ -1,6 +1,5 @@
 ﻿using System;
 using MessagePack;
-using System.Collections.Generic;
 #if !NET462 
 using MemoryPack;
 #endif
@@ -17,7 +16,7 @@ namespace CachingFramework.Redis.UnitTest
     [MemoryPackable]
 #endif
     [MessagePackObject]
-    
+
     public partial class User : IDto
     {
         [Key(1)]
